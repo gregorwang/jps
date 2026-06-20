@@ -95,6 +95,7 @@ type WritingSubmitReason = 'empty' | 'too_short' | 'too_far' | 'low_coverage' | 
 type AiCacheRow = {
   cache_key: string
   result_payload: unknown
+  updated_at?: string
 }
 
 const allowedReviewStates = new Set<ReviewState>(['known', 'fuzzy', 'unknown', 'good', 'ok', 'bad'])
@@ -107,7 +108,13 @@ const allowedCacheKinds = new Set([
   'sentence_deep_dive',
   'sentence_correction',
   'rag_air',
+  'furigana',
 ])
+
+type RubySegment = {
+  text: string
+  reading?: string
+}
 
 type AuthUser = {
   id: string
@@ -308,6 +315,10 @@ async function handleApi(request: Request, env: Env, url: URL) {
 
   if (url.pathname === '/api/ai/explain' && request.method === 'POST') {
     return handleAiExplain(request, env)
+  }
+
+  if (url.pathname === '/api/ai/furigana') {
+    return handleFurigana(request, env, url)
   }
 
   if (url.pathname === '/api/ai/sentence-deep-dive' && request.method === 'POST') {
@@ -729,6 +740,77 @@ async function handleAiExplain(request: Request, env: Env) {
   return response
 }
 
+async function handleFurigana(request: Request, env: Env, url: URL) {
+  const input = request.method === 'GET'
+    ? {
+        targetType: url.searchParams.get('targetType') ?? undefined,
+        targetId: url.searchParams.get('targetId') ?? undefined,
+        text: url.searchParams.get('text') ?? undefined,
+      }
+    : (await request.json().catch(() => null)) as { targetType?: string; targetId?: string; text?: string } | null
+
+  if (!input) return json({ error: { message: 'Invalid JSON' } }, 400)
+  const targetType = normalizeFuriganaTargetType(input.targetType)
+  const targetId = input.targetId?.trim() ?? ''
+  const text = input.text ?? ''
+  if (!targetId) return json({ error: { message: 'targetId is required' } }, 400)
+  if (!text.trim()) return json({ error: { message: 'text is required' } }, 400)
+  if (text.length > 500) return json({ error: { message: 'text is too long' } }, 400)
+
+  const textHash = await sha256Hex(text)
+  const cacheInput = { feature: 'furigana', targetType, targetId, textHash }
+  const cacheKey = await hashPayload(`furigana-${cacheSchemaVersion}`, cacheInput)
+  const cached = await readAiCache(env, cacheKey)
+  const cachedSegments = readRubySegments(cached)
+  if (cachedSegments && validateRubySegments(cachedSegments, text).ok) {
+    return json(cached)
+  }
+  if (request.method === 'GET') {
+    return json({ error: { message: 'Furigana cache miss' } }, 404)
+  }
+
+  const rawText = await callAiGateway(
+    env,
+    defaultGatewayModel,
+    [
+      'You generate Japanese furigana for language learners.',
+      'Return only strict JSON. No markdown, no explanation, no translation.',
+      'Do not rewrite, omit, add, normalize, or translate the original Japanese text.',
+      'Only annotate text spans that contain kanji. Do not add readings to pure kana, punctuation, spaces, or Latin text.',
+    ].join(' '),
+    [
+      'Return a JSON array of segments for this exact Japanese sentence.',
+      'Each segment must be {"text":"原文片段"} or {"text":"含汉字片段","reading":"かな"}.',
+      'reading may contain only hiragana, katakana, or the long vowel mark ー.',
+      'Concatenating every text field must equal the original sentence exactly.',
+      `Original sentence: ${text}`,
+    ].join('\n'),
+    { maxTokens: 700, temperature: 0, reasoningEffort: 'low' },
+  )
+  const parsedSegments = parseRubySegments(rawText)
+  const validation = validateRubySegments(parsedSegments, text)
+  if (!validation.ok) {
+    return json({ error: { message: validation.message } }, 422)
+  }
+
+  const result = {
+    ruby_segments: parsedSegments,
+    cachedAt: new Date().toISOString(),
+  }
+  await writeAiCache(env, {
+    cacheKey,
+    cacheKind: 'furigana',
+    model: defaultGatewayModel,
+    sourceId: `${targetType}:${targetId}`,
+    inputPayload: {
+      ...cacheInput,
+      text,
+    },
+    resultPayload: result,
+  })
+  return json(result)
+}
+
 function explainSections(kind: string) {
   if (kind === 'linguistic') return ['你为什么会选错', '错误选项的问题', '正确答案为什么成立', '下次判断方法']
   if (kind === 'grammar') return ['核心意思', '这句里的用法', '语气', '现实可用性', '相近表达', '学习建议']
@@ -1108,6 +1190,70 @@ function tryParseJson<T>(text: string): T | null {
   } catch {
     return null
   }
+}
+
+function normalizeFuriganaTargetType(value: unknown) {
+  if (typeof value !== 'string') return 'learning_sentence'
+  const normalized = value.trim()
+  if (!/^[a-z][a-z0-9_-]{0,63}$/u.test(normalized)) return 'learning_sentence'
+  return normalized
+}
+
+function parseRubySegments(text: string): RubySegment[] {
+  const cleaned = text
+    .trim()
+    .replace(/^```(?:json)?\s*/u, '')
+    .replace(/\s*```$/u, '')
+    .trim()
+  const parsed = tryParseJson<unknown>(cleaned)
+  if (!Array.isArray(parsed)) return []
+  return parsed.map((item) => {
+    if (!item || typeof item !== 'object') return null
+    const row = item as Record<string, unknown>
+    const segmentText = typeof row.text === 'string' ? row.text : ''
+    const reading = typeof row.reading === 'string' ? row.reading : undefined
+    if (!segmentText) return null
+    return reading ? { text: segmentText, reading } : { text: segmentText }
+  }).filter((segment): segment is RubySegment => Boolean(segment))
+}
+
+function readRubySegments(input: unknown): RubySegment[] | null {
+  if (!input || typeof input !== 'object') return null
+  const payload = input as Record<string, unknown>
+  const segments = Array.isArray(payload.ruby_segments) ? payload.ruby_segments : []
+  if (segments.length === 0) return null
+  return segments.map((item) => {
+    if (!item || typeof item !== 'object') return null
+    const row = item as Record<string, unknown>
+    const text = typeof row.text === 'string' ? row.text : ''
+    const reading = typeof row.reading === 'string' ? row.reading : undefined
+    if (!text) return null
+    return reading ? { text, reading } : { text }
+  }).filter((segment): segment is RubySegment => Boolean(segment))
+}
+
+function validateRubySegments(segments: RubySegment[], originalText: string): { ok: true } | { ok: false; message: string } {
+  if (segments.length === 0) return { ok: false, message: 'ruby_segments is empty' }
+  if (segments.map((segment) => segment.text).join('') !== originalText) {
+    return { ok: false, message: 'ruby_segments must preserve the original sentence exactly' }
+  }
+
+  for (const segment of segments) {
+    if (!segment.text) return { ok: false, message: 'segment text is required' }
+    if (!segment.reading) continue
+    if (!/^[\u3041-\u3096\u30A1-\u30FAー]+$/u.test(segment.reading)) {
+      return { ok: false, message: 'reading must be kana only' }
+    }
+    if (!hasJapaneseKanji(segment.text)) {
+      return { ok: false, message: 'pure kana or non-kanji text must not have reading' }
+    }
+  }
+
+  return { ok: true }
+}
+
+function hasJapaneseKanji(value: string) {
+  return /[\p{Script=Han}々〆ヵヶ]/u.test(value)
 }
 
 async function handleRagSuggestTrainingQuery(request: Request, env: Env) {

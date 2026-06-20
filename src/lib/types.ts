@@ -59,6 +59,16 @@ export type LearningSentence = {
   storagePath?: string
 }
 
+export type RubySegment = {
+  text: string
+  reading?: string
+}
+
+export type FuriganaResult = {
+  ruby_segments: RubySegment[]
+  cachedAt?: string
+}
+
 export type LearningExercise = {
   id: string
   exerciseType: string

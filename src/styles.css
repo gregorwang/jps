@@ -423,7 +423,61 @@ h2 {
 }
 
 .learning-card h2 {
+  margin: 0;
   overflow-wrap: anywhere;
+}
+
+.furigana-text {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
+.ruby-line {
+  line-height: 2.1;
+}
+
+.ruby-line ruby {
+  ruby-align: center;
+}
+
+.ruby-line rt {
+  color: #8b5cf6;
+  font-size: 0.52em;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.furigana-generate-button {
+  min-height: 34px;
+  font-size: 0.88rem;
+}
+
+.furigana-batch-control {
+  display: grid;
+  gap: 4px;
+  justify-items: end;
+}
+
+.compact-action {
+  min-height: 32px;
+  padding: 5px 9px;
+  border-color: #ddd6c7;
+  background: rgba(255, 252, 245, 0.72);
+  color: #685f53;
+  font-size: 0.84rem;
+}
+
+.compact-action:hover {
+  border-color: #b9aacd;
+  background: #f8f4ff;
+  color: #5b3ab8;
+}
+
+.furigana-batch-control small,
+.furigana-status {
+  color: #685f53;
+  font-size: 0.88rem;
 }
 
 .kana,
