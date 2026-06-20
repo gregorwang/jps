@@ -55,6 +55,8 @@ export type LearningSentence = {
   toneTags: string[]
   difficulty: string
   sourceLineNo: number
+  audioUrl?: string
+  storagePath?: string
 }
 
 export type LearningExercise = {

@@ -974,6 +974,32 @@ blockquote {
   gap: 8px;
 }
 
+.audio-warning {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid #e4b6a6;
+  border-radius: 8px;
+  background: #fff6f1;
+}
+
+.audio-warning b {
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #8b3f2f;
+  color: #fffaf1;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.audio-warning span {
+  color: #68443a;
+  line-height: 1.5;
+}
+
 .model-select {
   min-height: 42px;
   width: min(100%, 360px);

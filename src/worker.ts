@@ -2320,6 +2320,8 @@ function mapSentence(input: unknown) {
     toneTags,
     difficulty: readString(row, 'difficulty'),
     sourceLineNo: readNumber(row, 'source_line_no'),
+    audioUrl: readString(row, 'audio_url'),
+    storagePath: readString(row, 'storage_path'),
   }
 }
 

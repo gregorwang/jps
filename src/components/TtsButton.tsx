@@ -6,9 +6,10 @@ import { speakJapanese } from '../server/tts'
 type TtsButtonProps = {
   text: string
   label?: string
+  variant?: 'primary' | 'secondary'
 }
 
-export function TtsButton({ text, label = '播放' }: TtsButtonProps) {
+export function TtsButton({ text, label = '播放', variant = 'primary' }: TtsButtonProps) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
   const voice = usePreferredJapaneseVoice()
 
@@ -25,7 +26,12 @@ export function TtsButton({ text, label = '播放' }: TtsButtonProps) {
 
   return (
     <div className="tts-control">
-      <button className="icon-button" type="button" onClick={handleClick} disabled={status === 'loading'}>
+      <button
+        className={`icon-button${variant === 'secondary' ? ' secondary' : ''}`}
+        type="button"
+        onClick={handleClick}
+        disabled={status === 'loading'}
+      >
         <Volume2 size={18} />
         <span>{status === 'loading' ? '生成中' : status === 'error' ? '失败' : label}</span>
       </button>
