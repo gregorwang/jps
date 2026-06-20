@@ -49,8 +49,8 @@ export function SentencesPage() {
                 ) : null}
               </div>
               <div className="card-actions">
-                {sourceAudio ? <AudioButton src={sourceAudio.url} label="原声" variant={sourceAudio.isFlagged ? 'secondary' : 'primary'} /> : null}
-                <TtsButton text={sentence.jaText} label="TTS" variant={sourceAudio?.isFlagged || !sourceAudio ? 'primary' : 'secondary'} />
+                {sourceAudio ? <AudioButton src={sourceAudio.url} label="原声" /> : null}
+                <TtsButton text={sentence.jaText} label="TTS" variant={sourceAudio ? 'secondary' : 'primary'} />
                 <AiExplainButton kind="sentence" text={sentence.jaText} context={sentence.meaningZh} />
               </div>
             </article>

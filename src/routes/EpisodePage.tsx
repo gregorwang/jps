@@ -1,6 +1,6 @@
 import { Link, useParams } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { BookOpen, Brain, Captions, Mic2, PenLine, Sparkles } from 'lucide-react'
+import { BookOpen, Brain, Captions, GraduationCap, Mic2, PenLine, Sparkles } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
 import { StatCard } from '../components/StatCard'
 import { animeRepository } from '../server/repositories/animeRepository'
@@ -50,6 +50,11 @@ export function EpisodePage() {
           <BookOpen size={22} />
           <strong>读空气训练</strong>
           <span>场景语气判断题</span>
+        </Link>
+        <Link className="task-card" to="/works/$workSlug/episodes/$episode/linguistics" params={{ workSlug: workSlug ?? 'k-on', episode: String(episodeNo) }}>
+          <GraduationCap size={22} />
+          <strong>语言学专项</strong>
+          <span>本集专项题训练</span>
         </Link>
         <Link className="task-card" to="/works/$workSlug/episodes/$episode/sentences" params={{ workSlug: workSlug ?? 'k-on', episode: String(episodeNo) }}>
           <Mic2 size={22} />

@@ -71,12 +71,21 @@ export type LearningExercise = {
 export type LinguisticExerciseAnswer = {
   answerZh: string
   correctIndex?: number
+  correctKey?: string
+  rationaleZh?: string
+}
+
+export type LinguisticExerciseOption = {
+  key: string
+  label: string
 }
 
 export type LinguisticExerciseDraft = {
   id: string
+  batchId?: string
   workSlug: string
   episode?: number
+  sourceId?: string
   sourceLineNo?: number
   jaText: string
   zhText?: string
@@ -93,13 +102,19 @@ export type LinguisticExerciseDraft = {
   questionType: string
   prompt: string
   options: string[]
+  optionItems?: LinguisticExerciseOption[]
   answer: LinguisticExerciseAnswer
+  hint?: string
   basicExplanationZh: string
   deepExplanationZh?: string
   animeContextNoteZh?: string
   cautionNoteZh?: string
   difficulty: string
   qualityScore: number
+  status?: string
+  phenomenonNameZh?: string
+  phenomenonNameJa?: string
+  phenomenonDefinitionZh?: string
 }
 
 export type SubtitleLine = {

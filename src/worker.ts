@@ -194,11 +194,7 @@ async function handleApi(request: Request, env: Env, url: URL) {
   }
 
   if (url.pathname === '/api/linguistic-exercises') {
-    const rows = await supabase<unknown[]>(
-      env,
-      '/rest/v1/linguistic_exercise_drafts?select=id,work_slug,episode,source_line_no,ja_text,zh_text,domain,phenomenon_key,question_type,prompt,options,answer,basic_explanation_zh,deep_explanation_zh,anime_context_note_zh,caution_note_zh,difficulty,quality_score&status=eq.published&order=episode.asc,domain.asc,phenomenon_key.asc,source_line_no.asc,id.asc',
-    )
-    return json(rows.map(mapLinguisticExercise))
+    return handleLinguisticExercises(request, env, url)
   }
 
   if (url.pathname === '/api/auth/register-owner' && request.method === 'POST') {
@@ -355,6 +351,81 @@ async function handleApi(request: Request, env: Env, url: URL) {
   }
 
   return json({ error: { message: 'Not found' } }, 404)
+}
+
+async function handleLinguisticExercises(request: Request, env: Env, url: URL) {
+  const workSlug = url.searchParams.get('workSlug')?.trim()
+  const episode = Number(url.searchParams.get('episode') ?? '')
+  const status = normalizeLinguisticStatus(url.searchParams.get('status'))
+  const hasScopedQuery = Boolean(workSlug) || Number.isFinite(episode)
+  const wantsDrafts = status === 'all' || status === 'draft'
+  const auth = wantsDrafts ? await getAuthContext(request, env) : { user: null, sessionTokenHash: null }
+  const canReadDrafts = Boolean(auth.user && normalizeEmail(auth.user.email) === normalizeEmail(env.OWNER_EMAIL) && env.SUPABASE_SERVICE_ROLE_KEY)
+  if (status === 'draft' && !canReadDrafts) {
+    return json({ error: { message: 'Draft linguistic exercises require owner access' } }, 403)
+  }
+  const statusFilter = wantsDrafts && canReadDrafts
+    ? status === 'draft' ? 'status=eq.draft' : 'status=in.(draft,published)'
+    : 'status=eq.published'
+  const select = [
+    'id',
+    'batch_id',
+    'work_slug',
+    'episode',
+    'source_line_no',
+    'source_id',
+    'ja_text',
+    'zh_text',
+    'domain',
+    'phenomenon_key',
+    'question_type',
+    'prompt',
+    'options',
+    'answer',
+    'hint',
+    'basic_explanation_zh',
+    'deep_explanation_zh',
+    'anime_context_note_zh',
+    'caution_note_zh',
+    'difficulty',
+    'quality_score',
+    'status',
+  ].join(',')
+  const filters = [`select=${select}`, statusFilter]
+  if (workSlug) filters.push(`work_slug=eq.${encodeURIComponent(workSlug)}`)
+  if (Number.isFinite(episode)) filters.push(`episode=eq.${episode}`)
+  const order = hasScopedQuery ? 'source_line_no.asc,id.asc' : 'episode.asc,domain.asc,phenomenon_key.asc,source_line_no.asc,id.asc'
+  filters.push(`order=${order}`)
+  filters.push(`limit=${hasScopedQuery ? '200' : '500'}`)
+
+  const path = `/rest/v1/linguistic_exercise_drafts?${filters.join('&')}`
+  const rows = wantsDrafts && canReadDrafts
+    ? await supabaseAdmin<unknown[]>(env, 'GET', path)
+    : await supabase<unknown[]>(env, path)
+  const phenomena = await listLinguisticPhenomena(env, rows)
+  return json(rows.map((row) => mapLinguisticExercise(row, phenomena)))
+}
+
+function normalizeLinguisticStatus(value: string | null) {
+  if (value === 'draft') return 'draft'
+  if (value === 'published') return 'published'
+  if (value === 'all') return 'all'
+  return value ? 'published' : 'published'
+}
+
+async function listLinguisticPhenomena(env: Env, rows: unknown[]) {
+  const keys = [...new Set(rows
+    .map((row) => readString(row as Record<string, unknown>, 'phenomenon_key'))
+    .filter(Boolean))]
+  if (keys.length === 0) return new Map<string, Record<string, unknown>>()
+
+  const inList = keys.map((key) => `"${key.replace(/"/g, '\\"')}"`).join(',')
+  const path = `/rest/v1/linguistic_phenomena?select=phenomenon_key,domain,name_ja,name_zh,short_definition_zh&phenomenon_key=in.(${encodeURIComponent(inList)})`
+  const rowsByKey = await supabase<Record<string, unknown>[]>(env, path).catch((error) => {
+    console.error('Failed to load linguistic phenomena', error)
+    return []
+  })
+  return new Map(rowsByKey.map((row) => [readString(row, 'phenomenon_key'), row]))
 }
 
 async function handleRegisterOwner(request: Request, env: Env) {
@@ -2337,12 +2408,16 @@ function mapExercise(input: unknown) {
   }
 }
 
-function mapLinguisticExercise(input: unknown) {
+function mapLinguisticExercise(input: unknown, phenomena = new Map<string, Record<string, unknown>>()) {
   const row = input as Record<string, unknown>
+  const phenomenon = phenomena.get(readString(row, 'phenomenon_key'))
+  const optionItems = readLinguisticOptions(row.options)
   return {
     id: readString(row, 'id'),
+    batchId: readString(row, 'batch_id'),
     workSlug: readString(row, 'work_slug'),
     episode: readNumber(row, 'episode'),
+    sourceId: readString(row, 'source_id'),
     sourceLineNo: readNumber(row, 'source_line_no'),
     jaText: readString(row, 'ja_text'),
     zhText: readString(row, 'zh_text'),
@@ -2350,14 +2425,20 @@ function mapLinguisticExercise(input: unknown) {
     phenomenonKey: readString(row, 'phenomenon_key'),
     questionType: readString(row, 'question_type'),
     prompt: readString(row, 'prompt'),
-    options: readStringArray(row.options),
+    options: optionItems.map((option) => option.label),
+    optionItems,
     answer: readLinguisticAnswer(row),
+    hint: readString(row, 'hint'),
     basicExplanationZh: readString(row, 'basic_explanation_zh'),
     deepExplanationZh: readString(row, 'deep_explanation_zh'),
     animeContextNoteZh: readString(row, 'anime_context_note_zh'),
     cautionNoteZh: readString(row, 'caution_note_zh'),
     difficulty: readString(row, 'difficulty'),
     qualityScore: readNumber(row, 'quality_score'),
+    status: readString(row, 'status'),
+    phenomenonNameZh: phenomenon ? readString(phenomenon, 'name_zh') : '',
+    phenomenonNameJa: phenomenon ? readString(phenomenon, 'name_ja') : '',
+    phenomenonDefinitionZh: phenomenon ? readString(phenomenon, 'short_definition_zh') : '',
   }
 }
 
@@ -2382,21 +2463,45 @@ function readAnswer(row: Record<string, unknown>) {
 function readLinguisticAnswer(row: Record<string, unknown>) {
   const answer = row.answer
   const answerObject = answer && typeof answer === 'object' ? answer as Record<string, unknown> : {}
-  const options = readStringArray(row.options)
+  const options = readLinguisticOptions(row.options)
   const correctIndex = typeof answerObject.correct_index === 'number' ? answerObject.correct_index : undefined
-  const indexedAnswer = correctIndex !== undefined ? options[correctIndex] : undefined
+  const correctKey = readString(answerObject, 'correct_key')
+  const keyedAnswer = correctKey ? options.find((option) => option.key === correctKey)?.label : undefined
+  const indexedAnswer = correctIndex !== undefined ? options[correctIndex]?.label : undefined
   return {
     answerZh: typeof answerObject.answer_zh === 'string'
       ? answerObject.answer_zh
       : typeof answerObject.answer === 'string'
         ? answerObject.answer
-        : indexedAnswer ?? readAnswer(row),
+        : keyedAnswer ?? indexedAnswer ?? readAnswer(row),
     correctIndex,
+    correctKey,
+    rationaleZh: readString(answerObject, 'rationale_zh'),
   }
 }
 
-function readStringArray(value: unknown) {
-  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
+function readLinguisticOptions(value: unknown) {
+  if (!Array.isArray(value)) return []
+  return value
+    .map((option, index) => {
+      if (typeof option === 'string') {
+        return { key: String(index), label: option }
+      }
+      if (!option || typeof option !== 'object') return null
+      const optionObject = option as Record<string, unknown>
+      const label =
+        readString(optionObject, 'label') ||
+        readString(optionObject, 'text') ||
+        readString(optionObject, 'value') ||
+        readString(optionObject, 'answer') ||
+        readString(optionObject, 'content')
+      if (!label) return null
+      return {
+        key: readString(optionObject, 'key', readString(optionObject, 'id', String(index))),
+        label,
+      }
+    })
+    .filter((option): option is { key: string; label: string } => Boolean(option))
 }
 
 function mapSubtitle(input: unknown) {

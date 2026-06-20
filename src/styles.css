@@ -1118,6 +1118,89 @@ blockquote {
   gap: 14px;
 }
 
+.linguistics-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.linguistics-overview > div {
+  display: grid;
+  gap: 6px;
+  min-height: 92px;
+  padding: 14px;
+  border: 1px solid #ddd6c7;
+  border-radius: 8px;
+  background: rgba(255, 252, 245, 0.9);
+}
+
+.linguistics-overview span {
+  color: #685f53;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.linguistics-overview strong {
+  font-size: 1.55rem;
+  line-height: 1.1;
+}
+
+.linguistics-domain-filter {
+  width: fit-content;
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+
+.episode-linguistics-card {
+  width: min(900px, 100%);
+}
+
+.phenomenon-definition,
+.question-block p {
+  margin: 0;
+  color: #5e584f;
+  line-height: 1.65;
+}
+
+.episode-linguistics-ja {
+  margin: 0;
+  color: #20201d;
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+
+.episode-linguistics-zh {
+  margin: 0;
+  color: #5e584f;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.episode-linguistics-card .choice-option {
+  justify-content: flex-start;
+  min-height: 54px;
+  text-align: left;
+  white-space: normal;
+}
+
+.episode-linguistics-card .choice-option b {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  border-radius: 999px;
+  background: rgba(32, 32, 29, 0.1);
+  color: inherit;
+}
+
+.error-panel {
+  border-color: #e4b6a6;
+  background: #fff6f1;
+}
+
 .linguistic-trainer-card {
   display: grid;
   gap: 18px;

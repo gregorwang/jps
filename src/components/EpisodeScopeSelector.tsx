@@ -4,12 +4,13 @@ import { useEffect, useMemo } from 'react'
 import { writeEpisodeScope } from '../lib/episodeScope'
 import { animeRepository } from '../server/repositories/animeRepository'
 
-export type EpisodeTool = 'vocab' | 'grammar' | 'sentences' | 'writing' | 'subtitles'
+export type EpisodeTool = 'vocab' | 'grammar' | 'sentences' | 'linguistics' | 'writing' | 'subtitles'
 
 const toolPaths: Record<EpisodeTool, string> = {
   vocab: '/works/$workSlug/episodes/$episode/vocab',
   grammar: '/works/$workSlug/episodes/$episode/grammar',
   sentences: '/works/$workSlug/episodes/$episode/sentences',
+  linguistics: '/works/$workSlug/episodes/$episode/linguistics',
   writing: '/works/$workSlug/episodes/$episode/writing',
   subtitles: '/works/$workSlug/episodes/$episode/subtitles',
 }

@@ -92,6 +92,12 @@ const linguisticTrainingRoute = createRoute({
   component: lazyRouteComponent(() => import('./routes/LinguisticTrainingPage'), 'LinguisticTrainingPage'),
 })
 
+const episodeLinguisticsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/works/$workSlug/episodes/$episode/linguistics',
+  component: lazyRouteComponent(() => import('./routes/EpisodeLinguisticsPage'), 'EpisodeLinguisticsPage'),
+})
+
 const subtitlesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/works/$workSlug/episodes/$episode/subtitles',
@@ -157,6 +163,7 @@ const routeTree = rootRoute.addChildren([
   writingRoute,
   episodeWritingRoute,
   linguisticTrainingRoute,
+  episodeLinguisticsRoute,
   subtitlesRoute,
   sentenceDeepDiveRoute,
   ragRoute,

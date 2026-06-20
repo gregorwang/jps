@@ -400,7 +400,6 @@ function TrainingCard({
 }) {
   const correctOption = getCorrectOption(exercise)
   const answered = Boolean(selectedOption)
-  const isCorrect = selectedOption === correctOption
 
   return (
     <article className="linguistic-trainer-card">

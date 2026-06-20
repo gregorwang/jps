@@ -382,6 +382,14 @@ export const animeRepository = {
   async listLinguisticExercises() {
     return apiGet('/api/linguistic-exercises', [] as LinguisticExerciseDraft[])
   },
+  async listEpisodeLinguisticExercises(workSlug: string, episodeNo: number) {
+    const params = new URLSearchParams({
+      workSlug,
+      episode: String(episodeNo),
+      status: 'all',
+    })
+    return apiGet(`/api/linguistic-exercises?${params.toString()}`, [] as LinguisticExerciseDraft[])
+  },
   async listSubtitleLines(workSlug: string, episodeNo: number) {
     const fallback = workSlug === 'k-on' && episodeNo === 1 ? subtitleLines : []
     return apiGet(`/api/works/${workSlug}/episodes/${episodeNo}/subtitles`, fallback)
