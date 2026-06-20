@@ -354,7 +354,7 @@ async function handleApi(request: Request, env: Env, url: URL) {
 }
 
 async function handleLinguisticExercises(request: Request, env: Env, url: URL) {
-  const workSlug = url.searchParams.get('workSlug')?.trim()
+  const workSlug = normalizeWorkSlugAlias(url.searchParams.get('workSlug')?.trim())
   const episode = Number(url.searchParams.get('episode') ?? '')
   const status = normalizeLinguisticStatus(url.searchParams.get('status'))
   const hasScopedQuery = Boolean(workSlug) || Number.isFinite(episode)
@@ -411,6 +411,11 @@ function normalizeLinguisticStatus(value: string | null) {
   if (value === 'published') return 'published'
   if (value === 'all') return 'all'
   return value ? 'published' : 'published'
+}
+
+function normalizeWorkSlugAlias(value?: string) {
+  if (!value) return ''
+  return value === 'rezero' ? 're-zero' : value
 }
 
 async function listLinguisticPhenomena(env: Env, rows: unknown[]) {

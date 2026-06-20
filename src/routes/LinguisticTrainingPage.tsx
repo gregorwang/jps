@@ -30,6 +30,8 @@ const questionTypeLabels: Record<string, string> = {
 
 const workLabels: Record<string, string> = {
   'k-on': 'K-ON!',
+  're-zero': 'Re:Zero',
+  rezero: 'Re:Zero',
 }
 
 const airDraftKey = 'anime-japanese-lab-air-question-drafts'
@@ -768,7 +770,7 @@ function extractQuestionQuote(question: string) {
 }
 
 function buildFilterOptions(exercises: LinguisticExerciseDraft[]) {
-  const works = [...new Set(exercises.map((exercise) => exercise.workSlug).filter(Boolean))].sort()
+  const works = [...new Set(exercises.map((exercise) => normalizeTrainingWorkSlug(exercise.workSlug)).filter(Boolean))].sort()
   const episodes = [...new Set(exercises.map((exercise) => String(exercise.episode ?? '')).filter(Boolean))].sort(
     (a, b) => Number(a) - Number(b),
   )
@@ -792,7 +794,7 @@ function readLocalAirExercises(): LinguisticExerciseDraft[] {
         const sourceId = draft.source?.sourceId || `${draft.source?.work ?? 'air'}-${draft.source?.episode ?? 0}-${draft.source?.chunkNo ?? index}`
         return {
           id: `local-air-${sourceId}-${index}`,
-          workSlug: draft.source?.work || 'k-on',
+          workSlug: normalizeTrainingWorkSlug(draft.source?.work || 'k-on'),
           episode: draft.source?.episode,
           sourceLineNo: undefined,
           jaText: draft.sceneJa,
@@ -829,7 +831,7 @@ function sourceTimeLabel(draft: AirQuestionCandidate) {
 
 function filterExercises(exercises: LinguisticExerciseDraft[], filters: FilterState) {
   return exercises.filter((exercise) => {
-    const workMatch = filters.workSlug === 'all' || exercise.workSlug === filters.workSlug
+    const workMatch = filters.workSlug === 'all' || normalizeTrainingWorkSlug(exercise.workSlug) === normalizeTrainingWorkSlug(filters.workSlug)
     const episodeMatch = filters.episode === 'all' || String(exercise.episode ?? '') === filters.episode
     const domainMatch = filters.domain === 'all' || exercise.domain === filters.domain
     const phenomenonMatch = filters.phenomenonKey === 'all' || exercise.phenomenonKey === filters.phenomenonKey
@@ -848,7 +850,11 @@ function questionTypeLabel(questionType: string) {
 }
 
 function workLabel(workSlug: string) {
-  return workLabels[workSlug] ?? workSlug
+  return workLabels[normalizeTrainingWorkSlug(workSlug)] ?? workSlug
+}
+
+function normalizeTrainingWorkSlug(workSlug: string) {
+  return workSlug === 'rezero' ? 're-zero' : workSlug
 }
 
 function sourceLabel(exercise: LinguisticExerciseDraft) {
