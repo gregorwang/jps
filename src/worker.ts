@@ -766,7 +766,7 @@ async function handleFurigana(request: Request, env: Env, url: URL) {
     return json(cached)
   }
   if (request.method === 'GET') {
-    return json({ error: { message: 'Furigana cache miss' } }, 404)
+    return json({ ruby_segments: null, cached: false })
   }
 
   const rawText = await callAiGateway(
@@ -807,6 +807,7 @@ async function handleFurigana(request: Request, env: Env, url: URL) {
       text,
     },
     resultPayload: result,
+    mustPersist: true,
   })
   return json(result)
 }
@@ -1200,7 +1201,7 @@ function normalizeFuriganaTargetType(value: unknown) {
 }
 
 function parseRubySegments(text: string): RubySegment[] {
-  const cleaned = text
+  const cleaned = extractJsonArrayText(text)
     .trim()
     .replace(/^```(?:json)?\s*/u, '')
     .replace(/\s*```$/u, '')
@@ -1215,6 +1216,16 @@ function parseRubySegments(text: string): RubySegment[] {
     if (!segmentText) return null
     return reading ? { text: segmentText, reading } : { text: segmentText }
   }).filter((segment): segment is RubySegment => Boolean(segment))
+}
+
+function extractJsonArrayText(text: string) {
+  const trimmed = text.trim()
+  if (trimmed.startsWith('[') && trimmed.endsWith(']')) return trimmed
+
+  const start = trimmed.indexOf('[')
+  const end = trimmed.lastIndexOf(']')
+  if (start >= 0 && end > start) return trimmed.slice(start, end + 1)
+  return trimmed
 }
 
 function readRubySegments(input: unknown): RubySegment[] | null {
@@ -2106,7 +2117,8 @@ async function callAiGateway(
   userPrompt: string,
   options: { maxTokens: number; temperature: number; reasoningEffort?: ReasoningEffort },
 ): Promise<string> {
-  if (!env.CF_AIG_TOKEN) {
+  const aiGatewayToken = env.CF_AIG_TOKEN?.replace(/^\uFEFF/u, '').trim()
+  if (!aiGatewayToken) {
     throw new Error('CF_AIG_TOKEN is not configured')
   }
 
@@ -2115,7 +2127,7 @@ async function callAiGateway(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'cf-aig-authorization': `Bearer ${env.CF_AIG_TOKEN}`,
+        'cf-aig-authorization': `Bearer ${aiGatewayToken}`,
         'cf-aig-skip-cache': 'false',
       },
       body: JSON.stringify({
@@ -2140,7 +2152,7 @@ async function callAiGateway(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'cf-aig-authorization': `Bearer ${env.CF_AIG_TOKEN}`,
+      'cf-aig-authorization': `Bearer ${aiGatewayToken}`,
       ...(isDeepSeek ? { 'cf-aig-byok-alias': 'deepseek' } : {}),
     },
     body: JSON.stringify({
@@ -2298,24 +2310,30 @@ async function writeAiCache(
     episode?: number
     inputPayload: unknown
     resultPayload: unknown
+    mustPersist?: boolean
   },
 ) {
   if (!allowedCacheKinds.has(input.cacheKind)) {
     throw new Error(`Invalid cache kind: ${input.cacheKind}`)
   }
   const inputHash = await hashPayload('input', input.inputPayload)
-  await supabaseWrite(env, '/rest/v1/ai_result_cache?on_conflict=cache_key', {
-    cache_key: input.cacheKey,
-    cache_kind: input.cacheKind,
-    model: input.model,
-    work_slug: input.workSlug ?? null,
-    episode: input.episode ?? null,
-    source_id: input.sourceId ?? null,
-    input_hash: inputHash,
-    request_payload: input.inputPayload,
-    result_payload: input.resultPayload,
-    updated_at: new Date().toISOString(),
-  }).catch(() => undefined)
+  const write = supabaseWrite(env, '/rest/v1/ai_result_cache?on_conflict=cache_key', {
+      cache_key: input.cacheKey,
+      cache_kind: input.cacheKind,
+      model: input.model,
+      work_slug: input.workSlug ?? null,
+      episode: input.episode ?? null,
+      source_id: input.sourceId ?? null,
+      input_hash: inputHash,
+      request_payload: input.inputPayload,
+      result_payload: input.resultPayload,
+      updated_at: new Date().toISOString(),
+    })
+  if (input.mustPersist) {
+    await write
+    return
+  }
+  await write.catch(() => undefined)
 }
 
 async function recordAiInteraction(
