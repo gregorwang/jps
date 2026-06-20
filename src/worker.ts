@@ -355,7 +355,8 @@ async function handleApi(request: Request, env: Env, url: URL) {
 
 async function handleLinguisticExercises(request: Request, env: Env, url: URL) {
   const workSlug = normalizeWorkSlugAlias(url.searchParams.get('workSlug')?.trim())
-  const episode = Number(url.searchParams.get('episode') ?? '')
+  const episodeParam = url.searchParams.get('episode')
+  const episode = episodeParam ? Number(episodeParam) : NaN
   const status = normalizeLinguisticStatus(url.searchParams.get('status'))
   const hasScopedQuery = Boolean(workSlug) || Number.isFinite(episode)
   const wantsDrafts = status === 'all' || status === 'draft'
