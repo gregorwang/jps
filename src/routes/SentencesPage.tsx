@@ -4,7 +4,6 @@ import { AudioButton } from '../components/AudioButton'
 import { EpisodeScopeSelector } from '../components/EpisodeScopeSelector'
 import { PageHeader } from '../components/PageHeader'
 import { AiExplainButton } from '../components/AiExplainButton'
-import { ReviewButton } from '../components/ReviewButton'
 import { TtsButton } from '../components/TtsButton'
 import { readEpisodeScope } from '../lib/episodeScope'
 import { buildReZeroShadowingAudio } from '../lib/rezeroShadowingAudio'
@@ -45,26 +44,14 @@ export function SentencesPage() {
                 {sourceAudio?.isFlagged ? (
                   <div className="audio-warning">
                     <b>unmatch</b>
-                    <span>原声可能不准确，建议优先 TTS 跟读</span>
+                    <span>原声可能不准，建议 TTS</span>
                   </div>
                 ) : null}
               </div>
               <div className="card-actions">
-                {sourceAudio?.isFlagged ? (
-                  <>
-                    <TtsButton text={sentence.jaText} label="TTS" />
-                    <AudioButton src={sourceAudio.url} label="原声" variant="secondary" />
-                  </>
-                ) : (
-                  <>
-                    {sourceAudio ? <AudioButton src={sourceAudio.url} label="原声" /> : null}
-                    <TtsButton text={sentence.jaText} label="TTS" variant={sourceAudio ? 'secondary' : 'primary'} />
-                  </>
-                )}
+                {sourceAudio ? <AudioButton src={sourceAudio.url} label="原声" variant={sourceAudio.isFlagged ? 'secondary' : 'primary'} /> : null}
+                <TtsButton text={sentence.jaText} label="TTS" variant={sourceAudio?.isFlagged || !sourceAudio ? 'primary' : 'secondary'} />
                 <AiExplainButton kind="sentence" text={sentence.jaText} context={sentence.meaningZh} />
-                <ReviewButton itemId={sentence.id} state="good" itemType="sentence" workSlug={selectedWorkSlug} episode={episodeNo} payload={{ label: sentence.jaText }}>像</ReviewButton>
-                <ReviewButton itemId={sentence.id} state="ok" itemType="sentence" workSlug={selectedWorkSlug} episode={episodeNo} payload={{ label: sentence.jaText }}>一般</ReviewButton>
-                <ReviewButton itemId={sentence.id} state="bad" itemType="sentence" workSlug={selectedWorkSlug} episode={episodeNo} payload={{ label: sentence.jaText }}>不像</ReviewButton>
               </div>
             </article>
           )
