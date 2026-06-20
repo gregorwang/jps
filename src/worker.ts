@@ -317,6 +317,10 @@ async function handleApi(request: Request, env: Env, url: URL) {
     return handleAiExplain(request, env)
   }
 
+  if (url.pathname === '/api/ai/furigana/batch' && request.method === 'POST') {
+    return handleFuriganaBatch(request, env)
+  }
+
   if (url.pathname === '/api/ai/furigana') {
     return handleFurigana(request, env, url)
   }
@@ -757,10 +761,8 @@ async function handleFurigana(request: Request, env: Env, url: URL) {
   if (!text.trim()) return json({ error: { message: 'text is required' } }, 400)
   if (text.length > 500) return json({ error: { message: 'text is too long' } }, 400)
 
-  const textHash = await sha256Hex(text)
-  const cacheInput = { feature: 'furigana', targetType, targetId, textHash }
-  const cacheKey = await hashPayload(`furigana-${cacheSchemaVersion}`, cacheInput)
-  const cached = await readAiCache(env, cacheKey)
+  const cacheMeta = await buildFuriganaCacheMeta(targetType, targetId, text)
+  const cached = await readAiCache(env, cacheMeta.cacheKey)
   const cachedSegments = readRubySegments(cached)
   if (cachedSegments && validateRubySegments(cachedSegments, text).ok) {
     return json(cached)
@@ -774,18 +776,7 @@ async function handleFurigana(request: Request, env: Env, url: URL) {
       ruby_segments: [{ text }],
       cachedAt: new Date().toISOString(),
     }
-    await writeAiCache(env, {
-      cacheKey,
-      cacheKind: 'furigana',
-      model: defaultGatewayModel,
-      sourceId: `${targetType}:${targetId}`,
-      inputPayload: {
-        ...cacheInput,
-        text,
-      },
-      resultPayload: result,
-      mustPersist: true,
-    })
+    await writeFuriganaCache(env, cacheMeta, text, result)
     return json(result)
   }
 
@@ -817,19 +808,130 @@ async function handleFurigana(request: Request, env: Env, url: URL) {
     ruby_segments: parsedSegments,
     cachedAt: new Date().toISOString(),
   }
+  await writeFuriganaCache(env, cacheMeta, text, result)
+  return json(result)
+}
+
+async function handleFuriganaBatch(request: Request, env: Env) {
+  const body = (await request.json().catch(() => null)) as
+    | { targetType?: string; items?: { targetId?: string; text?: string }[] }
+    | null
+  const targetType = normalizeFuriganaTargetType(body?.targetType)
+  const rawItems = Array.isArray(body?.items) ? body.items : []
+  if (rawItems.length === 0) return json({ error: { message: 'items is required' } }, 400)
+  if (rawItems.length > 80) return json({ error: { message: 'items is too large' } }, 400)
+
+  const prepared: {
+    targetId: string
+    text: string
+    cacheMeta: Awaited<ReturnType<typeof buildFuriganaCacheMeta>>
+  }[] = []
+  for (const item of rawItems) {
+    const targetId = item.targetId?.trim() ?? ''
+    const text = item.text ?? ''
+    if (!targetId || !text.trim()) continue
+    if (text.length > 500) return json({ error: { message: `text is too long: ${targetId}` } }, 400)
+    prepared.push({
+      targetId,
+      text,
+      cacheMeta: await buildFuriganaCacheMeta(targetType, targetId, text),
+    })
+  }
+
+  const results: Record<string, { ruby_segments: RubySegment[]; cachedAt?: string; cached?: boolean }> = {}
+  const missing: typeof prepared = []
+
+  for (const item of prepared) {
+    const cached = await readAiCache(env, item.cacheMeta.cacheKey)
+    const cachedSegments = readRubySegments(cached)
+    if (cachedSegments && validateRubySegments(cachedSegments, item.text).ok) {
+      results[item.targetId] = { ruby_segments: cachedSegments, cached: true }
+      continue
+    }
+    if (!hasJapaneseKanji(item.text)) {
+      const result = { ruby_segments: [{ text: item.text }], cachedAt: new Date().toISOString() }
+      await writeFuriganaCache(env, item.cacheMeta, item.text, result)
+      results[item.targetId] = result
+      continue
+    }
+    missing.push(item)
+  }
+
+  if (missing.length > 0) {
+    const generated = await generateFuriganaBatch(env, missing.map((item, index) => ({
+      index,
+      targetId: item.targetId,
+      text: item.text,
+    })))
+    for (const item of missing) {
+      const segments = generated.get(item.targetId)
+      if (!segments) continue
+      const validation = validateRubySegments(segments, item.text)
+      if (!validation.ok) continue
+      const result = { ruby_segments: segments, cachedAt: new Date().toISOString() }
+      await writeFuriganaCache(env, item.cacheMeta, item.text, result)
+      results[item.targetId] = result
+    }
+  }
+
+  return json({
+    total: prepared.length,
+    generated: Object.keys(results).length,
+    failed: prepared.length - Object.keys(results).length,
+    results,
+  })
+}
+
+async function buildFuriganaCacheMeta(targetType: string, targetId: string, text: string) {
+  const textHash = await sha256Hex(text)
+  const cacheInput = { feature: 'furigana', targetType, targetId, textHash }
+  const cacheKey = await hashPayload(`furigana-${cacheSchemaVersion}`, cacheInput)
+  return { targetType, targetId, textHash, cacheInput, cacheKey }
+}
+
+async function writeFuriganaCache(
+  env: Env,
+  cacheMeta: Awaited<ReturnType<typeof buildFuriganaCacheMeta>>,
+  text: string,
+  result: { ruby_segments: RubySegment[]; cachedAt?: string },
+) {
   await writeAiCache(env, {
-    cacheKey,
+    cacheKey: cacheMeta.cacheKey,
     cacheKind: 'furigana',
     model: defaultGatewayModel,
-    sourceId: `${targetType}:${targetId}`,
+    sourceId: `${cacheMeta.targetType}:${cacheMeta.targetId}`,
     inputPayload: {
-      ...cacheInput,
+      ...cacheMeta.cacheInput,
       text,
     },
     resultPayload: result,
     mustPersist: true,
   })
-  return json(result)
+}
+
+async function generateFuriganaBatch(
+  env: Env,
+  items: { index: number; targetId: string; text: string }[],
+) {
+  const rawText = await callAiGateway(
+    env,
+    defaultGatewayModel,
+    [
+      'You generate Japanese furigana for language learners.',
+      'Return only strict JSON. No markdown, no explanation, no translation.',
+      'Do not rewrite, omit, add, normalize, or translate the original Japanese text.',
+      'Only annotate text spans that contain kanji. Do not add readings to pure kana, punctuation, spaces, or Latin text.',
+    ].join(' '),
+    [
+      'Return strict JSON in this exact shape:',
+      '{"items":[{"targetId":"same id","segments":[{"text":"原文片段"},{"text":"含汉字片段","reading":"かな"}]}]}',
+      'For every input item, segments.map(s=>s.text).join("") must equal that item text exactly.',
+      'reading may contain only hiragana, katakana, or the long vowel mark ー.',
+      `Input items JSON: ${JSON.stringify(items.map((item) => ({ targetId: item.targetId, text: item.text })))}`,
+    ].join('\n'),
+    { maxTokens: Math.min(Math.max(items.length * 260, 1600), 9000), temperature: 0, reasoningEffort: 'low' },
+  )
+  return parseRubyBatchResult(rawText)
 }
 
 function explainSections(kind: string) {
@@ -1246,6 +1348,42 @@ function extractJsonArrayText(text: string) {
   const end = trimmed.lastIndexOf(']')
   if (start >= 0 && end > start) return trimmed.slice(start, end + 1)
   return trimmed
+}
+
+function extractJsonObjectText(text: string) {
+  const trimmed = text.trim()
+  if (trimmed.startsWith('{') && trimmed.endsWith('}')) return trimmed
+
+  const start = trimmed.indexOf('{')
+  const end = trimmed.lastIndexOf('}')
+  if (start >= 0 && end > start) return trimmed.slice(start, end + 1)
+  return trimmed
+}
+
+function parseRubyBatchResult(text: string) {
+  const parsed = tryParseJson<unknown>(extractJsonObjectText(text))
+  const rows = Array.isArray(parsed)
+    ? parsed
+    : parsed && typeof parsed === 'object' && Array.isArray((parsed as Record<string, unknown>).items)
+      ? (parsed as Record<string, unknown>).items as unknown[]
+      : []
+  const result = new Map<string, RubySegment[]>()
+  for (const row of rows) {
+    if (!row || typeof row !== 'object') continue
+    const item = row as Record<string, unknown>
+    const targetId = typeof item.targetId === 'string' ? item.targetId : ''
+    const rawSegments = Array.isArray(item.segments) ? item.segments : []
+    const segments = stripNonKanjiReadings(rawSegments.map((segment) => {
+      if (!segment || typeof segment !== 'object') return null
+      const segmentRow = segment as Record<string, unknown>
+      const segmentText = typeof segmentRow.text === 'string' ? segmentRow.text : ''
+      const reading = typeof segmentRow.reading === 'string' ? segmentRow.reading : undefined
+      if (!segmentText) return null
+      return reading ? { text: segmentText, reading } : { text: segmentText }
+    }).filter((segment): segment is RubySegment => Boolean(segment)))
+    if (targetId && segments.length > 0) result.set(targetId, segments)
+  }
+  return result
 }
 
 function readRubySegments(input: unknown): RubySegment[] | null {

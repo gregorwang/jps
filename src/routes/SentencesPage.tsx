@@ -31,35 +31,33 @@ export function SentencesPage() {
     setFuriganaStatus('generating')
     setFuriganaProgress({ done: 0, failed: 0, total: sentences.length })
 
-    let failed = 0
-    for (const sentence of sentences) {
-      try {
-        const response = await fetch('/api/ai/furigana', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            targetType: 'learning_sentence',
+    try {
+      const response = await fetch('/api/ai/furigana/batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          targetType: 'learning_sentence',
+          items: sentences.map((sentence) => ({
             targetId: sentence.id,
             text: sentence.jaText,
-          }),
-        })
-        if (!response.ok) throw new Error(await response.text())
-        const result = await response.json() as { ruby_segments?: unknown }
-        if (!Array.isArray(result.ruby_segments)) throw new Error('ruby_segments missing')
-        setFuriganaProgress((current) => ({ ...current, done: current.done + 1 }))
-      } catch (error) {
-        console.error(error)
-        failed += 1
-        setFuriganaProgress((current) => ({ ...current, done: current.done + 1, failed }))
-      } finally {
-        setFuriganaRefreshKey((value) => value + 1)
-      }
-    }
-
-    if (failed > 0) {
+          })),
+        }),
+      })
+      if (!response.ok) throw new Error(await response.text())
+      const result = await response.json() as { generated?: number; failed?: number; total?: number }
+      const done = typeof result.generated === 'number' ? result.generated : 0
+      const failed = typeof result.failed === 'number' ? result.failed : sentences.length
+      setFuriganaProgress({
+        done,
+        failed,
+        total: typeof result.total === 'number' ? result.total : sentences.length,
+      })
+      setFuriganaStatus(failed > 0 ? 'error' : 'idle')
+      setFuriganaRefreshKey((value) => value + 1)
+    } catch (error) {
+      console.error(error)
+      setFuriganaProgress({ done: 0, failed: sentences.length, total: sentences.length })
       setFuriganaStatus('error')
-    } else {
-      setFuriganaStatus('idle')
       setFuriganaRefreshKey((value) => value + 1)
     }
   }
