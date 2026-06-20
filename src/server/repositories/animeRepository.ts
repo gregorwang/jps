@@ -451,7 +451,7 @@ export const animeRepository = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(input),
     })
-    if (!response.ok) throw new Error(await response.text())
+    if (!response.ok) throw new Error(await readApiError(response))
     return (await response.json()) as StructuredAiResult
   },
   async correctSentence(input: {
@@ -473,4 +473,14 @@ export const animeRepository = {
     if (!response.ok) throw new Error(await response.text())
     return (await response.json()) as StructuredAiResult
   },
+}
+
+async function readApiError(response: Response) {
+  const text = await response.text()
+  try {
+    const data = JSON.parse(text) as { error?: { message?: string } }
+    return data.error?.message ?? text
+  } catch {
+    return text
+  }
 }

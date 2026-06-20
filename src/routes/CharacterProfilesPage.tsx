@@ -47,6 +47,7 @@ type ProfileSource = {
 type CharacterProfileResult = StructuredAiResult & {
   model?: string
   cachedAt?: string
+  cacheWarning?: string
   sources?: ProfileSource[]
 }
 
@@ -93,6 +94,7 @@ export function CharacterProfilesPage() {
       }) as Promise<CharacterProfileResult>,
   })
   const profile = profileQuery.data
+  const profileError = profileQuery.error instanceof Error ? profileQuery.error.message : ''
 
   return (
     <section className="page-stack">
@@ -171,8 +173,22 @@ export function CharacterProfilesPage() {
           <span>重新生成</span>
         </button>
       </div>
+      {profileError ? (
+        <div className="source-preview error-panel" role="alert">
+          <p className="eyebrow">生成失败</p>
+          <strong>角色画像暂时不可用</strong>
+          <span>{profileError}</span>
+        </div>
+      ) : null}
       {profile ? (
         <>
+          {profile.cacheWarning ? (
+            <div className="source-preview error-panel" role="status">
+              <p className="eyebrow">缓存提醒</p>
+              <strong>本次画像已生成</strong>
+              <span>{profile.cacheWarning}</span>
+            </div>
+          ) : null}
           <div className="source-preview">
             <p className="eyebrow">缓存信息</p>
             <strong>{profile.model ?? model}</strong>

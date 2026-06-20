@@ -1044,18 +1044,30 @@ async function handleCharacterProfile(request: Request, env: Env) {
     if (existing[0]?.result_payload) return json(withProfileMetadata(existing[0].result_payload, existing[0], model))
   }
 
-  const query = `${characterName} 口癖 语气 角色心理 日文台词`
-  const vector = await embedQuery(env.AI, query)
-  const result = await env.VECTORIZE.query(vector, {
-    topK: 5,
-    returnMetadata: 'all',
-    filter: { language: 'ja', work: ragWorkSlug },
-  })
+  let vector: number[]
+  try {
+    const query = `${characterName} 口癖 语气 角色心理 日文台词`
+    vector = await embedQuery(env.AI, query)
+  } catch (error) {
+    return json({ error: { message: profileErrorMessage('Workers AI embedding', error) } }, 502)
+  }
+
+  let result: VectorizeMatches
+  try {
+    result = await env.VECTORIZE.query(vector, {
+      topK: 5,
+      returnMetadata: 'all',
+      filter: { language: 'ja', work: ragWorkSlug },
+    })
+  } catch (error) {
+    return json({ error: { message: profileErrorMessage('Vectorize RAG search', error) } }, 502)
+  }
+
   const sources = (result.matches ?? []).map((match) => {
     const metadata = (match.metadata ?? {}) as Record<string, unknown>
     return {
-    id: match.id,
-    score: match.score,
+      id: match.id,
+      score: match.score,
       work: readString(metadata, 'work'),
       episode: readNumber(metadata, 'episode'),
       chunkNo: readNumber(metadata, 'chunk_no'),
@@ -1064,29 +1076,37 @@ async function handleCharacterProfile(request: Request, env: Env) {
       text: readString(metadata, 'text'),
     }
   })
-  const text = await callAiGateway(
-    env,
-    model,
-    '你是日语角色语言画像分析助手。只基于给定检索结果做谨慎画像，必须标注这是第一版占位分析，不要声称角色识别完全准确。',
-    `角色：${characterName}\n作品：${workSlug}\nRAG work：${ragWorkSlug}\n检索来源 JSON：${JSON.stringify(sources).slice(0, 9000)}\n\n请输出：常见口癖、句末倾向、礼貌度、情绪表达、吐槽/被吐槽模式、典型场景、学习价值、局限。`,
-    { maxTokens: 1600, temperature: 0.2, reasoningEffort },
-  )
+
+  let text: string
+  try {
+    text = await callAiGateway(
+      env,
+      model,
+      '你是日语角色语言画像分析助手。只基于给定检索结果做谨慎画像，必须标注这是第一版占位分析，不要声称角色识别完全准确。',
+      `角色：${characterName}\n作品：${workSlug}\nRAG work：${ragWorkSlug}\n检索来源 JSON：${JSON.stringify(sources).slice(0, 9000)}\n\n请输出：常见口癖、句末倾向、礼貌度、情绪表达、吐槽/被吐槽模式、典型场景、学习价值、局限。`,
+      { maxTokens: 1600, temperature: 0.2, reasoningEffort },
+    )
+  } catch (error) {
+    return json({ error: { message: profileErrorMessage('AI Gateway generation', error) } }, 502)
+  }
+
   const profile = {
     ...structuredTextResult(`${characterName} 的语言画像`, text, [
-    '常见口癖',
-    '句末倾向',
-    '礼貌度',
-    '情绪表达',
-    '吐槽/被吐槽模式',
-    '典型场景',
-    '学习价值',
-    '局限',
+      '常见口癖',
+      '句末倾向',
+      '礼貌度',
+      '情绪表达',
+      '吐槽/被吐槽模式',
+      '典型场景',
+      '学习价值',
+      '局限',
     ]),
     model,
     cachedAt: new Date().toISOString(),
     sources,
   }
-  await supabaseWrite(env, '/rest/v1/character_language_profiles?on_conflict=work_slug,character_key,model', {
+
+  const cacheWarning = await writeCharacterProfileCache(env, {
     work_slug: workSlug,
     character_key: characterKey,
     model,
@@ -1094,7 +1114,8 @@ async function handleCharacterProfile(request: Request, env: Env) {
     source_payload: { sources },
     updated_at: new Date().toISOString(),
   })
-  return json(profile)
+
+  return json(cacheWarning ? { ...profile, cacheWarning } : profile)
 }
 
 function withProfileMetadata(resultPayload: unknown, row: Record<string, unknown>, model: GatewayModel) {
@@ -1106,6 +1127,27 @@ function withProfileMetadata(resultPayload: unknown, row: Record<string, unknown
     cachedAt: readString(row, 'updated_at'),
     sources: Array.isArray(result.sources) ? result.sources : Array.isArray(sourcePayload.sources) ? sourcePayload.sources : [],
   }
+}
+
+async function writeCharacterProfileCache(env: Env, row: Record<string, unknown>) {
+  const path = '/rest/v1/character_language_profiles?on_conflict=work_slug,character_key,model'
+  try {
+    if (env.SUPABASE_SERVICE_ROLE_KEY) {
+      await supabaseAdmin(env, 'POST', path, row)
+    } else {
+      await supabaseWrite(env, path, row)
+    }
+    return null
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    console.error('Failed to write character profile cache', { message })
+    return `画像已生成，但缓存保存失败：${message}`
+  }
+}
+
+function profileErrorMessage(stage: string, error: unknown) {
+  const message = error instanceof Error ? error.message : 'Unknown error'
+  return `${stage} failed: ${message}`
 }
 
 async function handleSentenceCorrection(request: Request, env: Env) {
