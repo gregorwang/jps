@@ -1,0 +1,19 @@
+{
+  "name": "Anime Japanese Lab",
+  "short_name": "Anime JL",
+  "description": "Anime subtitle powered Japanese learning lab.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "landscape-primary",
+  "background_color": "#f8f5ef",
+  "theme_color": "#f8f5ef",
+  "icons": [
+    {
+      "src": "/pwa-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

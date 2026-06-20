@@ -1,0 +1,31 @@
+name = "anime-japanese-lab"
+main = "src/worker.ts"
+compatibility_date = "2026-06-18"
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+[ai]
+binding = "AI"
+remote = true
+
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "anime-japanese-lab-subtitles"
+remote = true
+
+[[services]]
+binding = "SUBTITLE_RAG_WORKER"
+service = "anime-japanese-lab-vector-ingest"
+
+[vars]
+SUPABASE_PROJECT_ID = "jps"
+SUPABASE_REF = "qoatvdvbuleamyzsaldp"
+SUPABASE_URL = "https://qoatvdvbuleamyzsaldp.supabase.co"
+SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvYXR2ZHZidWxlYW15enNhbGRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2OTA2NzEsImV4cCI6MjA5NzI2NjY3MX0.pj_MGoAST7khzKxolz29jeAbMFLRCUvaNE4t8ed3I-8"
+OWNER_EMAIL = "1985738212@qq.com"
+TTS_WORKER_URL = "https://cloudflare-edge-tts.ishallnotwant123.workers.dev"
+VECTORIZE_INDEX = "anime-japanese-lab-subtitles"
+AI_GATEWAY_BASE_URL = "https://gateway.ai.cloudflare.com/v1/fb9830705da200eab2799ed0d487c197/my-ai-gateway"
