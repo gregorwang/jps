@@ -769,6 +769,26 @@ async function handleFurigana(request: Request, env: Env, url: URL) {
     return json({ ruby_segments: null, cached: false })
   }
 
+  if (!hasJapaneseKanji(text)) {
+    const result = {
+      ruby_segments: [{ text }],
+      cachedAt: new Date().toISOString(),
+    }
+    await writeAiCache(env, {
+      cacheKey,
+      cacheKind: 'furigana',
+      model: defaultGatewayModel,
+      sourceId: `${targetType}:${targetId}`,
+      inputPayload: {
+        ...cacheInput,
+        text,
+      },
+      resultPayload: result,
+      mustPersist: true,
+    })
+    return json(result)
+  }
+
   const rawText = await callAiGateway(
     env,
     defaultGatewayModel,
@@ -787,7 +807,7 @@ async function handleFurigana(request: Request, env: Env, url: URL) {
     ].join('\n'),
     { maxTokens: 700, temperature: 0, reasoningEffort: 'low' },
   )
-  const parsedSegments = parseRubySegments(rawText)
+  const parsedSegments = stripNonKanjiReadings(parseRubySegments(rawText))
   const validation = validateRubySegments(parsedSegments, text)
   if (!validation.ok) {
     return json({ error: { message: validation.message } }, 422)
@@ -1241,6 +1261,13 @@ function readRubySegments(input: unknown): RubySegment[] | null {
     if (!text) return null
     return reading ? { text, reading } : { text }
   }).filter((segment): segment is RubySegment => Boolean(segment))
+}
+
+function stripNonKanjiReadings(segments: RubySegment[]) {
+  return segments.map((segment) => {
+    if (!segment.reading || hasJapaneseKanji(segment.text)) return segment
+    return { text: segment.text }
+  })
 }
 
 function validateRubySegments(segments: RubySegment[], originalText: string): { ok: true } | { ok: false; message: string } {

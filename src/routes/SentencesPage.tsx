@@ -22,17 +22,18 @@ export function SentencesPage() {
     queryFn: () => animeRepository.listEpisodeSentences(selectedWorkSlug, episodeNo),
   })
   const [furiganaStatus, setFuriganaStatus] = useState<'idle' | 'generating' | 'error'>('idle')
-  const [furiganaProgress, setFuriganaProgress] = useState({ done: 0, total: 0 })
+  const [furiganaProgress, setFuriganaProgress] = useState({ done: 0, failed: 0, total: 0 })
   const [furiganaRefreshKey, setFuriganaRefreshKey] = useState(0)
   const sentences = sentencesQuery.data ?? []
 
   async function generatePageFurigana() {
     if (sentences.length === 0) return
     setFuriganaStatus('generating')
-    setFuriganaProgress({ done: 0, total: sentences.length })
+    setFuriganaProgress({ done: 0, failed: 0, total: sentences.length })
 
-    try {
-      for (const sentence of sentences) {
+    let failed = 0
+    for (const sentence of sentences) {
+      try {
         const response = await fetch('/api/ai/furigana', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -43,13 +44,22 @@ export function SentencesPage() {
           }),
         })
         if (!response.ok) throw new Error(await response.text())
+        const result = await response.json() as { ruby_segments?: unknown }
+        if (!Array.isArray(result.ruby_segments)) throw new Error('ruby_segments missing')
         setFuriganaProgress((current) => ({ ...current, done: current.done + 1 }))
+      } catch (error) {
+        console.error(error)
+        failed += 1
+        setFuriganaProgress((current) => ({ ...current, done: current.done + 1, failed }))
+      } finally {
+        setFuriganaRefreshKey((value) => value + 1)
       }
-      setFuriganaRefreshKey((value) => value + 1)
-      setFuriganaStatus('idle')
-    } catch (error) {
-      console.error(error)
+    }
+
+    if (failed > 0) {
       setFuriganaStatus('error')
+    } else {
+      setFuriganaStatus('idle')
       setFuriganaRefreshKey((value) => value + 1)
     }
   }
@@ -70,7 +80,7 @@ export function SentencesPage() {
               <Bot size={15} />
               <span>{furiganaStatus === 'generating' ? `生成 ${furiganaProgress.done}/${furiganaProgress.total}` : '批量生成假名'}</span>
             </button>
-            {furiganaStatus === 'error' ? <small>有句子生成失败，可重试</small> : null}
+            {furiganaStatus === 'error' ? <small>{furiganaProgress.failed} 句失败，可重试</small> : null}
           </div>
         )}
       />
