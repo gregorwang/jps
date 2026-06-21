@@ -1,5 +1,5 @@
 import { buildReZeroShadowingAudio } from './rezeroShadowingAudio'
-import type { GrammarPoint, LearningSentence, ProgressItem, LearningExercise, VocabItem } from './types'
+import type { GrammarPoint, LearningSentence, LinguisticPayload, ProgressItem, LearningExercise, VocabItem } from './types'
 
 export type LessonSourceKind = 'vocab' | 'grammar' | 'sentence'
 export type LessonMode = 'mixed' | 'vocab' | 'grammar' | 'shadowing' | 'review' | 'target'
@@ -76,6 +76,7 @@ export type StudyLessonNode = LessonNodeBase & {
   reading?: string
   meaningZh: string
   notes: string[]
+  linguisticPayload?: LinguisticPayload
 }
 
 export type LessonNode =
@@ -245,6 +246,7 @@ function buildVocabStudyNodes(workSlug: string, episode: number, vocab: VocabIte
       jaText: item.surface,
       reading: item.reading,
       meaningZh: item.meaningZh,
+      linguisticPayload: item.linguisticPayload,
       notes: [
         item.pos ? `词性：${item.pos}` : '',
         item.jlptLevel ? `难度：${item.jlptLevel}` : '',
@@ -269,6 +271,7 @@ function buildGrammarStudyNodes(workSlug: string, episode: number, grammar: Gram
       studyKind: 'grammar',
       jaText: point.jaExample || point.pattern,
       meaningZh: point.functionZh,
+      linguisticPayload: point.linguisticPayload,
       notes: [
         point.explanationZh,
         point.pragmaticsNote,
@@ -297,6 +300,7 @@ function buildSentenceStudyNodes(workSlug: string, episode: number, sentences: L
         jaText: sentence.jaText,
         reading: sentence.romaji,
         meaningZh: sentence.meaningZh,
+        linguisticPayload: sentence.linguisticPayload,
         notes: [
           sentence.toneTags.length ? `语气：${sentence.toneTags.join(' / ')}` : '',
           sentence.difficulty ? `难度：${sentence.difficulty}` : '',

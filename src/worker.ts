@@ -88,6 +88,14 @@ type PlanRow = {
   notes: string
 }
 
+type LearningCardEnrichmentRow = {
+  source_id: string
+  linguistic_payload?: unknown
+  linguistic_prompt_version?: string
+  linguistic_quality_score?: number
+  linguistic_status?: string
+}
+
 type ReviewState = 'known' | 'fuzzy' | 'unknown' | 'good' | 'ok' | 'bad'
 type ProgressItemType = 'vocab' | 'grammar' | 'sentence' | 'exercise' | 'unknown'
 type WritingSubmitReason = 'empty' | 'too_short' | 'too_far' | 'low_coverage' | 'skipped'
@@ -261,7 +269,8 @@ async function handleApi(request: Request, env: Env, url: URL) {
     if (parts[5] === 'vocab') {
       const mode = url.searchParams.get('mode') === 'handwriting' ? 'handwriting' : 'vocab'
       const rows = await listEpisodeVocabRows(env, workSlug, episodeNo, mode)
-      return json(rows.map(mapVocab))
+      const enrichedRows = await attachLinguisticPayloads(env, workSlug, 'vocab', rows)
+      return json(enrichedRows.map(mapVocab))
     }
 
     if (parts[5] === 'grammar') {
@@ -269,7 +278,8 @@ async function handleApi(request: Request, env: Env, url: URL) {
         env,
         `/rest/v1/learning_grammar_points?select=*&work_slug=eq.${encodeURIComponent(workSlug)}&episode=eq.${episodeNo}&order=sort_order.asc&limit=30`,
       )
-      return json(rows.map(mapGrammar))
+      const enrichedRows = await attachLinguisticPayloads(env, workSlug, 'grammar', rows)
+      return json(enrichedRows.map(mapGrammar))
     }
 
     if (parts[5] === 'sentences') {
@@ -277,7 +287,8 @@ async function handleApi(request: Request, env: Env, url: URL) {
         env,
         `/rest/v1/learning_sentences?select=*&work_slug=eq.${encodeURIComponent(workSlug)}&episode=eq.${episodeNo}&order=sort_order.asc&limit=30`,
       )
-      return json(rows.map(mapSentence))
+      const enrichedRows = await attachLinguisticPayloads(env, workSlug, 'sentence', rows)
+      return json(enrichedRows.map(mapSentence))
     }
 
     if (parts[5] === 'exercises') {
@@ -712,14 +723,14 @@ async function handleAiExplain(request: Request, env: Env) {
     ? await callAiGateway(
         env,
         model,
-        '你是 Anime Japanese Lab 的日语语言学训练老师。必须只使用简体中文回答。只基于用户给出的题目、选项、用户答案、正确答案和解释分析，不引用外部作品，不编造剧情，不把 TTS 当作音系学标准发音依据。',
+        '你是 Nihongo Lab 的日语语言学训练老师。必须只使用简体中文回答。只基于用户给出的题目、选项、用户答案、正确答案和解释分析，不引用外部作品，不编造剧情，不把 TTS 当作音系学标准发音依据。',
         `题目材料：\n${payload.context}\n\n请严格按这些栏目回答：${explainSections(payload.kind).join('、')}。重点解释用户为什么被错误选项吸引、错误选项具体错在哪里、正确答案为什么成立、下次遇到同类语言现象怎么判断。`,
         { maxTokens: 1400, temperature: 0.2, reasoningEffort },
       )
     : await callAiGateway(
         env,
         model,
-        '你是 Anime Japanese Lab 的日语老师。必须只使用简体中文回答。只基于用户给出的日文文本和上下文讲解，不引用外部作品，不编造例句，禁止拆字或词源解释。只讲现代日语学习用法、语气、现实可用性和注意点。',
+        '你是 Nihongo Lab 的日语老师。必须只使用简体中文回答。只基于用户给出的日文文本和上下文讲解，不引用外部作品，不编造例句，禁止拆字或词源解释。只讲现代日语学习用法、语气、现实可用性和注意点。',
         `类型：${payload.kind}\n文本：${text}\n上下文：${payload.context}\n\n请用简体中文做日语学习精讲，并严格按这些栏目输出：${explainSections(payload.kind).join('、')}。不要解释词源。`,
         { maxTokens: 1200, temperature: 0.2, reasoningEffort },
       )
@@ -988,7 +999,7 @@ async function handleSentenceDeepDive(request: Request, env: Env) {
   const text = await callAiGateway(
     env,
     model,
-    '你是 Anime Japanese Lab 的日语语言学精读老师。只使用简体中文，必须只基于给定台词和上下文分析。输出要结构化，不能泛泛翻译。',
+    '你是 Nihongo Lab 的日语语言学精读老师。只使用简体中文，必须只基于给定台词和上下文分析。输出要结构化，不能泛泛翻译。',
     `台词：${jaText}\n中文对照：${payload.zhText}\n作品：${payload.workSlug} EP${payload.episode} line ${payload.lineNo}\n\n请严格按这些栏目精读：字面意思、词法拆解、句法结构、助词说明、句末语气、角色心理、现实可用性、相近表达对比。每栏给出简洁但具体的说明。`,
     { maxTokens: 1800, temperature: 0.2, reasoningEffort },
   )
@@ -1493,7 +1504,7 @@ async function handleRagSuggestTrainingQuery(request: Request, env: Env) {
     const text = await callAiGateway(
       env,
       model,
-      '你是 Anime Japanese Lab 的读空气训练策划。你只负责决定检索意图，不生成题目。必须输出严格 JSON，不要 Markdown，不要代码块。',
+      '你是 Nihongo Lab 的读空气训练策划。你只负责决定检索意图，不生成题目。必须输出严格 JSON，不要 Markdown，不要代码块。',
       `作品：${workSlug}
 
 请为 RAG 字幕检索决定一个适合日语读空气训练的检索意图。不要让用户自己想关键词。
@@ -1533,7 +1544,7 @@ async function handleRagGenerateQuestion(request: Request, env: Env) {
   const text = await callAiGateway(
     env,
     model,
-    '你是 Anime Japanese Lab 的读空气练习题生成器。只基于给定字幕场景生成题目，不编造剧情。必须输出严格 JSON，不要 Markdown，不要代码块。',
+    '你是 Nihongo Lab 的读空气练习题生成器。只基于给定字幕场景生成题目，不编造剧情。必须输出严格 JSON，不要 Markdown，不要代码块。',
     `字幕场景 JSON：${context}
 
 请生成 1 道读空气选择题，JSON 字段必须为：
@@ -1582,7 +1593,7 @@ async function handleRagGenerateQuestions(request: Request, env: Env) {
   const text = await callAiGateway(
     env,
     model,
-    '你是 Anime Japanese Lab 的读空气练习题生成器。只基于给定字幕场景生成题目，不编造剧情。必须输出严格 JSON 数组，不要 Markdown，不要代码块。',
+    '你是 Nihongo Lab 的读空气练习题生成器。只基于给定字幕场景生成题目，不编造剧情。必须输出严格 JSON 数组，不要 Markdown，不要代码块。',
     `字幕场景数组 JSON：${context}
 
 请为每个字幕场景各生成 1 道读空气选择题，按输入顺序输出 JSON 数组。数组每一项字段必须为：
@@ -2461,6 +2472,49 @@ async function listEpisodeVocabRows(
   )
 }
 
+async function attachLinguisticPayloads(
+  env: Env,
+  workSlug: string,
+  sourceType: 'vocab' | 'grammar' | 'sentence',
+  rows: unknown[],
+) {
+  const sourceIds = [...new Set(rows
+    .map((row) => readString(row as Record<string, unknown>, 'id'))
+    .filter(Boolean))]
+  if (sourceIds.length === 0) return rows
+
+  const enrichments = await supabase<LearningCardEnrichmentRow[]>(
+    env,
+    [
+      '/rest/v1/learning_card_enrichments?select=source_id,linguistic_payload,linguistic_prompt_version,linguistic_quality_score,linguistic_status',
+      `work_slug=eq.${encodeURIComponent(workSlug)}`,
+      `source_type=eq.${sourceType}`,
+      'linguistic_status=eq.ready',
+      `source_id=${encodeURIComponent(`in.(${sourceIds.map(quotePostgrestString).join(',')})`)}`,
+      `limit=${sourceIds.length}`,
+    ].join('&'),
+  ).catch((error) => {
+    console.error('Failed to load learning card linguistic enrichments', error)
+    return []
+  })
+  const bySourceId = new Map(enrichments
+    .filter((row) => row.linguistic_payload && typeof row.linguistic_payload === 'object')
+    .map((row) => [row.source_id, row]))
+
+  return rows.map((input) => {
+    const row = input as Record<string, unknown>
+    const enrichment = bySourceId.get(readString(row, 'id'))
+    if (!enrichment) return input
+    return {
+      ...row,
+      linguistic_payload: enrichment.linguistic_payload,
+      linguistic_prompt_version: enrichment.linguistic_prompt_version,
+      linguistic_quality_score: enrichment.linguistic_quality_score,
+      linguistic_status: enrichment.linguistic_status,
+    }
+  })
+}
+
 function quotePostgrestString(value: string) {
   return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
 }
@@ -2759,6 +2813,7 @@ function mapVocab(input: unknown) {
     realWorldNote: readString(row, 'real_world_note'),
     totalOccurrences: readNumber(row, 'total_occurrences'),
     episodeCount: readNumber(row, 'episode_count'),
+    linguisticPayload: readLinguisticPayload(row),
   }
 }
 
@@ -2774,6 +2829,7 @@ function mapGrammar(input: unknown) {
     realWorldNote: readString(row, 'real_world_note'),
     difficulty: readString(row, 'difficulty'),
     sourceLineNo: readNumber(row, 'source_line_no'),
+    linguisticPayload: readLinguisticPayload(row),
   }
 }
 
@@ -2790,7 +2846,13 @@ function mapSentence(input: unknown) {
     sourceLineNo: readNumber(row, 'source_line_no'),
     audioUrl: readString(row, 'audio_url'),
     storagePath: readString(row, 'storage_path'),
+    linguisticPayload: readLinguisticPayload(row),
   }
+}
+
+function readLinguisticPayload(row: Record<string, unknown>) {
+  const payload = row.linguistic_payload
+  return payload && typeof payload === 'object' ? payload : undefined
 }
 
 function mapExercise(input: unknown) {

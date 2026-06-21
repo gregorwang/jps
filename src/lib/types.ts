@@ -33,6 +33,7 @@ export type VocabItem = {
   realWorldNote?: string
   totalOccurrences: number
   episodeCount: number
+  linguisticPayload?: LinguisticPayload
 }
 
 export type GrammarPoint = {
@@ -45,6 +46,7 @@ export type GrammarPoint = {
   realWorldNote: string
   difficulty: string
   sourceLineNo: number
+  linguisticPayload?: LinguisticPayload
 }
 
 export type LearningSentence = {
@@ -57,6 +59,26 @@ export type LearningSentence = {
   sourceLineNo: number
   audioUrl?: string
   storagePath?: string
+  linguisticPayload?: LinguisticPayload
+}
+
+export type LinguisticDomain = {
+  titleZh?: string
+  explanationZh?: string
+  takeawayZh?: string
+}
+
+export type LinguisticTerm = {
+  termZh?: string
+  plainZh?: string
+}
+
+export type LinguisticPayload = {
+  headlineZh?: string
+  domains?: LinguisticDomain[]
+  terms?: LinguisticTerm[]
+  historicalNoteZh?: string
+  cautionZh?: string
 }
 
 export type RubySegment = {

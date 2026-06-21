@@ -214,10 +214,10 @@ function AppLayout() {
   const visualMode = isLessonRoute
     ? 'theme-lesson'
     : pathname === '/linguistic-training'
-      ? 'theme-witch'
-      : pathname.endsWith('/writing') || pathname === '/writing'
-        ? 'theme-script'
-        : 'theme-emilia'
+      ? 'theme-neutral'
+    : pathname.endsWith('/writing') || pathname === '/writing'
+      ? 'theme-script'
+      : 'theme-emilia'
   useEffect(() => {
     if (!episodeMatch) return
     const nextScope = {
@@ -269,10 +269,9 @@ function AppLayout() {
       {isLessonRoute ? null : (
       <aside className="sidebar">
         <div className="brand">
-          <span className="brand-mark">あ</span>
+          <img className="brand-avatar" src="/em.webp" alt="" />
           <div className="brand-copy">
-            <strong>Anime Japanese Lab</strong>
-            <small>Multi-work corpus lab</small>
+            <strong>Nihongo Lab</strong>
           </div>
           <button
             className="sidebar-toggle"

@@ -1,5 +1,5 @@
 const CACHE_NAME = 'anime-japanese-lab-v3'
-const APP_SHELL = ['/', '/manifest.webmanifest', '/pwa-icon.svg']
+const APP_SHELL = ['/', '/manifest.webmanifest', '/em.webp']
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)))

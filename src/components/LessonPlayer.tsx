@@ -409,6 +409,7 @@ function StudyCard({
           {node.notes.map((note) => <li key={note}>{note}</li>)}
         </ul>
       ) : null}
+      <LinguisticPerspective payload={node.linguisticPayload} />
       <button
         className="primary-action"
         type="button"
@@ -419,6 +420,68 @@ function StudyCard({
       </button>
     </div>
   )
+}
+
+function LinguisticPerspective({ payload }: { payload: StudyLessonNode['linguisticPayload'] }) {
+  if (!hasLinguisticContent(payload)) return null
+
+  const domains = payload.domains?.filter(hasDomainContent) ?? []
+  const terms = payload.terms?.filter(hasTermContent) ?? []
+
+  return (
+    <details className="linguistic-perspective">
+      <summary>为什么日语会这样说？</summary>
+      <div className="linguistic-perspective-body">
+        {payload.headlineZh ? <p className="linguistic-headline">{payload.headlineZh}</p> : null}
+        {domains.length ? (
+          <div className="linguistic-domain-grid">
+            {domains.map((domain, index) => (
+              <section className="linguistic-domain-card" key={`${domain.titleZh ?? 'domain'}-${index}`}>
+                {domain.titleZh ? <h2>{domain.titleZh}</h2> : null}
+                {domain.explanationZh ? <p>{domain.explanationZh}</p> : null}
+                {domain.takeawayZh ? <strong>{domain.takeawayZh}</strong> : null}
+              </section>
+            ))}
+          </div>
+        ) : null}
+        {terms.length ? (
+          <div className="linguistic-terms" aria-label="语言学术语">
+            {terms.map((term, index) => (
+              <span className="linguistic-term" key={`${term.termZh ?? 'term'}-${index}`}>
+                {term.termZh ? <b>{term.termZh}</b> : null}
+                {term.plainZh ? <small>{term.plainZh}</small> : null}
+              </span>
+            ))}
+          </div>
+        ) : null}
+        {payload.historicalNoteZh ? <p className="linguistic-note">{payload.historicalNoteZh}</p> : null}
+        {payload.cautionZh ? <p className="linguistic-caution">{payload.cautionZh}</p> : null}
+      </div>
+    </details>
+  )
+}
+
+function hasLinguisticContent(payload: StudyLessonNode['linguisticPayload']): payload is NonNullable<StudyLessonNode['linguisticPayload']> {
+  if (!payload) return false
+  return Boolean(
+    payload.headlineZh ||
+    payload.historicalNoteZh ||
+    payload.cautionZh ||
+    payload.domains?.some(hasDomainContent) ||
+    payload.terms?.some(hasTermContent),
+  )
+}
+
+function hasDomainContent(domain: unknown) {
+  if (!domain || typeof domain !== 'object') return false
+  const row = domain as { titleZh?: unknown; explanationZh?: unknown; takeawayZh?: unknown }
+  return Boolean(row.titleZh || row.explanationZh || row.takeawayZh)
+}
+
+function hasTermContent(term: unknown) {
+  if (!term || typeof term !== 'object') return false
+  const row = term as { termZh?: unknown; plainZh?: unknown }
+  return Boolean(row.termZh || row.plainZh)
 }
 
 function PairMatchExercise({
