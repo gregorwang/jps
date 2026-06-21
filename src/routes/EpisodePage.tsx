@@ -1,6 +1,6 @@
 import { Link, useParams } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { BookOpen, Brain, Captions, GraduationCap, Mic2, PenLine, Sparkles } from 'lucide-react'
+import { BookOpen, Brain, Captions, GraduationCap, Mic2, PenLine, PlayCircle, Sparkles } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
 import { StatCard } from '../components/StatCard'
 import { animeRepository } from '../server/repositories/animeRepository'
@@ -36,15 +36,40 @@ export function EpisodePage() {
       </div>
 
       <div className="task-grid">
+        <Link className="task-card" to="/works/$workSlug/episodes/$episode/lesson" params={{ workSlug: workSlug ?? 'k-on', episode: String(episodeNo) }}>
+          <PlayCircle size={22} />
+          <strong>综合训练队列</strong>
+          <span>词汇配对、听音拼句、语法填空和选择题混合推进。</span>
+        </Link>
+        <Link className="task-card" to="/works/$workSlug/episodes/$episode/lesson" search={{ mode: 'vocab' }} params={{ workSlug: workSlug ?? 'k-on', episode: String(episodeNo) }}>
+          <Sparkles size={22} />
+          <strong>词汇专项训练</strong>
+          <span>配对和中文到日文选择为主。</span>
+        </Link>
+        <Link className="task-card" to="/works/$workSlug/episodes/$episode/lesson" search={{ mode: 'grammar' }} params={{ workSlug: workSlug ?? 'k-on', episode: String(episodeNo) }}>
+          <Brain size={22} />
+          <strong>语法专项训练</strong>
+          <span>语法填空、功能判断和句意理解。</span>
+        </Link>
+        <Link className="task-card" to="/works/$workSlug/episodes/$episode/lesson" search={{ mode: 'shadowing' }} params={{ workSlug: workSlug ?? 'k-on', episode: String(episodeNo) }}>
+          <Mic2 size={22} />
+          <strong>跟读前置训练</strong>
+          <span>优先原声，听音拼句和中文理解。</span>
+        </Link>
+        <Link className="task-card" to="/works/$workSlug/episodes/$episode/lesson" search={{ mode: 'review' }} params={{ workSlug: workSlug ?? 'k-on', episode: String(episodeNo) }}>
+          <Brain size={22} />
+          <strong>错题回炉</strong>
+          <span>按本集弱项生成复习队列。</span>
+        </Link>
         <Link className="task-card" to="/works/$workSlug/episodes/$episode/vocab" params={{ workSlug: workSlug ?? 'k-on', episode: String(episodeNo) }}>
           <Sparkles size={22} />
-          <strong>词汇训练</strong>
-          <span>选择题 + 即时反馈</span>
+          <strong>词汇资料</strong>
+          <span>查看词义、读音、出现次数和讲解。</span>
         </Link>
         <Link className="task-card" to="/works/$workSlug/episodes/$episode/grammar" params={{ workSlug: workSlug ?? 'k-on', episode: String(episodeNo) }}>
           <Brain size={22} />
-          <strong>语法训练</strong>
-          <span>字幕例句判断题</span>
+          <strong>语法资料</strong>
+          <span>查看本集语法点、例句和语气说明。</span>
         </Link>
         <Link className="task-card" to="/rag">
           <BookOpen size={22} />

@@ -74,6 +74,12 @@ const practiceRoute = createRoute({
   component: lazyRouteComponent(() => import('./routes/PracticePage'), 'PracticePage'),
 })
 
+const lessonRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/works/$workSlug/episodes/$episode/lesson',
+  component: lazyRouteComponent(() => import('./routes/LessonPage'), 'LessonPage'),
+})
+
 const writingRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/writing',
@@ -160,6 +166,7 @@ const routeTree = rootRoute.addChildren([
   grammarRoute,
   sentencesRoute,
   practiceRoute,
+  lessonRoute,
   writingRoute,
   episodeWritingRoute,
   linguisticTrainingRoute,
@@ -196,6 +203,7 @@ function AppLayout() {
   const [recentEpisodeScope, setRecentEpisodeScope] = useState(readEpisodeScope)
   const pathname = useRouterState({ select: (state) => state.location.pathname })
   const episodeMatch = pathname.match(/^\/works\/([^/]+)\/episodes\/([^/]+)/)
+  const isLessonRoute = /^\/works\/[^/]+\/episodes\/[^/]+\/lesson/.test(pathname)
   useEffect(() => {
     if (!episodeMatch) return
     const nextScope = {
@@ -228,7 +236,8 @@ function AppLayout() {
   const episodeLabel = episodeMatch ? `EP${currentEpisodeParams.episode.padStart(2, '0')}` : '单集'
 
   return (
-    <div className="app-shell">
+    <div className={isLessonRoute ? 'app-shell lesson-app-shell' : 'app-shell'}>
+      {isLessonRoute ? null : (
       <aside className="sidebar">
         <div className="brand">
           <span className="brand-mark">あ</span>
@@ -296,7 +305,8 @@ function AppLayout() {
           </Link>
         </nav>
       </aside>
-      <main className="main-panel">
+      )}
+      <main className={isLessonRoute ? 'main-panel lesson-main-panel' : 'main-panel'}>
         <Outlet />
       </main>
     </div>

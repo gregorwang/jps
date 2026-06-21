@@ -283,7 +283,7 @@ async function handleApi(request: Request, env: Env, url: URL) {
     if (parts[5] === 'exercises') {
       const rows = await supabase<unknown[]>(
         env,
-        `/rest/v1/linguistic_exercise_drafts?select=*&status=eq.published&work_slug=eq.${encodeURIComponent(workSlug)}&episode=eq.${episodeNo}&order=source_line_no.asc,id.asc&limit=30`,
+        `/rest/v1/learning_exercises?select=*&work_slug=eq.${encodeURIComponent(workSlug)}&episode=eq.${episodeNo}&order=sort_order.asc,id.asc&limit=30`,
       )
       return json(rows.map(mapExercise))
     }
@@ -2977,6 +2977,10 @@ function compareReviewTasks(a: ReviewTask, b: ReviewTask) {
 function reviewRoute(progress: ReturnType<typeof mapProgress>) {
   const workSlug = progress.workSlug || 'k-on'
   const episode = progress.episode || 1
+  const payload = progress.payload as Record<string, unknown>
+  if (typeof payload.lessonId === 'string' || typeof payload.exerciseType === 'string') {
+    return `/works/${workSlug}/episodes/${episode}/lesson?mode=review`
+  }
   if (progress.itemType === 'vocab') return `/works/${workSlug}/episodes/${episode}/vocab`
   if (progress.itemType === 'grammar') return `/works/${workSlug}/episodes/${episode}/grammar`
   if (progress.itemType === 'sentence') return `/works/${workSlug}/episodes/${episode}/sentences`

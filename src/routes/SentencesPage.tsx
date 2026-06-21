@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useParams } from '@tanstack/react-router'
+import { Link, useParams } from '@tanstack/react-router'
 import { Bot } from 'lucide-react'
 import { useState } from 'react'
 import { AudioButton } from '../components/AudioButton'
@@ -113,6 +113,14 @@ export function SentencesPage() {
               <div className="card-actions">
                 {sourceAudio ? <AudioButton src={sourceAudio.url} label="原声" /> : null}
                 <TtsButton text={sentence.jaText} label="TTS" variant={sourceAudio ? 'secondary' : 'primary'} />
+                <Link
+                  className="icon-button secondary"
+                  to="/works/$workSlug/episodes/$episode/lesson"
+                  search={{ targetKind: 'sentence', targetId: sentence.id }}
+                  params={{ workSlug: selectedWorkSlug, episode: String(episodeNo) }}
+                >
+                  练这句
+                </Link>
                 <AiExplainButton kind="sentence" text={sentence.jaText} context={sentence.meaningZh} />
               </div>
             </article>

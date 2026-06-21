@@ -41,7 +41,7 @@ export function HomePage() {
         title={`${episodeScope.workSlug} EP${String(episodeScope.episode).padStart(2, '0')}`}
         description="今天先做题：词汇选择、语法判断、读空气场景题和错题回炉。资料放在题后，需要时再看。"
         actions={
-          <Link className="primary-action" to="/works/$workSlug/episodes/$episode/vocab" params={episodeParams}>
+          <Link className="primary-action" to="/works/$workSlug/episodes/$episode/lesson" params={episodeParams}>
             <BookOpen size={18} />
             <span>开始今日训练</span>
           </Link>
@@ -86,15 +86,25 @@ export function HomePage() {
       </section>
 
       <div className="task-grid">
+        <Link className="task-card" to="/works/$workSlug/episodes/$episode/lesson" params={episodeParams}>
+          <PlayCircle size={22} />
+          <strong>本集综合训练</strong>
+          <span>配对、听音、拼句、填空和选择混合推进。</span>
+        </Link>
+        <Link className="task-card" to="/works/$workSlug/episodes/$episode/lesson" search={{ mode: 'review' }} params={episodeParams}>
+          <Brain size={22} />
+          <strong>今日回炉训练</strong>
+          <span>按错题和模糊项生成复习队列。</span>
+        </Link>
         <Link className="task-card" to="/works/$workSlug/episodes/$episode/vocab" params={episodeParams}>
           <Sparkles size={22} />
-          <strong>今日词汇练习</strong>
-          <span>听音选义，答错自动回炉。</span>
+          <strong>词汇资料</strong>
+          <span>查看词义、读音和 AI 讲解。</span>
         </Link>
         <Link className="task-card" to="/works/$workSlug/episodes/$episode/grammar" params={episodeParams}>
           <Brain size={22} />
-          <strong>今日语法练习</strong>
-          <span>用字幕例句判断语法功能。</span>
+          <strong>语法资料</strong>
+          <span>查看本集语法点和例句说明。</span>
         </Link>
         <Link className="task-card" to="/rag">
           <Brain size={22} />
@@ -103,8 +113,8 @@ export function HomePage() {
         </Link>
         <Link className="task-card" to="/linguistic-training">
           <PlayCircle size={22} />
-          <strong>学习作答</strong>
-          <span>做正式发布题，也可练习 RAG 页保存的本地草稿。</span>
+          <strong>高阶语言学训练</strong>
+          <span>读空气、语境判断和语言现象专项。</span>
         </Link>
         <Link className="task-card" to="/works/$workSlug/episodes/$episode/writing" params={episodeParams}>
           <PenLine size={22} />

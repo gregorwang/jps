@@ -17,6 +17,10 @@ test('iPad landscape app routes render without blank screens', async ({ page }) 
   await expect(page.getByRole('heading', { name: /Canvas/ })).toBeVisible()
   await expect(page.locator('canvas.handwriting-canvas')).toBeVisible()
 
+  await page.goto('/works/k-on/episodes/1/lesson')
+  await expect(page.getByRole('heading', { name: '把中文意思和日文表达配起来' })).toBeVisible()
+  await expect(page.locator('.sidebar')).toHaveCount(0)
+
   await page.goto('/characters')
   await expect(page.getByRole('heading', { name: /角色说话习惯/ })).toBeVisible()
   await expect(page.getByLabel('番剧')).toBeVisible()
@@ -40,7 +44,7 @@ test('iPad landscape app routes render without blank screens', async ({ page }) 
 
 test('sidebar marks only the current section active', async ({ page }) => {
   await page.goto('/works/k-on/episodes/1/vocab')
-  await expect(page.getByRole('heading', { name: 'EP01 听音选义' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'EP01 本集词汇' })).toBeVisible()
 
   const activeLinks = page.locator('.nav-link.active')
   await expect(activeLinks).toHaveCount(1)
