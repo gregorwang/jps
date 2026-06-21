@@ -19,6 +19,8 @@ import {
   KeyRound,
   Library,
   Mic2,
+  PanelLeftClose,
+  PanelLeftOpen,
   PenLine,
   PlayCircle,
   Sparkles,
@@ -184,6 +186,7 @@ const routeTree = rootRoute.addChildren([
 
 const navActiveProps = { className: 'nav-link active' }
 const exactActiveOptions = { exact: true } as const
+const sidebarStorageKey = 'anime-japanese-lab-sidebar-collapsed'
 
 export const router = createRouter({
   routeTree,
@@ -201,6 +204,10 @@ function AppLayout() {
   useAuthMe()
   useProgressSync()
   const [recentEpisodeScope, setRecentEpisodeScope] = useState(readEpisodeScope)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return window.localStorage.getItem(sidebarStorageKey) === 'true'
+  })
   const pathname = useRouterState({ select: (state) => state.location.pathname })
   const episodeMatch = pathname.match(/^\/works\/([^/]+)\/episodes\/([^/]+)/)
   const isLessonRoute = /^\/works\/[^/]+\/episodes\/[^/]+\/lesson/.test(pathname)
@@ -245,8 +252,17 @@ function AppLayout() {
   const shellClassName = [
     'app-shell',
     visualMode,
+    sidebarCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded',
     isLessonRoute ? 'lesson-app-shell' : '',
   ].filter(Boolean).join(' ')
+
+  function toggleSidebar() {
+    setSidebarCollapsed((current) => {
+      const next = !current
+      window.localStorage.setItem(sidebarStorageKey, String(next))
+      return next
+    })
+  }
 
   return (
     <div className={shellClassName}>
@@ -254,10 +270,19 @@ function AppLayout() {
       <aside className="sidebar">
         <div className="brand">
           <span className="brand-mark">あ</span>
-          <div>
+          <div className="brand-copy">
             <strong>Anime Japanese Lab</strong>
             <small>Multi-work corpus lab</small>
           </div>
+          <button
+            className="sidebar-toggle"
+            type="button"
+            aria-label={sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'}
+            title={sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'}
+            onClick={toggleSidebar}
+          >
+            {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+          </button>
         </div>
         <nav className="nav-list" aria-label="主导航">
           <Link to="/" className="nav-link" activeProps={navActiveProps} activeOptions={exactActiveOptions}>
