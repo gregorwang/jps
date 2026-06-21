@@ -70,13 +70,18 @@ export function HandwritingCanvas({ target, onClear, ref }: HandwritingCanvasPro
 
     const rect = canvas.getBoundingClientRect()
     const visualLength = Math.max(1, Array.from(target).length)
-    const fontSize = Math.floor(Math.min(rect.height * 0.72, (rect.width * 0.78) / Math.max(1, visualLength * 0.72)))
+    let fontSize = Math.floor(Math.min(rect.height * 0.62, rect.width / Math.max(1, visualLength * 1.04)))
     context.fillStyle = 'rgba(32, 32, 29, 0.16)'
     context.strokeStyle = 'rgba(32, 32, 29, 0.09)'
     context.lineWidth = 2
     context.textAlign = 'center'
     context.textBaseline = 'middle'
     context.font = `800 ${fontSize}px Hiragino Sans, Yu Gothic, Meiryo, sans-serif`
+    const maxTextWidth = rect.width * 0.82
+    while (fontSize > 32 && context.measureText(target).width > maxTextWidth) {
+      fontSize -= 8
+      context.font = `800 ${fontSize}px Hiragino Sans, Yu Gothic, Meiryo, sans-serif`
+    }
     context.fillText(target, rect.width / 2, rect.height / 2)
     context.strokeText(target, rect.width / 2, rect.height / 2)
   }

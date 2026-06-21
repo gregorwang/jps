@@ -2454,6 +2454,10 @@ blockquote {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.74);
 }
 
+.handwriting-canvas-fg {
+  background: transparent;
+}
+
 .writing-target-text {
   color: var(--primary-dark);
   text-shadow: 0 8px 28px rgba(142, 106, 216, 0.16);
