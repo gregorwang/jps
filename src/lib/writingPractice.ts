@@ -31,7 +31,6 @@ const localStatsKey = 'anime-japanese-lab-writing-stats'
 export function buildWritingItems(vocabItems: VocabItem[], workSlug?: string, episode?: number): WritingPracticeItem[] {
   const suitableVocab = vocabItems
     .filter((item) => item.suitableHandwriting && isWritableJapanese(item.surface))
-    .slice(0, 20)
     .map((item) => ({
       id: `vocab-${item.id}`,
       text: item.surface,

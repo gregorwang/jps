@@ -155,14 +155,6 @@ export function WritingPracticePage() {
             </div>
           </div>
 
-          <div className="writing-progress-list" aria-label="手写完成词">
-            {items.slice(0, 20).map((item) => (
-              <span className={(mergedStats[item.id]?.completedCount ?? 0) > 0 ? 'done' : ''} key={item.id}>
-                {item.text}
-              </span>
-            ))}
-          </div>
-
           <div className={`writing-result ${lastResult?.passed ? 'passed' : lastResult ? 'failed' : ''}`}>
             <span>最近提交</span>
             <strong>{resultLabel()}</strong>

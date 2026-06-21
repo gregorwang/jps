@@ -41,14 +41,6 @@ export function VocabPage() {
             </div>
             <div className="card-actions">
               <TtsButton text={item.surface} />
-              <Link
-                className="icon-button secondary"
-                to="/works/$workSlug/episodes/$episode/lesson"
-                search={{ targetKind: 'vocab', targetId: item.id }}
-                params={{ workSlug: selectedWorkSlug, episode: String(episodeNo) }}
-              >
-                练这个词
-              </Link>
               <AiExplainButton kind="vocab" text={item.surface} context={item.meaningZh} />
             </div>
           </article>

@@ -40,14 +40,6 @@ export function GrammarPage() {
               <small>{point.pragmaticsNote} {point.realWorldNote}</small>
             </div>
             <div className="card-actions">
-              <Link
-                className="icon-button secondary"
-                to="/works/$workSlug/episodes/$episode/lesson"
-                search={{ targetKind: 'grammar', targetId: point.id }}
-                params={{ workSlug: selectedWorkSlug, episode: String(episodeNo) }}
-              >
-                练这个点
-              </Link>
               <AiExplainButton kind="grammar" text={point.pattern} context={`${point.jaExample}\n${point.explanationZh}`} />
             </div>
           </article>

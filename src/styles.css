@@ -635,28 +635,6 @@ blockquote {
   grid-template-columns: 1fr;
 }
 
-.writing-progress-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.writing-progress-list span {
-  padding: 5px 8px;
-  border: 1px solid #d8d1c4;
-  border-radius: 8px;
-  background: #fffdfa;
-  color: #685f53;
-  font-size: 0.82rem;
-  font-weight: 800;
-}
-
-.writing-progress-list span.done {
-  border-color: #c8efad;
-  background: #e5f7d2;
-  color: #1f3c0d;
-}
-
 .timeline {
   display: grid;
   gap: 10px;
