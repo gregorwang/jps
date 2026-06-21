@@ -58,9 +58,36 @@ describe('buildEpisodeLesson', () => {
     const studiedIds = lesson.nodes
       .filter((node) => node.type === 'study-card')
       .map((node) => node.source.sourceId)
+    const choiceIds = lesson.nodes
+      .filter((node) => node.type === 'single-choice')
+      .map((node) => node.source.sourceId)
 
     expect(lesson.hasNextBatch).toBe(false)
     expect(studiedIds).toEqual(vocab.map((item) => item.id))
+    expect(choiceIds).toEqual(vocab.map((item) => item.id))
+  })
+
+  it('removes editorial batch notes from study cards', () => {
+    const lesson = buildEpisodeLesson({
+      workSlug: 're-zero',
+      episode: 14,
+      vocab: [
+        makeVocab(
+          'v-note',
+          '絶望',
+          '绝望',
+          'EP14筛选：学习价值优先于机械词频；围绕绝望、求援失败。放回 EP14 原句跟读。',
+        ),
+      ],
+      grammar,
+      sentences,
+      mode: 'vocab',
+    })
+    const card = lesson.nodes.find((node) => node.type === 'study-card')
+
+    expect(card?.type).toBe('study-card')
+    if (card?.type !== 'study-card') return
+    expect(card.notes).not.toContain('EP14筛选：学习价值优先于机械词频；围绕绝望、求援失败。放回 EP14 原句跟读。')
   })
 
   it('builds target practice around the requested source', () => {
@@ -124,7 +151,7 @@ describe('buildEpisodeLesson', () => {
   })
 })
 
-function makeVocab(id: string, surface: string, meaningZh: string): VocabItem {
+function makeVocab(id: string, surface: string, meaningZh: string, realWorldNote = ''): VocabItem {
   return {
     id,
     workSlug: 'k-on',
@@ -136,6 +163,7 @@ function makeVocab(id: string, surface: string, meaningZh: string): VocabItem {
     jlptLevel: 'N5',
     suitableHandwriting: true,
     suitableShadowing: true,
+    realWorldNote,
     totalOccurrences: 1,
     episodeCount: 1,
   }

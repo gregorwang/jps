@@ -425,14 +425,32 @@ function StudyCard({
 function LinguisticPerspective({ payload }: { payload: StudyLessonNode['linguisticPayload'] }) {
   if (!hasLinguisticContent(payload)) return null
 
-  const domains = payload.domains?.filter(hasDomainContent) ?? []
-  const terms = payload.terms?.filter(hasTermContent) ?? []
+  const headlineZh = cleanLinguisticText(payload.headlineZh)
+  const historicalNoteZh = cleanLinguisticText(payload.historicalNoteZh)
+  const cautionZh = cleanLinguisticText(payload.cautionZh)
+  const domains = payload.domains
+    ?.map((domain) => ({
+      ...domain,
+      titleZh: cleanLinguisticText(domain.titleZh),
+      explanationZh: cleanLinguisticText(domain.explanationZh),
+      takeawayZh: cleanLinguisticText(domain.takeawayZh),
+    }))
+    .filter(hasDomainContent) ?? []
+  const terms = payload.terms
+    ?.map((term) => ({
+      ...term,
+      termZh: cleanLinguisticText(term.termZh),
+      plainZh: cleanLinguisticText(term.plainZh),
+    }))
+    .filter(hasTermContent) ?? []
+
+  if (!headlineZh && !historicalNoteZh && !cautionZh && !domains.length && !terms.length) return null
 
   return (
     <details className="linguistic-perspective">
       <summary>为什么日语会这样说？</summary>
       <div className="linguistic-perspective-body">
-        {payload.headlineZh ? <p className="linguistic-headline">{payload.headlineZh}</p> : null}
+        {headlineZh ? <p className="linguistic-headline">{headlineZh}</p> : null}
         {domains.length ? (
           <div className="linguistic-domain-grid">
             {domains.map((domain, index) => (
@@ -454,8 +472,8 @@ function LinguisticPerspective({ payload }: { payload: StudyLessonNode['linguist
             ))}
           </div>
         ) : null}
-        {payload.historicalNoteZh ? <p className="linguistic-note">{payload.historicalNoteZh}</p> : null}
-        {payload.cautionZh ? <p className="linguistic-caution">{payload.cautionZh}</p> : null}
+        {historicalNoteZh ? <p className="linguistic-note">{historicalNoteZh}</p> : null}
+        {cautionZh ? <p className="linguistic-caution">{cautionZh}</p> : null}
       </div>
     </details>
   )
@@ -482,6 +500,17 @@ function hasTermContent(term: unknown) {
   if (!term || typeof term !== 'object') return false
   const row = term as { termZh?: unknown; plainZh?: unknown }
   return Boolean(row.termZh || row.plainZh)
+}
+
+function cleanLinguisticText(value?: string) {
+  if (!value || isEditorialBatchNote(value)) return ''
+  return value
+}
+
+function isEditorialBatchNote(value: string) {
+  return /EP\d+\s*筛选/u.test(value) ||
+    /学习价值优先于机械词频/u.test(value) ||
+    /放回\s*EP\d+\s*原句跟读/u.test(value)
 }
 
 function PairMatchExercise({

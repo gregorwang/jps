@@ -252,7 +252,7 @@ function buildVocabStudyNodes(workSlug: string, episode: number, vocab: VocabIte
         item.jlptLevel ? `难度：${item.jlptLevel}` : '',
         item.animeToneNote ?? '',
         item.realWorldNote ?? '',
-      ].filter(Boolean),
+      ].filter(isUsefulStudyNote),
     }))
 }
 
@@ -277,7 +277,7 @@ function buildGrammarStudyNodes(workSlug: string, episode: number, grammar: Gram
         point.pragmaticsNote,
         point.realWorldNote,
         point.difficulty ? `难度：${point.difficulty}` : '',
-      ].filter(Boolean),
+      ].filter(isUsefulStudyNote),
     }))
 }
 
@@ -304,7 +304,7 @@ function buildSentenceStudyNodes(workSlug: string, episode: number, sentences: L
         notes: [
           sentence.toneTags.length ? `语气：${sentence.toneTags.join(' / ')}` : '',
           sentence.difficulty ? `难度：${sentence.difficulty}` : '',
-        ].filter(Boolean),
+        ].filter(isUsefulStudyNote),
       } satisfies StudyLessonNode
     })
 }
@@ -333,7 +333,6 @@ function buildVocabPairNodes(workSlug: string, episode: number, vocab: VocabItem
 function buildVocabChoiceNodes(workSlug: string, episode: number, vocab: VocabItem[]): SingleChoiceLessonNode[] {
   return vocab
     .filter((item) => item.surface && item.meaningZh)
-    .slice(0, 6)
     .map((item, index) => {
       const choices = buildVocabDistractors(vocab, item, index)
       return {
@@ -350,6 +349,17 @@ function buildVocabChoiceNodes(workSlug: string, episode: number, vocab: VocabIt
         answer: item.surface,
       } satisfies SingleChoiceLessonNode
     })
+}
+
+function isUsefulStudyNote(note: string | undefined): note is string {
+  if (!note) return false
+  return !isEditorialBatchNote(note)
+}
+
+function isEditorialBatchNote(note: string) {
+  return /EP\d+\s*筛选/u.test(note) ||
+    /学习价值优先于机械词频/u.test(note) ||
+    /放回\s*EP\d+\s*原句跟读/u.test(note)
 }
 
 function buildSentenceAudioTileNodes(workSlug: string, episode: number, sentences: LearningSentence[]): TileLessonNode[] {
