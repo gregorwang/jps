@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:smoke": "playwright test",
     "lint": "oxlint .",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "publish:current": "powershell -ExecutionPolicy Bypass -File scripts/publish-current.ps1"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.12",

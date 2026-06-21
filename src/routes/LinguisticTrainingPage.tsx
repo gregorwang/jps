@@ -420,30 +420,35 @@ function TrainingCard({
         <span>{exercise.difficulty}</span>
       </div>
 
-      <div className="dialogue-block">
-        <DialogueEvidence exercise={exercise} />
+      <div className="trainer-workspace">
+        <section className="trainer-context-panel">
+          <div className="dialogue-block">
+            <DialogueEvidence exercise={exercise} />
+          </div>
+          {shouldShowTts(exercise) ? (
+            <div className="tts-disclaimer">
+              <TtsButton text={exercise.jaText} label="辅助朗读" />
+              <span>TTS 仅辅助朗读，音系学判断以原声/真人发音为准。</span>
+            </div>
+          ) : null}
+        </section>
+
+        <section className="trainer-question-panel">
+          <h2>{exercise.prompt}</h2>
+          <OptionList exercise={exercise} selectedOption={selectedOption} onSelect={onSelect} />
+
+          {answered ? (
+            <AnswerSummary
+              exercise={exercise}
+              selectedOption={selectedOption}
+              correctOption={correctOption}
+              aiResult={aiResult}
+              aiStatus={aiStatus}
+              onExplainAnswer={() => onExplainAnswer(selectedOption)}
+            />
+          ) : null}
+        </section>
       </div>
-
-      {shouldShowTts(exercise) ? (
-        <div className="tts-disclaimer">
-          <TtsButton text={exercise.jaText} label="辅助朗读" />
-          <span>TTS 仅辅助朗读，音系学判断以原声/真人发音为准。</span>
-        </div>
-      ) : null}
-
-      <h2>{exercise.prompt}</h2>
-      <OptionList exercise={exercise} selectedOption={selectedOption} onSelect={onSelect} />
-
-      {answered ? (
-        <AnswerSummary
-          exercise={exercise}
-          selectedOption={selectedOption}
-          correctOption={correctOption}
-          aiResult={aiResult}
-          aiStatus={aiStatus}
-          onExplainAnswer={() => onExplainAnswer(selectedOption)}
-        />
-      ) : null}
 
       <footer className="trainer-actions">
         <button className="icon-button secondary" type="button" onClick={onPrevious} disabled={currentIndex === 0}>

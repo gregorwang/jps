@@ -57,6 +57,24 @@ a {
   margin-bottom: 24px;
 }
 
+.brand-avatar-button {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.brand-avatar-button:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 4px rgba(88, 167, 0, 0.18);
+}
+
 .brand-mark {
   display: grid;
   place-items: center;
@@ -71,7 +89,6 @@ a {
 
 .brand-avatar {
   display: block;
-  flex: 0 0 auto;
   width: 44px;
   height: 44px;
   border: 1px solid #ddd7cb;
@@ -1321,6 +1338,25 @@ blockquote {
   justify-content: flex-end;
 }
 
+.trainer-workspace {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.9fr) minmax(420px, 1.15fr);
+  gap: 14px;
+  min-height: 0;
+}
+
+.trainer-context-panel,
+.trainer-question-panel {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.trainer-question-panel {
+  align-content: start;
+}
+
 .linguistic-card-meta {
   display: flex;
   flex-wrap: wrap;
@@ -2119,6 +2155,7 @@ blockquote {
   .linguistic-filter-panel,
   .training-filter-panel,
   .linguistic-card-grid,
+  .trainer-workspace,
   .linguistic-trainer-card .linguistic-options,
   .rag-auto-panel,
   .answer-status-row {
@@ -2593,6 +2630,29 @@ blockquote {
     #f8f5ef;
 }
 
+.theme-neutral .main-panel {
+  padding: 24px 32px;
+}
+
+.theme-neutral .page-stack {
+  gap: 14px;
+  width: min(1320px, 100%);
+}
+
+.theme-neutral .page-header {
+  align-items: flex-start;
+}
+
+.theme-neutral .page-header h1 {
+  font-size: clamp(2.35rem, 4.6vw, 4.2rem);
+  line-height: 1;
+}
+
+.theme-neutral .page-description {
+  max-width: 860px;
+  margin-top: 8px;
+}
+
 .theme-neutral .sidebar {
   border-right-color: var(--neutral-line);
   background: rgba(255, 252, 245, 0.9);
@@ -2634,6 +2694,32 @@ blockquote {
   color: var(--neutral-green);
 }
 
+.theme-neutral .linguistic-mode-bar,
+.theme-neutral .linguistic-filter-panel,
+.theme-neutral .advanced-filter-panel,
+.theme-neutral .source-preview {
+  padding: 12px 16px;
+}
+
+.theme-neutral .linguistic-mode-bar {
+  align-items: center;
+}
+
+.theme-neutral .training-filter-panel {
+  grid-template-columns: repeat(5, minmax(140px, 1fr));
+  gap: 10px 12px;
+}
+
+.theme-neutral .filter-field {
+  gap: 6px;
+}
+
+.theme-neutral .filter-field select,
+.theme-neutral .filter-field input {
+  min-height: 44px;
+  padding: 8px 12px;
+}
+
 .theme-neutral .source-preview,
 .theme-neutral .linguistic-filter-panel,
 .theme-neutral .linguistic-mode-bar,
@@ -2649,10 +2735,102 @@ blockquote {
   box-shadow: 0 14px 34px rgba(61, 73, 57, 0.08);
 }
 
+.theme-neutral .source-preview {
+  grid-template-columns: auto auto 1fr;
+  align-items: baseline;
+  gap: 10px 16px;
+}
+
+.theme-neutral .source-preview .eyebrow,
+.theme-neutral .source-preview strong,
+.theme-neutral .source-preview span {
+  margin: 0;
+}
+
+.theme-neutral .source-preview strong {
+  font-size: 1.25rem;
+}
+
 .theme-neutral .source-preview::before,
 .theme-neutral .linguistic-card::before,
 .theme-neutral .linguistic-trainer-card::before {
   background: linear-gradient(90deg, var(--neutral-green-soft), var(--neutral-blue));
+}
+
+.theme-neutral .linguistic-trainer-card {
+  width: 100%;
+  min-height: clamp(480px, calc(100vh - 390px), 680px);
+  max-height: calc(100vh - 300px);
+  margin: 0;
+  padding: 18px;
+  gap: 12px;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+
+.theme-neutral .trainer-progress-row strong {
+  font-size: 1.2rem;
+}
+
+.theme-neutral .linguistic-card-meta span {
+  min-height: 28px;
+  padding: 4px 9px;
+}
+
+.theme-neutral .trainer-workspace {
+  min-height: 0;
+}
+
+.theme-neutral .trainer-context-panel,
+.theme-neutral .trainer-question-panel {
+  overflow: hidden;
+}
+
+.theme-neutral .dialogue-block {
+  min-height: 0;
+  height: 100%;
+}
+
+.theme-neutral .dialogue-lines {
+  max-height: none;
+  overflow-y: auto;
+}
+
+.theme-neutral .dialogue-line {
+  padding: 4px 0;
+}
+
+.theme-neutral .dialogue-line strong {
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
+.theme-neutral .trainer-question-panel {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.theme-neutral .trainer-question-panel h2 {
+  font-size: clamp(1.3rem, 2vw, 1.85rem);
+  line-height: 1.35;
+}
+
+.theme-neutral .linguistic-trainer-card .linguistic-options {
+  gap: 10px;
+}
+
+.theme-neutral .linguistic-trainer-card .choice-option {
+  min-height: 64px;
+  padding: 12px 14px;
+  line-height: 1.45;
+}
+
+.theme-neutral .linguistic-answer {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.theme-neutral .trainer-actions {
+  padding-top: 2px;
 }
 
 .theme-neutral .primary-action,
@@ -2664,8 +2842,7 @@ blockquote {
 }
 
 .theme-neutral .icon-button.secondary,
-.theme-neutral .secondary-action,
-.theme-neutral .sidebar-toggle {
+.theme-neutral .secondary-action {
   border-color: var(--neutral-line);
   background: #fffdfa;
   color: var(--neutral-green);
@@ -2828,24 +3005,6 @@ blockquote {
 
 }
 
-.sidebar-toggle {
-  display: inline-grid;
-  flex: 0 0 auto;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--primary-dark);
-  cursor: pointer;
-}
-
-.sidebar-toggle:hover {
-  border-color: var(--primary-soft);
-  background: var(--surface-soft);
-}
-
 .brand-copy {
   min-width: 0;
 }
@@ -2878,23 +3037,15 @@ blockquote {
     font-size: 24px;
   }
 
+  .app-shell.sidebar-collapsed .brand-avatar-button,
   .app-shell.sidebar-collapsed .brand-avatar {
     width: 42px;
     height: 42px;
   }
 
-  .app-shell.sidebar-collapsed .sidebar-toggle {
-    position: absolute;
-    top: 68px;
-    left: 50%;
-    width: 32px;
-    height: 32px;
-    transform: translateX(-50%);
-  }
-
   .app-shell.sidebar-collapsed .nav-list {
     gap: 8px;
-    padding-top: 42px;
+    padding-top: 0;
   }
 
   .app-shell.sidebar-collapsed .nav-link {
@@ -2913,10 +3064,6 @@ blockquote {
 
   .app-shell.sidebar-expanded .brand {
     align-items: center;
-  }
-
-  .app-shell.sidebar-expanded .sidebar-toggle {
-    margin-left: auto;
   }
 
   .theme-script .main-panel {
@@ -2961,7 +3108,6 @@ blockquote {
 }
 
 @media (max-width: 900px) {
-  .sidebar-toggle,
   .brand-copy {
     display: none;
   }

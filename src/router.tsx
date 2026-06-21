@@ -19,8 +19,6 @@ import {
   KeyRound,
   Library,
   Mic2,
-  PanelLeftClose,
-  PanelLeftOpen,
   PenLine,
   PlayCircle,
   Sparkles,
@@ -269,19 +267,18 @@ function AppLayout() {
       {isLessonRoute ? null : (
       <aside className="sidebar">
         <div className="brand">
-          <img className="brand-avatar" src="/em.webp" alt="" />
-          <div className="brand-copy">
-            <strong>Nihongo Lab</strong>
-          </div>
           <button
-            className="sidebar-toggle"
+            className="brand-avatar-button"
             type="button"
             aria-label={sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'}
             title={sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'}
             onClick={toggleSidebar}
           >
-            {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+            <img className="brand-avatar" src="/em.webp" alt="" />
           </button>
+          <div className="brand-copy">
+            <strong>Nihongo Lab</strong>
+          </div>
         </div>
         <nav className="nav-list" aria-label="主导航">
           <Link to="/" className="nav-link" activeProps={navActiveProps} activeOptions={exactActiveOptions}>
