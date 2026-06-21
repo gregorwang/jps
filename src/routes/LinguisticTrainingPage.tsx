@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Bot, Check, ChevronLeft, ChevronRight, Copy, RotateCcw, Search } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { PageHeader } from '../components/PageHeader'
 import { StructuredAiResultView } from '../components/StructuredAiResultView'
 import { TtsButton } from '../components/TtsButton'
 import { usePreferredGatewayModel } from '../lib/aiPreferences'
@@ -223,32 +222,30 @@ export function LinguisticTrainingPage() {
 
   return (
     <section className="page-stack">
-      <PageHeader
-        eyebrow="学习作答"
-        title="语言现象与读空气训练"
-        description="默认单题推进。这里会同时显示正式发布题，以及你在读空气 RAG 页预览保存的本地草稿。"
-      />
+      <section className="training-control-bar">
+        <div className="segmented-control">
+          <button className={mode === 'train' ? 'selected' : ''} type="button" onClick={() => setMode('train')}>单题训练</button>
+          <button className={mode === 'browse' ? 'selected' : ''} type="button" onClick={() => setMode('browse')}>浏览全部题目</button>
+        </div>
+        <div className="training-queue-summary">
+          <span>当前队列</span>
+          <strong>{exercisesQuery.isLoading ? '读取中' : `${filteredExercises.length} / ${scopedExercises.length} 题`}</strong>
+        </div>
+        <div className="card-actions">
+          <button className="icon-button secondary" type="button" onClick={resetQueue}>
+            <RotateCcw size={18} />
+            <span>重置队列</span>
+          </button>
+          <button className="icon-button secondary" type="button" onClick={resetFilters}>
+            <Search size={18} />
+            <span>清空筛选</span>
+          </button>
+        </div>
+      </section>
 
-      <section className="training-control-deck">
-        <div className="training-control-main">
-          <section className="linguistic-mode-bar">
-            <div className="segmented-control">
-              <button className={mode === 'train' ? 'selected' : ''} type="button" onClick={() => setMode('train')}>单题训练</button>
-              <button className={mode === 'browse' ? 'selected' : ''} type="button" onClick={() => setMode('browse')}>浏览全部题目</button>
-            </div>
-            <div className="card-actions">
-              <button className="icon-button secondary" type="button" onClick={resetQueue}>
-                <RotateCcw size={18} />
-                <span>重置队列</span>
-              </button>
-              <button className="icon-button secondary" type="button" onClick={resetFilters}>
-                <Search size={18} />
-                <span>清空筛选</span>
-              </button>
-            </div>
-          </section>
-
-          <section className="linguistic-filter-panel training-filter-panel">
+      <details className="training-filter-collapse">
+        <summary>筛选 · {filterSummary(filters)} · 本地草稿 {localAirExercises.length} 题</summary>
+        <section className="linguistic-filter-panel training-filter-panel">
             <FilterSelect
               id="linguistic-work"
               label="Work"
@@ -291,12 +288,6 @@ export function LinguisticTrainingPage() {
               options={filterOptions.difficulties.map((difficulty) => ({ value: difficulty, label: difficulty }))}
               allLabel="全部难度"
             />
-          </section>
-        </div>
-
-        <div className="training-control-side">
-          <details className="advanced-filter-panel">
-            <summary>高级筛选</summary>
             <FilterSelect
               id="linguistic-episode"
               label="Episode"
@@ -305,15 +296,8 @@ export function LinguisticTrainingPage() {
               options={filterOptions.episodes.map((episode) => ({ value: episode, label: `EP${episode.padStart(2, '0')}` }))}
               allLabel="全部集数"
             />
-          </details>
-
-          <section className="source-preview">
-            <p className="eyebrow">当前训练队列</p>
-            <strong>{exercisesQuery.isLoading ? '读取中' : `${filteredExercises.length} / ${scopedExercises.length} 题`}</strong>
-            <span>{filterSummary(filters)} · 本地草稿 {localAirExercises.length} 题</span>
-          </section>
-        </div>
-      </section>
+        </section>
+      </details>
 
       {!exercisesQuery.isLoading && scopedExercises.length === 0 ? (
         <div className="source-preview">暂无语言学训练题</div>
@@ -515,7 +499,6 @@ function BrowseList({
 }
 
 function DialogueEvidence({ exercise, compact = false }: { exercise: LinguisticExerciseDraft; compact?: boolean }) {
-  const [showChinese, setShowChinese] = useState(false)
   const allLines = buildDialogueLines(exercise)
   const quote = extractQuestionQuote(exercise.prompt)
   const hasTranslations = allLines.some((line) => line.zhText)
@@ -534,21 +517,14 @@ function DialogueEvidence({ exercise, compact = false }: { exercise: LinguisticE
         ))}
       </div>
       {hasTranslations ? (
-        <>
-          <button className="text-button" type="button" onClick={() => setShowChinese((value) => !value)}>
-            {showChinese ? '收起中文参考' : '展开中文参考'}
-          </button>
-          {showChinese ? (
-            <div className="translation-lines">
-              {allLines.map((line, index) => line.zhText ? (
-                <p key={`${line.speaker ?? 'narration'}-${index}-zh`}>
-                  {line.speaker ? <b>{line.speaker}</b> : <b className="muted-speaker">未标注</b>}
-                  <span>{line.zhText}</span>
-                </p>
-              ) : null)}
-            </div>
-          ) : null}
-        </>
+        <div className="translation-lines">
+          {allLines.map((line, index) => line.zhText ? (
+            <p key={`${line.speaker ?? 'narration'}-${index}-zh`}>
+              {line.speaker ? <b>{line.speaker}</b> : <b className="muted-speaker">未标注</b>}
+              <span>{line.zhText}</span>
+            </p>
+          ) : null)}
+        </div>
       ) : null}
     </div>
   )

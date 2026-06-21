@@ -1128,6 +1128,57 @@ blockquote {
   grid-template-columns: repeat(3, minmax(150px, 1fr));
 }
 
+.training-control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #ddd6c7;
+  border-radius: 8px;
+  background: rgba(255, 252, 245, 0.9);
+}
+
+.training-queue-summary {
+  display: inline-grid;
+  gap: 2px;
+  min-width: 112px;
+}
+
+.training-queue-summary span {
+  color: #685f53;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.training-queue-summary strong {
+  color: #20201d;
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.training-filter-collapse {
+  border: 1px solid #ddd6c7;
+  border-radius: 8px;
+  background: rgba(255, 252, 245, 0.9);
+  box-shadow: 0 12px 28px rgba(32, 32, 29, 0.05);
+}
+
+.training-filter-collapse summary {
+  cursor: pointer;
+  padding: 12px 14px;
+  color: #28251f;
+  font-weight: 900;
+}
+
+.training-filter-collapse .training-filter-panel {
+  border: 0;
+  border-top: 1px solid #ddd6c7;
+  border-radius: 0 0 8px 8px;
+  background: transparent;
+  box-shadow: none;
+}
+
 .linguistic-mode-bar {
   display: flex;
   align-items: center;
@@ -2168,7 +2219,7 @@ blockquote {
 
   .linguistic-filter-panel,
   .training-filter-panel,
-  .training-control-deck,
+  .training-control-bar,
   .linguistic-card-grid,
   .trainer-workspace,
   .linguistic-trainer-card .linguistic-options,
@@ -2178,6 +2229,7 @@ blockquote {
   }
 
   .linguistic-mode-bar,
+  .training-control-bar,
   .mistake-ai-callout,
   .trainer-progress-row,
   .trainer-actions {
@@ -2712,6 +2764,8 @@ blockquote {
 .theme-neutral .linguistic-mode-bar,
 .theme-neutral .linguistic-filter-panel,
 .theme-neutral .advanced-filter-panel,
+.theme-neutral .training-control-bar,
+.theme-neutral .training-filter-collapse,
 .theme-neutral .source-preview {
   padding: 12px 16px;
 }
@@ -2739,6 +2793,8 @@ blockquote {
 .theme-neutral .linguistic-filter-panel,
 .theme-neutral .linguistic-mode-bar,
 .theme-neutral .advanced-filter-panel,
+.theme-neutral .training-control-bar,
+.theme-neutral .training-filter-collapse,
 .theme-neutral .linguistic-trainer-card,
 .theme-neutral .linguistic-card,
 .theme-neutral .dialogue-block,
@@ -2760,18 +2816,21 @@ blockquote {
   font-size: 1.25rem;
 }
 
-.theme-neutral .training-control-side .source-preview {
-  display: grid;
-  align-content: center;
-  gap: 6px;
+.theme-neutral .training-control-bar {
+  flex-wrap: wrap;
+  padding: 12px 14px;
 }
 
-.theme-neutral .training-control-side .source-preview strong {
-  font-size: 1.55rem;
+.theme-neutral .training-filter-collapse {
+  padding: 0;
 }
 
-.theme-neutral .training-control-side .advanced-filter-panel {
-  align-content: start;
+.theme-neutral .training-filter-collapse summary {
+  color: var(--primary-dark);
+}
+
+.theme-neutral .training-filter-collapse .training-filter-panel {
+  padding: 12px 14px 14px;
 }
 
 .theme-neutral .source-preview::before,
@@ -2782,13 +2841,10 @@ blockquote {
 
 .theme-neutral .linguistic-trainer-card {
   width: 100%;
-  min-height: clamp(420px, calc(100vh - 400px), 560px);
-  max-height: calc(100vh - 400px);
   margin: 0;
   padding: 18px;
   gap: 12px;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .theme-neutral .trainer-progress-row strong {
@@ -2801,22 +2857,21 @@ blockquote {
 }
 
 .theme-neutral .trainer-workspace {
-  min-height: 0;
+  align-items: start;
 }
 
 .theme-neutral .trainer-context-panel,
 .theme-neutral .trainer-question-panel {
-  overflow: hidden;
+  overflow: visible;
 }
 
 .theme-neutral .dialogue-block {
-  min-height: 0;
-  height: 100%;
+  height: auto;
 }
 
 .theme-neutral .dialogue-lines {
   max-height: none;
-  overflow-y: auto;
+  overflow: visible;
 }
 
 .theme-neutral .dialogue-line {
@@ -2829,7 +2884,7 @@ blockquote {
 }
 
 .theme-neutral .trainer-question-panel {
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: none;
 }
 
 .theme-neutral .trainer-question-panel h2 {
@@ -2848,8 +2903,7 @@ blockquote {
 }
 
 .theme-neutral .linguistic-answer {
-  min-height: 0;
-  overflow-y: auto;
+  overflow: visible;
 }
 
 .theme-neutral .trainer-actions {
@@ -2887,6 +2941,11 @@ blockquote {
   border-color: var(--neutral-line);
   background: rgba(255, 255, 255, 0.9);
   color: #20201d;
+}
+
+.theme-neutral .translation-lines {
+  max-height: none;
+  overflow: visible;
 }
 
 .theme-neutral .choice-option:hover,
