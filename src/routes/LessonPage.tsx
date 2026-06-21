@@ -12,7 +12,7 @@ export function LessonPage() {
   const episodeNo = Number(episode ?? 1)
   const search = useRouterState({ select: (state) => state.location.search })
   const progressItems = useProgressItemsStore()
-  const { mode, target } = parseLessonSearch(search)
+  const { mode, target, batch } = parseLessonSearch(search)
 
   const materialsQuery = useQuery({
     queryKey: ['episode-lesson-materials', selectedWorkSlug, episodeNo],
@@ -32,11 +32,12 @@ export function LessonPage() {
       workSlug: selectedWorkSlug,
       episode: episodeNo,
       mode,
+      batch,
       target,
       progressItems,
       ...materialsQuery.data,
     })
-  }, [episodeNo, materialsQuery.data, mode, progressItems, selectedWorkSlug, target])
+  }, [batch, episodeNo, materialsQuery.data, mode, progressItems, selectedWorkSlug, target])
 
   if (materialsQuery.isLoading) {
     return (
@@ -81,15 +82,17 @@ export function LessonPage() {
   return <LessonPlayer lesson={lesson} />
 }
 
-function parseLessonSearch(search: Record<string, unknown>): { mode: LessonMode; target?: LessonTarget } {
+function parseLessonSearch(search: Record<string, unknown>): { mode: LessonMode; batch: number; target?: LessonTarget } {
   const modeValue = typeof search.mode === 'string' ? search.mode : ''
   const mode = isLessonMode(modeValue) ? modeValue : 'mixed'
+  const rawBatch = typeof search.batch === 'string' ? Number(search.batch) : typeof search.batch === 'number' ? search.batch : 1
+  const batch = Number.isFinite(rawBatch) && rawBatch > 0 ? Math.floor(rawBatch) : 1
   const targetKind = typeof search.targetKind === 'string' ? search.targetKind : ''
   const targetId = typeof search.targetId === 'string' ? search.targetId : ''
   const target = targetId && ['vocab', 'grammar', 'sentence'].includes(targetKind)
     ? { kind: targetKind as LessonTarget['kind'], id: targetId }
     : undefined
-  return { mode: target ? 'target' : mode, target }
+  return { mode: target ? 'target' : mode, batch, target }
 }
 
 function isLessonMode(value: string): value is LessonMode {

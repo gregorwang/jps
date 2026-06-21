@@ -9,7 +9,7 @@ export type LessonTarget =
   | { kind: 'sentence'; id: string }
 
 export type PromptAudio =
-  | { kind: 'source'; url: string; autoPlay: boolean; reliability: 'verified' | 'flagged'; label?: string }
+  | { kind: 'source'; url: string; autoPlay: boolean; reliability: 'verified' | 'flagged'; label?: string; fallbackTts?: { text: string; label?: string } }
   | { kind: 'tts'; text: string; autoPlay: boolean; label?: string }
   | { kind: 'none' }
 
@@ -69,17 +69,29 @@ export type TileLessonNode = LessonNodeBase & {
   targetText: string
 }
 
+export type StudyLessonNode = LessonNodeBase & {
+  type: 'study-card'
+  studyKind: LessonSourceKind
+  jaText: string
+  reading?: string
+  meaningZh: string
+  notes: string[]
+}
+
 export type LessonNode =
   | PairMatchLessonNode
   | SingleChoiceLessonNode
   | ClozeChoiceLessonNode
   | TileLessonNode
+  | StudyLessonNode
 
 export type LessonPlan = {
   id: string
   workSlug: string
   episode: number
   mode: LessonMode
+  batch: number
+  hasNextBatch: boolean
   title: string
   nodes: LessonNode[]
   counts: Record<LessonNode['type'], number>
@@ -92,33 +104,95 @@ export function buildEpisodeLesson(input: {
   grammar: GrammarPoint[]
   sentences: LearningSentence[]
   mode?: LessonMode
+  batch?: number
   target?: LessonTarget
   progressItems?: Record<string, ProgressItem>
 }): LessonPlan {
   const { workSlug, episode, target } = input
   const mode = input.target ? 'target' : input.mode ?? 'mixed'
+  const batch = Math.max(1, input.batch ?? 1)
   const vocab = scopeVocab(input.vocab, target)
   const grammar = scopeGrammar(input.grammar, target)
   const sentences = scopeSentences(input.sentences, target)
+  const pools = {
+    vocabPair: buildVocabPairNodes(workSlug, episode, vocab),
+    vocabChoice: buildVocabChoiceNodes(workSlug, episode, vocab),
+    sentenceAudio: buildSentenceAudioTileNodes(workSlug, episode, sentences),
+    sentenceTranslation: buildSentenceTranslationNodes(workSlug, episode, sentences),
+    grammarCloze: buildGrammarClozeNodes(workSlug, episode, grammar),
+    grammarChoice: buildGrammarChoiceNodes(workSlug, episode, grammar),
+    vocabStudy: buildVocabStudyNodes(workSlug, episode, vocab),
+    grammarStudy: buildGrammarStudyNodes(workSlug, episode, grammar),
+    sentenceStudy: buildSentenceStudyNodes(workSlug, episode, sentences),
+  }
   const nodes: LessonNode[] = [
-    ...buildVocabPairNodes(workSlug, episode, vocab),
-    ...buildVocabChoiceNodes(workSlug, episode, vocab),
-    ...buildSentenceAudioTileNodes(workSlug, episode, sentences),
-    ...buildSentenceTranslationNodes(workSlug, episode, sentences),
-    ...buildGrammarClozeNodes(workSlug, episode, grammar),
-    ...buildGrammarChoiceNodes(workSlug, episode, grammar),
+    ...pools.vocabPair,
+    ...pools.vocabChoice,
+    ...pools.sentenceAudio,
+    ...pools.sentenceTranslation,
+    ...pools.grammarCloze,
+    ...pools.grammarChoice,
   ]
 
-  const balanced = buildModeNodes(nodes, mode, input.progressItems ?? {}, target)
+  const balanced = buildModeNodes(pools, nodes, mode, input.progressItems ?? {}, target, batch)
   return {
-    id: lessonId(workSlug, episode, mode, target),
+    id: lessonId(workSlug, episode, mode, target, batch),
     workSlug,
     episode,
     mode,
-    title: lessonTitle(workSlug, episode, mode, target),
+    batch,
+    hasNextBatch: hasNextLessonBatch(pools, mode, target, batch),
+    title: lessonTitle(workSlug, episode, mode, target, batch),
     nodes: balanced,
     counts: countNodeTypes(balanced),
   }
+}
+
+type LessonPools = {
+  vocabPair: LessonNode[]
+  vocabChoice: SingleChoiceLessonNode[]
+  sentenceAudio: TileLessonNode[]
+  sentenceTranslation: TileLessonNode[]
+  grammarCloze: ClozeChoiceLessonNode[]
+  grammarChoice: SingleChoiceLessonNode[]
+  vocabStudy: StudyLessonNode[]
+  grammarStudy: StudyLessonNode[]
+  sentenceStudy: StudyLessonNode[]
+}
+
+function buildStudyPracticeSequence(studyNodes: StudyLessonNode[], practiceNodes: LessonNode[], batch: number, batchSize: number) {
+  const start = (batch - 1) * batchSize
+  const scopedStudy = studyNodes.slice(start, start + batchSize)
+  const output: LessonNode[] = []
+  for (const study of scopedStudy) {
+    output.push(study)
+    output.push(...practiceNodes.filter((node) => node.source.sourceId === study.source.sourceId).slice(0, 2))
+  }
+  return output
+}
+
+function hasNextLessonBatch(pools: LessonPools, mode: LessonMode, target: LessonTarget | undefined, batch: number) {
+  if (mode === 'target' || target || mode === 'mixed' || mode === 'review') return false
+  if (mode === 'vocab') return batch * 8 < pools.vocabStudy.length
+  if (mode === 'grammar') return batch * 6 < pools.grammarStudy.length
+  if (mode === 'shadowing') return batch * 6 < pools.sentenceStudy.length
+  return false
+}
+
+function buildMixedStudyPracticeSequence(pools: LessonPools, batch: number) {
+  return [
+    ...buildStudyPracticeSequence(pools.vocabStudy, pools.vocabChoice, batch, 2),
+    ...buildStudyPracticeSequence(pools.grammarStudy, [...pools.grammarCloze, ...pools.grammarChoice], batch, 1),
+    ...buildStudyPracticeSequence(pools.sentenceStudy, prioritizeAudioNodes([...pools.sentenceAudio, ...pools.sentenceTranslation]), batch, 1),
+    ...pools.vocabPair.slice(0, 1),
+  ].slice(0, 10)
+}
+
+function buildTargetStudyPracticeSequence(pools: LessonPools, target?: LessonTarget) {
+  if (target?.kind === 'vocab') return buildStudyPracticeSequence(pools.vocabStudy, [...pools.vocabChoice, ...pools.vocabPair], 1, 1)
+  if (target?.kind === 'grammar') return buildStudyPracticeSequence(pools.grammarStudy, [...pools.grammarCloze, ...pools.grammarChoice], 1, 1)
+  if (target?.kind === 'sentence') return buildStudyPracticeSequence(pools.sentenceStudy, prioritizeAudioNodes([...pools.sentenceAudio, ...pools.sentenceTranslation]), 1, 1)
+  return []
 }
 
 export function buildPracticeLesson(input: {
@@ -147,13 +221,91 @@ export function buildPracticeLesson(input: {
     workSlug: input.workSlug,
     episode: input.episode,
     mode: 'mixed',
+    batch: 1,
+    hasNextBatch: false,
     title: `${input.workSlug} EP${String(input.episode).padStart(2, '0')} 普通练习`,
     nodes,
     counts: countNodeTypes(nodes),
   }
 }
 
-function buildVocabPairNodes(workSlug: string, episode: number, vocab: VocabItem[]): LessonNode[] {
+function buildVocabStudyNodes(workSlug: string, episode: number, vocab: VocabItem[]): StudyLessonNode[] {
+  return vocab
+    .filter((item) => item.surface && item.meaningZh)
+    .map((item) => ({
+      type: 'study-card',
+      id: `${item.id}-study`,
+      source: { kind: 'vocab', sourceId: item.id, workSlug, episode },
+      title: '先学这个词',
+      prompt: item.surface,
+      audio: { kind: 'tts', text: item.surface, autoPlay: false, label: '播放读音' },
+      explanation: `${item.surface} = ${item.meaningZh}`,
+      reviewLabel: item.surface,
+      studyKind: 'vocab',
+      jaText: item.surface,
+      reading: item.reading,
+      meaningZh: item.meaningZh,
+      notes: [
+        item.pos ? `词性：${item.pos}` : '',
+        item.jlptLevel ? `难度：${item.jlptLevel}` : '',
+        item.animeToneNote ?? '',
+        item.realWorldNote ?? '',
+      ].filter(Boolean),
+    }))
+}
+
+function buildGrammarStudyNodes(workSlug: string, episode: number, grammar: GrammarPoint[]): StudyLessonNode[] {
+  return grammar
+    .filter((point) => point.pattern && point.functionZh)
+    .map((point) => ({
+      type: 'study-card',
+      id: `${point.id}-study`,
+      source: { kind: 'grammar', sourceId: point.id, workSlug, episode, lineNo: point.sourceLineNo },
+      title: '先学这个语法',
+      prompt: point.pattern,
+      audio: { kind: 'tts', text: point.jaExample || point.pattern, autoPlay: false, label: '播放例句' },
+      explanation: `${point.pattern}：${point.functionZh}`,
+      reviewLabel: point.pattern,
+      studyKind: 'grammar',
+      jaText: point.jaExample || point.pattern,
+      meaningZh: point.functionZh,
+      notes: [
+        point.explanationZh,
+        point.pragmaticsNote,
+        point.realWorldNote,
+        point.difficulty ? `难度：${point.difficulty}` : '',
+      ].filter(Boolean),
+    }))
+}
+
+function buildSentenceStudyNodes(workSlug: string, episode: number, sentences: LearningSentence[]): StudyLessonNode[] {
+  return sentences
+    .filter((sentence) => sentence.jaText && sentence.meaningZh)
+    .map((sentence) => {
+      const audio = sentenceAudio(workSlug, sentence, false)
+      return {
+        type: 'study-card',
+        id: `${sentence.id}-study`,
+        source: { kind: 'sentence', sourceId: sentence.id, workSlug, episode, lineNo: sentence.sourceLineNo },
+        title: '先听懂这句',
+        prompt: sentence.jaText,
+        audio,
+        explanation: `${sentence.jaText} / ${sentence.meaningZh}`,
+        reviewLabel: sentence.jaText,
+        quality: lessonQuality([audioQualityFlag(audio)]),
+        studyKind: 'sentence',
+        jaText: sentence.jaText,
+        reading: sentence.romaji,
+        meaningZh: sentence.meaningZh,
+        notes: [
+          sentence.toneTags.length ? `语气：${sentence.toneTags.join(' / ')}` : '',
+          sentence.difficulty ? `难度：${sentence.difficulty}` : '',
+        ].filter(Boolean),
+      } satisfies StudyLessonNode
+    })
+}
+
+function buildVocabPairNodes(workSlug: string, episode: number, vocab: VocabItem[]): PairMatchLessonNode[] {
   const usable = vocab.filter((item) => item.surface && item.meaningZh).slice(0, 8)
   if (usable.length < 4) return []
   return [{
@@ -174,7 +326,7 @@ function buildVocabPairNodes(workSlug: string, episode: number, vocab: VocabItem
   }]
 }
 
-function buildVocabChoiceNodes(workSlug: string, episode: number, vocab: VocabItem[]): LessonNode[] {
+function buildVocabChoiceNodes(workSlug: string, episode: number, vocab: VocabItem[]): SingleChoiceLessonNode[] {
   return vocab
     .filter((item) => item.surface && item.meaningZh)
     .slice(0, 6)
@@ -196,7 +348,7 @@ function buildVocabChoiceNodes(workSlug: string, episode: number, vocab: VocabIt
     })
 }
 
-function buildSentenceAudioTileNodes(workSlug: string, episode: number, sentences: LearningSentence[]): LessonNode[] {
+function buildSentenceAudioTileNodes(workSlug: string, episode: number, sentences: LearningSentence[]): TileLessonNode[] {
   return sentences
     .filter((sentence) => {
       const tiles = splitJapaneseTiles(sentence.jaText)
@@ -223,7 +375,7 @@ function buildSentenceAudioTileNodes(workSlug: string, episode: number, sentence
     })
 }
 
-function buildSentenceTranslationNodes(workSlug: string, episode: number, sentences: LearningSentence[]): LessonNode[] {
+function buildSentenceTranslationNodes(workSlug: string, episode: number, sentences: LearningSentence[]): TileLessonNode[] {
   return sentences
     .filter((sentence) => {
       const tiles = splitChineseTiles(sentence.meaningZh)
@@ -251,7 +403,7 @@ function buildSentenceTranslationNodes(workSlug: string, episode: number, senten
     })
 }
 
-function buildGrammarClozeNodes(workSlug: string, episode: number, grammar: GrammarPoint[]): LessonNode[] {
+function buildGrammarClozeNodes(workSlug: string, episode: number, grammar: GrammarPoint[]): ClozeChoiceLessonNode[] {
   return grammar
     .filter((point) => point.pattern && point.jaExample)
     .slice(0, 8)
@@ -280,7 +432,7 @@ function buildGrammarClozeNodes(workSlug: string, episode: number, grammar: Gram
     .filter((node): node is ClozeChoiceLessonNode => Boolean(node))
 }
 
-function buildGrammarChoiceNodes(workSlug: string, episode: number, grammar: GrammarPoint[]): LessonNode[] {
+function buildGrammarChoiceNodes(workSlug: string, episode: number, grammar: GrammarPoint[]): SingleChoiceLessonNode[] {
   return grammar
     .filter((point) => point.pattern && point.functionZh)
     .slice(0, 6)
@@ -316,6 +468,7 @@ function sentenceAudio(workSlug: string, sentence: LearningSentence, autoPlay: b
         autoPlay: autoPlay && !source.isFlagged,
         reliability: source.isFlagged ? 'flagged' : 'verified',
         label: source.isFlagged ? '原声可能不准' : '播放原声',
+        fallbackTts: { text: sentence.jaText, label: '播放 TTS' },
       }
     }
   }
@@ -323,10 +476,12 @@ function sentenceAudio(workSlug: string, sentence: LearningSentence, autoPlay: b
 }
 
 function buildModeNodes(
+  pools: LessonPools,
   nodes: LessonNode[],
   mode: LessonMode,
   progressItems: Record<string, ProgressItem>,
   target?: LessonTarget,
+  batch = 1,
 ) {
   if (mode === 'review') {
     const weakStates = new Set(['bad', 'ok', 'fuzzy', 'unknown'])
@@ -344,36 +499,25 @@ function buildModeNodes(
   }
 
   if (mode === 'vocab') {
-    return balanceLessonNodes(nodes.filter((node) => node.source.kind === 'vocab'), {
-      'pair-match': 2,
-      'single-choice': 6,
-      'audio-tiles': 0,
-      'translation-tiles': 0,
-      'cloze-choice': 0,
-    })
+    return buildStudyPracticeSequence(pools.vocabStudy, pools.vocabChoice, batch, 8)
   }
 
   if (mode === 'grammar') {
-    return balanceLessonNodes(nodes.filter((node) => node.source.kind === 'grammar'), {
-      'pair-match': 0,
-      'single-choice': 3,
-      'audio-tiles': 0,
-      'translation-tiles': 2,
-      'cloze-choice': 5,
-    })
+    return buildStudyPracticeSequence(pools.grammarStudy, [...pools.grammarCloze, ...pools.grammarChoice], batch, 6)
   }
 
   if (mode === 'shadowing') {
-    return balanceLessonNodes(prioritizeAudioNodes(nodes.filter((node) => node.source.kind === 'sentence')), {
-      'pair-match': 0,
-      'single-choice': 0,
-      'audio-tiles': 5,
-      'translation-tiles': 3,
-      'cloze-choice': 0,
-    })
+    return buildStudyPracticeSequence(
+      pools.sentenceStudy,
+      prioritizeAudioNodes([...pools.sentenceAudio, ...pools.sentenceTranslation]),
+      batch,
+      6,
+    )
   }
 
   if (mode === 'target' || target) {
+    const targetNodes = buildTargetStudyPracticeSequence(pools, target)
+    if (targetNodes.length) return targetNodes
     return balanceLessonNodes(nodes, {
       'pair-match': target?.kind === 'vocab' ? 1 : 0,
       'single-choice': 3,
@@ -383,21 +527,15 @@ function buildModeNodes(
     })
   }
 
-  return balanceLessonNodes(nodes, {
-    'pair-match': 1,
-    'single-choice': 3,
-    'audio-tiles': 2,
-    'translation-tiles': 2,
-    'cloze-choice': 3,
-  })
+  return buildMixedStudyPracticeSequence(pools, batch)
 }
 
-function balanceLessonNodes(nodes: LessonNode[], quota: Record<LessonNode['type'], number>) {
+function balanceLessonNodes(nodes: LessonNode[], quota: Partial<Record<LessonNode['type'], number>>) {
   const output: LessonNode[] = []
-  const order: LessonNode['type'][] = ['pair-match', 'audio-tiles', 'cloze-choice', 'translation-tiles', 'single-choice']
+  const order: LessonNode['type'][] = ['study-card', 'pair-match', 'audio-tiles', 'cloze-choice', 'translation-tiles', 'single-choice']
 
   for (const type of order) {
-    output.push(...nodes.filter((node) => node.type === type).slice(0, quota[type]))
+    output.push(...nodes.filter((node) => node.type === type).slice(0, quota[type] ?? 0))
   }
   return output.slice(0, 10)
 }
@@ -424,17 +562,19 @@ function audioPriority(audio: PromptAudio) {
   return 3
 }
 
-function lessonId(workSlug: string, episode: number, mode: LessonMode, target?: LessonTarget) {
+function lessonId(workSlug: string, episode: number, mode: LessonMode, target?: LessonTarget, batch = 1) {
   const targetPart = target ? `-${target.kind}-${target.id}` : ''
-  return `${workSlug}-ep${String(episode).padStart(2, '0')}-${mode}${targetPart}-lesson`
+  const batchPart = batch > 1 ? `-batch-${batch}` : ''
+  return `${workSlug}-ep${String(episode).padStart(2, '0')}-${mode}${targetPart}${batchPart}-lesson`
 }
 
-function lessonTitle(workSlug: string, episode: number, mode: LessonMode, target?: LessonTarget) {
+function lessonTitle(workSlug: string, episode: number, mode: LessonMode, target?: LessonTarget, batch = 1) {
   const prefix = `${workSlug} EP${String(episode).padStart(2, '0')}`
   if (target) return `${prefix} 单点训练`
-  if (mode === 'vocab') return `${prefix} 词汇训练`
-  if (mode === 'grammar') return `${prefix} 语法训练`
-  if (mode === 'shadowing') return `${prefix} 跟读训练`
+  const batchPart = batch > 1 ? ` 第 ${batch} 批` : ''
+  if (mode === 'vocab') return `${prefix} 词汇训练${batchPart}`
+  if (mode === 'grammar') return `${prefix} 语法训练${batchPart}`
+  if (mode === 'shadowing') return `${prefix} 跟读训练${batchPart}`
   if (mode === 'review') return `${prefix} 回炉复习`
   return `${prefix} 综合训练`
 }
@@ -446,6 +586,7 @@ function countNodeTypes(nodes: LessonNode[]): Record<LessonNode['type'], number>
     'audio-tiles': nodes.filter((node) => node.type === 'audio-tiles').length,
     'translation-tiles': nodes.filter((node) => node.type === 'translation-tiles').length,
     'cloze-choice': nodes.filter((node) => node.type === 'cloze-choice').length,
+    'study-card': nodes.filter((node) => node.type === 'study-card').length,
   }
 }
 

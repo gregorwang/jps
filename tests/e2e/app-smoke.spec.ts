@@ -18,7 +18,7 @@ test('iPad landscape app routes render without blank screens', async ({ page }) 
   await expect(page.locator('canvas.handwriting-canvas')).toBeVisible()
 
   await page.goto('/works/k-on/episodes/1/lesson')
-  await expect(page.getByRole('heading', { name: '把中文意思和日文表达配起来' })).toBeVisible()
+  await expect(page.getByRole('button', { name: '我学完了' })).toBeVisible()
   await expect(page.locator('.sidebar')).toHaveCount(0)
 
   await page.goto('/characters')

@@ -8,12 +8,13 @@ import type {
   PairMatchLessonNode,
   PromptAudio,
   SingleChoiceLessonNode,
+  StudyLessonNode,
   TileLessonNode,
 } from '../lib/lesson'
 import { saveReviewState } from '../lib/progress'
 import { appendLessonAttempt, clearLessonSession, readLessonSession, saveLessonSession, summarizeLessonAttempts } from '../lib/lessonProgress'
 import { usePreferredJapaneseVoice } from '../lib/voicePreferences'
-import { speakJapanese } from '../server/tts'
+import { preloadJapaneseTts, speakJapanese } from '../server/tts'
 
 type LessonPlayerProps = {
   lesson: LessonPlan
@@ -27,9 +28,9 @@ type AnswerResult = {
 
 export function LessonPlayer({ lesson }: LessonPlayerProps) {
   const initialSession = readLessonSession(lesson.id)
-  const [index, setIndex] = useState(initialSession?.completedAt ? 0 : initialSession?.index ?? 0)
+  const [index, setIndex] = useState(initialSession?.completedAt ? lesson.nodes.length : initialSession?.index ?? 0)
   const [feedback, setFeedback] = useState<AnswerResult | null>(null)
-  const [stats, setStats] = useState(initialSession?.completedAt ? { correct: 0, total: 0 } : {
+  const [stats, setStats] = useState({
     correct: initialSession?.correct ?? 0,
     total: initialSession?.total ?? 0,
   })
@@ -42,19 +43,24 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
 
   useEffect(() => {
     const session = readLessonSession(lesson.id)
-    setIndex(session?.completedAt ? 0 : session?.index ?? 0)
-    setStats(session?.completedAt ? { correct: 0, total: 0 } : {
+    setIndex(session?.completedAt ? lesson.nodes.length : session?.index ?? 0)
+    setStats({
       correct: session?.correct ?? 0,
       total: session?.total ?? 0,
     })
     setFeedback(null)
     setSummaryVersion((value) => value + 1)
     nodeStartedAtRef.current = Date.now()
-  }, [lesson.id])
+  }, [lesson.id, lesson.nodes.length])
 
-  async function recordAnswer(result: AnswerResult) {
+  useEffect(() => {
+    preloadNodeAudio(lesson.nodes[index])
+    preloadNodeAudio(lesson.nodes[index + 1])
+  }, [index, lesson.nodes])
+
+  async function recordAnswer(result: AnswerResult, advanceImmediately = false) {
     if (!node || feedback) return
-    setFeedback(result)
+    if (!advanceImmediately) setFeedback(result)
     const durationMs = Date.now() - nodeStartedAtRef.current
     const nextStats = {
       correct: stats.correct + (result.correct ? 1 : 0),
@@ -79,7 +85,7 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
       index: Math.min(index + 1, lesson.nodes.length),
       ...nextStats,
     })
-    await saveReviewState(node.id, result.correct ? 'good' : 'bad', {
+    void saveReviewState(node.id, result.correct ? 'good' : 'bad', {
       itemType: node.source.kind,
       workSlug: node.source.workSlug,
       episode: node.source.episode,
@@ -95,7 +101,18 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
         answer: result.answer,
         audioKind: node.audio.kind,
       },
-    })
+    }).catch(() => undefined)
+    if (advanceImmediately) {
+      const nextIndex = Math.min(index + 1, lesson.nodes.length)
+      setIndex(nextIndex)
+      saveLessonSession({
+        lessonId: lesson.id,
+        index: nextIndex,
+        ...nextStats,
+        completedAt: nextIndex >= lesson.nodes.length ? new Date().toISOString() : undefined,
+      })
+      nodeStartedAtRef.current = Date.now()
+    }
   }
 
   function goNext() {
@@ -154,6 +171,7 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
             <span>填空 {lesson.counts['cloze-choice']}</span>
             <span>拼句 {lesson.counts['translation-tiles']}</span>
             <span>选择 {lesson.counts['single-choice']}</span>
+            <span>学习卡 {lesson.counts['study-card']}</span>
           </div>
           <div className="lesson-complete-actions">
             <button className="primary-action" type="button" onClick={restart}>
@@ -181,6 +199,16 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
                 {action.label}
               </Link>
             ))}
+            {lesson.hasNextBatch ? (
+              <Link
+                className="primary-action"
+                to="/works/$workSlug/episodes/$episode/lesson"
+                search={{ mode: lesson.mode, batch: lesson.batch + 1 }}
+                params={{ workSlug: lesson.workSlug, episode: String(lesson.episode) }}
+              >
+                下一批
+              </Link>
+            ) : null}
             <Link
               className="secondary-action"
               to="/works/$workSlug/episodes/$episode"
@@ -202,7 +230,12 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
 
           <AudioPrompt audio={node.audio} />
 
-          <LessonNodeView node={node} disabled={Boolean(feedback)} onAnswer={(result) => void recordAnswer(result)} />
+          <LessonNodeView
+            node={node}
+            disabled={Boolean(feedback)}
+            onAnswer={(result) => void recordAnswer(result)}
+            onStudyComplete={(result) => void recordAnswer(result, true)}
+          />
 
           <LessonFeedbackDock
             node={node}
@@ -220,11 +253,14 @@ function LessonNodeView({
   node,
   disabled,
   onAnswer,
+  onStudyComplete,
 }: {
   node: LessonNode
   disabled: boolean
   onAnswer: (result: AnswerResult) => void
+  onStudyComplete: (result: AnswerResult) => void
 }) {
+  if (node.type === 'study-card') return <StudyCard node={node} disabled={disabled} onStudyComplete={onStudyComplete} />
   if (node.type === 'pair-match') return <PairMatchExercise node={node} disabled={disabled} onAnswer={onAnswer} />
   if (node.type === 'single-choice') return <SingleChoiceExercise node={node} disabled={disabled} onAnswer={onAnswer} />
   if (node.type === 'cloze-choice') return <ClozeChoiceExercise node={node} disabled={disabled} onAnswer={onAnswer} />
@@ -232,59 +268,150 @@ function LessonNodeView({
 }
 
 function AudioPrompt({ audio }: { audio: PromptAudio }) {
-  const [status, setStatus] = useState<'idle' | 'loading' | 'playing' | 'error'>('idle')
+  const [status, setStatus] = useState<Record<string, 'idle' | 'loading' | 'playing' | 'error'>>({})
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const voice = usePreferredJapaneseVoice()
 
-  async function play(autoAttempt = false) {
-    if (audio.kind === 'none') return
-    setStatus('loading')
+  async function play(cue: PromptAudio | { kind: 'tts'; text: string; autoPlay: boolean; label?: string }, autoAttempt = false) {
+    if (cue.kind === 'none') return
+    const key = audioCueKey(cue)
+    setStatus((current) => ({ ...current, [key]: 'loading' }))
     try {
-      if (audio.kind === 'source') {
+      if (cue.kind === 'source') {
         audioRef.current?.pause()
-        const player = new Audio(audio.url)
+        const player = new Audio(cue.url)
         audioRef.current = player
-        player.addEventListener('playing', () => setStatus('playing'), { once: true })
-        player.addEventListener('ended', () => setStatus('idle'), { once: true })
-        player.addEventListener('error', () => setStatus('error'), { once: true })
+        player.preload = 'auto'
+        player.addEventListener('playing', () => setStatus((current) => ({ ...current, [key]: 'playing' })), { once: true })
+        player.addEventListener('ended', () => setStatus((current) => ({ ...current, [key]: 'idle' })), { once: true })
+        player.addEventListener('error', () => setStatus((current) => ({ ...current, [key]: 'error' })), { once: true })
         await player.play()
       } else {
-        await speakJapanese(audio.text, voice)
-        setStatus('idle')
+        await speakJapanese(cue.text, voice)
+        setStatus((current) => ({ ...current, [key]: 'idle' }))
       }
     } catch (error) {
       if (autoAttempt && error instanceof DOMException && error.name === 'NotAllowedError') {
-        setStatus('idle')
+        setStatus((current) => ({ ...current, [key]: 'idle' }))
         return
       }
       console.error(error)
-      setStatus('error')
+      setStatus((current) => ({ ...current, [key]: 'error' }))
     }
   }
 
   useEffect(() => {
     if (audio.kind === 'none' || !audio.autoPlay) return
-    void play(true)
+    void play(audio, true)
   }, [audio])
 
   if (audio.kind === 'none') return null
 
   return (
     <div className={audio.kind === 'source' && audio.reliability === 'flagged' ? 'lesson-audio flagged' : 'lesson-audio'}>
-      <button className="lesson-audio-button" type="button" onClick={() => void play()} disabled={status === 'loading'}>
-        <Volume2 size={28} />
-        <span>
-          {status === 'loading'
-            ? '加载中'
-            : status === 'playing'
-              ? '播放中'
-              : status === 'error'
-                ? '播放失败'
-                : audio.label ?? (audio.kind === 'source' ? '播放原声' : '播放 TTS')}
-        </span>
-      </button>
+      <AudioButton cue={audio} status={status[audioCueKey(audio)] ?? 'idle'} onPlay={() => void play(audio)} />
+      {audio.kind === 'source' && audio.fallbackTts ? <FallbackTtsButton fallback={audio.fallbackTts} status={status} onPlay={play} /> : null}
       {audio.kind === 'source' && audio.reliability === 'flagged' ? <small>原声可能不准，本题不会自动播放。</small> : null}
       {audio.kind === 'tts' ? <small>TTS 是辅助标准音，不代表角色原声语气。</small> : null}
+    </div>
+  )
+}
+
+function FallbackTtsButton({
+  fallback,
+  status,
+  onPlay,
+}: {
+  fallback: { text: string; label?: string }
+  status: Record<string, 'idle' | 'loading' | 'playing' | 'error'>
+  onPlay: (cue: { kind: 'tts'; text: string; autoPlay: boolean; label?: string }) => Promise<void>
+}) {
+  const cue = { kind: 'tts' as const, text: fallback.text, autoPlay: false, label: fallback.label ?? '播放 TTS' }
+  return (
+    <AudioButton
+      cue={cue}
+      status={status[audioCueKey(cue)] ?? 'idle'}
+      onPlay={() => void onPlay(cue)}
+    />
+  )
+}
+
+function preloadNodeAudio(node?: LessonNode) {
+  if (!node) return
+  if (node.audio.kind === 'tts') preloadJapaneseTts(node.audio.text)
+  if (node.audio.kind === 'source') {
+    const audio = new Audio(node.audio.url)
+    audio.preload = 'auto'
+    if (node.audio.fallbackTts) preloadJapaneseTts(node.audio.fallbackTts.text)
+  }
+  if (node.type === 'pair-match') {
+    for (const pair of node.pairs) {
+      if (pair.audioText) preloadJapaneseTts(pair.audioText)
+    }
+  }
+}
+
+function audioCueKey(cue: PromptAudio | { kind: 'tts'; text: string; autoPlay: boolean; label?: string }) {
+  if (cue.kind === 'source') return `source:${cue.url}`
+  if (cue.kind === 'tts') return `tts:${cue.text}`
+  return 'none'
+}
+
+function AudioButton({
+  cue,
+  status,
+  onPlay,
+}: {
+  cue: PromptAudio | { kind: 'tts'; text: string; autoPlay: boolean; label?: string }
+  status: 'idle' | 'loading' | 'playing' | 'error'
+  onPlay: () => void
+}) {
+  if (cue.kind === 'none') return null
+  return (
+    <button className="lesson-audio-button" type="button" onClick={onPlay} disabled={status === 'loading'}>
+      <Volume2 size={28} />
+      <span>
+        {status === 'loading'
+          ? '加载中'
+          : status === 'playing'
+            ? '播放中'
+            : status === 'error'
+              ? '播放失败'
+              : cue.label ?? (cue.kind === 'source' ? '播放原声' : '播放 TTS')}
+      </span>
+    </button>
+  )
+}
+
+function StudyCard({
+  node,
+  disabled,
+  onStudyComplete,
+}: {
+  node: StudyLessonNode
+  disabled: boolean
+  onStudyComplete: (result: AnswerResult) => void
+}) {
+  return (
+    <div className="study-card-node">
+      <div>
+        <p className="study-ja">{node.jaText}</p>
+        {node.reading ? <p className="study-reading">{node.reading}</p> : null}
+        <p className="study-meaning">{node.meaningZh}</p>
+      </div>
+      {node.notes.length ? (
+        <ul>
+          {node.notes.map((note) => <li key={note}>{note}</li>)}
+        </ul>
+      ) : null}
+      <button
+        className="primary-action"
+        type="button"
+        disabled={disabled}
+        onClick={() => onStudyComplete({ correct: true, selected: 'studied', answer: node.reviewLabel })}
+      >
+        我学完了
+      </button>
     </div>
   )
 }

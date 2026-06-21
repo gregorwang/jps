@@ -8,6 +8,10 @@ const vocab: VocabItem[] = [
   makeVocab('v3', '先生', '老师'),
   makeVocab('v4', '軽音部', '轻音部'),
   makeVocab('v5', '本当', '真的'),
+  makeVocab('v6', '朝', '早上'),
+  makeVocab('v7', '学校', '学校'),
+  makeVocab('v8', '部活', '社团活动'),
+  makeVocab('v9', '友達', '朋友'),
 ]
 
 const grammar: GrammarPoint[] = [
@@ -27,7 +31,8 @@ describe('buildEpisodeLesson', () => {
     const lesson = buildEpisodeLesson({ workSlug: 'k-on', episode: 1, vocab, grammar, sentences })
 
     expect(lesson.nodes.length).toBeGreaterThan(5)
-    expect(lesson.counts['pair-match']).toBe(1)
+    expect(lesson.nodes[0]?.type).toBe('study-card')
+    expect(lesson.counts['study-card']).toBeGreaterThan(0)
     expect(lesson.counts['audio-tiles']).toBeGreaterThan(0)
     expect(lesson.counts['cloze-choice']).toBeGreaterThan(0)
     expect(lesson.nodes.every((node) => node.source.kind !== 'sentence' || node.audio.kind !== 'source')).toBe(true)
@@ -39,9 +44,22 @@ describe('buildEpisodeLesson', () => {
     const shadowingLesson = buildEpisodeLesson({ workSlug: 'k-on', episode: 1, vocab, grammar, sentences, mode: 'shadowing' })
 
     expect(vocabLesson.nodes.every((node) => node.source.kind === 'vocab')).toBe(true)
+    expect(vocabLesson.counts['study-card']).toBeGreaterThan(0)
+    expect(vocabLesson.nodes[0]?.type).toBe('study-card')
     expect(grammarLesson.nodes.every((node) => node.source.kind === 'grammar')).toBe(true)
+    expect(grammarLesson.nodes[0]?.type).toBe('study-card')
     expect(grammarLesson.counts['cloze-choice']).toBeGreaterThan(0)
     expect(shadowingLesson.nodes.every((node) => node.source.kind === 'sentence')).toBe(true)
+    expect(shadowingLesson.nodes[0]?.type).toBe('study-card')
+  })
+
+  it('batches vocab specialty lessons instead of truncating the whole episode', () => {
+    const firstBatch = buildEpisodeLesson({ workSlug: 'k-on', episode: 1, vocab, grammar, sentences, mode: 'vocab' })
+    const secondBatch = buildEpisodeLesson({ workSlug: 'k-on', episode: 1, vocab, grammar, sentences, mode: 'vocab', batch: 2 })
+
+    expect(firstBatch.hasNextBatch).toBe(true)
+    expect(firstBatch.id).not.toBe(secondBatch.id)
+    expect(secondBatch.nodes[0]?.source.sourceId).toBe('v9')
   })
 
   it('builds target practice around the requested source', () => {
@@ -86,6 +104,22 @@ describe('buildEpisodeLesson', () => {
     expect(node.answer).toBe('ね')
     expect(`${node.before}[${node.answer}]${node.after}`).toBe('こうやってニートが出来上がっていくの[ね]')
     expect(node.choices.map((choice) => choice.value)).toContain('ね')
+  })
+
+  it('keeps source audio and TTS fallback together for Re:Zero flagged audio', () => {
+    const lesson = buildEpisodeLesson({
+      workSlug: 're-zero',
+      episode: 7,
+      vocab,
+      grammar,
+      sentences: [makeSentence('re-zero-s01e07-sentence-001', 'これはテストです', '这是测试')],
+      mode: 'shadowing',
+    })
+    const node = lesson.nodes.find((item) => item.type === 'audio-tiles')
+
+    expect(node?.audio.kind).toBe('source')
+    if (node?.audio.kind !== 'source') return
+    expect(node.audio.fallbackTts?.text).toBe('これはテストです')
   })
 })
 
