@@ -73,6 +73,7 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
       nodeType: node.type,
       sourceKind: node.source.kind,
       sourceId: node.source.sourceId,
+      label: node.reviewLabel,
       correct: result.correct,
       selected: result.selected,
       answer: result.answer,
@@ -102,16 +103,20 @@ export function LessonPlayer({ lesson }: LessonPlayerProps) {
         audioKind: node.audio.kind,
       },
     }).catch(() => undefined)
-    if (advanceImmediately) {
+    if (advanceImmediately || result.correct) {
       const nextIndex = Math.min(index + 1, lesson.nodes.length)
-      setIndex(nextIndex)
-      saveLessonSession({
+      const nextSession = {
         lessonId: lesson.id,
         index: nextIndex,
         ...nextStats,
         completedAt: nextIndex >= lesson.nodes.length ? new Date().toISOString() : undefined,
-      })
-      nodeStartedAtRef.current = Date.now()
+      }
+      window.setTimeout(() => {
+        setFeedback(null)
+        setIndex(nextIndex)
+        saveLessonSession(nextSession)
+        nodeStartedAtRef.current = Date.now()
+      }, advanceImmediately ? 0 : 520)
     }
   }
 

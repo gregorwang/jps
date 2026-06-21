@@ -53,13 +53,14 @@ describe('buildEpisodeLesson', () => {
     expect(shadowingLesson.nodes[0]?.type).toBe('study-card')
   })
 
-  it('batches vocab specialty lessons instead of truncating the whole episode', () => {
-    const firstBatch = buildEpisodeLesson({ workSlug: 'k-on', episode: 1, vocab, grammar, sentences, mode: 'vocab' })
-    const secondBatch = buildEpisodeLesson({ workSlug: 'k-on', episode: 1, vocab, grammar, sentences, mode: 'vocab', batch: 2 })
+  it('covers all vocab items in the vocab specialty lesson', () => {
+    const lesson = buildEpisodeLesson({ workSlug: 'k-on', episode: 1, vocab, grammar, sentences, mode: 'vocab' })
+    const studiedIds = lesson.nodes
+      .filter((node) => node.type === 'study-card')
+      .map((node) => node.source.sourceId)
 
-    expect(firstBatch.hasNextBatch).toBe(true)
-    expect(firstBatch.id).not.toBe(secondBatch.id)
-    expect(secondBatch.nodes[0]?.source.sourceId).toBe('v9')
+    expect(lesson.hasNextBatch).toBe(false)
+    expect(studiedIds).toEqual(vocab.map((item) => item.id))
   })
 
   it('builds target practice around the requested source', () => {

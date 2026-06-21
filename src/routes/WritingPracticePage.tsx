@@ -5,10 +5,13 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { EpisodeScopeSelector } from '../components/EpisodeScopeSelector'
 import { HandwritingCanvas, type HandwritingCanvasHandle } from '../components/HandwritingCanvas'
 import { PageHeader } from '../components/PageHeader'
+import { TtsButton } from '../components/TtsButton'
 import { readEpisodeScope } from '../lib/episodeScope'
+import { usePreferredJapaneseVoice } from '../lib/voicePreferences'
 import { buildWritingItems, fetchWritingStats, readLocalWritingStats, skipWritingPractice, submitWritingPractice } from '../lib/writingPractice'
 import { validateWriting, type WritingValidationResult } from '../lib/writingValidation'
 import { animeRepository } from '../server/repositories/animeRepository'
+import { speakJapanese } from '../server/tts'
 
 const defaultWorkSlug = 'k-on'
 const defaultEpisode = 1
@@ -19,6 +22,7 @@ export function WritingPracticePage() {
   const selectedWorkSlug = workSlug ?? fallbackScope.workSlug ?? defaultWorkSlug
   const selectedEpisode = Number(episode ?? fallbackScope.episode ?? defaultEpisode)
   const canvasRef = useRef<HandwritingCanvasHandle>(null)
+  const voice = usePreferredJapaneseVoice()
   const [index, setIndex] = useState(0)
   const [localStatsTick, setLocalStatsTick] = useState(0)
   const [lastResult, setLastResult] = useState<WritingValidationResult | { passed: false; reason: 'skipped' } | null>(null)
@@ -39,21 +43,36 @@ export function WritingPracticePage() {
   const current = items[index] ?? items[0]
   const localStats = useMemo(() => readLocalWritingStats(), [localStatsTick])
   const remoteStats = statsQuery.data ?? []
-  const currentStats = remoteStats.find((item) => item.itemId === current?.id) ?? localStats[current?.id ?? '']
-  const todayCompleted = remoteStats.reduce((count, item) => {
+  const mergedStats = useMemo(() => {
+    const stats = { ...localStats }
+    for (const item of remoteStats) stats[item.itemId] = item
+    return stats
+  }, [localStats, remoteStats])
+  const currentStats = mergedStats[current?.id ?? '']
+  const completedItems = items.filter((item) => (mergedStats[item.id]?.completedCount ?? 0) > 0)
+  const todayCompleted = Object.values(mergedStats).reduce((count, item) => {
     const lastPracticed = item.lastPracticedAt?.slice(0, 10)
     return lastPracticed === new Date().toISOString().slice(0, 10) ? count + item.completedCount : count
   }, 0)
 
   useEffect(() => {
     canvasRef.current?.clear()
-    setIndex(0)
+    setIndex(readWritingSessionIndex(selectedWorkSlug, selectedEpisode))
     setLastResult(null)
   }, [selectedEpisode, selectedWorkSlug])
 
+  useEffect(() => {
+    if (!current?.text) return
+    void speakJapanese(current.text, voice).catch(() => undefined)
+  }, [current?.id, current?.text, voice])
+
   function moveNext() {
     canvasRef.current?.clear()
-    setIndex((currentIndex) => (items.length ? (currentIndex + 1) % items.length : 0))
+    setIndex((currentIndex) => {
+      const nextIndex = items.length ? (currentIndex + 1) % items.length : 0
+      saveWritingSessionIndex(selectedWorkSlug, selectedEpisode, nextIndex)
+      return nextIndex
+    })
   }
 
   async function handleSubmit() {
@@ -86,6 +105,7 @@ export function WritingPracticePage() {
 
   function handleRestart() {
     canvasRef.current?.clear()
+    saveWritingSessionIndex(selectedWorkSlug, selectedEpisode, 0)
     setIndex(0)
     setLastResult(null)
   }
@@ -114,10 +134,10 @@ export function WritingPracticePage() {
             <span className="review-chip">{items.length ? index + 1 : 0} / {items.length}</span>
           </div>
           <strong className="writing-target-text">{current?.text ?? '暂无'}</strong>
+          {current?.text ? <TtsButton text={current.text} label="读音" variant="secondary" /> : null}
           <div className="mini-lines">
             {current?.reading ? <p><b>读音</b>{current.reading}{current.romaji ? ` / ${current.romaji}` : ''}</p> : null}
             {current?.meaningZh ? <p><b>释义</b>{current.meaningZh}</p> : null}
-            <p><b>来源</b>{current ? '本集手写词' : '等待词库'}</p>
           </div>
 
           <div className="writing-stat-grid">
@@ -129,6 +149,18 @@ export function WritingPracticePage() {
               <small>今日已完成</small>
               <strong>{todayCompleted}</strong>
             </div>
+            <div>
+              <small>本轮进度</small>
+              <strong>{completedItems.length} / {items.length}</strong>
+            </div>
+          </div>
+
+          <div className="writing-progress-list" aria-label="手写完成词">
+            {items.slice(0, 20).map((item) => (
+              <span className={(mergedStats[item.id]?.completedCount ?? 0) > 0 ? 'done' : ''} key={item.id}>
+                {item.text}
+              </span>
+            ))}
           </div>
 
           <div className={`writing-result ${lastResult?.passed ? 'passed' : lastResult ? 'failed' : ''}`}>
@@ -163,4 +195,19 @@ export function WritingPracticePage() {
       </div>
     </section>
   )
+}
+
+function writingSessionKey(workSlug: string, episode: number) {
+  return `anime-japanese-lab-writing-session:${workSlug}:${episode}`
+}
+
+function readWritingSessionIndex(workSlug: string, episode: number) {
+  if (typeof window === 'undefined') return 0
+  const value = Number(window.localStorage.getItem(writingSessionKey(workSlug, episode)) ?? 0)
+  return Number.isFinite(value) && value >= 0 ? Math.floor(value) : 0
+}
+
+function saveWritingSessionIndex(workSlug: string, episode: number, index: number) {
+  if (typeof window === 'undefined') return
+  window.localStorage.setItem(writingSessionKey(workSlug, episode), String(index))
 }

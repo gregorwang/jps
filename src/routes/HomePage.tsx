@@ -1,10 +1,11 @@
 import { Link } from '@tanstack/react-router'
 import { BookOpen, Brain, ClipboardList, History, Mic2, PenLine, PlayCircle, Sparkles } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { PageHeader } from '../components/PageHeader'
 import { StatCard } from '../components/StatCard'
 import { readEpisodeScope } from '../lib/episodeScope'
+import { readRecentLessonAttempts } from '../lib/lessonProgress'
 import { getDeviceId } from '../lib/progress'
 import { animeRepository } from '../server/repositories/animeRepository'
 
@@ -23,6 +24,19 @@ export function HomePage() {
   const reviewTasks = reviewQuery.data?.tasks ?? []
   const groups = reviewQuery.data?.groups ?? {}
   const episodeParams = { workSlug: episodeScope.workSlug, episode: String(episodeScope.episode) }
+  const todayAttempts = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10)
+    const seen = new Set<string>()
+    return readRecentLessonAttempts(120)
+      .filter((attempt) => attempt.createdAt.slice(0, 10) === today)
+      .filter((attempt) => {
+        const key = `${attempt.sourceKind}:${attempt.sourceId}:${attempt.label ?? ''}`
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+      .slice(0, 8)
+  }, [reviewTasks.length])
 
   useEffect(() => {
     function handleEpisodeScopeChange(event: Event) {
@@ -52,8 +66,28 @@ export function HomePage() {
         <StatCard label="高频词" value={plan?.vocabCount ?? 20} icon={<Sparkles size={20} />} />
         <StatCard label="手写词" value={plan?.handwritingCount ?? 10} icon={<PenLine size={20} />} />
         <StatCard label="跟读句" value={plan?.shadowingCount ?? 5} icon={<Mic2 size={20} />} />
-        <StatCard label="今日回炉" value={reviewTasks.length} icon={<Brain size={20} />} />
+        <StatCard label="今日练习" value={todayAttempts.length} icon={<Brain size={20} />} />
       </div>
+
+      <section className="source-preview">
+        <div className="section-heading-row">
+          <div>
+            <p className="eyebrow">今日已练</p>
+            <strong>{todayAttempts.length ? `记录 ${todayAttempts.length} 项` : '今天还没有普通训练记录'}</strong>
+          </div>
+        </div>
+        <div className="review-task-list">
+          {todayAttempts.map((attempt, index) => (
+            <div className="review-task-row" key={`${attempt.nodeId}-${attempt.createdAt}`}>
+              <ClipboardList size={18} />
+              <span>{index + 1}</span>
+              <strong>{attempt.label || attempt.sourceId}</strong>
+              <small>{attempt.sourceKind} · {attempt.nodeType} · {attempt.correct ? '正确' : '需回炉'}</small>
+            </div>
+          ))}
+          {todayAttempts.length === 0 ? <span className="muted-text">完成词汇、语法、跟读或综合训练后，会在这里看到今天练过的内容。</span> : null}
+        </div>
+      </section>
 
       <section className="source-preview">
         <div className="section-heading-row">

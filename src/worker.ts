@@ -2427,6 +2427,26 @@ async function listEpisodeVocabRows(
       env,
       `/rest/v1/learning_vocab_items?select=*&id=${encodeURIComponent(`in.(${plannedIds.map(quotePostgrestString).join(',')})`)}&limit=${plannedIds.length}`,
     )
+    if (mode === 'vocab') {
+      const extras = await supabase<unknown[]>(
+        env,
+        `/rest/v1/learning_vocab_items?select=*&work_slug=eq.${encodeURIComponent(workSlug)}&order=total_occurrences.desc&limit=80`,
+      )
+      const plannedSet = new Set(plannedIds)
+      const merged = [
+        ...rows,
+        ...extras.filter((item) => !plannedSet.has(readString(item as Record<string, unknown>, 'id'))),
+      ]
+      const order = new Map(plannedIds.map((id, index) => [id, index]))
+      return merged.sort((left, right) => {
+        const leftId = readString(left as Record<string, unknown>, 'id')
+        const rightId = readString(right as Record<string, unknown>, 'id')
+        const leftIndex = order.get(leftId) ?? plannedIds.length
+        const rightIndex = order.get(rightId) ?? plannedIds.length
+        if (leftIndex !== rightIndex) return leftIndex - rightIndex
+        return 0
+      })
+    }
     const order = new Map(plannedIds.map((id, index) => [id, index]))
     return rows.sort((left, right) => {
       const leftIndex = order.get(readString(left as Record<string, unknown>, 'id')) ?? Number.MAX_SAFE_INTEGER
@@ -2437,7 +2457,7 @@ async function listEpisodeVocabRows(
 
   return supabase<unknown[]>(
     env,
-    `/rest/v1/learning_vocab_items?select=*&work_slug=eq.${encodeURIComponent(workSlug)}&order=total_occurrences.desc&limit=40`,
+    `/rest/v1/learning_vocab_items?select=*&work_slug=eq.${encodeURIComponent(workSlug)}&order=total_occurrences.desc&limit=80`,
   )
 }
 

@@ -173,7 +173,7 @@ function buildStudyPracticeSequence(studyNodes: StudyLessonNode[], practiceNodes
 
 function hasNextLessonBatch(pools: LessonPools, mode: LessonMode, target: LessonTarget | undefined, batch: number) {
   if (mode === 'target' || target || mode === 'mixed' || mode === 'review') return false
-  if (mode === 'vocab') return batch * 8 < pools.vocabStudy.length
+  if (mode === 'vocab') return false
   if (mode === 'grammar') return batch * 6 < pools.grammarStudy.length
   if (mode === 'shadowing') return batch * 6 < pools.sentenceStudy.length
   return false
@@ -499,7 +499,7 @@ function buildModeNodes(
   }
 
   if (mode === 'vocab') {
-    return buildStudyPracticeSequence(pools.vocabStudy, pools.vocabChoice, batch, 8)
+    return buildStudyPracticeSequence(pools.vocabStudy, pools.vocabChoice, 1, pools.vocabStudy.length)
   }
 
   if (mode === 'grammar') {

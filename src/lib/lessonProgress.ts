@@ -18,6 +18,7 @@ export type LessonAttempt = {
   nodeType: LessonNode['type']
   sourceKind: LessonNode['source']['kind']
   sourceId: string
+  label?: string
   correct: boolean
   selected: unknown
   answer: unknown
@@ -79,6 +80,10 @@ export function appendLessonAttempt(attempt: Omit<LessonAttempt, 'createdAt'>) {
 
 export function readLessonAttempts(lessonId: string) {
   return readJson<LessonAttempt[]>(attemptsKey, []).filter((attempt) => attempt.lessonId === lessonId)
+}
+
+export function readRecentLessonAttempts(limit = 80) {
+  return readJson<LessonAttempt[]>(attemptsKey, []).slice(0, limit)
 }
 
 export function summarizeLessonAttempts(lessonId: string): LessonAttemptSummary {

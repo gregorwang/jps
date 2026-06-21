@@ -3,7 +3,8 @@ import { expect, test } from '@playwright/test'
 test('iPad landscape app routes render without blank screens', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('heading', { name: /k-on EP01/i })).toBeVisible()
-  await expect(page.locator('.review-task-list')).toBeVisible()
+  await expect(page.getByText('今日已练')).toBeVisible()
+  await expect(page.getByText('复习 / 错题回炉')).toBeVisible()
 
   await page.goto('/works/k-on/episodes/1/subtitles')
   await expect(page.getByRole('heading', { name: 'EP01 日文台词' })).toBeVisible()
