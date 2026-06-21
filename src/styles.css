@@ -1357,6 +1357,20 @@ blockquote {
   align-content: start;
 }
 
+.training-control-deck {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.training-control-main,
+.training-control-side {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
 .linguistic-card-meta {
   display: flex;
   flex-wrap: wrap;
@@ -2154,6 +2168,7 @@ blockquote {
 
   .linguistic-filter-panel,
   .training-filter-panel,
+  .training-control-deck,
   .linguistic-card-grid,
   .trainer-workspace,
   .linguistic-trainer-card .linguistic-options,
@@ -2706,7 +2721,7 @@ blockquote {
 }
 
 .theme-neutral .training-filter-panel {
-  grid-template-columns: repeat(5, minmax(140px, 1fr));
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
   gap: 10px 12px;
 }
 
@@ -2735,12 +2750,6 @@ blockquote {
   box-shadow: 0 14px 34px rgba(61, 73, 57, 0.08);
 }
 
-.theme-neutral .source-preview {
-  grid-template-columns: auto auto 1fr;
-  align-items: baseline;
-  gap: 10px 16px;
-}
-
 .theme-neutral .source-preview .eyebrow,
 .theme-neutral .source-preview strong,
 .theme-neutral .source-preview span {
@@ -2751,6 +2760,20 @@ blockquote {
   font-size: 1.25rem;
 }
 
+.theme-neutral .training-control-side .source-preview {
+  display: grid;
+  align-content: center;
+  gap: 6px;
+}
+
+.theme-neutral .training-control-side .source-preview strong {
+  font-size: 1.55rem;
+}
+
+.theme-neutral .training-control-side .advanced-filter-panel {
+  align-content: start;
+}
+
 .theme-neutral .source-preview::before,
 .theme-neutral .linguistic-card::before,
 .theme-neutral .linguistic-trainer-card::before {
@@ -2759,7 +2782,7 @@ blockquote {
 
 .theme-neutral .linguistic-trainer-card {
   width: 100%;
-  min-height: clamp(480px, calc(100vh - 390px), 680px);
+  min-height: clamp(440px, calc(100vh - 330px), 680px);
   max-height: calc(100vh - 300px);
   margin: 0;
   padding: 18px;

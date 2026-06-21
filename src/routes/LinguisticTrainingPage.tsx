@@ -229,84 +229,90 @@ export function LinguisticTrainingPage() {
         description="默认单题推进。这里会同时显示正式发布题，以及你在读空气 RAG 页预览保存的本地草稿。"
       />
 
-      <section className="linguistic-mode-bar">
-        <div className="segmented-control">
-          <button className={mode === 'train' ? 'selected' : ''} type="button" onClick={() => setMode('train')}>单题训练</button>
-          <button className={mode === 'browse' ? 'selected' : ''} type="button" onClick={() => setMode('browse')}>浏览全部题目</button>
+      <section className="training-control-deck">
+        <div className="training-control-main">
+          <section className="linguistic-mode-bar">
+            <div className="segmented-control">
+              <button className={mode === 'train' ? 'selected' : ''} type="button" onClick={() => setMode('train')}>单题训练</button>
+              <button className={mode === 'browse' ? 'selected' : ''} type="button" onClick={() => setMode('browse')}>浏览全部题目</button>
+            </div>
+            <div className="card-actions">
+              <button className="icon-button secondary" type="button" onClick={resetQueue}>
+                <RotateCcw size={18} />
+                <span>重置队列</span>
+              </button>
+              <button className="icon-button secondary" type="button" onClick={resetFilters}>
+                <Search size={18} />
+                <span>清空筛选</span>
+              </button>
+            </div>
+          </section>
+
+          <section className="linguistic-filter-panel training-filter-panel">
+            <FilterSelect
+              id="linguistic-work"
+              label="Work"
+              value={filters.workSlug}
+              onChange={(value) => updateFilter('workSlug', value)}
+              options={filterOptions.works.map((workSlug) => ({ value: workSlug, label: workLabel(workSlug) }))}
+              allLabel="全部作品"
+            />
+            <FilterSelect
+              id="linguistic-domain"
+              label="Domain"
+              value={filters.domain}
+              onChange={(value) => updateFilter('domain', value)}
+              options={filterOptions.domains.map((domain) => ({ value: domain, label: domainLabel(domain) }))}
+              allLabel="全部领域"
+            />
+            <FilterSelect
+              id="linguistic-phenomenon"
+              label="Phenomenon"
+              value={filters.phenomenonKey}
+              onChange={(value) => updateFilter('phenomenonKey', value)}
+              options={filterOptions.phenomena
+                .filter((phenomenon) => filters.domain === 'all' || phenomenon.domain === filters.domain)
+                .map((phenomenon) => ({ value: phenomenon.key, label: phenomenon.key }))}
+              allLabel="全部语言现象"
+            />
+            <FilterSelect
+              id="linguistic-question-type"
+              label="Question Type"
+              value={filters.questionType}
+              onChange={(value) => updateFilter('questionType', value)}
+              options={filterOptions.questionTypes.map((questionType) => ({ value: questionType, label: questionTypeLabel(questionType) }))}
+              allLabel="全部题型"
+            />
+            <FilterSelect
+              id="linguistic-difficulty"
+              label="Difficulty"
+              value={filters.difficulty}
+              onChange={(value) => updateFilter('difficulty', value)}
+              options={filterOptions.difficulties.map((difficulty) => ({ value: difficulty, label: difficulty }))}
+              allLabel="全部难度"
+            />
+          </section>
         </div>
-        <div className="card-actions">
-          <button className="icon-button secondary" type="button" onClick={resetQueue}>
-            <RotateCcw size={18} />
-            <span>重置队列</span>
-          </button>
-          <button className="icon-button secondary" type="button" onClick={resetFilters}>
-            <Search size={18} />
-            <span>清空筛选</span>
-          </button>
+
+        <div className="training-control-side">
+          <details className="advanced-filter-panel">
+            <summary>高级筛选</summary>
+            <FilterSelect
+              id="linguistic-episode"
+              label="Episode"
+              value={filters.episode}
+              onChange={(value) => updateFilter('episode', value)}
+              options={filterOptions.episodes.map((episode) => ({ value: episode, label: `EP${episode.padStart(2, '0')}` }))}
+              allLabel="全部集数"
+            />
+          </details>
+
+          <section className="source-preview">
+            <p className="eyebrow">当前训练队列</p>
+            <strong>{exercisesQuery.isLoading ? '读取中' : `${filteredExercises.length} / ${scopedExercises.length} 题`}</strong>
+            <span>{filterSummary(filters)} · 本地草稿 {localAirExercises.length} 题</span>
+          </section>
         </div>
-      </section>
-
-      <section className="linguistic-filter-panel training-filter-panel">
-        <FilterSelect
-          id="linguistic-work"
-          label="Work"
-          value={filters.workSlug}
-          onChange={(value) => updateFilter('workSlug', value)}
-          options={filterOptions.works.map((workSlug) => ({ value: workSlug, label: workLabel(workSlug) }))}
-          allLabel="全部作品"
-        />
-        <FilterSelect
-          id="linguistic-domain"
-          label="Domain"
-          value={filters.domain}
-          onChange={(value) => updateFilter('domain', value)}
-          options={filterOptions.domains.map((domain) => ({ value: domain, label: domainLabel(domain) }))}
-          allLabel="全部领域"
-        />
-        <FilterSelect
-          id="linguistic-phenomenon"
-          label="Phenomenon"
-          value={filters.phenomenonKey}
-          onChange={(value) => updateFilter('phenomenonKey', value)}
-          options={filterOptions.phenomena
-            .filter((phenomenon) => filters.domain === 'all' || phenomenon.domain === filters.domain)
-            .map((phenomenon) => ({ value: phenomenon.key, label: phenomenon.key }))}
-          allLabel="全部语言现象"
-        />
-        <FilterSelect
-          id="linguistic-question-type"
-          label="Question Type"
-          value={filters.questionType}
-          onChange={(value) => updateFilter('questionType', value)}
-          options={filterOptions.questionTypes.map((questionType) => ({ value: questionType, label: questionTypeLabel(questionType) }))}
-          allLabel="全部题型"
-        />
-        <FilterSelect
-          id="linguistic-difficulty"
-          label="Difficulty"
-          value={filters.difficulty}
-          onChange={(value) => updateFilter('difficulty', value)}
-          options={filterOptions.difficulties.map((difficulty) => ({ value: difficulty, label: difficulty }))}
-          allLabel="全部难度"
-        />
-      </section>
-
-      <details className="advanced-filter-panel">
-        <summary>高级筛选</summary>
-        <FilterSelect
-          id="linguistic-episode"
-          label="Episode"
-          value={filters.episode}
-          onChange={(value) => updateFilter('episode', value)}
-          options={filterOptions.episodes.map((episode) => ({ value: episode, label: `EP${episode.padStart(2, '0')}` }))}
-          allLabel="全部集数"
-        />
-      </details>
-
-      <section className="source-preview">
-        <p className="eyebrow">当前训练队列</p>
-        <strong>{exercisesQuery.isLoading ? '读取中' : `${filteredExercises.length} / ${scopedExercises.length} 题`}</strong>
-        <span>{filterSummary(filters)} · 本地草稿 {localAirExercises.length} 题</span>
       </section>
 
       {!exercisesQuery.isLoading && scopedExercises.length === 0 ? (
