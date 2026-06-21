@@ -2635,14 +2635,14 @@ blockquote {
 }
 
 .theme-neutral {
-  --neutral-green: #385139;
-  --neutral-green-dark: #142015;
-  --neutral-green-soft: #e7efe4;
-  --neutral-blue: #1cb0f6;
-  --neutral-line: #ddd7cb;
+  --neutral-green: var(--primary);
+  --neutral-green-dark: var(--primary-dark);
+  --neutral-green-soft: rgba(241, 236, 250, 0.94);
+  --neutral-blue: var(--ice);
+  --neutral-line: var(--line);
   background:
-    linear-gradient(180deg, rgba(248, 245, 239, 0.98), rgba(236, 241, 235, 0.98)),
-    #f8f5ef;
+    linear-gradient(90deg, rgba(255, 255, 255, 0.36), transparent 38%),
+    transparent;
 }
 
 .theme-neutral .main-panel {
@@ -2669,9 +2669,9 @@ blockquote {
 }
 
 .theme-neutral .sidebar {
-  border-right-color: var(--neutral-line);
-  background: rgba(255, 252, 245, 0.9);
-  box-shadow: none;
+  border-right-color: rgba(200, 182, 242, 0.55);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 14px 0 44px rgba(91, 63, 163, 0.07);
 }
 
 .theme-neutral .brand strong,
@@ -2686,7 +2686,7 @@ blockquote {
 .theme-neutral .muted-text,
 .theme-neutral .answer-status-row small,
 .theme-neutral .translation-lines p {
-  color: #766f63;
+  color: var(--text-soft);
 }
 
 .theme-neutral .nav-link {
@@ -2695,9 +2695,9 @@ blockquote {
 
 .theme-neutral .nav-link.active,
 .theme-neutral .nav-link:hover {
-  background: var(--neutral-green-soft);
-  color: var(--neutral-green-dark);
-  box-shadow: none;
+  background: linear-gradient(135deg, rgba(241, 236, 250, 0.94), rgba(242, 251, 255, 0.94));
+  color: var(--primary-dark);
+  box-shadow: inset 0 0 0 1px rgba(200, 182, 242, 0.68);
 }
 
 .theme-neutral .eyebrow,
@@ -2747,7 +2747,7 @@ blockquote {
 .theme-neutral .history-row {
   border-color: var(--neutral-line);
   background: rgba(255, 253, 250, 0.92);
-  box-shadow: 0 14px 34px rgba(61, 73, 57, 0.08);
+  box-shadow: var(--shadow-soft);
 }
 
 .theme-neutral .source-preview .eyebrow,
@@ -2859,22 +2859,22 @@ blockquote {
 .theme-neutral .primary-action,
 .theme-neutral .icon-button.selected,
 .theme-neutral .segmented-control button.selected {
-  background: var(--neutral-green);
-  color: #fffaf1;
-  box-shadow: 0 10px 22px rgba(56, 81, 57, 0.16);
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(142, 106, 216, 0.24);
 }
 
 .theme-neutral .icon-button.secondary,
 .theme-neutral .secondary-action {
   border-color: var(--neutral-line);
-  background: #fffdfa;
-  color: var(--neutral-green);
+  background: rgba(255, 255, 255, 0.84);
+  color: var(--primary-dark);
   box-shadow: none;
 }
 
 .theme-neutral .segmented-control {
   border-color: var(--neutral-line);
-  background: #f8f5ef;
+  background: rgba(241, 236, 250, 0.72);
 }
 
 .theme-neutral .choice-option,
@@ -2885,21 +2885,21 @@ blockquote {
 .theme-neutral .question-draft-panel,
 .theme-neutral .rag-box textarea {
   border-color: var(--neutral-line);
-  background: #fffdfa;
+  background: rgba(255, 255, 255, 0.9);
   color: #20201d;
 }
 
 .theme-neutral .choice-option:hover,
 .theme-neutral .choice-option.selected {
   border-color: var(--neutral-blue);
-  background: #eef8ff;
+  background: linear-gradient(135deg, #f7fcff, #f2f0ff);
 }
 
 .theme-neutral .review-chip,
 .theme-neutral .linguistic-card-meta span {
-  border-color: #cddfc8;
-  background: var(--neutral-green-soft);
-  color: var(--neutral-green-dark);
+  border-color: rgba(200, 182, 242, 0.72);
+  background: linear-gradient(135deg, rgba(247, 243, 255, 0.96), rgba(242, 251, 255, 0.9));
+  color: var(--primary-dark);
 }
 
 .theme-neutral .choice-option.correct,
