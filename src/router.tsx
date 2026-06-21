@@ -204,6 +204,13 @@ function AppLayout() {
   const pathname = useRouterState({ select: (state) => state.location.pathname })
   const episodeMatch = pathname.match(/^\/works\/([^/]+)\/episodes\/([^/]+)/)
   const isLessonRoute = /^\/works\/[^/]+\/episodes\/[^/]+\/lesson/.test(pathname)
+  const visualMode = isLessonRoute
+    ? 'theme-lesson'
+    : pathname === '/linguistic-training'
+      ? 'theme-witch'
+      : pathname.endsWith('/writing') || pathname === '/writing'
+        ? 'theme-script'
+        : 'theme-emilia'
   useEffect(() => {
     if (!episodeMatch) return
     const nextScope = {
@@ -235,8 +242,14 @@ function AppLayout() {
   }
   const episodeLabel = episodeMatch ? `EP${currentEpisodeParams.episode.padStart(2, '0')}` : '单集'
 
+  const shellClassName = [
+    'app-shell',
+    visualMode,
+    isLessonRoute ? 'lesson-app-shell' : '',
+  ].filter(Boolean).join(' ')
+
   return (
-    <div className={isLessonRoute ? 'app-shell lesson-app-shell' : 'app-shell'}>
+    <div className={shellClassName}>
       {isLessonRoute ? null : (
       <aside className="sidebar">
         <div className="brand">
