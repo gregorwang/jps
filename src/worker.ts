@@ -1701,6 +1701,7 @@ async function ensureRagAirGenerationBatch(env: Env, row: Record<string, unknown
     work_slug: readString(row, 'work_slug', 'rezero'),
     episode: readNumber(row, 'episode') || null,
     model: 'rag-air',
+    purpose: 'rag_air_question_bank_save',
     status: 'published',
   })
 }
