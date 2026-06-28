@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { useQueryClient } from '@tanstack/react-query'
 import { Bot, Save, Search, Wand2 } from 'lucide-react'
 import { useState } from 'react'
 import { PageHeader } from '../components/PageHeader'
@@ -8,6 +9,14 @@ import { usePreferredReasoningEffort } from '../lib/reasoningPreferences'
 import { readEpisodeScope } from '../lib/episodeScope'
 
 type RagWorkSlug = 'rezero' | 'k-on'
+type RagScopeMode = 'all' | 'season' | 'episode'
+
+type RagSeason = {
+  season: number
+  label: string
+  startEpisode: number
+  endEpisode: number
+}
 
 type RagLine = {
   lineNo: number
@@ -71,11 +80,47 @@ type RagTrainingSuggestion = {
   reason: string
 }
 
-const airDraftKey = 'anime-japanese-lab-air-question-drafts'
-const ragWorks: { slug: RagWorkSlug; label: string; episodeCount: number }[] = [
-  { slug: 'rezero', label: 'Re:Zero S1 新编（25 集）', episodeCount: 25 },
-  { slug: 'k-on', label: 'K-ON!', episodeCount: 14 },
+const ragWorks: { slug: RagWorkSlug; label: string; seasons: RagSeason[]; coverageNote: string }[] = [
+  {
+    slug: 'rezero',
+    label: 'Re:Zero',
+    seasons: [
+      { season: 1, label: 'S1', startEpisode: 1, endEpisode: 25 },
+      { season: 2, label: 'S2', startEpisode: 26, endEpisode: 50 },
+      { season: 3, label: 'S3', startEpisode: 51, endEpisode: 66 },
+    ],
+    coverageNote: '当前向量库已索引 S1-S3，EP01-EP66。',
+  },
+  {
+    slug: 'k-on',
+    label: 'K-ON!',
+    seasons: [
+      { season: 1, label: 'TV', startEpisode: 1, endEpisode: 14 },
+    ],
+    coverageNote: '当前向量库索引到 EP01-EP14。',
+  },
 ]
+
+function seasonForEpisode(work: { seasons: RagSeason[] } | undefined, episode: number) {
+  return work?.seasons.find((season) => episode >= season.startEpisode && episode <= season.endEpisode) ?? work?.seasons[0]
+}
+
+function formatEpisodeOption(work: { slug: RagWorkSlug; seasons: RagSeason[] } | undefined, episode: number) {
+  const season = seasonForEpisode(work, episode)
+  if (!work || !season || work.slug !== 'rezero') return `EP${String(episode).padStart(2, '0')}`
+  const seasonEpisode = episode - season.startEpisode + 1
+  return `${season.label} EP${String(seasonEpisode).padStart(2, '0')}（全局 EP${String(episode).padStart(2, '0')}）`
+}
+
+function formatSourceEpisode(workSlug: string, episode: number) {
+  const work = ragWorks.find((item) => item.slug === workSlug)
+  return formatEpisodeOption(work, episode)
+}
+
+function episodeRange(season: RagSeason | undefined) {
+  if (!season) return []
+  return Array.from({ length: season.endEpisode - season.startEpisode + 1 }, (_, index) => season.startEpisode + index)
+}
 
 function initialRagWork(): RagWorkSlug | '' {
   const scope = readEpisodeScope()
@@ -84,10 +129,17 @@ function initialRagWork(): RagWorkSlug | '' {
   return ''
 }
 
+function draftSignature(text: string | undefined) {
+  return text?.trim() ?? ''
+}
+
 export function RagPage() {
+  const queryClient = useQueryClient()
   const [query, setQuery] = useState('')
   const [selectedWork, setSelectedWork] = useState<RagWorkSlug | ''>(() => initialRagWork())
-  const [selectedEpisode, setSelectedEpisode] = useState('all')
+  const [scopeMode, setScopeMode] = useState<RagScopeMode>(() => initialRagWork() === 'rezero' ? 'season' : 'all')
+  const [selectedSeason, setSelectedSeason] = useState(1)
+  const [selectedEpisode, setSelectedEpisode] = useState(1)
   const [suggestion, setSuggestion] = useState<RagTrainingSuggestion | null>(null)
   const model = usePreferredGatewayModel()
   const reasoningEffort = usePreferredReasoningEffort()
@@ -96,7 +148,35 @@ export function RagPage() {
   const [generatingSourceId, setGeneratingSourceId] = useState('')
   const [batchGenerating, setBatchGenerating] = useState(false)
   const [draftTexts, setDraftTexts] = useState<Record<string, string>>({})
+  const [savedDraftSignatures, setSavedDraftSignatures] = useState<Record<string, string>>({})
   const [saveMessage, setSaveMessage] = useState('')
+  const [saving, setSaving] = useState(false)
+  const selectedRagWork = ragWorks.find((work) => work.slug === selectedWork)
+  const supportsSeasonScope = selectedRagWork?.slug === 'rezero'
+  const selectedSeasonConfig = selectedRagWork?.seasons.find((season) => season.season === selectedSeason) ?? selectedRagWork?.seasons[0]
+  const selectedEpisodeOptions = episodeRange(selectedSeasonConfig)
+  const draftEntries = Object.entries(draftTexts)
+  const hasDrafts = draftEntries.length > 0
+  const hasUnsavedDrafts = draftEntries.some(([sourceId, text]) => savedDraftSignatures[sourceId] !== draftSignature(text))
+  const isBusy = saving || batchGenerating || Boolean(generatingSourceId)
+
+  function resetScopeForWork(nextWork: RagWorkSlug | '') {
+    const nextRagWork = ragWorks.find((work) => work.slug === nextWork)
+    const firstSeason = nextRagWork?.seasons[0]
+    setScopeMode(nextRagWork?.slug === 'rezero' ? 'season' : 'all')
+    setSelectedSeason(firstSeason?.season ?? 1)
+    setSelectedEpisode(firstSeason?.startEpisode ?? 1)
+    setResult(null)
+    setDraftTexts({})
+    setSavedDraftSignatures({})
+  }
+
+  function requestScope() {
+    if (!selectedRagWork) return {}
+    if (scopeMode === 'episode') return { episode: selectedEpisode }
+    if (scopeMode === 'season' && supportsSeasonScope) return { season: selectedSeasonConfig?.season }
+    return {}
+  }
 
   async function search(nextQuery = query) {
     const trimmedQuery = nextQuery.trim()
@@ -108,16 +188,18 @@ export function RagPage() {
     setStatus('loading')
     setSaveMessage('')
     try {
-      const episode = selectedEpisode === 'all' ? undefined : Number(selectedEpisode)
+      const scope = requestScope()
       const response = await fetch('/api/rag/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: trimmedQuery, workSlug: selectedWork, episode, topK: 5, model, reasoningEffort, deviceId: getDeviceId() }),
+        body: JSON.stringify({ query: trimmedQuery, workSlug: selectedWork, ...scope, topK: 5, model, reasoningEffort, deviceId: getDeviceId() }),
       })
       if (!response.ok) {
         throw new Error(await response.text())
       }
       setResult((await response.json()) as RagResponse)
+      setDraftTexts({})
+      setSavedDraftSignatures({})
       setStatus('idle')
     } catch (error) {
       console.error(error)
@@ -158,6 +240,7 @@ export function RagPage() {
   }
 
   async function generateQuestion(source: RagSource) {
+    if (saving || batchGenerating || generatingSourceId) return
     setGeneratingSourceId(source.id)
     setSaveMessage('')
     try {
@@ -169,6 +252,12 @@ export function RagPage() {
       if (!response.ok) throw new Error(await response.text())
       const candidate = (await response.json()) as AirQuestionCandidate
       setDraftTexts((current) => ({ ...current, [source.id]: JSON.stringify(candidate, null, 2) }))
+      setSavedDraftSignatures((current) => {
+        const next = { ...current }
+        delete next[source.id]
+        return next
+      })
+      setSaveMessage('已重新生成候选题，请确认后写入数据库。')
     } catch (error) {
       console.error(error)
       setSaveMessage('生成失败，请换一个场景或稍后重试。')
@@ -178,6 +267,7 @@ export function RagPage() {
   }
 
   async function generateAllQuestions() {
+    if (saving || batchGenerating) return
     if (!result?.sources.length) return
     setBatchGenerating(true)
     setSaveMessage('')
@@ -194,6 +284,7 @@ export function RagPage() {
         sources.map((source, index) => [source.id, JSON.stringify(data.candidates?.[index] ?? {}, null, 2)]),
       )
       setDraftTexts(nextDraftTexts)
+      setSavedDraftSignatures({})
       setSaveMessage(`已生成 ${Object.keys(nextDraftTexts).length} 道候选题，可编辑后保存全部。`)
     } catch (error) {
       console.error(error)
@@ -203,27 +294,65 @@ export function RagPage() {
     }
   }
 
-  function saveDraft(sourceId: string) {
+  async function saveDraft(sourceId: string) {
+    if (saving) return
     try {
+      setSaving(true)
+      const signature = draftSignature(draftTexts[sourceId])
+      if (savedDraftSignatures[sourceId] === signature) {
+        setSaveMessage('这道题已经写入数据库，没有重复提交。')
+        return
+      }
       const parsed = JSON.parse(draftTexts[sourceId] ?? '') as AirQuestionCandidate
-      const existing = JSON.parse(window.localStorage.getItem(airDraftKey) ?? '[]') as AirQuestionCandidate[]
-      window.localStorage.setItem(airDraftKey, JSON.stringify([parsed, ...existing].slice(0, 50)))
-      setSaveMessage('已保存为本地草稿题。现在可以去学习页作答，确认质量后再发布到正式题库。')
-    } catch {
-      setSaveMessage('JSON 格式不对，先修正预览内容再保存。')
+      const response = await fetch('/api/rag/save-question', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ candidate: parsed }),
+      })
+      if (!response.ok) throw new Error(await readApiError(response))
+      await queryClient.invalidateQueries({ queryKey: ['linguistic-exercises'] })
+      await queryClient.invalidateQueries({ queryKey: ['episode-linguistics'] })
+      setSavedDraftSignatures((current) => ({ ...current, [sourceId]: signature }))
+      setSaveMessage('已写入数据库题库。去读空气作答或单集语言学题库即可看到。')
+    } catch (error) {
+      console.error(error)
+      setSaveMessage(error instanceof Error ? error.message : '保存失败，请检查 JSON 或登录状态。')
+    } finally {
+      setSaving(false)
     }
   }
 
-  function saveAllDrafts() {
+  async function saveAllDrafts() {
+    if (saving) return
     try {
-      const parsed = Object.values(draftTexts)
-        .map((text) => JSON.parse(text) as AirQuestionCandidate)
-        .filter((draft) => draft.question && draft.options?.length)
-      const existing = JSON.parse(window.localStorage.getItem(airDraftKey) ?? '[]') as AirQuestionCandidate[]
-      window.localStorage.setItem(airDraftKey, JSON.stringify([...parsed, ...existing].slice(0, 50)))
-      setSaveMessage(`已保存 ${parsed.length} 道本地草稿题。`)
-    } catch {
-      setSaveMessage('有候选题 JSON 格式不对，先修正预览内容再保存。')
+      setSaving(true)
+      const entries = Object.entries(draftTexts)
+        .filter(([sourceId, text]) => savedDraftSignatures[sourceId] !== draftSignature(text))
+      const parsedEntries = entries
+        .map(([sourceId, text]) => [sourceId, JSON.parse(text) as AirQuestionCandidate] as const)
+        .filter(([, draft]) => draft.question && draft.options?.length)
+      if (parsedEntries.length === 0) {
+        setSaveMessage('当前候选题都已经写入数据库，没有重复提交。')
+        return
+      }
+      const response = await fetch('/api/rag/save-questions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ candidates: parsedEntries.map(([, draft]) => draft) }),
+      })
+      if (!response.ok) throw new Error(await readApiError(response))
+      await queryClient.invalidateQueries({ queryKey: ['linguistic-exercises'] })
+      await queryClient.invalidateQueries({ queryKey: ['episode-linguistics'] })
+      setSavedDraftSignatures((current) => ({
+        ...current,
+        ...Object.fromEntries(parsedEntries.map(([sourceId]) => [sourceId, draftSignature(draftTexts[sourceId])])),
+      }))
+      setSaveMessage(`已写入数据库题库 ${parsedEntries.length} 道。`)
+    } catch (error) {
+      console.error(error)
+      setSaveMessage(error instanceof Error ? error.message : '批量保存失败，请检查 JSON 或登录状态。')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -232,7 +361,7 @@ export function RagPage() {
       <PageHeader
         eyebrow="读空气训练"
         title="AI 找场景，人工预览成题"
-        description="不用先想搜索词。让 AI 选择适合练习的语用目标，再用 RAG 找字幕片段，生成草稿题后保存到学习页作答。"
+        description="不用先想搜索词。让 AI 选择适合练习的语用目标，再用 RAG 找字幕片段，预览后直接写入数据库题库。"
         actions={
           <Link className="icon-button secondary" to="/linguistic-training">
             <Bot size={18} />
@@ -242,7 +371,7 @@ export function RagPage() {
       />
       <section className="source-preview">
         <p className="eyebrow">生成流程</p>
-        <strong>RAG 场景检索 → AI 草稿题 → 人工预览保存 → 学习页作答</strong>
+        <strong>RAG 场景检索 → AI 生成题 → 人工预览 → 写入数据库题库</strong>
         <span>主流程由 AI 决定训练方向和检索意图。手动搜索只作为高级入口保留，用来补查指定场景。</span>
         <div className="episode-scope-panel">
           <label className="filter-field compact-field">
@@ -250,9 +379,9 @@ export function RagPage() {
             <select
               value={selectedWork}
               onChange={(event) => {
-                setSelectedWork(event.target.value as RagWorkSlug | '')
-                setSelectedEpisode('all')
-                setResult(null)
+                const nextWork = event.target.value as RagWorkSlug | ''
+                setSelectedWork(nextWork)
+                resetScopeForWork(nextWork)
               }}
             >
               <option value="">先选择作品</option>
@@ -262,21 +391,66 @@ export function RagPage() {
             </select>
           </label>
           <label className="filter-field compact-field">
-            <span>Episode</span>
+            <span>召回范围</span>
             <select
-              value={selectedEpisode}
+              value={scopeMode}
               onChange={(event) => {
-                setSelectedEpisode(event.target.value)
+                setScopeMode(event.target.value as RagScopeMode)
                 setResult(null)
               }}
               disabled={!selectedWork}
             >
-              <option value="all">全系列</option>
-              {Array.from({ length: ragWorks.find((work) => work.slug === selectedWork)?.episodeCount ?? 0 }, (_, index) => index + 1).map((episode) => (
-                <option key={episode} value={episode}>EP{String(episode).padStart(2, '0')}</option>
-              ))}
+              <option value="all">全作品</option>
+              {supportsSeasonScope ? <option value="season">按季</option> : null}
+              <option value="episode">单集</option>
             </select>
           </label>
+          {scopeMode !== 'all' && (supportsSeasonScope || scopeMode === 'episode') ? (
+            <label className="filter-field compact-field">
+              <span>Season</span>
+              <select
+                value={selectedSeason}
+                onChange={(event) => {
+                  const nextSeason = Number(event.target.value)
+                  const season = selectedRagWork?.seasons.find((item) => item.season === nextSeason)
+                  setSelectedSeason(nextSeason)
+                  setSelectedEpisode(season?.startEpisode ?? 1)
+                  setResult(null)
+                }}
+                disabled={!selectedWork}
+              >
+                {selectedRagWork?.seasons.map((season) => (
+                  <option key={season.season} value={season.season}>{season.label}</option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+          {scopeMode === 'episode' ? (
+            <label className="filter-field compact-field">
+              <span>Episode</span>
+              <select
+                value={selectedEpisode}
+                onChange={(event) => {
+                  setSelectedEpisode(Number(event.target.value))
+                  setResult(null)
+                }}
+                disabled={!selectedWork}
+              >
+                {selectedEpisodeOptions.map((episode) => (
+                  <option key={episode} value={episode}>{formatEpisodeOption(selectedRagWork, episode)}</option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+          {scopeMode === 'season' && supportsSeasonScope && selectedSeasonConfig ? (
+            <label className="filter-field compact-field">
+              <span>范围</span>
+              <select value={`${selectedSeasonConfig.startEpisode}-${selectedSeasonConfig.endEpisode}`} disabled>
+                <option>{selectedSeasonConfig.label} · EP{String(selectedSeasonConfig.startEpisode).padStart(2, '0')}-EP{String(selectedSeasonConfig.endEpisode).padStart(2, '0')}</option>
+              </select>
+            </label>
+          ) : null}
+          {selectedRagWork ? <span className="muted-text">{selectedRagWork.coverageNote}</span> : null}
         </div>
         <div className="rag-auto-panel">
           <button className="primary-action" type="button" onClick={() => void autoFindTrainingScenes()} disabled={!selectedWork || status === 'planning' || status === 'loading'}>
@@ -323,28 +497,37 @@ export function RagPage() {
               <button
                 className="primary-action"
                 type="button"
-                disabled={batchGenerating || result.sources.length === 0}
+                disabled={isBusy || result.sources.length === 0}
                 onClick={() => void generateAllQuestions()}
               >
                 <Bot size={18} />
-                <span>{batchGenerating ? '批量生成中' : `一键生成 ${Math.min(result.sources.length, 5)} 道题`}</span>
+                <span>
+                  {batchGenerating
+                    ? '批量生成中'
+                    : hasDrafts
+                      ? `重新生成 ${Math.min(result.sources.length, 5)} 道题`
+                      : `一键生成 ${Math.min(result.sources.length, 5)} 道题`}
+                </span>
               </button>
               <button
                 className="icon-button secondary"
                 type="button"
-                disabled={Object.keys(draftTexts).length === 0}
-                onClick={saveAllDrafts}
+                disabled={saving || batchGenerating || !hasUnsavedDrafts}
+                onClick={() => void saveAllDrafts()}
               >
                 <Save size={18} />
-                <span>保存全部草稿</span>
+                <span>{saving ? '写入中' : hasDrafts && !hasUnsavedDrafts ? '已写入数据库' : '写入数据库'}</span>
               </button>
             </div>
           </div>
-          {result.sources.map((source) => (
-            <article className="source-preview" key={source.id}>
+          {result.sources.map((source) => {
+              const sourceDraft = draftTexts[source.id]
+              const sourceSaved = Boolean(sourceDraft) && savedDraftSignatures[source.id] === draftSignature(sourceDraft)
+              return (
+              <article className="source-preview" key={source.id}>
               <p className="eyebrow">score {source.score.toFixed(4)}</p>
               <strong>
-                {source.work} · EP{String(source.episode).padStart(2, '0')} · chunk {source.chunkNo} · {source.startTime}-{source.endTime}
+                {source.work} · {formatSourceEpisode(source.work, source.episode)} · chunk {source.chunkNo} · {source.startTime}-{source.endTime}
               </strong>
               <span>{source.text.slice(0, 240)}</span>
               <div className="mini-lines">
@@ -359,25 +542,25 @@ export function RagPage() {
                 <button
                   className="icon-button secondary"
                   type="button"
-                  disabled={generatingSourceId === source.id}
+                  disabled={isBusy}
                   onClick={() => void generateQuestion(source)}
                 >
                   <Bot size={18} />
-                  <span>{generatingSourceId === source.id ? '生成中' : 'AI 生成题目'}</span>
+                  <span>{generatingSourceId === source.id ? '生成中' : sourceDraft ? '重新生成题目' : 'AI 生成题目'}</span>
                 </button>
               </div>
-              {draftTexts[source.id] ? (
+              {sourceDraft ? (
                 <section className="question-draft-panel">
                   <p className="eyebrow">候选题预览</p>
                   <textarea
-                    value={draftTexts[source.id]}
+                    value={sourceDraft}
                     rows={16}
                     onChange={(event) => setDraftTexts((current) => ({ ...current, [source.id]: event.target.value }))}
                   />
                   <div className="card-actions">
-                    <button className="primary-action" type="button" onClick={() => saveDraft(source.id)}>
+                    <button className="primary-action" type="button" disabled={saving || batchGenerating || sourceSaved} onClick={() => void saveDraft(source.id)}>
                       <Save size={18} />
-                      <span>保存为本地草稿</span>
+                      <span>{saving ? '写入中' : sourceSaved ? '已写入数据库' : '写入数据库'}</span>
                     </button>
                     <Link className="icon-button secondary" to="/linguistic-training">
                       <Bot size={18} />
@@ -387,8 +570,9 @@ export function RagPage() {
                   {saveMessage ? <span className="muted-text">{saveMessage}</span> : null}
                 </section>
               ) : null}
-            </article>
-          ))}
+              </article>
+              )
+            })}
         </div>
       ) : (
         <div className="source-preview">
@@ -399,4 +583,14 @@ export function RagPage() {
       )}
     </section>
   )
+}
+
+async function readApiError(response: Response) {
+  const text = await response.text()
+  try {
+    const data = JSON.parse(text) as { error?: { message?: string } }
+    return data.error?.message ?? text
+  } catch {
+    return text
+  }
 }

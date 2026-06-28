@@ -159,12 +159,22 @@ export default {
         return await handleApi(request, env, url)
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error'
-        return json({ error: { message } }, 500)
+        const status = error instanceof HttpError ? error.status : 500
+        return json({ error: { message } }, status)
       }
     }
 
     return serveAssetOrSpaFallback(request, env)
   },
+}
+
+class HttpError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+  ) {
+    super(message)
+  }
 }
 
 async function serveAssetOrSpaFallback(request: Request, env: Env) {
@@ -322,6 +332,14 @@ async function handleApi(request: Request, env: Env, url: URL) {
 
   if (url.pathname === '/api/rag/generate-questions' && request.method === 'POST') {
     return handleRagGenerateQuestions(request, env)
+  }
+
+  if (url.pathname === '/api/rag/save-question' && request.method === 'POST') {
+    return handleRagSaveQuestion(request, env)
+  }
+
+  if (url.pathname === '/api/rag/save-questions' && request.method === 'POST') {
+    return handleRagSaveQuestions(request, env)
   }
 
   if (url.pathname === '/api/ai/explain' && request.method === 'POST') {
@@ -1226,7 +1244,7 @@ async function buildCacheKey(prefix: string, value: string) {
 
 async function handleRagSearch(request: Request, env: Env) {
   const body = (await request.json().catch(() => null)) as
-    | { query?: string; workSlug?: string; episode?: number; topK?: number; model?: GatewayModel; reasoningEffort?: ReasoningEffort; deviceId?: string }
+    | { query?: string; workSlug?: string; season?: number; episode?: number; topK?: number; model?: GatewayModel; reasoningEffort?: ReasoningEffort; deviceId?: string }
     | null
 
   const query = body?.query?.trim()
@@ -1241,11 +1259,13 @@ async function handleRagSearch(request: Request, env: Env) {
     return json({ error: { message: 'workSlug must be one of: rezero, k-on' } }, 400)
   }
   const episode = typeof body?.episode === 'number' && Number.isFinite(body.episode) ? body.episode : undefined
+  const season = episode == null && typeof body?.season === 'number' && Number.isFinite(body.season) ? body.season : undefined
   const topK = Math.min(Math.max(body?.topK ?? 5, 1), 50)
 
   const result = await searchSubtitleChunks(env, {
     query,
     work: workSlug,
+    season,
     episode,
     topK,
   })
@@ -1292,6 +1312,7 @@ async function handleRagSearch(request: Request, env: Env) {
   const cacheKey = await hashPayload(`rag-air-${cacheSchemaVersion}`, {
     query,
     workSlug,
+    season: season ?? 0,
     episode: episode ?? 0,
     topK,
     model,
@@ -1306,7 +1327,7 @@ async function handleRagSearch(request: Request, env: Env) {
       model,
       workSlug,
       episode,
-      inputPayload: { query, sources: sources.map((source) => ({ id: source.id, score: source.score })) },
+      inputPayload: { query, season, sources: sources.map((source) => ({ id: source.id, score: source.score })) },
       resultPayload: analysis,
     })
   }
@@ -1335,12 +1356,13 @@ function normalizeRagWorkSlug(value: string): RagWorkSlug {
   return value === 're-zero' || value === 'rezero' ? 'rezero' : 'k-on'
 }
 
-async function searchSubtitleChunks(env: Env, params: { query: string; work: RagWorkSlug; episode?: number; topK?: number }) {
-  const { query, work, episode, topK = 5 } = params
+async function searchSubtitleChunks(env: Env, params: { query: string; work: RagWorkSlug; season?: number; episode?: number; topK?: number }) {
+  const { query, work, season, episode, topK = 5 } = params
   const filter: Record<string, string | number> = {
     work,
     language: 'ja',
   }
+  if (season != null) filter.season = season
   if (episode != null) filter.episode = episode
 
   const init: RequestInit = {
@@ -1635,6 +1657,125 @@ async function handleRagGenerateQuestions(request: Request, env: Env) {
   }).catch(() => undefined)
 
   return json({ candidates })
+}
+
+async function handleRagSaveQuestion(request: Request, env: Env) {
+  const body = (await request.json().catch(() => null)) as { candidate?: unknown } | null
+  const candidate = body?.candidate
+  if (!candidate || typeof candidate !== 'object') return json({ error: { message: 'candidate is required' } }, 400)
+
+  const rows = await saveAirQuestionCandidates(request, env, [candidate as Record<string, unknown>])
+  return json({ saved: rows[0] })
+}
+
+async function handleRagSaveQuestions(request: Request, env: Env) {
+  const body = (await request.json().catch(() => null)) as { candidates?: unknown[] } | null
+  const candidates = Array.isArray(body?.candidates)
+    ? body.candidates.filter((candidate): candidate is Record<string, unknown> => Boolean(candidate) && typeof candidate === 'object')
+    : []
+  if (candidates.length === 0) return json({ error: { message: 'candidates is required' } }, 400)
+
+  const rows = await saveAirQuestionCandidates(request, env, candidates.slice(0, 20))
+  return json({ saved: rows })
+}
+
+async function saveAirQuestionCandidates(request: Request, env: Env, candidates: Record<string, unknown>[]) {
+  await requireOwnerForDatabaseWrite(request, env)
+
+  const rows = await Promise.all(candidates.map((candidate) => airQuestionCandidateToLinguisticRow(candidate)))
+  await ensureRagAirGenerationBatch(env, rows[0])
+  await ensureAiSavedAirPhenomenon(env)
+  const savedRows = await supabaseAdmin<Record<string, unknown>[]>(
+    env,
+    'POST',
+    '/rest/v1/linguistic_exercise_drafts?on_conflict=id',
+    rows.length === 1 ? rows[0] : rows,
+  )
+  const phenomena = await listLinguisticPhenomena(env, savedRows ?? rows)
+  return (savedRows ?? rows).map((row) => mapLinguisticExercise(row, phenomena))
+}
+
+async function ensureRagAirGenerationBatch(env: Env, row: Record<string, unknown>) {
+  await supabaseAdmin(env, 'POST', '/rest/v1/linguistic_generation_batches?on_conflict=id', {
+    id: 'rag-air-generated',
+    work_slug: readString(row, 'work_slug', 'rezero'),
+    episode: readNumber(row, 'episode') || null,
+    model: 'rag-air',
+    status: 'published',
+  })
+}
+
+async function ensureAiSavedAirPhenomenon(env: Env) {
+  await supabaseAdmin(env, 'POST', '/rest/v1/linguistic_phenomena?on_conflict=phenomenon_key', {
+    phenomenon_key: 'ai_saved_air_question',
+    domain: 'pragmatics',
+    name_ja: 'AI読解・空気読み',
+    name_zh: 'AI 读空气生成题',
+    short_definition_zh: '由 RAG 字幕场景生成的语用判断题，重点考察潜台词、语气、委婉程度和自然回应。',
+  })
+}
+
+async function requireOwnerForDatabaseWrite(request: Request, env: Env) {
+  if (!env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY is not configured')
+  }
+  if (!env.OWNER_EMAIL) return
+
+  const auth = await getAuthContext(request, env)
+  if (!auth.user) throw new HttpError(401, 'Owner login required to write question bank')
+  if (normalizeEmail(auth.user.email) !== normalizeEmail(env.OWNER_EMAIL)) {
+    throw new HttpError(403, 'Only OWNER_EMAIL can write question bank')
+  }
+}
+
+async function airQuestionCandidateToLinguisticRow(candidate: Record<string, unknown>) {
+  const source = typeof candidate.source === 'object' && candidate.source ? candidate.source as Record<string, unknown> : {}
+  const normalized = normalizeAirQuestionCandidate(candidate, source)
+  if (!normalized.question.trim()) throw new HttpError(400, 'question is required')
+  if (normalized.options.length < 2) throw new HttpError(400, 'at least two options are required')
+  if (!normalized.answer || !normalized.options.includes(normalized.answer)) throw new HttpError(400, 'answer must equal one option')
+
+  const workSlug = normalizeWorkSlugAlias(normalized.source.work)
+  const episode = normalized.source.episode || null
+  const chunkNo = normalized.source.chunkNo || 0
+  const sourceId = normalized.source.sourceId || `${workSlug}:ep${episode ?? 'unknown'}:chunk${chunkNo}`
+  const id = await hashPayload('rag-air-db-question', {
+    workSlug,
+    episode,
+    sourceId,
+    question: normalized.question,
+    options: normalized.options,
+  })
+  const correctIndex = normalized.options.findIndex((option) => option === normalized.answer)
+
+  return {
+    id,
+    batch_id: 'rag-air-generated',
+    work_slug: workSlug,
+    episode,
+    source_id: sourceId,
+    source_line_no: normalized.targetLineNo ?? null,
+    ja_text: normalized.sceneJa,
+    zh_text: normalized.sceneZh,
+    domain: 'pragmatics',
+    phenomenon_key: 'ai_saved_air_question',
+    question_type: 'kuuki_yomi',
+    prompt: normalized.question,
+    options: normalized.options,
+    answer: {
+      answer_zh: normalized.answer,
+      correct_index: correctIndex >= 0 ? correctIndex : null,
+      rationale_zh: normalized.explanation,
+    },
+    hint: normalized.evidence.slice(0, 2).join(' / ') || null,
+    basic_explanation_zh: normalized.explanation || '基于 RAG 字幕场景生成的读空气题。',
+    deep_explanation_zh: normalized.evidence.join(' / ') || null,
+    anime_context_note_zh: `${workSlug} · EP${String(episode ?? '').padStart(2, '0')} · chunk ${chunkNo} · ${normalized.source.startTime}-${normalized.source.endTime}`,
+    caution_note_zh: 'AI 生成题，发布后仍建议人工复核语境和选项质量。',
+    difficulty: 'AI候选',
+    quality_score: 0,
+    status: 'published',
+  }
 }
 
 async function handleProgressList(request: Request, env: Env, url: URL) {
@@ -2017,7 +2158,7 @@ function normalizeAirQuestionCandidate(input: Record<string, unknown>, source: R
       chunkNo: readNumber(sourceInfo, 'chunkNo', readNumber(source, 'chunkNo')),
       startTime: readString(sourceInfo, 'startTime', readString(source, 'startTime')),
       endTime: readString(sourceInfo, 'endTime', readString(source, 'endTime')),
-      sourceId: readString(source, 'id'),
+      sourceId: readString(sourceInfo, 'sourceId', readString(source, 'id')),
     },
   }
 }
@@ -2544,7 +2685,7 @@ async function supabaseAdmin<T = unknown>(
   env: Env,
   method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
   path: string,
-  row?: Record<string, unknown>,
+  row?: Record<string, unknown> | Record<string, unknown>[],
 ): Promise<T> {
   if (!env.SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error('SUPABASE_SERVICE_ROLE_KEY is not configured')
