@@ -328,11 +328,15 @@ export function RagPage() {
       setSaving(true)
       const entries = Object.entries(draftTexts)
         .filter(([sourceId, text]) => savedDraftSignatures[sourceId] !== draftSignature(text))
+      if (entries.length === 0) {
+        setSaveMessage(hasDrafts ? '当前候选题都已经写入数据库，没有重复提交。' : '还没有候选题可写入，请先生成题目。')
+        return
+      }
       const parsedEntries = entries
         .map(([sourceId, text]) => [sourceId, JSON.parse(text) as AirQuestionCandidate] as const)
         .filter(([, draft]) => draft.question && draft.options?.length)
       if (parsedEntries.length === 0) {
-        setSaveMessage('当前候选题都已经写入数据库，没有重复提交。')
+        setSaveMessage('当前候选题不完整，没有写入数据库。请先重新生成，或补齐 question/options 后再写入。')
         return
       }
       const response = await fetch('/api/rag/save-questions', {
