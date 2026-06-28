@@ -2930,6 +2930,23 @@ function readString(row: Record<string, unknown>, key: string, fallback = '') {
   return typeof row[key] === 'string' ? row[key] : fallback
 }
 
+function readLearningText(row: Record<string, unknown>, key: string, fallback = '') {
+  return cleanLearningText(readString(row, key, fallback))
+}
+
+function cleanLearningText(value: string) {
+  if (!hasLearningTemplateVersionNote(value)) return value
+  return value
+    .replace(/[（(]?\s*V\d+\s*[：:][^）)\n]*(?:读完整集后|单句精读|基础语法理解题)[^）)\n]*[）)]?/gu, ' ')
+    .replace(/适合单句精读和基础语法理解题[。.]?/gu, ' ')
+    .replace(/\s+/gu, ' ')
+    .trim()
+}
+
+function hasLearningTemplateVersionNote(value: string) {
+  return /V\d+\s*[：:][^。]*(?:读完整集后|单句精读|基础语法理解题)|适合单句精读和基础语法理解题/u.test(value)
+}
+
 function readNumber(row: Record<string, unknown>, key: string, fallback = 0) {
   return typeof row[key] === 'number' ? row[key] : fallback
 }
@@ -2963,13 +2980,13 @@ function mapGrammar(input: unknown) {
   const row = input as Record<string, unknown>
   return {
     id: readString(row, 'id'),
-    pattern: readString(row, 'pattern'),
-    functionZh: readString(row, 'function_zh'),
-    jaExample: readString(row, 'ja_example'),
-    explanationZh: readString(row, 'explanation_zh'),
-    pragmaticsNote: readString(row, 'pragmatics_note'),
-    realWorldNote: readString(row, 'real_world_note'),
-    difficulty: readString(row, 'difficulty'),
+    pattern: readLearningText(row, 'pattern'),
+    functionZh: readLearningText(row, 'function_zh'),
+    jaExample: readLearningText(row, 'ja_example'),
+    explanationZh: readLearningText(row, 'explanation_zh'),
+    pragmaticsNote: readLearningText(row, 'pragmatics_note'),
+    realWorldNote: readLearningText(row, 'real_world_note'),
+    difficulty: readLearningText(row, 'difficulty'),
     sourceLineNo: readNumber(row, 'source_line_no'),
     linguisticPayload: readLinguisticPayload(row),
   }

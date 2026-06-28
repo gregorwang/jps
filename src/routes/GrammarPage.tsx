@@ -3,6 +3,7 @@ import { Link, useParams } from '@tanstack/react-router'
 import { AiExplainButton } from '../components/AiExplainButton'
 import { EpisodeScopeSelector } from '../components/EpisodeScopeSelector'
 import { PageHeader } from '../components/PageHeader'
+import { formatEpisodeLabel } from '../lib/episodeLabels'
 import { readEpisodeScope } from '../lib/episodeScope'
 import { animeRepository } from '../server/repositories/animeRepository'
 
@@ -20,7 +21,7 @@ export function GrammarPage() {
     <section className="page-stack">
       <PageHeader
         eyebrow="语法资料"
-        title={`EP${String(episodeNo).padStart(2, '0')} 本集语法`}
+        title={`${formatEpisodeLabel(selectedWorkSlug, episodeNo)} 本集语法`}
         description="这里用于查看语法点、字幕例句、语气说明和 AI 精讲。正式训练进入综合训练队列完成。"
         actions={(
           <Link className="primary-action" to="/works/$workSlug/episodes/$episode/lesson" params={{ workSlug: selectedWorkSlug, episode: String(episodeNo) }}>
@@ -34,7 +35,7 @@ export function GrammarPage() {
           <article className="learning-card" key={point.id}>
             <div>
               <h2>{point.pattern}</h2>
-              <p className="kana">{point.functionZh} · {point.difficulty}</p>
+              <p className="kana">{[point.functionZh, point.difficulty].filter(Boolean).join(' · ')}</p>
               <blockquote>{point.jaExample}</blockquote>
               <p>{point.explanationZh}</p>
               <small>{point.pragmaticsNote} {point.realWorldNote}</small>
