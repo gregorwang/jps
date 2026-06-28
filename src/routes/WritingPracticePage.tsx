@@ -6,6 +6,7 @@ import { EpisodeScopeSelector } from '../components/EpisodeScopeSelector'
 import { HandwritingCanvas, type HandwritingCanvasHandle } from '../components/HandwritingCanvas'
 import { PageHeader } from '../components/PageHeader'
 import { TtsButton } from '../components/TtsButton'
+import { formatEpisodeLabel } from '../lib/episodeLabels'
 import { readEpisodeScope } from '../lib/episodeScope'
 import { usePreferredJapaneseVoice } from '../lib/voicePreferences'
 import { buildWritingItems, fetchWritingStats, readLocalWritingStats, skipWritingPractice, submitWritingPractice } from '../lib/writingPractice'
@@ -122,7 +123,7 @@ export function WritingPracticePage() {
     <section className="page-stack writing-page">
       <PageHeader
         eyebrow="Writing Practice"
-        title={`${selectedWorkSlug} EP${String(selectedEpisode).padStart(2, '0')} 手写`}
+        title={`${selectedWorkSlug} ${formatEpisodeLabel(selectedWorkSlug, selectedEpisode)} 手写`}
         description="沿着本集手写词描红，提交后通过就自动进入下一个。"
       />
       <EpisodeScopeSelector workSlug={selectedWorkSlug} episode={selectedEpisode} tool="writing" />

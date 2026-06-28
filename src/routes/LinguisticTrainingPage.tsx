@@ -33,34 +33,6 @@ const workLabels: Record<string, string> = {
   rezero: 'Re:Zero',
 }
 
-const airDraftKey = 'anime-japanese-lab-air-question-drafts'
-
-type AirQuestionCandidate = {
-  sceneJa: string
-  sceneZh: string
-  sceneLines?: {
-    lineNo?: number
-    speaker?: string
-    jaText: string
-    zhText?: string
-    isTarget?: boolean
-  }[]
-  targetLineNo?: number
-  question: string
-  options: string[]
-  answer: string
-  explanation: string
-  evidence: string[]
-  source: {
-    work: string
-    episode: number
-    chunkNo: number
-    startTime: string
-    endTime: string
-    sourceId?: string
-  }
-}
-
 type FilterState = {
   workSlug: string
   domain: string
@@ -74,7 +46,6 @@ type Mode = 'train' | 'browse'
 
 export function LinguisticTrainingPage() {
   const [mode, setMode] = useState<Mode>('train')
-  const [localAirExercises, setLocalAirExercises] = useState<LinguisticExerciseDraft[]>([])
   const [filters, setFilters] = useState<FilterState>({
     workSlug: 'all',
     domain: 'all',
@@ -98,7 +69,7 @@ export function LinguisticTrainingPage() {
   })
 
   const publishedExercises = exercisesQuery.data ?? []
-  const exercises = useMemo(() => [...localAirExercises, ...publishedExercises], [localAirExercises, publishedExercises])
+  const exercises = publishedExercises
   const filterOptions = useMemo(() => buildFilterOptions(exercises), [exercises])
   const scopedExercises = useMemo(() => filterExercises(exercises, filters), [exercises, filters])
   const filteredExercises = useMemo(
@@ -116,20 +87,6 @@ export function LinguisticTrainingPage() {
   useEffect(() => {
     setCurrentIndex(0)
   }, [filters])
-
-  useEffect(() => {
-    function loadLocalAirExercises() {
-      setLocalAirExercises(readLocalAirExercises())
-    }
-
-    loadLocalAirExercises()
-    window.addEventListener('storage', loadLocalAirExercises)
-    window.addEventListener('focus', loadLocalAirExercises)
-    return () => {
-      window.removeEventListener('storage', loadLocalAirExercises)
-      window.removeEventListener('focus', loadLocalAirExercises)
-    }
-  }, [])
 
   useEffect(() => {
     if (currentIndex >= filteredExercises.length) {
@@ -244,7 +201,7 @@ export function LinguisticTrainingPage() {
       </section>
 
       <details className="training-filter-collapse">
-        <summary>筛选 · {filterSummary(filters)} · 本地草稿 {localAirExercises.length} 题</summary>
+        <summary>筛选 · {filterSummary(filters)}</summary>
         <section className="linguistic-filter-panel training-filter-panel">
             <FilterSelect
               id="linguistic-work"
@@ -769,51 +726,6 @@ function buildFilterOptions(exercises: LinguisticExerciseDraft[]) {
     { key: exercise.phenomenonKey, domain: exercise.domain },
   ])).values()].sort((a, b) => a.key.localeCompare(b.key))
   return { works, episodes, domains, questionTypes, difficulties, phenomena }
-}
-
-function readLocalAirExercises(): LinguisticExerciseDraft[] {
-  try {
-    const drafts = JSON.parse(window.localStorage.getItem(airDraftKey) ?? '[]') as AirQuestionCandidate[]
-    return drafts
-      .filter((draft) => draft?.question && Array.isArray(draft.options) && draft.options.length > 0)
-      .map((draft, index) => {
-        const correctIndex = draft.options.findIndex((option) => option === draft.answer)
-        const sourceId = draft.source?.sourceId || `${draft.source?.work ?? 'air'}-${draft.source?.episode ?? 0}-${draft.source?.chunkNo ?? index}`
-        return {
-          id: `local-air-${sourceId}-${index}`,
-          workSlug: normalizeTrainingWorkSlug(draft.source?.work || 'k-on'),
-          episode: draft.source?.episode,
-          sourceLineNo: undefined,
-          jaText: draft.sceneJa,
-          zhText: draft.sceneZh,
-          sceneLines: draft.sceneLines,
-          targetLineNo: draft.targetLineNo,
-          domain: 'pragmatics',
-          phenomenonKey: 'ai_saved_air_question',
-          questionType: 'kuuki_yomi',
-          prompt: draft.question,
-          options: draft.options,
-          answer: {
-            answerZh: draft.answer,
-            correctIndex: correctIndex >= 0 ? correctIndex : undefined,
-          },
-          basicExplanationZh: draft.explanation || '基于保存的 AI 草稿题作答。',
-          deepExplanationZh: draft.evidence?.join(' / '),
-          animeContextNoteZh: sourceTimeLabel(draft),
-          cautionNoteZh: '本题是 RAG 页预览保存的本地草稿，确认发布后才会进入正式题库。',
-          difficulty: 'AI候选',
-          qualityScore: 0,
-        }
-      })
-  } catch {
-    return []
-  }
-}
-
-function sourceTimeLabel(draft: AirQuestionCandidate) {
-  const source = draft.source
-  if (!source) return ''
-  return `${workLabel(source.work)} · EP${String(source.episode).padStart(2, '0')} · chunk ${source.chunkNo} · ${source.startTime}-${source.endTime}`
 }
 
 function filterExercises(exercises: LinguisticExerciseDraft[], filters: FilterState) {

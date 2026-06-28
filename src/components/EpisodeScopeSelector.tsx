@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo } from 'react'
+import { formatEpisodeLabel } from '../lib/episodeLabels'
 import { writeEpisodeScope } from '../lib/episodeScope'
 import { animeRepository } from '../server/repositories/animeRepository'
 
@@ -86,7 +87,7 @@ export function EpisodeScopeSelector({
           disabled={episodesQuery.isLoading || !episodes.length}
         >
           {episodes.map((item) => (
-            <option key={item.id} value={item.episode}>EP{String(item.episode).padStart(2, '0')}</option>
+            <option key={item.id} value={item.episode}>{formatEpisodeLabel(selectedWorkSlug, item.episode)}</option>
           ))}
         </select>
       </label>

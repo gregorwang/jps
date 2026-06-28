@@ -1,6 +1,12 @@
 const reZeroShadowingCdnBase = 'https://cdn.xn--cckl9nsb.com'
-const reZeroShadowingPrefix = 'rezeroS1'
 const flaggedSuffix = '.unmatched_or_ineligible.mp3'
+
+/** S1/S2 use sentenceId as filename; S3 uses rezero_s{SS}e{global}_v9_sent_{NNN}.mp3 on R2. */
+const seasonAudioRules = {
+  1: { cdnPrefix: 'rezeroS1', useSentenceIdFilename: true },
+  2: { cdnPrefix: 'rezeroS2', useSentenceIdFilename: true },
+  3: { cdnPrefix: 'rezeroS3', globalEpisodeOffset: 50, audioVersion: 'v9' },
+} as const
 
 const flaggedSentenceIds = new Set([
   're-zero-s01e03-sentence-003',
@@ -321,15 +327,73 @@ export function buildReZeroShadowingAudio({
     }
   }
 
+  const modernSeason3Audio = buildModernSeason3ShadowingAudio(sentenceId)
+  if (modernSeason3Audio) return modernSeason3Audio
+
   const episodeSlug = sentenceId.split('-')[2]
   if (!episodeSlug) return null
 
-  const isFlagged = flaggedSentenceIds.has(sentenceId)
-  const filename = `${sentenceId}${isFlagged ? '.unmatched_or_ineligible' : ''}.mp3`
-  return {
-    url: `${reZeroShadowingCdnBase}/${reZeroShadowingPrefix}/${episodeSlug}/${filename}`,
-    isFlagged,
+  const episode = parseEpisodeSlug(episodeSlug)
+  if (!episode) return null
+
+  const seasonRule = seasonAudioRules[episode.season as keyof typeof seasonAudioRules]
+  if (!seasonRule) return null
+
+  if ('useSentenceIdFilename' in seasonRule && seasonRule.useSentenceIdFilename) {
+    const isFlagged = episode.season === 1 && flaggedSentenceIds.has(sentenceId)
+    const filename = `${sentenceId}${isFlagged ? '.unmatched_or_ineligible' : ''}.mp3`
+    return {
+      url: `${reZeroShadowingCdnBase}/${seasonRule.cdnPrefix}/${episodeSlug}/${filename}`,
+      isFlagged,
+    }
   }
+
+  const sentenceNumber = parseSentenceNumber(sentenceId)
+  if (!sentenceNumber) return null
+
+  if (episode.season !== 3) return null
+
+  const season3Rule = seasonAudioRules[3]
+  const globalEpisode = season3Rule.globalEpisodeOffset + episode.episode
+  const seasonPadded = String(episode.season).padStart(2, '0')
+  const filename = `rezero_s${seasonPadded}e${globalEpisode}_${season3Rule.audioVersion}_sent_${sentenceNumber}.mp3`
+  return {
+    url: `${reZeroShadowingCdnBase}/${season3Rule.cdnPrefix}/${episodeSlug}/${filename}`,
+    isFlagged: false,
+  }
+}
+
+function buildModernSeason3ShadowingAudio(sentenceId: string): ShadowingAudio | null {
+  const match = /^rezero_s(\d+)e(\d+)_v\d+_sent_\d+$/i.exec(sentenceId)
+  if (!match) return null
+
+  const season = Number(match[1])
+  const globalEpisode = Number(match[2])
+  if (season !== 3) return null
+
+  const episodeInSeason = globalEpisode - seasonAudioRules[3].globalEpisodeOffset
+  if (episodeInSeason < 1) return null
+
+  const episodeSlug = `s${String(season).padStart(2, '0')}e${String(episodeInSeason).padStart(2, '0')}`
+  return {
+    url: `${reZeroShadowingCdnBase}/${seasonAudioRules[3].cdnPrefix}/${episodeSlug}/${sentenceId}.mp3`,
+    isFlagged: false,
+  }
+}
+
+function parseEpisodeSlug(slug: string) {
+  const match = /^s(\d+)e(\d+)$/i.exec(slug)
+  if (!match) return null
+  return {
+    season: Number(match[1]),
+    episode: Number(match[2]),
+  }
+}
+
+function parseSentenceNumber(sentenceId: string) {
+  const match = /sentence-(\d+)$/i.exec(sentenceId)
+  if (!match) return null
+  return match[1].padStart(3, '0')
 }
 
 function normalizeDbAudioValue(value?: string) {

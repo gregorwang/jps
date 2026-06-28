@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import { PageHeader } from '../components/PageHeader'
 import { StatCard } from '../components/StatCard'
+import { formatEpisodeLabel } from '../lib/episodeLabels'
 import { readEpisodeScope } from '../lib/episodeScope'
 import { readRecentLessonAttempts } from '../lib/lessonProgress'
 import { getDeviceId } from '../lib/progress'
@@ -52,7 +53,7 @@ export function HomePage() {
     <section className="page-stack">
       <PageHeader
         eyebrow="今日学习"
-        title={`${episodeScope.workSlug} EP${String(episodeScope.episode).padStart(2, '0')}`}
+        title={`${episodeScope.workSlug} ${formatEpisodeLabel(episodeScope.workSlug, episodeScope.episode)}`}
         description="今天先做题：词汇选择、语法判断、读空气场景题和错题回炉。资料放在题后，需要时再看。"
         actions={
           <Link className="primary-action" to="/works/$workSlug/episodes/$episode/lesson" params={episodeParams}>
@@ -143,7 +144,7 @@ export function HomePage() {
         <Link className="task-card" to="/rag">
           <Brain size={22} />
           <strong>AI 生成读空气题</strong>
-          <span>自动找字幕片段，预览后保存为本地草稿题。</span>
+          <span>自动找字幕片段，预览后写入数据库题库。</span>
         </Link>
         <Link className="task-card" to="/linguistic-training">
           <PlayCircle size={22} />

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { PageHeader } from '../components/PageHeader'
+import { formatEpisodeLabel } from '../lib/episodeLabels'
 import { animeRepository } from '../server/repositories/animeRepository'
 import type { Episode } from '../lib/types'
 
@@ -61,7 +62,7 @@ export function WorksPage() {
             <Link className="work-card" to="/works/$workSlug/episodes/$episode" params={{ workSlug: selectedWork.slug, episode: String(firstEpisode) }}>
               <strong>{selectedWork.displayName}</strong>
               <span>{episodes.length || selectedWork.episodeCount} 集已导入</span>
-              <small>点击进入 EP{String(firstEpisode).padStart(2, '0')}</small>
+              <small>点击进入 {formatEpisodeLabel(selectedWork.slug, firstEpisode)}</small>
             </Link>
           </div>
           <div className="episode-grid">
@@ -82,7 +83,7 @@ function EpisodeLink({ episode }: { episode: Episode }) {
       to="/works/$workSlug/episodes/$episode"
       params={{ workSlug: episode.workSlug, episode: String(episode.episode) }}
     >
-      <strong>EP{String(episode.episode).padStart(2, '0')}</strong>
+      <strong>{formatEpisodeLabel(episode.workSlug, episode.episode)}</strong>
       <span>{episode.jaLines} 日文行 · {episode.chunkCount} chunks</span>
     </Link>
   )

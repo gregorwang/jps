@@ -4,6 +4,7 @@ import { EpisodeScopeSelector } from '../components/EpisodeScopeSelector'
 import { PageHeader } from '../components/PageHeader'
 import { AiExplainButton } from '../components/AiExplainButton'
 import { TtsButton } from '../components/TtsButton'
+import { formatEpisodeLabel } from '../lib/episodeLabels'
 import { readEpisodeScope } from '../lib/episodeScope'
 import { animeRepository } from '../server/repositories/animeRepository'
 
@@ -21,7 +22,7 @@ export function VocabPage() {
     <section className="page-stack">
       <PageHeader
         eyebrow="词汇资料"
-        title={`EP${String(episodeNo).padStart(2, '0')} 本集词汇`}
+        title={`${formatEpisodeLabel(selectedWorkSlug, episodeNo)} 本集词汇`}
         description="这里用于查词义、读音、出现次数和讲解。正式训练进入综合训练队列完成。"
         actions={(
           <Link className="primary-action" to="/works/$workSlug/episodes/$episode/lesson" params={{ workSlug: selectedWorkSlug, episode: String(episodeNo) }}>

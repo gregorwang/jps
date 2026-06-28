@@ -4,6 +4,7 @@ import { ChevronRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { EpisodeScopeSelector } from '../components/EpisodeScopeSelector'
 import { PageHeader } from '../components/PageHeader'
+import { formatEpisodeLabel } from '../lib/episodeLabels'
 import type { LinguisticExerciseDraft, LinguisticExerciseOption } from '../lib/types'
 import { animeRepository } from '../server/repositories/animeRepository'
 
@@ -67,8 +68,8 @@ export function EpisodeLinguisticsPage() {
     <section className="page-stack">
       <PageHeader
         eyebrow={episodeQuery.data?.workDisplayName ?? selectedWorkSlug}
-        title={`EP${String(episodeNo).padStart(2, '0')} 语言学专项训练`}
-        description="独立读取 linguistic_exercise_drafts，不混入普通学习练习。"
+        title={`${formatEpisodeLabel(selectedWorkSlug, episodeNo)} 语言学专项训练`}
+        description="独立读取 linguistic_exercise_drafts。AI 出题保存后会直接写入数据库题库。"
       />
       <EpisodeScopeSelector workSlug={selectedWorkSlug} episode={episodeNo} tool="linguistics" />
 

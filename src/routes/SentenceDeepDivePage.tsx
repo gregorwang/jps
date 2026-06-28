@@ -6,6 +6,7 @@ import { PageHeader } from '../components/PageHeader'
 import { StructuredAiResultView } from '../components/StructuredAiResultView'
 import { TtsButton } from '../components/TtsButton'
 import { usePreferredGatewayModel } from '../lib/aiPreferences'
+import { formatEpisodeLabel } from '../lib/episodeLabels'
 import { getDeviceId } from '../lib/progress'
 import { usePreferredReasoningEffort } from '../lib/reasoningPreferences'
 import { animeRepository } from '../server/repositories/animeRepository'
@@ -44,7 +45,7 @@ export function SentenceDeepDivePage() {
 
   return (
     <section className="page-stack">
-      <PageHeader eyebrow="单句精读" title={`EP${String(episodeNo).padStart(2, '0')} · line ${lineNo}`} />
+      <PageHeader eyebrow="单句精读" title={`${formatEpisodeLabel(workSlug, episodeNo)} · line ${lineNo}`} />
       <article className="sentence-focus">
         <time>{line?.startTime} - {line?.endTime}</time>
         <h1>{line?.jaText ?? '未找到这句台词'}</h1>

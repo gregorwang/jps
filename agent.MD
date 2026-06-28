@@ -12,6 +12,17 @@
 - Frontend fallback fixtures must match production slugs closely enough for local development. If production uses `re-zero`, do not add fallback data under `rezero`; otherwise local debugging will validate the wrong path.
 - For PWA issues, consider Service Worker cache separately from React state. Development mode should not keep serving stale app shells, and production service worker changes should bump the cache version or use network-first behavior for navigations.
 
+## Product UI Judgment Rules
+
+- When the user asks to make one page match another page, first inspect the referenced page and any screenshots in `public/` before changing colors, spacing, or layout. Extract concrete tokens and structure from the reference: background, card color, borders, accent color, header density, and content hierarchy.
+- Do not interpret "unify style" as "invent a nearby new theme". In this project, pages under the same product area should reuse the existing app shell, light card system, purple/blue accents, and compact control language unless the user explicitly asks for a new visual direction.
+- For learning, quiz, and training surfaces, preserve readability over an arbitrary one-screen target. Do not force long prompts, dialogue context, translations, answers, or explanations into fixed-height cards that clip text or require nested scrolling. Let the document grow vertically when content is genuinely long.
+- Avoid internal scroll containers inside primary study cards unless the user explicitly asks for them. They hide content, make screenshots misleading, and make it easy to miss context. If content is too long, collapse secondary controls first, then let the main content flow naturally.
+- Top explanatory copy is not free space. If the user is already in a functional tool, remove redundant page descriptions before compressing the actual task content. Controls should be compact; the exercise content should get priority.
+- Filters and secondary controls should collapse before core learning content collapses. Default-collapsed filter panels are preferred when filters are not the main task.
+- If a screenshot shows text clipping, do not answer from memory or from the build result. Reopen the screenshot, identify every visible failure, then inspect computed styles for `height`, `max-height`, `overflow`, grid rows, and flex constraints before editing.
+- When changing a UI after user complaints, explicitly verify the rendered production page or a data-backed local page. A successful build does not prove layout correctness.
+
 ## Linguistic Exercise Data Rules
 
 - Keep ordinary `learning_exercises` and linguistic exercise tables separate. Linguistic training pages should read `linguistic_exercise_drafts` through the Worker/API, not by copying rows into ordinary exercise flows.

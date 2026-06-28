@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { BookOpen, Brain, Captions, GraduationCap, Mic2, PenLine, PlayCircle, Sparkles } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
 import { StatCard } from '../components/StatCard'
+import { formatEpisodeLabel } from '../lib/episodeLabels'
 import { animeRepository } from '../server/repositories/animeRepository'
 
 export function EpisodePage() {
@@ -24,7 +25,7 @@ export function EpisodePage() {
     <section className="page-stack">
       <PageHeader
         eyebrow="单集学习中心"
-        title={`${current?.workDisplayName ?? 'K-ON!'} EP${String(episodeNo).padStart(2, '0')}`}
+        title={`${current?.workDisplayName ?? 'K-ON!'} ${formatEpisodeLabel(workSlug, episodeNo)}`}
         description={plan?.notes ? `${plan.notes}。优先完成训练题，再查看词表、语法说明和台词。` : '该集学习材料等待从 Supabase 读取。'}
       />
 

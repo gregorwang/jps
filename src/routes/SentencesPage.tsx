@@ -8,6 +8,7 @@ import { PageHeader } from '../components/PageHeader'
 import { AiExplainButton } from '../components/AiExplainButton'
 import { FuriganaText } from '../components/JapaneseRubyText'
 import { TtsButton } from '../components/TtsButton'
+import { formatEpisodeLabel } from '../lib/episodeLabels'
 import { readEpisodeScope } from '../lib/episodeScope'
 import { buildReZeroShadowingAudio } from '../lib/rezeroShadowingAudio'
 import { animeRepository } from '../server/repositories/animeRepository'
@@ -66,7 +67,7 @@ export function SentencesPage() {
     <section className="page-stack">
       <PageHeader
         eyebrow="跟读"
-        title={`EP${String(episodeNo).padStart(2, '0')} 跟读句`}
+        title={`${formatEpisodeLabel(selectedWorkSlug, episodeNo)} 跟读句`}
         actions={(
           <div className="furigana-batch-control">
             <button
@@ -100,9 +101,7 @@ export function SentencesPage() {
                 <h2>
                   <FuriganaText text={sentence.jaText} targetId={sentence.id} refreshKey={furiganaRefreshKey} />
                 </h2>
-                <p className="kana">{sentence.romaji}</p>
                 <p>{sentence.meaningZh}</p>
-                <small>{sentence.toneTags.join(' / ')} · {sentence.difficulty}</small>
                 {sourceAudio?.isFlagged ? (
                   <div className="audio-warning">
                     <b>unmatch</b>

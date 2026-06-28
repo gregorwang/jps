@@ -762,7 +762,7 @@ function LessonFeedbackDock({
         {feedback.correct ? <Check size={28} /> : <X size={28} />}
         <div>
           <strong>{feedback.correct ? '正确' : '需要回炉'}</strong>
-          <p>{feedback.correct ? node.explanation : `正确答案：${formatAnswer(feedback.answer)}。${node.explanation}`}</p>
+          <p>{feedback.correct ? node.explanation : `正确答案：${formatCorrectAnswer(node, feedback.answer)}。${node.explanation}`}</p>
         </div>
       </div>
       <button className="primary-action" type="button" onClick={onNext}>
@@ -807,6 +807,11 @@ function formatAnswer(answer: unknown) {
   if (Array.isArray(answer)) return answer.join(' / ')
   if (typeof answer === 'string') return answer
   return JSON.stringify(answer)
+}
+
+function formatCorrectAnswer(node: LessonNode, answer: unknown) {
+  if (node.type === 'audio-tiles' || node.type === 'translation-tiles') return node.targetText
+  return formatAnswer(answer)
 }
 
 function countValues(values: string[]) {

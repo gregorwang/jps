@@ -114,6 +114,33 @@ describe('buildEpisodeLesson', () => {
     expect(node.targetTiles).toEqual(['こうやって', 'ニートが', '出来上がっていくのね'])
     expect(node.targetTiles).not.toContain('がってい')
     expect(node.targetTiles).not.toContain('くのね')
+    expect(node.targetText).toBe('こうやってニートが出来上がっていくのね')
+    expect(node.explanation).toBe('意思：这样下去就会变成家里蹲')
+  })
+
+  it('keeps translation tile answers as Chinese only', () => {
+    const lesson = buildEpisodeLesson({ workSlug: 'k-on', episode: 1, vocab, grammar, sentences, mode: 'shadowing' })
+    const node = lesson.nodes.find((item) => item.type === 'translation-tiles' && item.source.sourceId === 's1')
+
+    expect(node?.type).toBe('translation-tiles')
+    if (node?.type !== 'translation-tiles') return
+    expect(node.targetText).toBe('这样下去就会变成家里蹲')
+    expect(node.targetTiles.join(' / ')).not.toContain('こうやって')
+    expect(node.explanation).toBe('原句：こうやってニートが出来上がっていくのね')
+  })
+
+  it('does not build Chinese translation tiles from corrupted or mixed-language meanings', () => {
+    const badSentences = [
+      makeSentence('bad-private-use', 'ムギちゃんはキーボードうまいよね', '的键盘很不错啊'),
+      makeSentence('bad-kana', 'これはテストです', 'これは测试です'),
+      makeSentence('good', '本当に助かったんだよ', '真的帮了大忙'),
+    ]
+    const lesson = buildEpisodeLesson({ workSlug: 'k-on', episode: 1, vocab, grammar, sentences: badSentences, mode: 'shadowing' })
+    const translationIds = lesson.nodes
+      .filter((item) => item.type === 'translation-tiles')
+      .map((item) => item.source.sourceId)
+
+    expect(translationIds).toEqual(['good'])
   })
 
   it('infers sentence-final grammar cloze answers instead of midpoint blanks', () => {

@@ -5,6 +5,7 @@ import { HandwritingCanvas } from '../components/HandwritingCanvas'
 import { PageHeader } from '../components/PageHeader'
 import { ReviewButton } from '../components/ReviewButton'
 import { TtsButton } from '../components/TtsButton'
+import { formatEpisodeLabel } from '../lib/episodeLabels'
 import { saveReviewState, useProgressStore } from '../lib/progress'
 import { animeRepository } from '../server/repositories/animeRepository'
 
@@ -47,7 +48,7 @@ export function PracticePage() {
 
   return (
     <section className="page-stack">
-      <PageHeader eyebrow="手写练习" title={`EP${String(episodeNo).padStart(2, '0')} Canvas`} />
+      <PageHeader eyebrow="手写练习" title={`${formatEpisodeLabel(workSlug, episodeNo)} Canvas`} />
       <div className="practice-layout">
         <aside className="prompt-panel">
           <p className="eyebrow">题目</p>

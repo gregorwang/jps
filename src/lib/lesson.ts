@@ -283,7 +283,7 @@ function buildGrammarStudyNodes(workSlug: string, episode: number, grammar: Gram
 
 function buildSentenceStudyNodes(workSlug: string, episode: number, sentences: LearningSentence[]): StudyLessonNode[] {
   return sentences
-    .filter((sentence) => sentence.jaText && sentence.meaningZh)
+    .filter((sentence) => sentence.jaText && isUsableChineseMeaning(sentence.meaningZh))
     .map((sentence) => {
       const audio = sentenceAudio(workSlug, sentence, false)
       return {
@@ -298,13 +298,9 @@ function buildSentenceStudyNodes(workSlug: string, episode: number, sentences: L
         quality: lessonQuality([audioQualityFlag(audio)]),
         studyKind: 'sentence',
         jaText: sentence.jaText,
-        reading: sentence.romaji,
         meaningZh: sentence.meaningZh,
         linguisticPayload: sentence.linguisticPayload,
-        notes: [
-          sentence.toneTags.length ? `语气：${sentence.toneTags.join(' / ')}` : '',
-          sentence.difficulty ? `难度：${sentence.difficulty}` : '',
-        ].filter(isUsefulStudyNote),
+        notes: [],
       } satisfies StudyLessonNode
     })
 }
@@ -379,7 +375,7 @@ function buildSentenceAudioTileNodes(workSlug: string, episode: number, sentence
         title: '选择听到的内容',
         prompt: '听句子，把下面的语块按顺序拼起来',
         audio,
-        explanation: `${sentence.jaText} / ${sentence.meaningZh}`,
+        explanation: isUsableChineseMeaning(sentence.meaningZh) ? `意思：${sentence.meaningZh}` : sentence.jaText,
         reviewLabel: sentence.jaText,
         quality: lessonQuality([audioQualityFlag(audio), ...tileQualityFlags(targetTiles)]),
         targetTiles,
@@ -393,7 +389,7 @@ function buildSentenceTranslationNodes(workSlug: string, episode: number, senten
   return sentences
     .filter((sentence) => {
       const tiles = splitChineseTiles(sentence.meaningZh)
-      return sentence.jaText && sentence.meaningZh && tiles.length >= 2 && !hasBadTileFragments(tiles)
+      return sentence.jaText && isUsableChineseMeaning(sentence.meaningZh) && tiles.length >= 2 && !hasBadTileFragments(tiles)
     })
     .slice(0, 6)
     .map((sentence) => {
@@ -407,7 +403,7 @@ function buildSentenceTranslationNodes(workSlug: string, episode: number, senten
         prompt: '理解日文句子，再拼出自然中文意思',
         displayText: sentence.jaText,
         audio,
-        explanation: `${sentence.jaText} / ${sentence.meaningZh}`,
+        explanation: `原句：${sentence.jaText}`,
         reviewLabel: sentence.jaText,
         quality: lessonQuality([audioQualityFlag(audio), ...tileQualityFlags(targetTiles)]),
         targetTiles,
@@ -725,6 +721,16 @@ function splitChineseTiles(text: string) {
   const pieces = clean.split(/[\s，,、]+/u).filter(Boolean)
   if (pieces.length > 1) return pieces
   return splitChineseLongChunk(clean)
+}
+
+function isUsableChineseMeaning(value: string | undefined) {
+  if (!value) return false
+  const text = value.trim()
+  if (!text) return false
+  if (/[\uE000-\uF8FF\uFFFD]/u.test(text)) return false
+  if (/[ぁ-んァ-ヶ]/u.test(text)) return false
+  if (!/[\p{Script=Han}]/u.test(text)) return false
+  return true
 }
 
 function sentenceDistractorTiles(sentences: LearningSentence[], sourceId: string) {

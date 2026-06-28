@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from '@tanstack/react-router'
 import { EpisodeScopeSelector } from '../components/EpisodeScopeSelector'
 import { PageHeader } from '../components/PageHeader'
+import { formatEpisodeLabel } from '../lib/episodeLabels'
 import { readEpisodeScope } from '../lib/episodeScope'
 import { animeRepository } from '../server/repositories/animeRepository'
 
@@ -17,7 +18,7 @@ export function SubtitlesPage() {
 
   return (
     <section className="page-stack">
-      <PageHeader eyebrow="台词浏览" title={`EP${String(episodeNo).padStart(2, '0')} 日文台词`} />
+      <PageHeader eyebrow="台词浏览" title={`${formatEpisodeLabel(selectedWorkSlug, episodeNo)} 日文台词`} />
       <EpisodeScopeSelector workSlug={selectedWorkSlug} episode={episodeNo} tool="subtitles" />
       <div className="timeline">
         {subtitlesQuery.data?.map((line) => (
