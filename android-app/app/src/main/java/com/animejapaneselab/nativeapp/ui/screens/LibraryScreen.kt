@@ -1,7 +1,17 @@
 package com.animejapaneselab.nativeapp.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +21,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Spacer
@@ -23,23 +35,36 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.AutoStories
 import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.Face
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PlayCircle
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.School
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,8 +76,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -61,6 +94,7 @@ import com.animejapaneselab.nativeapp.data.EpisodeOption
 import com.animejapaneselab.nativeapp.data.GrammarPoint
 import com.animejapaneselab.nativeapp.data.LessonMode
 import com.animejapaneselab.nativeapp.data.LessonTarget
+import com.animejapaneselab.nativeapp.data.LinguisticCardPayload
 import com.animejapaneselab.nativeapp.data.PromptAudio
 import com.animejapaneselab.nativeapp.data.ShadowingSentence
 import com.animejapaneselab.nativeapp.data.SyncStatus
@@ -72,8 +106,22 @@ import com.animejapaneselab.nativeapp.ui.audio.AudioPlaybackPhase
 import com.animejapaneselab.nativeapp.ui.audio.AudioPlaybackState
 import com.animejapaneselab.nativeapp.ui.audio.rememberLessonAudioController
 import com.animejapaneselab.nativeapp.ui.components.LabCard
+import com.animejapaneselab.nativeapp.ui.components.SecondaryButton
 import com.animejapaneselab.nativeapp.ui.components.StructuredAiResultCard
 import com.animejapaneselab.nativeapp.ui.components.TagChip
+import com.animejapaneselab.nativeapp.ui.motion.MotionTokens
+import com.animejapaneselab.nativeapp.ui.motion.PressablePrimaryButton
+import com.animejapaneselab.nativeapp.ui.motion.rememberReducedMotion
+import com.animejapaneselab.nativeapp.ui.reading.CharacterCatalog
+import com.animejapaneselab.nativeapp.ui.reading.CharacterProfileSheet
+import com.animejapaneselab.nativeapp.ui.reading.DeepDiveTarget
+import com.animejapaneselab.nativeapp.ui.reading.RubyText
+import com.animejapaneselab.nativeapp.ui.reading.SentenceDeepDiveSheet
+import com.animejapaneselab.nativeapp.ui.reading.rememberCharacterProfile
+import com.animejapaneselab.nativeapp.ui.reading.rememberFuriganaAnnotator
+import com.animejapaneselab.nativeapp.ui.reading.rememberSentenceDeepDive
+import com.animejapaneselab.nativeapp.ui.theme.LabPalette
+import com.animejapaneselab.nativeapp.ui.theme.LabTheme
 
 @Composable
 fun LibraryScreen(
@@ -83,8 +131,11 @@ fun LibraryScreen(
     onStartLesson: () -> Unit,
     onStartModeLesson: (LessonMode) -> Unit,
     onStartReadAir: () -> Unit,
+    onOpenSubtitles: () -> Unit,
+    onOpenSettings: () -> Unit,
     onTargetLesson: (LessonTarget) -> Unit,
     onAskAi: (targetKey: String, kind: String, text: String, context: String) -> Unit,
+    onOpenSearch: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
@@ -116,6 +167,7 @@ fun LibraryScreen(
         LibraryTabSpec("跟读", uiState.shadowing.size, "句"),
     )
     val audioController = rememberLessonAudioController()
+    val characterProfile = rememberCharacterProfile(uiState.settings, uiState.selection.workSlug)
     val header: @Composable () -> Unit = {
         LibraryGuideHeader(
             uiState = uiState,
@@ -127,6 +179,10 @@ fun LibraryScreen(
             onStartLesson = onStartLesson,
             onStartModeLesson = onStartModeLesson,
             onStartReadAir = onStartReadAir,
+            onOpenSubtitles = onOpenSubtitles,
+            onOpenSettings = onOpenSettings,
+            onOpenSearch = onOpenSearch,
+            onOpenCharacterProfile = characterProfile::open,
             revealEpisodeActionsRequest = revealEpisodeActionsTotalRequest,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -164,6 +220,7 @@ fun LibraryScreen(
             modifier = modifier,
         )
     }
+    CharacterProfileSheet(characterProfile)
 }
 
 private data class LibraryTabSpec(
@@ -172,11 +229,97 @@ private data class LibraryTabSpec(
     val eyebrow: String,
 )
 
+private const val VocabPageSize = 40
+
 private fun libraryTabHasContent(selectedTab: Int, uiState: LabUiState): Boolean {
     return when (selectedTab) {
         0 -> uiState.vocab.isNotEmpty()
         1 -> uiState.grammar.isNotEmpty()
         else -> uiState.shadowing.isNotEmpty()
+    }
+}
+
+private data class LibrarySelectionColors(
+    val container: Color,
+    val content: Color,
+    val border: Color,
+)
+
+@Composable
+private fun animateLibrarySelectionColors(
+    selected: Boolean,
+    unselectedContainer: Color = MaterialTheme.colorScheme.surface,
+): LibrarySelectionColors {
+    val reducedMotion = rememberReducedMotion()
+    val spec = tween<Color>(
+        durationMillis = MotionTokens.duration(MotionTokens.Duration.Micro, reducedMotion),
+        easing = MotionTokens.Curve.Standard,
+    )
+    val container by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.primaryContainer else unselectedContainer,
+        animationSpec = spec,
+        label = "library-selection-container",
+    )
+    val content by animateColorAsState(
+        targetValue = if (selected) {
+            MaterialTheme.colorScheme.onPrimaryContainer
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        },
+        animationSpec = spec,
+        label = "library-selection-content",
+    )
+    val border by animateColorAsState(
+        targetValue = if (selected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.outline
+        },
+        animationSpec = spec,
+        label = "library-selection-border",
+    )
+    return LibrarySelectionColors(container = container, content = content, border = border)
+}
+
+@Composable
+private fun LibraryEmptyState(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        shape = MaterialTheme.shapes.large,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 28.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Surface(
+                modifier = Modifier.size(46.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                shape = CircleShape,
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(icon, contentDescription = null, modifier = Modifier.size(22.dp))
+                }
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
 
@@ -192,29 +335,49 @@ private fun WorkTabs(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(horizontal = 2.dp),
     ) {
-        items(works, key = { it.slug }) { work ->
+        items(works, key = { it.slug }, contentType = { "work-tab" }) { work ->
             val selected = work.slug == selectedWorkSlug
+            val colors = animateLibrarySelectionColors(selected = selected)
             Surface(
-                modifier = Modifier.minimumInteractiveComponentSize(),
-                color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-                shape = MaterialTheme.shapes.extraLarge,
-                border = BorderStroke(
-                    1.dp,
-                    if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                ),
-                tonalElevation = if (selected) 3.dp else 1.dp,
+                modifier = Modifier
+                    .minimumInteractiveComponentSize()
+                    .semantics {
+                        this.selected = selected
+                        role = Role.Tab
+                    },
+                color = colors.container,
+                contentColor = colors.content,
+                shape = MaterialTheme.shapes.small,
+                border = BorderStroke(if (selected) 1.5.dp else 1.dp, colors.border),
+                tonalElevation = 0.dp,
                 onClick = { onWorkSelected(work.slug) },
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(Icons.Rounded.AutoStories, contentDescription = null)
+                    Icon(
+                        Icons.Rounded.AutoStories,
+                        contentDescription = null,
+                        modifier = Modifier.size(17.dp),
+                        tint = if (selected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                    )
                     Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
                         Text(work.displayName, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Black)
-                        Text("${work.episodeCount} 集", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                        Text(
+                            "${work.episodeCount} 集",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (selected) {
+                                MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f)
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                        )
                     }
                 }
             }
@@ -245,8 +408,16 @@ private fun EpisodeBrowser(
         }
     }
 
+    val reducedMotion = rememberReducedMotion()
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .animateContentSize(
+                animationSpec = tween(
+                    durationMillis = MotionTokens.duration(MotionTokens.Duration.CardEnter, reducedMotion),
+                    easing = MotionTokens.Curve.Standard,
+                ),
+            ),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         FlowRow(
@@ -258,19 +429,17 @@ private fun EpisodeBrowser(
                 val start = page.firstOrNull()?.episode ?: return@forEachIndexed
                 val end = page.lastOrNull()?.episode ?: start
                 val selected = index == safePage
+                val colors = animateLibrarySelectionColors(selected = selected)
                 Surface(
-                    color = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
-                    contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+                    color = colors.container,
+                    contentColor = colors.content,
                     shape = MaterialTheme.shapes.large,
-                    border = BorderStroke(
-                        1.dp,
-                        if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                    ),
+                    border = BorderStroke(if (selected) 1.5.dp else 1.dp, colors.border),
                     onClick = { selectedPage = index },
                 ) {
                     Text(
-                        text = "查看 EP${start.toString().padStart(2, '0')}-${end.toString().padStart(2, '0')}",
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
+                        text = "EP${start.toString().padStart(2, '0')}-${end.toString().padStart(2, '0')}",
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Black,
                     )
@@ -293,31 +462,30 @@ private fun EpisodeBrowser(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun EpisodeBrowserSection(
     episodes: List<EpisodeOption>,
     selectedEpisode: Int,
     onEpisodeSelected: (Int) -> Unit,
-    tabs: List<LibraryTabSpec>,
-    selectedTab: Int,
-    onTabSelected: (Int) -> Unit,
-    readAirCount: Int,
-    subtitleCount: Int,
-    onStartLesson: () -> Unit,
-    onStartModeLesson: (LessonMode) -> Unit,
-    onStartReadAir: () -> Unit,
     revealRequest: Int,
     modifier: Modifier = Modifier,
 ) {
     val selected = episodes.firstOrNull { it.episode == selectedEpisode }
     var expanded by rememberSaveable(episodes.firstOrNull()?.workSlug ?: "episodes") {
-        mutableStateOf(true)
+        mutableStateOf(false)
     }
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val reducedMotion = rememberReducedMotion()
+    val chevronRotation by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        animationSpec = MotionTokens.microSpec(reducedMotion),
+        label = "episode-browser-chevron",
+    )
 
     LaunchedEffect(revealRequest) {
         if (revealRequest > 0) {
+            expanded = true
             withFrameNanos { }
             withFrameNanos { }
             bringIntoViewRequester.bringIntoView()
@@ -330,91 +498,78 @@ private fun EpisodeBrowserSection(
             .bringIntoViewRequester(bringIntoViewRequester),
         color = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface,
-        shape = MaterialTheme.shapes.extraLarge,
+        shape = MaterialTheme.shapes.medium,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        tonalElevation = 1.dp,
+        tonalElevation = 0.dp,
     ) {
         Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text("选集", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
                     Text(
-                        selected?.let { "${it.label} · ${it.usableJaLines} 句 · ${it.chunkCount} chunks" } ?: "选择一集后进入本集训练",
-                        style = MaterialTheme.typography.bodyMedium,
+                        text = selected?.label ?: "选择一集",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Black,
+                    )
+                    Text(
+                        selected?.let { "${it.totalCues} 行台词 · ${it.chunkCount} 个片段" } ?: "切换当前学习内容",
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
-                OutlinedButton(onClick = { expanded = !expanded }) {
+                OutlinedButton(
+                    onClick = { expanded = !expanded },
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                ) {
                     Icon(
-                        if (expanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                        Icons.Rounded.ExpandMore,
                         contentDescription = null,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .rotate(chevronRotation),
                     )
                     Text(
-                        if (expanded) "收起" else "展开",
+                        if (expanded) "收起" else "换一集",
                         modifier = Modifier.padding(start = 4.dp),
                         fontWeight = FontWeight.Black,
                     )
                 }
             }
-            Text("本集入口", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Black)
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+            AnimatedVisibility(
+                visible = expanded,
+                enter = expandVertically(
+                    animationSpec = tween(
+                        durationMillis = MotionTokens.duration(MotionTokens.Duration.CardEnter, reducedMotion),
+                        easing = MotionTokens.Curve.Decelerate,
+                    ),
+                ) + fadeIn(
+                    animationSpec = tween(
+                        durationMillis = MotionTokens.duration(MotionTokens.Duration.CardEnter, reducedMotion),
+                        easing = MotionTokens.Curve.Standard,
+                    ),
+                ),
+                exit = shrinkVertically(
+                    animationSpec = tween(
+                        durationMillis = MotionTokens.duration(MotionTokens.Duration.Micro, reducedMotion),
+                        easing = MotionTokens.Curve.Standard,
+                    ),
+                ) + fadeOut(
+                    animationSpec = tween(
+                        durationMillis = MotionTokens.duration(MotionTokens.Duration.Micro, reducedMotion),
+                        easing = MotionTokens.Curve.Standard,
+                    ),
+                ),
             ) {
-                LibraryEntryButton(
-                    label = "综合训练",
-                    meta = "混合队列",
-                    icon = Icons.Rounded.PlayCircle,
-                    selected = true,
-                    onClick = onStartLesson,
-                )
-                LibraryEntryButton(
-                    label = "读空气专项",
-                    meta = "${readAirCount} 道题",
-                    icon = Icons.Rounded.Bolt,
-                    selected = false,
-                    onClick = onStartReadAir,
-                )
-                LibraryEntryButton(
-                    label = "词汇专项",
-                    meta = "${tabs.getOrNull(0)?.count ?: 0} 个词",
-                    icon = Icons.Rounded.AutoStories,
-                    selected = selectedTab == 0,
-                    onClick = { onStartModeLesson(LessonMode.Vocab) },
-                )
-                LibraryEntryButton(
-                    label = "语法专项",
-                    meta = "${tabs.getOrNull(1)?.count ?: 0} 个点",
-                    icon = Icons.Rounded.School,
-                    selected = selectedTab == 1,
-                    onClick = { onStartModeLesson(LessonMode.Grammar) },
-                )
-                LibraryEntryButton(
-                    label = "跟读专项",
-                    meta = "${tabs.getOrNull(2)?.count ?: 0} 句",
-                    icon = Icons.AutoMirrored.Rounded.VolumeUp,
-                    selected = selectedTab == 2,
-                    onClick = { onStartModeLesson(LessonMode.Shadowing) },
-                )
-                LibraryEntryButton(
-                    label = "台词浏览",
-                    meta = "${subtitleCount} 行字幕",
-                    icon = Icons.AutoMirrored.Rounded.MenuBook,
-                    selected = false,
-                    onClick = { onTabSelected(2) },
-                )
-            }
-            if (expanded) {
                 EpisodeBrowser(
                     episodes = episodes,
                     selectedEpisode = selectedEpisode,
@@ -432,32 +587,76 @@ private fun EpisodeTile(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val colors = animateLibrarySelectionColors(selected = selected)
     Surface(
         modifier = modifier
             .width(98.dp)
-            .heightIn(min = 68.dp),
-        color = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
-        contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+            .heightIn(min = 68.dp)
+            .semantics { this.selected = selected },
+        color = colors.container,
+        contentColor = colors.content,
         shape = MaterialTheme.shapes.large,
-        border = BorderStroke(
-            1.dp,
-            if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-        ),
-        tonalElevation = if (selected) 4.dp else 1.dp,
+        border = BorderStroke(if (selected) 1.5.dp else 1.dp, colors.border),
+        tonalElevation = 0.dp,
         onClick = onClick,
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 9.dp),
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             Text(episode.label, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Black)
             Text(
-                "${episode.usableJaLines} 句 · ${episode.chunkCount}c",
+                "${episode.totalCues} 行台词 · ${episode.chunkCount} 个片段",
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = if (selected) {
+                    MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f)
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun EpisodeLearningSummary(
+    episode: EpisodeOption,
+    vocabCount: Int,
+    grammarCount: Int,
+    shadowingCount: Int,
+    readAirCount: Int,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        shape = MaterialTheme.shapes.large,
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text("${episode.label} 学习材料", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                TagChip("台词 ${episode.totalCues}")
+                TagChip("场景片段 ${episode.chunkCount}")
+                TagChip("词汇 $vocabCount")
+                TagChip("语法 $grammarCount")
+                TagChip("跟读 $shadowingCount")
+                TagChip("语感题 $readAirCount")
+            }
+            Text(
+                text = "本集重点：场面压力、反问、立场表达",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.78f),
             )
         }
     }
@@ -473,22 +672,229 @@ private fun LibraryEntryButton(
 ) {
     Surface(
         modifier = modifier
-            .width(142.dp)
-            .heightIn(min = 70.dp)
+            .width(124.dp)
+            .heightIn(min = 64.dp)
             .minimumInteractiveComponentSize(),
-        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-        contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+        color = if (selected) LabPalette.Violet else MaterialTheme.colorScheme.surface,
+        contentColor = if (selected) Color.White else LabPalette.Ink,
         shape = MaterialTheme.shapes.large,
-        tonalElevation = if (selected) 3.dp else 0.dp,
+        border = BorderStroke(
+            1.dp,
+            if (selected) LabPalette.Violet else LabPalette.Violet.copy(alpha = 0.18f),
+        ),
+        tonalElevation = if (selected) 2.dp else 0.dp,
         onClick = onClick,
     ) {
-        Column(
-            modifier = Modifier.padding(10.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 9.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
-            Text(label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Black, maxLines = 1)
-            Text(meta, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, maxLines = 1)
+            Surface(
+                modifier = Modifier.size(32.dp),
+                color = if (selected) Color.White.copy(alpha = 0.18f) else LabPalette.VioletPanel,
+                contentColor = if (selected) Color.White else LabPalette.Violet,
+                shape = CircleShape,
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
+                }
+            }
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                Text(label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Black, maxLines = 1)
+                Text(
+                    meta,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = if (selected) Color.White.copy(alpha = 0.82f) else LabPalette.Muted,
+                    maxLines = 1,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LibraryQuickAccessPanel(
+    episodeLabel: String,
+    subtitleCount: Int,
+    readAirCount: Int,
+    tabs: List<LibraryTabSpec>,
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit,
+    onStartLesson: () -> Unit,
+    onStartModeLesson: (LessonMode) -> Unit,
+    onStartReadAir: () -> Unit,
+    onOpenSubtitles: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        shape = MaterialTheme.shapes.medium,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(7.dp),
+            ) {
+                tabs.forEachIndexed { index, tab ->
+                    LibraryModeButton(
+                        tab = tab,
+                        selected = selectedTab == index,
+                        onClick = { onTabSelected(index) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+            PressablePrimaryButton(
+                onClick = {
+                    onStartModeLesson(
+                        when (selectedTab) {
+                            0 -> LessonMode.Vocab
+                            1 -> LessonMode.Grammar
+                            else -> LessonMode.Shadowing
+                        },
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(Icons.Rounded.PlayCircle, contentDescription = null)
+                Text("开始本组练习", modifier = Modifier.padding(start = 7.dp), fontWeight = FontWeight.Black)
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                TextButton(
+                    onClick = onOpenSubtitles,
+                    modifier = Modifier
+                        .weight(1f)
+                        .heightIn(min = 48.dp),
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary),
+                ) {
+                    Icon(Icons.AutoMirrored.Rounded.MenuBook, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Text("台词浏览 $subtitleCount", modifier = Modifier.padding(start = 6.dp), fontWeight = FontWeight.Bold)
+                }
+                TextButton(
+                    onClick = onStartReadAir,
+                    modifier = Modifier
+                        .weight(1f)
+                        .heightIn(min = 48.dp),
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary),
+                ) {
+                    Icon(Icons.Rounded.School, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Text("语感专项 $readAirCount", modifier = Modifier.padding(start = 6.dp), fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LibrarySearchEntry(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp)
+            .semantics { role = Role.Button },
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        shape = MaterialTheme.shapes.large,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        tonalElevation = 0.dp,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Surface(
+                modifier = Modifier.size(34.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                shape = CircleShape,
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(Icons.Rounded.Search, contentDescription = null, modifier = Modifier.size(19.dp))
+                }
+            }
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                Text(
+                    text = "搜索台词：中文描述或日语都可以",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = "语义检索全作品字幕",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Icon(
+                Icons.Rounded.ChevronRight,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun LibraryCharacterProfileEntry(
+    workName: String,
+    characterCount: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 52.dp)
+            .semantics { role = Role.Button },
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        shape = MaterialTheme.shapes.medium,
+        tonalElevation = 0.dp,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Rounded.Face, contentDescription = null, modifier = Modifier.size(20.dp))
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                Text(
+                    text = "角色语言画像",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Black,
+                    maxLines = 1,
+                )
+                Text(
+                    text = "$workName · $characterCount 位角色的口癖与语气",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.75f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Icon(Icons.Rounded.ChevronRight, contentDescription = null, modifier = Modifier.size(18.dp))
         }
     }
 }
@@ -504,105 +910,137 @@ private fun LibraryGuideHeader(
     onStartLesson: () -> Unit,
     onStartModeLesson: (LessonMode) -> Unit,
     onStartReadAir: () -> Unit,
+    onOpenSubtitles: () -> Unit,
+    onOpenSettings: () -> Unit,
+    onOpenSearch: () -> Unit,
+    onOpenCharacterProfile: () -> Unit,
     revealEpisodeActionsRequest: Int,
     modifier: Modifier = Modifier,
 ) {
     val selectedEpisode = uiState.episodes.firstOrNull { it.episode == uiState.selection.episode }
     val selectedWork = uiState.works.firstOrNull { it.slug == uiState.selection.workSlug }
-    val selectedReadAirCount = uiState.readAir.exercises.count { exercise ->
-        exercise.episode == uiState.selection.episode && libraryWorkMatches(exercise.workSlug, uiState.selection.workSlug)
-    }
-    val workReadAirCount = uiState.readAir.exercises.count { exercise ->
-        libraryWorkMatches(exercise.workSlug, uiState.selection.workSlug)
+    val characterOptions = remember(uiState.selection.workSlug) {
+        CharacterCatalog.charactersFor(uiState.selection.workSlug)
     }
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
+        CourseHeaderBar(onOpenSettings = onOpenSettings)
+        LibrarySearchEntry(onClick = onOpenSearch)
         WorkTabs(
             works = uiState.works,
             selectedWorkSlug = uiState.selection.workSlug,
             onWorkSelected = onWorkSelected,
         )
-        WorkLibraryOverview(
-            work = selectedWork,
-            episodes = uiState.episodes,
-            readAirCount = workReadAirCount,
-        )
+        if (characterOptions.isNotEmpty()) {
+            LibraryCharacterProfileEntry(
+                workName = selectedWork?.displayName ?: "当前作品",
+                characterCount = characterOptions.size,
+                onClick = onOpenCharacterProfile,
+            )
+        }
         EpisodeBrowserSection(
             episodes = uiState.episodes,
             selectedEpisode = uiState.selection.episode,
             onEpisodeSelected = onEpisodeSelected,
+            revealRequest = revealEpisodeActionsRequest,
+        )
+        LibraryQuickAccessPanel(
+            episodeLabel = uiState.focus.episodeLabel,
+            subtitleCount = selectedEpisode?.totalCues ?: 0,
+            readAirCount = uiState.readAir.exercises.size,
             tabs = tabs,
             selectedTab = selectedTab,
             onTabSelected = onTabSelected,
-            readAirCount = selectedReadAirCount,
-            subtitleCount = selectedEpisode?.totalCues ?: 0,
             onStartLesson = onStartLesson,
             onStartModeLesson = onStartModeLesson,
             onStartReadAir = onStartReadAir,
-            revealRequest = revealEpisodeActionsRequest,
-        )
-        Surface(
+            onOpenSubtitles = onOpenSubtitles,
             modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.secondary,
-            contentColor = MaterialTheme.colorScheme.onSecondary,
-            shape = MaterialTheme.shapes.extraLarge,
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun LibraryStudyGuide(
+    episodeLabel: String,
+    sectionTitle: String,
+    guidebook: String,
+    subtitleCount: Int,
+    chunkCount: Int,
+    shadowingCount: Int,
+    readAirCount: Int,
+    modifier: Modifier = Modifier,
+) {
+    var expanded by rememberSaveable(episodeLabel) { mutableStateOf(false) }
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surface,
+        contentColor = LabPalette.Ink,
+        shape = MaterialTheme.shapes.extraLarge,
+        border = BorderStroke(1.dp, LabPalette.Violet.copy(alpha = 0.18f)),
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(9.dp),
         ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                Surface(
+                    modifier = Modifier.size(38.dp),
+                    color = LabPalette.VioletPanel,
+                    contentColor = LabPalette.Violet,
+                    shape = CircleShape,
                 ) {
-                    Surface(
-                        modifier = Modifier.size(56.dp),
-                        color = MaterialTheme.colorScheme.onSecondary,
-                        contentColor = MaterialTheme.colorScheme.secondary,
-                        shape = MaterialTheme.shapes.extraLarge,
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(Icons.AutoMirrored.Rounded.MenuBook, contentDescription = null)
-                        }
-                    }
-                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text("学习手册", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                        Text(uiState.focus.episodeLabel, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Black)
-                        Text(uiState.focus.sectionTitle, style = MaterialTheme.typography.bodyMedium)
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(Icons.AutoMirrored.Rounded.MenuBook, contentDescription = null, modifier = Modifier.size(20.dp))
                     }
                 }
-                Text(
-                    text = uiState.focus.guidebook,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                        GuideMetric(label = "句子", value = selectedEpisode?.usableJaLines?.toString() ?: "-", modifier = Modifier.weight(1f))
-                        GuideMetric(label = "chunks", value = selectedEpisode?.chunkCount?.toString() ?: "-", modifier = Modifier.weight(1f))
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                        GuideMetric(label = "字幕", value = selectedEpisode?.totalCues?.toString() ?: "-", modifier = Modifier.weight(1f))
-                        GuideMetric(label = "语言学", value = selectedReadAirCount.toString(), modifier = Modifier.weight(1f))
-                    }
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                    Text("本集说明", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Black)
+                    Text(
+                        sectionTitle,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = LabPalette.Muted,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                OutlinedButton(
+                    onClick = { expanded = !expanded },
+                    border = BorderStroke(1.dp, LabPalette.Violet.copy(alpha = 0.28f)),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = LabPalette.VioletDark),
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+                ) {
+                    Icon(
+                        if (expanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                    )
                 }
             }
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-            tabs.forEachIndexed { index, tab ->
-                LibraryModeButton(
-                    tab = tab,
-                    selected = selectedTab == index,
-                    onClick = { onTabSelected(index) },
-                    modifier = Modifier.weight(1f),
-                )
+            if (expanded) {
+                Text(guidebook, style = MaterialTheme.typography.bodyMedium, color = LabPalette.Muted)
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                    verticalArrangement = Arrangement.spacedBy(7.dp),
+                ) {
+                    TagChip("台词 $subtitleCount")
+                    TagChip("场景片段 $chunkCount")
+                    TagChip("跟读句 $shadowingCount")
+                    TagChip("语感题 $readAirCount")
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun WorkLibraryOverview(
     work: WorkOption?,
@@ -614,42 +1052,64 @@ private fun WorkLibraryOverview(
     val totalSentences = episodes.sumOf { it.usableJaLines }
     val totalChunks = episodes.sumOf { it.chunkCount }
     val totalCues = episodes.sumOf { it.totalCues }
+    var expanded by rememberSaveable(work?.slug ?: "work-overview") { mutableStateOf(false) }
     Surface(
         modifier = modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surface,
-        contentColor = MaterialTheme.colorScheme.onSurface,
+        contentColor = LabPalette.Ink,
         shape = MaterialTheme.shapes.extraLarge,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        tonalElevation = 1.dp,
+        border = BorderStroke(1.dp, LabPalette.Violet.copy(alpha = 0.18f)),
+        tonalElevation = 0.dp,
     ) {
         Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(9.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text("作品总览", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Black)
                     Text(
-                        work?.displayName ?: "当前作品",
-                        style = MaterialTheme.typography.titleMedium,
+                        "作品资料 · ${work?.displayName ?: "当前作品"}",
+                        style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Black,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
+                    Text(
+                        "$importedEpisodes 集 · $totalCues 行台词 · $readAirCount 道语感题",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = LabPalette.Muted,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 }
-                TagChip("已导入 $importedEpisodes/${work?.episodeCount ?: importedEpisodes} 集", selected = true)
+                OutlinedButton(
+                    onClick = { expanded = !expanded },
+                    border = BorderStroke(1.dp, LabPalette.Violet.copy(alpha = 0.28f)),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = LabPalette.VioletDark),
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+                ) {
+                    Icon(
+                        if (expanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                WorkOverviewMetric(label = "句子", value = totalSentences.toString(), modifier = Modifier.weight(1f))
-                WorkOverviewMetric(label = "chunks", value = totalChunks.toString(), modifier = Modifier.weight(1f))
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                WorkOverviewMetric(label = "字幕", value = totalCues.toString(), modifier = Modifier.weight(1f))
-                WorkOverviewMetric(label = "读空气", value = readAirCount.toString(), modifier = Modifier.weight(1f))
+            if (expanded) {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                    verticalArrangement = Arrangement.spacedBy(7.dp),
+                ) {
+                    TagChip("已导入 $importedEpisodes/${work?.episodeCount ?: importedEpisodes} 集")
+                    TagChip("台词 $totalCues")
+                    TagChip("场景片段 $totalChunks")
+                    TagChip("可学习台词 $totalSentences")
+                    TagChip("语感题 $readAirCount")
+                }
             }
         }
     }
@@ -679,6 +1139,34 @@ private fun WorkOverviewMetric(
 
 private fun libraryWorkMatches(exerciseWorkSlug: String, selectedWorkSlug: String): Boolean {
     return normalizeLibraryWorkSlug(exerciseWorkSlug) == normalizeLibraryWorkSlug(selectedWorkSlug)
+}
+
+@Composable
+private fun CourseHeaderBar(
+    onOpenSettings: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(44.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = "资料库",
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+        IconButton(onClick = onOpenSettings) {
+            Icon(
+                imageVector = Icons.Rounded.Settings,
+                contentDescription = "打开设置",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
 }
 
 private fun normalizeLibraryWorkSlug(workSlug: String): String {
@@ -721,25 +1209,55 @@ private fun LibraryModeButton(
     val icon = when (tab.label) {
         "词汇" -> Icons.Rounded.AutoStories
         "语法" -> Icons.Rounded.School
-        else -> Icons.Rounded.Bolt
+        else -> Icons.AutoMirrored.Rounded.VolumeUp
     }
+    val colors = animateLibrarySelectionColors(
+        selected = selected,
+        unselectedContainer = Color.Transparent,
+    )
     Surface(
-        modifier = modifier,
-        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-        contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-        shape = MaterialTheme.shapes.extraLarge,
-        border = BorderStroke(1.dp, if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline),
-        tonalElevation = if (selected) 4.dp else 1.dp,
+        modifier = modifier
+            .heightIn(min = 48.dp)
+            .semantics {
+                this.selected = selected
+                role = Role.Tab
+            },
+        color = colors.container,
+        contentColor = colors.content,
+        shape = MaterialTheme.shapes.small,
+        border = BorderStroke(if (selected) 1.5.dp else 1.dp, colors.border),
+        tonalElevation = 0.dp,
         onClick = onClick,
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(5.dp),
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 9.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(icon, contentDescription = null)
-            Text(tab.label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Black)
-            Text("${tab.count}${tab.eyebrow}", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+            Icon(
+                icon,
+                contentDescription = null,
+                modifier = Modifier.size(17.dp),
+                tint = if (selected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                Text(tab.label, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Black)
+                Text(
+                    "${tab.count}${tab.eyebrow}",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = if (selected) {
+                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f)
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    maxLines = 1,
+                )
+            }
         }
     }
 }
@@ -757,6 +1275,27 @@ private fun VocabList(
     listState: LazyListState,
     modifier: Modifier = Modifier,
 ) {
+    var query by rememberSaveable(uiState.selection.workSlug, uiState.selection.episode) { mutableStateOf("") }
+    var visibleCount by rememberSaveable(
+        uiState.selection.workSlug,
+        uiState.selection.episode,
+        vocab.size,
+    ) {
+        mutableIntStateOf(minOf(VocabPageSize, vocab.size))
+    }
+    val filteredVocab = remember(vocab, query) {
+        val normalized = query.trim().lowercase()
+        if (normalized.isBlank()) {
+            vocab
+        } else {
+            vocab.filter { item ->
+                listOf(item.surface, item.reading, item.romanization, item.meaningZh)
+                    .any { value -> value.lowercase().contains(normalized) }
+            }
+        }
+    }
+    val visibleVocab = remember(filteredVocab, visibleCount) { filteredVocab.take(visibleCount) }
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         state = listState,
@@ -769,77 +1308,125 @@ private fun VocabList(
         item(key = "library-content-anchor") {
             Spacer(modifier = Modifier.heightIn(min = 1.dp))
         }
+        item(key = "vocab-search") {
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
+                placeholder = { Text("搜索日语、假名或中文释义") },
+                shape = MaterialTheme.shapes.medium,
+            )
+        }
         if (playbackState.message.isNotBlank()) {
             item(key = "audio-status") {
                 AudioStatusBanner(playbackState = playbackState)
             }
         }
-        items(vocab, key = { it.id }) { item ->
+        if (filteredVocab.isNotEmpty()) {
+            item(key = "vocab-visible-count") {
+                Text(
+                    text = "${filteredVocab.size} 个词 · 点击条目开始练习",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        } else {
+            item(key = "vocab-empty") {
+                LibraryEmptyState(
+                    icon = if (query.isBlank()) Icons.Rounded.AutoStories else Icons.Rounded.Search,
+                    title = if (query.isBlank()) "本集还没有词汇" else "没有找到匹配的词",
+                    subtitle = if (query.isBlank()) "换一集看看，或先从跟读句开始" else "试试换个假名或中文关键词",
+                )
+            }
+        }
+        items(
+            visibleVocab,
+            key = { it.id },
+            contentType = { "vocab-row" },
+        ) { item ->
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.surface,
-                shape = MaterialTheme.shapes.extraLarge,
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                tonalElevation = 2.dp,
-            ) {
-                Column(
-                    modifier = Modifier.padding(18.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top,
-                ) {
-                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(item.surface, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Black)
-                        Text("${item.reading} · ${item.romanization}", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(item.meaningZh, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Black)
-                    }
-                    TagChip(item.level, selected = true)
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                    TagChip(item.partOfSpeech)
-                    item.toneTags.take(2).forEach { TagChip(it) }
-                }
-                Text(item.occurrence, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Button(
                     onClick = { onTargetLesson(LessonTarget.Vocab(item.id)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 52.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = MaterialTheme.shapes.medium,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                 ) {
-                    Text("练这个词", fontWeight = FontWeight.Black)
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                    Button(
-                        onClick = { onSpeak(item.surface) },
-                        modifier = Modifier.weight(1f).heightIn(min = 48.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                    Column(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        Icon(Icons.AutoMirrored.Rounded.VolumeUp, contentDescription = null)
-                        Text("播放", modifier = Modifier.padding(start = 6.dp), fontWeight = FontWeight.Black)
-                    }
-                    OutlinedButton(
-                        onClick = {
-                            onAskAi(
-                                item.libraryAiKey("vocab"),
-                                "vocab",
-                                item.surface,
-                                item.aiContext(uiState.focus.episodeLabel),
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Text(
+                                        item.surface,
+                                        modifier = Modifier.alignByBaseline(),
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                    Text(
+                                        item.reading,
+                                        modifier = Modifier.alignByBaseline(),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = LabTheme.colors.info,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                }
+                                if (item.meaningZh.isNotBlank()) {
+                                    Text(
+                                        text = item.meaningZh,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
+                                if (item.partOfSpeech.isNotBlank() || item.level.isNotBlank()) {
+                                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        if (item.partOfSpeech.isNotBlank()) {
+                                            TagChip(item.partOfSpeech)
+                                        }
+                                        if (item.level.isNotBlank()) {
+                                            TagChip(item.level)
+                                        }
+                                    }
+                                }
+                            }
+                            LibraryRowActions(
+                                onPlay = { onSpeak(item.surface) },
+                                playDescription = "播放 ${item.surface}",
+                                aiDescription = "精讲 ${item.surface}",
+                                onAskAi = {
+                                    onAskAi(
+                                        item.libraryAiKey("vocab"),
+                                        "vocab",
+                                        item.surface,
+                                        item.aiContext(uiState.focus.episodeLabel),
+                                    )
+                                },
                             )
-                        },
-                        modifier = Modifier.weight(1f).heightIn(min = 48.dp),
-                    ) {
-                        Icon(Icons.Rounded.AutoAwesome, contentDescription = null)
-                        Text("精讲", modifier = Modifier.padding(start = 6.dp), fontWeight = FontWeight.Black)
+                        }
+                        LinguisticNerdSection(payload = item.linguistic)
                     }
                 }
-                }
-            }
                 LibraryAiPanel(targetKey = item.libraryAiKey("vocab"), uiState = uiState)
+            }
+        }
+        if (visibleCount < filteredVocab.size) {
+            item(key = "load-more-vocab") {
+                SecondaryButton(
+                    text = "加载更多 ${minOf(VocabPageSize, filteredVocab.size - visibleCount)} 个词",
+                    onClick = {
+                        visibleCount = minOf(visibleCount + VocabPageSize, filteredVocab.size)
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
         }
     }
@@ -867,35 +1454,91 @@ private fun GrammarList(
         item(key = "library-content-anchor") {
             Spacer(modifier = Modifier.heightIn(min = 1.dp))
         }
-        items(grammar, key = { it.id }) { item ->
+        if (grammar.isEmpty()) {
+            item(key = "grammar-empty") {
+                LibraryEmptyState(
+                    icon = Icons.Rounded.School,
+                    title = "本集还没有语法点",
+                    subtitle = "换一集看看，或先积累一些词汇",
+                )
+            }
+        }
+        items(
+            grammar,
+            key = { it.id },
+            contentType = { "grammar-row" },
+        ) { item ->
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                LabCard {
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                        TagChip(item.pattern, selected = true)
-                        Text(item.titleZh, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
-                    }
-                    Text(item.exampleJa, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Black)
-                    Text(item.exampleZh, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-                    Text(item.explanationZh, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Button(
-                        onClick = { onTargetLesson(LessonTarget.Grammar(item.id)) },
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
+                Surface(
+                    onClick = { onTargetLesson(LessonTarget.Grammar(item.id)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = MaterialTheme.shapes.medium,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        Text("练这个语法", fontWeight = FontWeight.Black)
-                    }
-                    OutlinedButton(
-                        onClick = {
-                            onAskAi(
-                                item.libraryAiKey("grammar"),
-                                "grammar",
-                                item.pattern,
-                                item.aiContext(uiState.focus.episodeLabel),
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                Text(item.pattern, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                                Text(
+                                    item.titleZh,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            LibraryRowActions(
+                                onPlay = null,
+                                playDescription = "",
+                                aiDescription = "精讲 ${item.pattern}",
+                                onAskAi = {
+                                    onAskAi(
+                                        item.libraryAiKey("grammar"),
+                                        "grammar",
+                                        item.pattern,
+                                        item.aiContext(uiState.focus.episodeLabel),
+                                    )
+                                },
                             )
-                        },
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
-                    ) {
-                        Icon(Icons.Rounded.AutoAwesome, contentDescription = null)
-                        Text("精讲", modifier = Modifier.padding(start = 6.dp), fontWeight = FontWeight.Black)
+                        }
+                        if (item.exampleJa.isNotBlank()) {
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                                shape = MaterialTheme.shapes.small,
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                ) {
+                                    Text(
+                                        item.exampleJa,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Medium,
+                                    )
+                                    if (item.exampleZh.isNotBlank()) {
+                                        Text(
+                                            item.exampleZh,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        if (item.explanationZh.isNotBlank()) {
+                            Text(
+                                item.explanationZh,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 3,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                        LinguisticNerdSection(payload = item.linguistic)
                     }
                 }
                 LibraryAiPanel(targetKey = item.libraryAiKey("grammar"), uiState = uiState)
@@ -904,6 +1547,7 @@ private fun GrammarList(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ShadowingList(
     uiState: LabUiState,
@@ -915,6 +1559,26 @@ private fun ShadowingList(
     listState: LazyListState,
     modifier: Modifier = Modifier,
 ) {
+    val annotator = rememberFuriganaAnnotator(uiState.settings)
+    val deepDive = rememberSentenceDeepDive(uiState.settings)
+    val showFurigana = uiState.settings.showFurigana
+    val showRomaji = uiState.settings.showRomaji
+    var sourceAudioOnly by rememberSaveable(uiState.selection.workSlug, uiState.selection.episode) {
+        mutableStateOf(false)
+    }
+    val sourceAudioCount = remember(uiState.shadowing) { uiState.shadowing.count { it.hasSourceAudio } }
+    val sentences = remember(uiState.shadowing, sourceAudioOnly) {
+        if (sourceAudioOnly) uiState.shadowing.filter { it.hasSourceAudio } else uiState.shadowing
+    }
+    val hiddenCount = uiState.shadowing.size - sentences.size
+    val furiganaTexts = remember(sentences) { sentences.map { it.ja } }
+
+    LaunchedEffect(furiganaTexts, showFurigana) {
+        if (showFurigana) {
+            annotator.request("sentence", furiganaTexts)
+        }
+    }
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         state = listState,
@@ -932,36 +1596,488 @@ private fun ShadowingList(
                 AudioStatusBanner(playbackState = playbackState)
             }
         }
-        items(uiState.shadowing, key = { it.id }) { item ->
-            val audio = promptAudioForSentence(uiState.selection.workSlug, item, autoPlay = false)
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                LabCard {
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.AutoMirrored.Rounded.VolumeUp, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
-                        TagChip(audio.labelForChip(), selected = audio is PromptAudio.Source)
-                        Text(item.sourceLabel, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
+        if (uiState.shadowing.isNotEmpty()) {
+            item(key = "shadowing-filters") {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    LibraryFilterChip(
+                        text = "只看原声 $sourceAudioCount",
+                        selected = sourceAudioOnly,
+                        onClick = { sourceAudioOnly = !sourceAudioOnly },
+                    )
                     Text(
-                        item.ja,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Black,
-                        maxLines = 3,
+                        text = if (sourceAudioOnly) {
+                            "已隐藏 $hiddenCount 句无原声"
+                        } else {
+                            "${uiState.shadowing.size} 句 · 点击条目开始练习"
+                        },
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    Text(item.reading, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(item.meaningZh, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-                    ShadowingActions(
-                        audio = audio,
-                        sentence = item,
-                        episodeLabel = uiState.focus.episodeLabel,
-                        onPlay = onPlay,
-                        onTargetLesson = onTargetLesson,
-                        onAskAi = onAskAi,
-                    )
+                }
+            }
+        }
+        if (uiState.shadowing.isEmpty()) {
+            item(key = "shadowing-empty") {
+                LibraryEmptyState(
+                    icon = Icons.AutoMirrored.Rounded.VolumeUp,
+                    title = "本集还没有跟读句",
+                    subtitle = "换一集看看，或先浏览台词找感觉",
+                )
+            }
+        } else if (sentences.isEmpty()) {
+            item(key = "shadowing-filtered-empty") {
+                LibraryEmptyState(
+                    icon = Icons.AutoMirrored.Rounded.VolumeUp,
+                    title = "本集没有原声句",
+                    subtitle = "关掉「只看原声」就能看到全部跟读句",
+                )
+            }
+        }
+        items(
+            sentences,
+            key = { it.id },
+            contentType = { "shadowing-row" },
+        ) { item ->
+            val audio = remember(uiState.selection.workSlug, item) {
+                promptAudioForSentence(uiState.selection.workSlug, item, autoPlay = false)
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Surface(
+                    onClick = { onTargetLesson(LessonTarget.Sentence(item.id)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = MaterialTheme.shapes.medium,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = item.sourceLabel,
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            LibraryRowActions(
+                                onPlay = { onPlay(audio) },
+                                playDescription = "播放跟读句",
+                                aiDescription = "精讲这句话",
+                                onAskAi = {
+                                    onAskAi(
+                                        item.libraryAiKey("sentence"),
+                                        "sentence",
+                                        item.ja,
+                                        item.aiContext(uiState.focus.episodeLabel),
+                                    )
+                                },
+                            )
+                        }
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            if (item.hasSourceAudio) {
+                                LibraryAccentChip(
+                                    text = audio.labelForChip(),
+                                    container = LabTheme.colors.successContainer,
+                                    content = LabTheme.colors.onSuccessContainer,
+                                )
+                            } else {
+                                TagChip(audio.labelForChip())
+                            }
+                            if (item.difficulty.isNotBlank()) {
+                                TagChip(item.difficulty)
+                            }
+                            item.toneTags.take(3).forEach { tag ->
+                                TagChip(tag)
+                            }
+                        }
+                        if (showFurigana) {
+                            RubyText(
+                                text = item.ja,
+                                furigana = annotator.resultFor(item.ja),
+                                modifier = Modifier.fillMaxWidth(),
+                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                                rubyStyle = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                rubyColor = LabTheme.colors.info,
+                            )
+                        } else {
+                            Text(
+                                item.ja,
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 3,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                        if (item.reading.isNotBlank()) {
+                            Text(
+                                item.reading,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = LabTheme.colors.info,
+                            )
+                        }
+                        if (showRomaji && item.romaji.isNotBlank()) {
+                            Text(
+                                item.romaji,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        if (item.meaningZh.isNotBlank()) {
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                                shape = MaterialTheme.shapes.small,
+                            ) {
+                                Text(
+                                    item.meaningZh,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            TextButton(
+                                onClick = {
+                                    deepDive.request(
+                                        DeepDiveTarget(
+                                            workSlug = uiState.selection.workSlug,
+                                            episode = uiState.selection.episode,
+                                            lineNo = item.sourceLineNo,
+                                            jaText = item.ja,
+                                            zhText = item.meaningZh,
+                                        ),
+                                    )
+                                },
+                                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Rounded.MenuBook,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                )
+                                Text(
+                                    "精读",
+                                    modifier = Modifier.padding(start = 6.dp),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Black,
+                                )
+                            }
+                        }
+                        LinguisticNerdSection(payload = item.linguistic)
+                    }
                 }
                 LibraryAiPanel(targetKey = item.libraryAiKey("sentence"), uiState = uiState)
             }
         }
+    }
+    SentenceDeepDiveSheet(deepDive)
+}
+
+@Composable
+private fun LibraryFilterChip(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = animateLibrarySelectionColors(selected = selected)
+    Surface(
+        modifier = modifier
+            .minimumInteractiveComponentSize()
+            .semantics { this.selected = selected },
+        color = colors.container,
+        contentColor = colors.content,
+        shape = CircleShape,
+        border = BorderStroke(if (selected) 1.5.dp else 1.dp, colors.border),
+        tonalElevation = 0.dp,
+        onClick = onClick,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                Icons.AutoMirrored.Rounded.VolumeUp,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = if (selected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+            )
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Black,
+                maxLines = 1,
+            )
+        }
+    }
+}
+
+@Composable
+private fun LibraryAccentChip(
+    text: String,
+    container: Color,
+    content: Color,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier,
+        color = container,
+        contentColor = content,
+        border = BorderStroke(1.dp, content.copy(alpha = 0.28f)),
+        shape = CircleShape,
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Black,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+/**
+ * Collapsed-by-default "语言学加餐" addendum shown at the tail of vocab / grammar /
+ * sentence cards. Purely explanatory: it never changes the card's tap target or answers.
+ */
+@Composable
+private fun LinguisticNerdSection(
+    payload: LinguisticCardPayload?,
+    modifier: Modifier = Modifier,
+) {
+    if (payload == null || !payload.hasContent) return
+    var expanded by rememberSaveable(payload.headlineZh) { mutableStateOf(false) }
+    val reducedMotion = rememberReducedMotion()
+    val chevronRotation by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        animationSpec = MotionTokens.microSpec(reducedMotion),
+        label = "linguistic-nerd-chevron",
+    )
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        TextButton(
+            onClick = { expanded = !expanded },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary),
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
+        ) {
+            Icon(Icons.Rounded.AutoAwesome, contentDescription = null, modifier = Modifier.size(16.dp))
+            Text(
+                text = "语言学加餐",
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 6.dp),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Black,
+            )
+            if (payload.level.isNotBlank()) {
+                Text(
+                    text = payload.level,
+                    modifier = Modifier.padding(end = 6.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                )
+            }
+            Icon(
+                Icons.Rounded.ExpandMore,
+                contentDescription = if (expanded) "收起语言学加餐" else "展开语言学加餐",
+                modifier = Modifier
+                    .size(18.dp)
+                    .rotate(chevronRotation),
+            )
+        }
+        AnimatedVisibility(
+            visible = expanded,
+            enter = expandVertically(
+                animationSpec = tween(
+                    durationMillis = MotionTokens.duration(MotionTokens.Duration.CardEnter, reducedMotion),
+                    easing = MotionTokens.Curve.Decelerate,
+                ),
+            ) + fadeIn(
+                animationSpec = tween(
+                    durationMillis = MotionTokens.duration(MotionTokens.Duration.CardEnter, reducedMotion),
+                    easing = MotionTokens.Curve.Standard,
+                ),
+            ),
+            exit = shrinkVertically(
+                animationSpec = tween(
+                    durationMillis = MotionTokens.duration(MotionTokens.Duration.Micro, reducedMotion),
+                    easing = MotionTokens.Curve.Standard,
+                ),
+            ) + fadeOut(
+                animationSpec = tween(
+                    durationMillis = MotionTokens.duration(MotionTokens.Duration.Micro, reducedMotion),
+                    easing = MotionTokens.Curve.Standard,
+                ),
+            ),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 2.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                if (payload.headlineZh.isNotBlank()) {
+                    Text(
+                        payload.headlineZh,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+                payload.terms.forEach { term ->
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.surfaceContainerLow,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        shape = MaterialTheme.shapes.small,
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                        ) {
+                            Text(
+                                term.termZh,
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Black,
+                            )
+                            if (term.plainZh.isNotBlank()) {
+                                Text(
+                                    term.plainZh,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
+                }
+                payload.domains.forEach { domain ->
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(
+                            domain.titleZh.ifBlank { domain.domain },
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        if (domain.takeawayZh.isNotBlank()) {
+                            Text(
+                                domain.takeawayZh,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = LabTheme.colors.info,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                        if (domain.explanationZh.isNotBlank()) {
+                            Text(
+                                domain.explanationZh,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+                if (payload.cautionZh.isNotBlank()) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = LabTheme.colors.warningContainer,
+                        contentColor = LabTheme.colors.onWarningContainer,
+                        shape = MaterialTheme.shapes.small,
+                    ) {
+                        Text(
+                            "注意：${payload.cautionZh}",
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                }
+                if (payload.historicalNoteZh.isNotBlank()) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.surfaceContainerLow,
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        shape = MaterialTheme.shapes.small,
+                    ) {
+                        Text(
+                            "源流：${payload.historicalNoteZh}",
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LibraryRowActions(
+    onPlay: (() -> Unit)?,
+    playDescription: String,
+    aiDescription: String,
+    onAskAi: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var menuExpanded by remember { mutableStateOf(false) }
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        if (onPlay != null) {
+            IconButton(onClick = onPlay) {
+                Icon(
+                    Icons.AutoMirrored.Rounded.VolumeUp,
+                    contentDescription = playDescription,
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            }
+        }
+        Box {
+            IconButton(onClick = { menuExpanded = true }) {
+                Icon(Icons.Rounded.MoreVert, contentDescription = "更多操作：$aiDescription")
+            }
+            DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
+                DropdownMenuItem(
+                    text = { Text("AI 精讲", fontWeight = FontWeight.Bold) },
+                    leadingIcon = { Icon(Icons.Rounded.AutoAwesome, contentDescription = null) },
+                    onClick = {
+                        menuExpanded = false
+                        onAskAi()
+                    },
+                )
+            }
+        }
+        Icon(Icons.Rounded.ChevronRight, contentDescription = "进入练习", tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -984,29 +2100,22 @@ private fun ShadowingActions(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 52.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = LabPalette.Violet, contentColor = Color.White),
         ) {
             Text("练这句", fontWeight = FontWeight.Black)
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-            Button(
-                onClick = { onPlay(audio) },
-                modifier = Modifier.weight(1f).heightIn(min = 48.dp),
-            ) {
-                Icon(Icons.AutoMirrored.Rounded.VolumeUp, contentDescription = null)
-                Text(audio.label, modifier = Modifier.padding(start = 6.dp), fontWeight = FontWeight.Black)
-            }
-            val fallbackAudio = (audio as? PromptAudio.Source)
-                ?.takeIf { it.fallbackTtsText.isNotBlank() }
-            if (fallbackAudio != null) {
-                OutlinedButton(
-                    onClick = {
-                        onPlay(PromptAudio.Tts(fallbackAudio.fallbackTtsText, autoPlay = false, label = fallbackAudio.fallbackLabel))
-                    },
-                    modifier = Modifier.weight(1f).heightIn(min = 48.dp),
-                ) {
-                    Text(fallbackAudio.fallbackLabel, fontWeight = FontWeight.Black)
-                }
-            }
+        Button(
+            onClick = { onPlay(audio) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = LabPalette.VioletPanel,
+                contentColor = LabPalette.VioletDark,
+            ),
+        ) {
+            Icon(Icons.AutoMirrored.Rounded.VolumeUp, contentDescription = null)
+            Text("播放语音", modifier = Modifier.padding(start = 6.dp), fontWeight = FontWeight.Black)
         }
         OutlinedButton(
             onClick = {
@@ -1035,7 +2144,17 @@ private fun LibraryAiPanel(
     if (uiState.libraryAiTargetKey != targetKey) return
     when (uiState.aiCoach.status) {
         SyncStatus.Loading -> LabCard {
-            Text("正在智能精讲...", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Black)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Text("正在智能精讲…", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Black)
+            }
         }
         SyncStatus.Success, SyncStatus.Error -> StructuredAiResultCard(
             result = uiState.aiCoach.result,
@@ -1047,25 +2166,37 @@ private fun LibraryAiPanel(
 
 @Composable
 private fun AudioStatusBanner(playbackState: AudioPlaybackState) {
-    LabCard {
-        Text(
-            text = playbackState.message,
-            style = MaterialTheme.typography.labelLarge,
-            color = if (playbackState.phase == AudioPlaybackPhase.Error) {
-                MaterialTheme.colorScheme.error
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            },
-            fontWeight = FontWeight.Bold,
-        )
+    val isError = playbackState.phase == AudioPlaybackPhase.Error
+    LabCard(contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp)) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                Icons.AutoMirrored.Rounded.VolumeUp,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = if (isError) MaterialTheme.colorScheme.error else LabTheme.colors.info,
+            )
+            Text(
+                text = playbackState.message,
+                style = MaterialTheme.typography.labelLarge,
+                color = if (isError) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+                fontWeight = FontWeight.Bold,
+            )
+        }
     }
 }
 
 private fun PromptAudio.labelForChip(): String {
     return when (this) {
-        PromptAudio.None -> "No audio"
-        is PromptAudio.Tts -> "标准语音"
-        is PromptAudio.Source -> if (reliability == AudioReliability.Verified) "Source" else "Flagged"
+        PromptAudio.None -> "无语音"
+        is PromptAudio.Tts -> "语音"
+        is PromptAudio.Source -> if (reliability == AudioReliability.Verified) "原声" else "原声待确认"
     }
 }
 
@@ -1123,7 +2254,7 @@ private fun ShadowingSentence.aiContext(episodeLabel: String): String {
     return buildString {
         append("资料页 AI 精讲。章节：")
         append(episodeLabel)
-        append("\n日文句子：")
+        append("\n日文台词：")
         append(ja)
         append("\n读音：")
         append(reading)

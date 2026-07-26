@@ -7,21 +7,28 @@ import com.animejapaneselab.nativeapp.data.AiCoachState
 import com.animejapaneselab.nativeapp.data.AuthUser
 import com.animejapaneselab.nativeapp.data.EpisodeFocus
 import com.animejapaneselab.nativeapp.data.EpisodeOption
+import com.animejapaneselab.nativeapp.data.EpisodePlan
 import com.animejapaneselab.nativeapp.data.EpisodeSelection
 import com.animejapaneselab.nativeapp.data.GrammarPoint
 import com.animejapaneselab.nativeapp.data.LabSettings
+import com.animejapaneselab.nativeapp.data.LessonExerciseKind
 import com.animejapaneselab.nativeapp.data.LessonMode
 import com.animejapaneselab.nativeapp.data.LessonNode
 import com.animejapaneselab.nativeapp.data.LessonTarget
+import com.animejapaneselab.nativeapp.data.LearningExercise
 import com.animejapaneselab.nativeapp.data.LinguisticExercise
 import com.animejapaneselab.nativeapp.data.LocalLabStore
 import com.animejapaneselab.nativeapp.data.MistakeRecord
 import com.animejapaneselab.nativeapp.data.ProgressItem
+import com.animejapaneselab.nativeapp.data.PronunciationApiException
+import com.animejapaneselab.nativeapp.data.PronunciationAssessmentStatus
+import com.animejapaneselab.nativeapp.data.PronunciationEvaluation
 import com.animejapaneselab.nativeapp.data.ReadAirScene
 import com.animejapaneselab.nativeapp.data.RemoteLabClient
 import com.animejapaneselab.nativeapp.data.ReviewState
 import com.animejapaneselab.nativeapp.data.SampleLearningRepository
 import com.animejapaneselab.nativeapp.data.ShadowingSentence
+import com.animejapaneselab.nativeapp.data.SubtitleLine
 import com.animejapaneselab.nativeapp.data.SyncSnapshot
 import com.animejapaneselab.nativeapp.data.SyncStatus
 import com.animejapaneselab.nativeapp.data.VocabItem
@@ -29,7 +36,14 @@ import com.animejapaneselab.nativeapp.data.WorkOption
 import com.animejapaneselab.nativeapp.data.buildLinguisticProgressPayload
 import com.animejapaneselab.nativeapp.domain.LessonEngine
 import com.animejapaneselab.nativeapp.domain.LessonSession
+import com.animejapaneselab.nativeapp.domain.SmartReviewPlan
+import com.animejapaneselab.nativeapp.domain.buildSmartReviewPlan
+import com.animejapaneselab.nativeapp.domain.resumeLessonFromProgress
+import com.animejapaneselab.nativeapp.platform.DeviceCapabilityReader
+import com.animejapaneselab.nativeapp.platform.DeviceCapabilitySnapshot
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,9 +52,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeParseException
+import java.util.UUID
 
 const val ReadAirAllFilter = "all"
-const val ReadAirAiQuestion = "请结合台词解释这道读空气题。"
+const val ReadAirCognitiveTopic = "cognitive_linguistics"
+const val ReadAirAiQuestion = "请结合台词解释这道语言学训练题。"
 
 class LabViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = SampleLearningRepository()
@@ -60,6 +79,11 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     private val initialLessonBatch = 1
     private var readAirCatalogLoadStarted = false
     private var authRefreshStarted = false
+    private var exerciseLabJob: Job? = null
+    private var remoteRefreshJob: Job? = null
+    private var reviewContentJob: Job? = null
+    private var pronunciationEvaluationJob: Job? = null
+    private var pendingPronunciationAttempt: PendingPronunciationAttempt? = null
 
     private val _uiState = MutableStateFlow(
         LabUiState(
@@ -76,20 +100,22 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
             selectedScene = initialScene,
             readAir = ReadAirTrainingState(
                 exercises = emptyList(),
-                message = "正在准备当前集内容；完整题库会在进入读空气时加载。",
-                usingFallback = true,
+                message = "正在从数据库加载语言学训练题库。",
+                usingFallback = false,
             ),
             lesson = LessonEngine.start(emptyList()),
             lessonMode = LessonMode.Mixed,
             lessonBatch = initialLessonBatch,
             hasNextLessonBatch = false,
             mistakes = store.readMistakes(),
+            progressItems = store.readProgress(),
         ),
     )
     val uiState: StateFlow<LabUiState> = _uiState.asStateFlow()
 
     init {
         loadInitialEpisodeContent()
+        refreshDeviceCapabilities()
         refreshAuthStateOnce()
     }
 
@@ -98,7 +124,6 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val snapshot = withContext(Dispatchers.Default) {
                 val content = repository.content(selection, LessonMode.Mixed, initialLessonBatch)
-                val exercises = repository.readAirExercises(selection)
                 val hasNextBatch = repository.hasNextLessonBatch(
                     vocab = content.vocab,
                     grammar = content.grammar,
@@ -106,29 +131,23 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                     mode = LessonMode.Mixed,
                     batch = initialLessonBatch,
                 )
-                InitialEpisodeContent(content, exercises, hasNextBatch)
+                InitialEpisodeContent(content, hasNextBatch)
             }
             _uiState.update { state ->
                 if (state.selection != selection) return@update state
-                val exercises = mergeReadAirExercises(state.readAir.exercises, snapshot.readAirExercises)
                 state.copy(
-                    focus = snapshot.content.focus,
+                    focus = snapshot.content.focus.copy(streakDays = learningStreakDays(state.progressItems)),
                     vocab = snapshot.content.vocab,
                     grammar = snapshot.content.grammar,
                     shadowing = snapshot.content.shadowing,
+                    exercises = snapshot.content.exercises,
                     scenes = snapshot.content.scenes,
                     selectedScene = snapshot.content.scenes.firstOrNull() ?: state.selectedScene,
                     readAir = state.readAir.copy(
-                        exercises = exercises,
-                        message = "当前集样例题已可用；正在准备完整题库。",
-                        selectedAnswers = state.readAir.selectedAnswers.filterKeys { id ->
-                            exercises.any { it.id == id }
-                        } + persistedReadAirAnswers(exercises, state.progressItems),
-                        pinnedExerciseId = state.readAir.pinnedExerciseId?.takeIf { id ->
-                            exercises.any { it.id == id }
-                        },
+                        message = "正在从数据库加载语言学训练题库。",
+                        usingFallback = false,
                     ),
-                    lesson = LessonEngine.start(snapshot.content.lessonNodes),
+                    lesson = resumeLessonFromProgress(snapshot.content.lessonNodes, state.progressItems),
                     hasNextLessonBatch = snapshot.hasNextLessonBatch,
                 )
             }
@@ -138,48 +157,138 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     private fun ensureFallbackReadAirCatalogLoaded() {
         if (readAirCatalogLoadStarted) return
         readAirCatalogLoadStarted = true
-        val fallbackExercises = repository.allReadAirExercises()
         _uiState.update { state ->
-            val exercises = mergeReadAirExercises(fallbackExercises, state.readAir.exercises)
-            val existingIds = state.readAir.exercises.map { it.id }.toSet()
-            val addedFallbackExercises = fallbackExercises.any { it.id !in existingIds }
             state.copy(
                 readAir = state.readAir.copy(
-                    exercises = exercises,
-                    message = "完整题库已准备：${exercises.size} 道；可从云端更新今日练习。",
-                    usingFallback = state.readAir.usingFallback || addedFallbackExercises,
-                    selectedAnswers = state.readAir.selectedAnswers.filterKeys { id ->
-                        exercises.any { it.id == id }
-                    } + persistedReadAirAnswers(exercises, state.progressItems),
-                    pinnedExerciseId = state.readAir.pinnedExerciseId?.takeIf { id ->
-                        exercises.any { it.id == id }
-                    },
+                    message = "正在从数据库加载语言学训练题库。",
+                    usingFallback = false,
                 ),
             )
         }
+        refreshReadAirExercises()
     }
 
     private fun remoteClient(): RemoteLabClient {
         return RemoteLabClient(_uiState.value.settings.apiBaseUrl, store.readSessionCookie())
     }
 
-    private fun fetchRemoteProgressSnapshot(client: RemoteLabClient, deviceId: String): RemoteProgressSnapshot {
+    private fun fetchRemoteProgressSnapshot(client: RemoteLabClient): RemoteProgressSnapshot {
+        val localProgress = store.readProgress()
+        if (!_uiState.value.settings.cloudSync) {
+            return RemoteProgressSnapshot(progress = localProgress)
+        }
+        val mergedProgress = mergeProgressItems(localProgress, client.fetchProgress(deviceId))
+        store.writeProgress(mergedProgress)
         return RemoteProgressSnapshot(
-            progress = client.fetchProgress(deviceId),
+            progress = mergedProgress,
             review = client.fetchReviewTasks(deviceId),
         )
     }
 
     fun selectTab(tab: LabTab) {
-        _uiState.update { it.copy(selectedTab = tab, activeSession = null) }
+        _uiState.update { it.copy(selectedTab = tab, activeSession = null, secondaryScreen = null) }
         when (tab) {
-            LabTab.ReadAir -> ensureFallbackReadAirCatalogLoaded()
-            LabTab.Library -> ensureFallbackReadAirCatalogLoaded()
-            LabTab.Settings -> refreshAuthStateOnce()
+            LabTab.Library,
+            LabTab.Linguistics -> ensureFallbackReadAirCatalogLoaded()
             LabTab.Today,
             LabTab.Lesson,
             LabTab.Review -> Unit
         }
+    }
+
+    fun openSettings() {
+        _uiState.update { it.copy(activeSession = null, secondaryScreen = SecondaryScreen.Settings) }
+        refreshDeviceCapabilities()
+        refreshAuthStateOnce()
+    }
+
+    fun refreshDeviceCapabilities() {
+        _uiState.update { it.copy(deviceCapabilitiesRefreshing = true) }
+        viewModelScope.launch {
+            val snapshot = withContext(Dispatchers.IO) {
+                DeviceCapabilityReader.read(getApplication())
+            }
+            _uiState.update {
+                it.copy(
+                    deviceCapabilities = snapshot,
+                    deviceCapabilitiesRefreshing = false,
+                )
+            }
+        }
+    }
+
+    fun openSubtitles() {
+        _uiState.update { it.copy(activeSession = null, secondaryScreen = SecondaryScreen.Subtitles) }
+        refreshSubtitleLines()
+    }
+
+    fun openAiHistory() {
+        _uiState.update { it.copy(activeSession = null, secondaryScreen = SecondaryScreen.AiHistory) }
+    }
+
+    fun openSearch() {
+        _uiState.update { it.copy(activeSession = null, secondaryScreen = SecondaryScreen.Search) }
+    }
+
+    /**
+     * Jumps to the subtitle browser at [workSlug]/[episode] and asks it to scroll to
+     * [lineNo] (0 keeps the current scroll position). Used by search hits and mistake
+     * cards; the browser reports back via [clearSubtitleFocus] once it has scrolled.
+     */
+    fun openSubtitlesAt(workSlug: String, episode: Int, lineNo: Int) {
+        val current = _uiState.value.selection
+        if (workSlug.isNotBlank() && workSlug != current.workSlug) {
+            selectWork(workSlug)
+        }
+        if (episode > 0 && episode != _uiState.value.selection.episode) {
+            selectEpisode(episode)
+        }
+        _uiState.update {
+            it.copy(
+                activeSession = null,
+                secondaryScreen = SecondaryScreen.Subtitles,
+                subtitleFocusLineNo = lineNo.takeIf { line -> line > 0 },
+            )
+        }
+        refreshSubtitleLines()
+    }
+
+    fun clearSubtitleFocus() {
+        _uiState.update { it.copy(subtitleFocusLineNo = null) }
+    }
+
+    fun openSmartReviewQueue() {
+        _uiState.update { state ->
+            val plan = buildSmartReviewPlan(
+                reviewTasks = state.reviewTasks,
+                mistakes = state.mistakes,
+            )
+            if (plan.entries.isEmpty()) {
+                state.copy(selectedTab = LabTab.Lesson, activeSession = null, secondaryScreen = null)
+            } else {
+                state.copy(
+                    selectedTab = LabTab.Review,
+                    activeSession = null,
+                    secondaryScreen = SecondaryScreen.SmartReviewQueue,
+                    smartReviewPlan = plan,
+                )
+            }
+        }
+    }
+
+    fun startSmartReviewItem(entryKey: String) {
+        val entry = _uiState.value.smartReviewPlan.entries.firstOrNull { it.key == entryKey } ?: return
+        _uiState.update { it.copy(secondaryScreen = null, selectedTab = LabTab.Review) }
+        val localMistakeId = entry.localMistakeId
+        if (localMistakeId != null) {
+            practiceLocalMistake(localMistakeId)
+        } else {
+            entry.remoteTask?.let(::practiceReviewTask)
+        }
+    }
+
+    fun closeSecondaryScreen() {
+        _uiState.update { it.copy(secondaryScreen = null) }
     }
 
     private fun refreshAuthStateOnce() {
@@ -192,31 +301,30 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         authRefreshStarted = true
         _uiState.update { it.copy(auth = it.auth.copy(status = SyncStatus.Loading, message = "正在检查账号状态和云端进度")) }
         viewModelScope.launch {
-            val result = runCatching {
+            val result = runSuspendCatching {
                 withContext(Dispatchers.IO) {
                     val client = remoteClient()
                     val user = client.fetchAuthMe()
-                    val snapshot = fetchRemoteProgressSnapshot(client, deviceId)
+                    val snapshot = if (user == null) RemoteProgressSnapshot() else fetchRemoteProgressSnapshot(client)
                     user to snapshot
                 }
             }
             _uiState.update { state ->
                 result.fold(
                     onSuccess = { (user, snapshot) ->
-                        val scope = if (user == null) "deviceId" else "账号"
                         state.withRemoteProgressSnapshot(snapshot).copy(
                             auth = AuthState(
                                 status = SyncStatus.Success,
                                 user = user,
                                 message = if (user == null) {
-                                    "未登录，当前使用 deviceId 同步；已读取进度 ${snapshot.progress.size} 条，复习 ${snapshot.review.size} 条。"
+                                    "未登录。请先登录，学习进度只按账号保存。"
                                 } else {
-                                    "已登录：${user.email}；当前按$scope 读取进度 ${snapshot.progress.size} 条，复习 ${snapshot.review.size} 条。"
+                                    "已登录：${user.email}；已读取账号进度 ${snapshot.progress.size} 条，复习 ${snapshot.review.size} 条。"
                                 },
                             ),
                             sync = SyncSnapshot(
                                 status = SyncStatus.Success,
-                                message = "账号状态刷新完成：$scope 范围进度 ${snapshot.progress.size} 条，复习 ${snapshot.review.size} 条",
+                                message = if (user == null) "未登录，等待账号登录。" else "账号状态刷新完成：进度 ${snapshot.progress.size} 条，复习 ${snapshot.review.size} 条",
                                 lastSyncedAt = Instant.now().toString(),
                                 remoteReviewCount = snapshot.review.size,
                                 catalogUpdated = state.sync.catalogUpdated,
@@ -232,6 +340,10 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                     },
                 )
             }
+            if (result.getOrNull()?.first != null) {
+                flushPendingProgress()
+                refreshFromServer()
+            }
         }
     }
 
@@ -243,11 +355,11 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         }
         _uiState.update { it.copy(auth = it.auth.copy(status = SyncStatus.Loading, message = "正在登录")) }
         viewModelScope.launch {
-            val result = runCatching {
+            val result = runSuspendCatching {
                 withContext(Dispatchers.IO) {
                     val login = RemoteLabClient(_uiState.value.settings.apiBaseUrl).loginOwner(trimmedEmail, password, deviceId)
                     store.writeSessionCookie(login.sessionCookie)
-                    val snapshot = fetchRemoteProgressSnapshot(remoteClient(), deviceId)
+                    val snapshot = fetchRemoteProgressSnapshot(remoteClient())
                     login to snapshot
                 }
             }
@@ -274,60 +386,42 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                     },
                 )
             }
+            if (result.isSuccess) {
+                flushPendingProgress()
+                refreshFromServer()
+            }
         }
     }
 
     fun logoutOwner() {
         _uiState.update { it.copy(auth = it.auth.copy(status = SyncStatus.Loading, message = "正在退出登录")) }
         viewModelScope.launch {
-            val result = runCatching {
+            val result = runSuspendCatching {
                 withContext(Dispatchers.IO) {
                     remoteClient().logoutOwner()
                 }
             }
             store.clearSessionCookie()
-            val deviceSnapshot = runCatching {
-                withContext(Dispatchers.IO) {
-                    fetchRemoteProgressSnapshot(remoteClient(), deviceId)
-                }
-            }
             _uiState.update { state ->
                 val logoutSucceeded = result.isSuccess
                 val authMessage = if (logoutSucceeded) {
-                    "已退出登录，当前使用 deviceId 同步。"
+                    "已退出登录。请重新登录后继续学习。"
                 } else {
                     "本机登录态已清除；服务端退出失败：${result.exceptionOrNull()?.message.orEmpty()}"
                 }
-                deviceSnapshot.fold(
-                    onSuccess = { snapshot ->
-                        state.withRemoteProgressSnapshot(snapshot).copy(
-                            auth = AuthState(
-                                status = if (logoutSucceeded) SyncStatus.Success else SyncStatus.Error,
-                                user = null,
-                                message = "$authMessage 已读取设备进度 ${snapshot.progress.size} 条，复习 ${snapshot.review.size} 条。",
-                            ),
-                            sync = SyncSnapshot(
-                                status = if (logoutSucceeded) SyncStatus.Success else SyncStatus.Error,
-                                message = "已切回 deviceId 范围：进度 ${snapshot.progress.size} 条，复习 ${snapshot.review.size} 条",
-                                lastSyncedAt = Instant.now().toString(),
-                                remoteReviewCount = snapshot.review.size,
-                                catalogUpdated = state.sync.catalogUpdated,
-                            ),
-                        )
-                    },
-                    onFailure = { error ->
-                        state.copy(
-                            auth = AuthState(
-                                status = if (logoutSucceeded) SyncStatus.Success else SyncStatus.Error,
-                                user = null,
-                                message = "$authMessage 设备进度读取失败：${error.message ?: "网络不可用"}",
-                            ),
-                            sync = state.sync.copy(
-                                status = SyncStatus.Error,
-                                message = "已退出账号，但设备进度读取失败：${error.message ?: "网络不可用"}",
-                            ),
-                        )
-                    },
+                state.withRemoteProgressSnapshot(RemoteProgressSnapshot()).copy(
+                    auth = AuthState(
+                        status = if (logoutSucceeded) SyncStatus.Success else SyncStatus.Error,
+                        user = null,
+                        message = authMessage,
+                    ),
+                    sync = SyncSnapshot(
+                        status = if (logoutSucceeded) SyncStatus.Success else SyncStatus.Error,
+                        message = "已清除账号进度视图。",
+                        lastSyncedAt = Instant.now().toString(),
+                        remoteReviewCount = 0,
+                        catalogUpdated = state.sync.catalogUpdated,
+                    ),
                 )
             }
         }
@@ -336,11 +430,11 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     fun claimCurrentDevice() {
         _uiState.update { it.copy(auth = it.auth.copy(status = SyncStatus.Loading, message = "正在合并当前设备进度")) }
         viewModelScope.launch {
-            val result = runCatching {
+            val result = runSuspendCatching {
                 withContext(Dispatchers.IO) {
                     val client = remoteClient()
                     val merged = client.claimCurrentDevice(deviceId)
-                    val snapshot = fetchRemoteProgressSnapshot(client, deviceId)
+                    val snapshot = fetchRemoteProgressSnapshot(client)
                     merged to snapshot
                 }
             }
@@ -370,31 +464,53 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun selectWork(workSlug: String) {
+        val shouldRefreshSubtitles = _uiState.value.secondaryScreen == SecondaryScreen.Subtitles
         val episodes = repository.episodes(workSlug)
         val rememberedEpisode = lastEpisodesByWork[workSlug]?.takeIf { episode ->
             episodes.any { it.episode == episode }
         }
         val episode = rememberedEpisode ?: episodes.firstOrNull()?.episode ?: 1
         applySelection(EpisodeSelection(workSlug = workSlug, episode = episode))
+        if (shouldRefreshSubtitles) refreshSubtitleLines()
+        refreshFromServerIfSignedIn()
     }
 
     fun selectEpisode(episode: Int) {
+        val shouldRefreshSubtitles = _uiState.value.secondaryScreen == SecondaryScreen.Subtitles
         applySelection(_uiState.value.selection.copy(episode = episode))
+        if (shouldRefreshSubtitles) refreshSubtitleLines()
+        refreshFromServerIfSignedIn()
+    }
+
+    private fun refreshFromServerIfSignedIn() {
+        if (_uiState.value.auth.user != null) {
+            refreshFromServer()
+        }
     }
 
     fun startLesson() {
+        clearPronunciationAttempt()
         _uiState.update {
             it.copy(
                 selectedTab = LabTab.Lesson,
                 activeSession = TrainingSessionKind.Lesson,
+                isExerciseLabSession = false,
+                activeExerciseLabKind = null,
+                activeLessonPathKey = null,
+                pronunciationEvaluation = PronunciationEvaluationState(),
             )
         }
     }
 
     fun startLessonFromCurrentTab() {
+        clearPronunciationAttempt()
         _uiState.update { state ->
             state.copy(
                 activeSession = TrainingSessionKind.Lesson,
+                isExerciseLabSession = false,
+                activeExerciseLabKind = null,
+                activeLessonPathKey = null,
+                pronunciationEvaluation = PronunciationEvaluationState(),
                 libraryRevealEpisodeActionsRequest = state.libraryRevealEpisodeActionsRequest +
                     if (state.selectedTab == LabTab.Library) 1 else 0,
             )
@@ -402,8 +518,13 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startLessonModeFromCurrentTab(mode: LessonMode) {
+        startLessonModeFromCurrentTab(mode, 1)
+    }
+
+    fun startLessonModeFromCurrentTab(mode: LessonMode, batch: Int, pathNodeKey: String? = null) {
+        clearPronunciationAttempt()
         _uiState.update { state ->
-            val batch = 1
+            val safeBatch = batch.coerceAtLeast(1)
             val nodes = repository.buildLessonNodes(
                 selection = state.selection,
                 focus = state.focus,
@@ -411,25 +532,148 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 grammar = state.grammar,
                 sentences = state.shadowing,
                 mode = mode,
-                batch = batch,
+                exercises = state.exercises,
+                batch = safeBatch,
             )
             state.copy(
                 activeSession = TrainingSessionKind.Lesson,
+                isExerciseLabSession = false,
+                activeExerciseLabKind = null,
                 lessonMode = mode,
-                lessonBatch = batch,
+                lessonBatch = safeBatch,
                 lessonTarget = null,
-                hasNextLessonBatch = repository.hasNextLessonBatch(state.vocab, state.grammar, state.shadowing, mode, batch),
-                focus = state.focus.copy(lessonTitle = lessonTitle(mode, state.focus, batch)),
-                lesson = LessonEngine.start(nodes),
+                activeLessonPathKey = pathNodeKey,
+                hasNextLessonBatch = pathNodeKey == null &&
+                    repository.hasNextLessonBatch(state.vocab, state.grammar, state.shadowing, mode, safeBatch),
+                focus = state.focus.copy(lessonTitle = lessonTitle(mode, state.focus, safeBatch)),
+                lesson = if (pathNodeKey != null) LessonEngine.start(nodes) else resumeLessonFromProgress(nodes, state.progressItems),
                 sessionXp = 0,
                 aiCoach = AiCoachState(),
+                pronunciationEvaluation = PronunciationEvaluationState(),
                 libraryRevealEpisodeActionsRequest = state.libraryRevealEpisodeActionsRequest +
                     if (state.selectedTab == LabTab.Library) 1 else 0,
             )
         }
     }
 
+    fun startExerciseLab(kind: LessonExerciseKind) {
+        startExerciseLabSession(kind)
+    }
+
+    fun startExerciseLabMix() {
+        startExerciseLabSession(kind = null)
+    }
+
+    private fun startExerciseLabSession(
+        kind: LessonExerciseKind?,
+        continueCurrentLab: Boolean = false,
+    ) {
+        if (exerciseLabJob?.isActive == true) return
+        val request = _uiState.value
+        val deckNumber = if (continueCurrentLab && request.isExerciseLabSession) {
+            request.lessonBatch + 1
+        } else {
+            1
+        }
+        _uiState.update { state -> state.copy(exerciseLabLoading = true) }
+        exerciseLabJob = viewModelScope.launch {
+            try {
+                val nodes = withContext(Dispatchers.Default) {
+                    fun nodesFrom(
+                        focus: EpisodeFocus,
+                        vocab: List<VocabItem>,
+                        grammar: List<GrammarPoint>,
+                        sentences: List<ShadowingSentence>,
+                    ): List<LessonNode> {
+                        return if (kind == null) {
+                            repository.buildExerciseLabMix(
+                                selection = request.selection,
+                                focus = focus,
+                                vocab = vocab,
+                                grammar = grammar,
+                                sentences = sentences,
+                                exercises = request.exercises,
+                                progressItems = request.progressItems,
+                            )
+                        } else {
+                            repository.buildExerciseKindNodes(
+                                selection = request.selection,
+                                focus = focus,
+                                vocab = vocab,
+                                grammar = grammar,
+                                sentences = sentences,
+                                kind = kind,
+                                exercises = request.exercises,
+                                progressItems = request.progressItems,
+                            )
+                        }
+                    }
+
+                    val liveNodes = nodesFrom(request.focus, request.vocab, request.grammar, request.shadowing)
+                    val fallbackContent = if (liveNodes.isEmpty()) {
+                        repository.content(request.selection, kind?.defaultLessonMode() ?: LessonMode.Mixed)
+                    } else {
+                        null
+                    }
+                    liveNodes.ifEmpty {
+                        fallbackContent?.let { content ->
+                            nodesFrom(content.focus, content.vocab, content.grammar, content.shadowing)
+                        }.orEmpty()
+                    }
+                }
+                _uiState.update { state ->
+                    if (state.selection != request.selection) return@update state
+                    if (nodes.isEmpty()) {
+                        return@update state.copy(
+                            exerciseLabLoading = false,
+                            sync = state.sync.copy(message = "当前集暂时没有${kind?.label ?: "混合"}题，换一集再试。"),
+                        )
+                    }
+                    val title = kind?.let { "题型实验室 · ${it.label}" } ?: "题型实验室 · 六类快练"
+                    state.copy(
+                        exerciseLabLoading = false,
+                        activeSession = TrainingSessionKind.Lesson,
+                        isExerciseLabSession = true,
+                        activeExerciseLabKind = kind,
+                        lessonMode = kind?.defaultLessonMode() ?: LessonMode.Mixed,
+                        lessonBatch = deckNumber,
+                        lessonTarget = null,
+                        activeLessonPathKey = null,
+                        // The practice lab is an open queue. The next deck is rebuilt from the
+                        // latest progress so unseen material rotates in before completed material.
+                        hasNextLessonBatch = true,
+                        focus = state.focus.copy(
+                            lessonTitle = if (deckNumber > 1) "$title · 第 $deckNumber 组" else title,
+                        ),
+                        // Practice lab decks deliberately rotate back to old material after all
+                        // unseen material is covered, so they must always start as a fresh session.
+                        lesson = LessonEngine.start(nodes),
+                        sessionXp = 0,
+                        aiCoach = AiCoachState(),
+                        pronunciationEvaluation = PronunciationEvaluationState(),
+                    )
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                _uiState.update { state ->
+                    state.copy(
+                        exerciseLabLoading = false,
+                        sync = state.sync.copy(
+                            status = SyncStatus.Error,
+                            message = "题型训练准备失败：${error.message ?: "请稍后重试"}",
+                        ),
+                    )
+                }
+            } finally {
+                _uiState.update { state -> state.copy(exerciseLabLoading = false) }
+                exerciseLabJob = null
+            }
+        }
+    }
+
     fun selectLessonMode(mode: LessonMode) {
+        clearPronunciationAttempt()
         _uiState.update { state ->
             val batch = 1
             val nodes = repository.buildLessonNodes(
@@ -439,22 +683,28 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 grammar = state.grammar,
                 sentences = state.shadowing,
                 mode = mode,
+                exercises = state.exercises,
                 batch = batch,
             )
             state.copy(
+                isExerciseLabSession = false,
+                activeExerciseLabKind = null,
                 lessonMode = mode,
                 lessonBatch = batch,
                 lessonTarget = null,
+                activeLessonPathKey = null,
                 hasNextLessonBatch = repository.hasNextLessonBatch(state.vocab, state.grammar, state.shadowing, mode, batch),
                 focus = state.focus.copy(lessonTitle = lessonTitle(mode, state.focus, batch)),
-                lesson = LessonEngine.start(nodes),
+                lesson = resumeLessonFromProgress(nodes, state.progressItems),
                 sessionXp = 0,
                 aiCoach = AiCoachState(),
+                pronunciationEvaluation = PronunciationEvaluationState(),
             )
         }
     }
 
     fun startTargetLesson(target: LessonTarget) {
+        clearPronunciationAttempt()
         _uiState.update { state ->
             val nodes = repository.buildLessonNodes(
                 selection = state.selection,
@@ -463,32 +713,41 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 grammar = state.grammar,
                 sentences = state.shadowing,
                 mode = state.lessonMode,
+                exercises = state.exercises,
                 target = target,
             )
             state.copy(
                 activeSession = TrainingSessionKind.Lesson,
+                isExerciseLabSession = false,
+                activeExerciseLabKind = null,
                 lessonTarget = target,
+                activeLessonPathKey = null,
                 lessonBatch = 1,
                 hasNextLessonBatch = false,
                 focus = state.focus.copy(lessonTitle = "单点训练 · ${target.labelFrom(state)}"),
                 lesson = LessonEngine.start(nodes),
                 sessionXp = 0,
                 aiCoach = AiCoachState(),
+                pronunciationEvaluation = PronunciationEvaluationState(),
             )
         }
     }
 
     fun startReadAirSession() {
         ensureFallbackReadAirCatalogLoaded()
-        _uiState.update {
-            it.copy(
-                selectedTab = LabTab.ReadAir,
+        _uiState.update { state ->
+            state.copy(
                 activeSession = TrainingSessionKind.ReadAir,
+                activeLessonPathKey = null,
                 sessionXp = 0,
-                readAir = it.readAir.copy(
+                readAir = state.readAir.copy(
+                    mode = ReadAirMode.Train,
+                    currentIndex = 0,
                     reviewFocusExerciseId = null,
                     pinnedExerciseId = null,
-                    restoreFiltersAfterSession = null,
+                    sessionExerciseIds = emptySet(),
+                    sessionBatch = null,
+                    restoreFiltersAfterSession = state.readAir.restoreFiltersAfterSession ?: state.readAir.filters,
                     aiCoach = AiCoachState(question = ReadAirAiQuestion),
                 ),
             )
@@ -496,22 +755,23 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startReadAirForCurrentEpisode() {
+        startReadAirForCurrentEpisode(pathBatch = null)
+    }
+
+    fun startReadAirPathBatch(batch: Int) {
+        startReadAirForCurrentEpisode(pathBatch = batch.coerceAtLeast(1))
+    }
+
+    private fun startReadAirForCurrentEpisode(pathBatch: Int?) {
+        if (_uiState.value.readAir.exercises.isEmpty()) {
+            refreshReadAirExercises()
+        }
         _uiState.update { state ->
             val filters = ReadAirFilters(
                 workSlug = state.selection.workSlug,
                 episode = state.selection.episode,
             )
-            val hasCurrentEpisodeExercises = state.readAir.exercises.any { exercise ->
-                normalizeReadAirWorkSlug(exercise.workSlug) == normalizeReadAirWorkSlug(filters.workSlug) &&
-                    exercise.episode == filters.episode
-            }
-            val exercises = if (hasCurrentEpisodeExercises) {
-                state.readAir.exercises
-            } else {
-                mergeReadAirExercises(repository.allReadAirExercises(), state.readAir.exercises)
-            }
             val readAir = state.readAir.copy(
-                exercises = exercises,
                 mode = ReadAirMode.Train,
                 filters = filters,
                 currentIndex = 0,
@@ -519,10 +779,23 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 pinnedExerciseId = null,
                 restoreFiltersAfterSession = state.readAir.restoreFiltersAfterSession ?: state.readAir.filters,
                 aiCoach = AiCoachState(question = ReadAirAiQuestion),
-                usingFallback = state.readAir.usingFallback || !hasCurrentEpisodeExercises,
+                usingFallback = false,
+                sessionExerciseIds = pathBatch?.let { batch ->
+                    state.readAir.exercises
+                        .filter { exercise ->
+                            normalizeReadAirWorkSlug(exercise.workSlug) == normalizeReadAirWorkSlug(state.selection.workSlug) &&
+                                exercise.episode == state.selection.episode
+                        }
+                        .drop((batch - 1) * 7)
+                        .take(7)
+                        .map(LinguisticExercise::id)
+                        .toSet()
+                }.orEmpty(),
+                sessionBatch = pathBatch,
             )
             state.copy(
                 activeSession = TrainingSessionKind.ReadAir,
+                activeLessonPathKey = null,
                 sessionXp = 0,
                 readAir = readAir,
                 libraryRevealEpisodeActionsRequest = state.libraryRevealEpisodeActionsRequest +
@@ -536,6 +809,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
             val scopedIds = state.readAir.scopedExercises.map { it.id }.toSet()
             state.copy(
                 activeSession = TrainingSessionKind.ReadAir,
+                activeLessonPathKey = null,
                 sessionXp = 0,
                 readAir = state.readAir.copy(
                     selectedAnswers = state.readAir.selectedAnswers.filterKeys { it !in scopedIds },
@@ -548,18 +822,25 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun exitTrainingSession() {
+        clearPronunciationAttempt()
         _uiState.update { state ->
             val exitingReadAir = state.activeSession == TrainingSessionKind.ReadAir
             val restoreFilters = state.readAir.restoreFiltersAfterSession
                 .takeIf { exitingReadAir }
             state.copy(
                 activeSession = null,
+                isExerciseLabSession = false,
+                activeExerciseLabKind = null,
+                activeLessonPathKey = null,
+                pronunciationEvaluation = PronunciationEvaluationState(),
                 readAir = if (exitingReadAir) {
                     state.readAir.copy(
                         filters = restoreFilters ?: state.readAir.filters,
                         currentIndex = 0,
                         reviewFocusExerciseId = null,
                         pinnedExerciseId = null,
+                        sessionExerciseIds = emptySet(),
+                        sessionBatch = null,
                         restoreFiltersAfterSession = null,
                         aiCoach = AiCoachState(question = ReadAirAiQuestion),
                     )
@@ -571,6 +852,15 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startNextLessonBatch() {
+        clearPronunciationAttempt()
+        val current = _uiState.value
+        if (current.isExerciseLabSession) {
+            startExerciseLabSession(
+                kind = current.activeExerciseLabKind,
+                continueCurrentLab = true,
+            )
+            return
+        }
         _uiState.update { state ->
             if (!state.hasNextLessonBatch || state.lessonTarget != null) return@update state
             val nextBatch = state.lessonBatch + 1
@@ -581,6 +871,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 grammar = state.grammar,
                 sentences = state.shadowing,
                 mode = state.lessonMode,
+                exercises = state.exercises,
                 batch = nextBatch,
             )
             state.copy(
@@ -593,59 +884,252 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                     batch = nextBatch,
                 ),
                 focus = state.focus.copy(lessonTitle = lessonTitle(state.lessonMode, state.focus, nextBatch)),
-                lesson = LessonEngine.start(nodes),
+                lesson = resumeLessonFromProgress(nodes, state.progressItems),
                 sessionXp = 0,
                 aiCoach = AiCoachState(),
+                pronunciationEvaluation = PronunciationEvaluationState(),
             )
         }
     }
 
     fun submitAnswer(selected: String) {
-        var syncPayload: SyncAnswer? = null
-        _uiState.update { state ->
+        var committedEffects: AnswerCommitEffects? = null
+        while (committedEffects == null) {
+            val state = _uiState.value
             val nextLesson = LessonEngine.answer(state.lesson, selected)
-            val feedback = nextLesson.feedback ?: return@update state.copy(lesson = nextLesson)
+            val feedback = nextLesson.feedback
+            if (feedback == null) {
+                if (_uiState.compareAndSet(state, state.copy(lesson = nextLesson))) return
+                continue
+            }
             val answeredNow = nextLesson.answered > state.lesson.answered
-            if (!answeredNow) return@update state.copy(lesson = nextLesson)
+            if (!answeredNow) {
+                if (_uiState.compareAndSet(state, state.copy(lesson = nextLesson))) return
+                continue
+            }
 
-            val node = state.lesson.currentNode ?: return@update state.copy(lesson = nextLesson)
+            val node = state.lesson.currentNode
+            if (node == null) {
+                if (_uiState.compareAndSet(state, state.copy(lesson = nextLesson))) return
+                continue
+            }
             val correct = feedback.correct
             val nextMistakes = if (correct) {
                 state.mistakes.filterNot { it.itemId == node.id }
             } else {
                 upsertMistake(state.mistakes, node, selected, feedback.expected, feedback.explanation, state.selection)
             }
-            store.writeMistakes(nextMistakes)
-            syncPayload = SyncAnswer(
-                itemId = node.id,
+            val answerPayload = SyncAnswer(
+                itemId = node.progressItemId(),
                 itemType = node.progressType(),
                 selection = state.selection,
                 state = if (correct) ReviewState.Good else ReviewState.Bad,
                 label = node.prompt.take(90),
+                payload = node.buildLessonProgressPayload(selected, feedback.expected),
             )
+            val syncPayloads = mutableListOf(answerPayload)
+            val optimisticItems = mutableListOf(answerPayload.toProgressItem())
+            val finishingPathNode = state.activeLessonPathKey?.takeIf {
+                state.lesson.index == state.lesson.nodes.lastIndex
+            }
+            if (finishingPathNode != null) {
+                val pathPayload = SyncAnswer(
+                    itemId = pathNodeProgressId(state.selection, finishingPathNode),
+                    // The backend accepts the shared progress types only; the payload carries
+                    // the Android path-node discriminator without changing the transport type.
+                    itemType = "unknown",
+                    selection = state.selection,
+                    state = ReviewState.Good,
+                    label = "${state.focus.episodeLabel} · $finishingPathNode",
+                    payload = JSONObject()
+                        .put("pathNodeKey", finishingPathNode)
+                        .put("lessonMode", state.lessonMode.name)
+                        .put("batch", state.lessonBatch),
+                )
+                syncPayloads += pathPayload
+                optimisticItems += pathPayload.toProgressItem()
+            }
+            val nextProgressItems = optimisticItems + state.progressItems.filterNot { existing ->
+                optimisticItems.any { optimistic -> existing.sameProgressIdentity(optimistic) }
+            }
 
-            state.copy(
+            val nextState = state.copy(
                 lesson = nextLesson,
                 sessionXp = state.sessionXp + if (correct) 12 else 0,
                 focus = state.focus.copy(energy = (state.focus.energy + if (correct) 0 else -1).coerceIn(0, 5)),
                 mistakes = nextMistakes,
+                progressItems = nextProgressItems,
             )
-        }
-        syncPayload?.let { payload ->
-            if (_uiState.value.settings.cloudSync) {
-                syncAnswer(payload)
+            if (_uiState.compareAndSet(state, nextState)) {
+                committedEffects = AnswerCommitEffects(
+                    mistakes = nextMistakes,
+                    progressItems = nextProgressItems,
+                    syncPayloads = syncPayloads,
+                )
             }
         }
+        val effects = checkNotNull(committedEffects)
+        store.writeMistakes(effects.mistakes)
+        persistOptimisticProgress(effects.progressItems, effects.syncPayloads)
+        effects.syncPayloads.forEach(::syncAnswer)
     }
 
     fun continueLesson() {
+        clearPronunciationAttempt()
         _uiState.update { state ->
-            state.copy(lesson = LessonEngine.continueAfterFeedback(state.lesson))
+            state.copy(
+                lesson = LessonEngine.continueAfterFeedback(state.lesson),
+                pronunciationEvaluation = PronunciationEvaluationState(),
+            )
         }
     }
 
     fun restartLesson() {
-        _uiState.update { it.copy(lesson = LessonEngine.restart(it.lesson), sessionXp = 0) }
+        clearPronunciationAttempt()
+        _uiState.update {
+            it.copy(
+                lesson = LessonEngine.restart(it.lesson),
+                sessionXp = 0,
+                pronunciationEvaluation = PronunciationEvaluationState(),
+            )
+        }
+    }
+
+    fun evaluatePronunciation(
+        nodeId: String,
+        sentenceId: String,
+        wavBytes: ByteArray,
+        durationMs: Long,
+    ) {
+        if (durationMs < 400L) {
+            _uiState.update { state ->
+                state.copy(
+                    pronunciationEvaluation = PronunciationEvaluationState(
+                        nodeId = nodeId,
+                        phase = PronunciationEvaluationPhase.Complete,
+                        message = "录音太短，请完整读完这句话。",
+                    ),
+                )
+            }
+            return
+        }
+        if (durationMs > 15_000L || wavBytes.size > 1_500_000) {
+            _uiState.update { state ->
+                state.copy(
+                    pronunciationEvaluation = PronunciationEvaluationState(
+                        nodeId = nodeId,
+                        phase = PronunciationEvaluationPhase.Complete,
+                        message = "录音超过 15 秒，请缩短后重新录制。",
+                    ),
+                )
+            }
+            return
+        }
+
+        val attempt = PendingPronunciationAttempt(
+            nodeId = nodeId,
+            sentenceId = sentenceId,
+            attemptId = UUID.randomUUID().toString(),
+            wavBytes = wavBytes,
+        )
+        pendingPronunciationAttempt = attempt
+        runPronunciationEvaluation(attempt)
+    }
+
+    fun retryPronunciationEvaluation() {
+        pendingPronunciationAttempt?.let(::runPronunciationEvaluation)
+    }
+
+    fun resetPronunciationEvaluation() {
+        clearPronunciationAttempt()
+        _uiState.update { state ->
+            state.copy(pronunciationEvaluation = PronunciationEvaluationState())
+        }
+    }
+
+    private fun runPronunciationEvaluation(attempt: PendingPronunciationAttempt) {
+        pronunciationEvaluationJob?.cancel()
+        _uiState.update { state ->
+            state.copy(
+                pronunciationEvaluation = PronunciationEvaluationState(
+                    nodeId = attempt.nodeId,
+                    phase = PronunciationEvaluationPhase.Loading,
+                    message = "正在识别、对齐并生成体验评分…",
+                ),
+            )
+        }
+        pronunciationEvaluationJob = viewModelScope.launch {
+            val result = try {
+                Result.success(withContext(Dispatchers.IO) {
+                    val client = remoteClient()
+                    fun evaluateWithFreshTicket(): PronunciationEvaluation {
+                        val ticket = client.createPronunciationTicket(attempt.sentenceId)
+                        return client.evaluatePronunciation(
+                            ticket = ticket,
+                            sentenceId = attempt.sentenceId,
+                            attemptId = attempt.attemptId,
+                            wavBytes = attempt.wavBytes,
+                        )
+                    }
+
+                    try {
+                        evaluateWithFreshTicket()
+                    } catch (error: PronunciationApiException) {
+                        if (error.httpStatus == 401 && error.code == "ticket_expired") {
+                            evaluateWithFreshTicket()
+                        } else {
+                            throw error
+                        }
+                    }
+                })
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Throwable) {
+                Result.failure(error)
+            }
+            val failure = result.exceptionOrNull()
+            val retryable = failure?.let { error ->
+                error !is PronunciationApiException ||
+                    error.httpStatus == 429 || error.httpStatus == 502 ||
+                    (error.httpStatus == 401 && error.code == "ticket_expired")
+            } ?: false
+            if (result.isSuccess || !retryable) pendingPronunciationAttempt = null
+            _uiState.update { state ->
+                if (state.lesson.currentNode?.id != attempt.nodeId ||
+                    state.pronunciationEvaluation.nodeId != attempt.nodeId
+                ) {
+                    return@update state
+                }
+                result.fold(
+                    onSuccess = { evaluation ->
+                        state.copy(
+                            pronunciationEvaluation = PronunciationEvaluationState(
+                                nodeId = attempt.nodeId,
+                                phase = PronunciationEvaluationPhase.Complete,
+                                result = evaluation,
+                                message = pronunciationResultMessage(evaluation),
+                            ),
+                        )
+                    },
+                    onFailure = { error ->
+                        state.copy(
+                            pronunciationEvaluation = PronunciationEvaluationState(
+                                nodeId = attempt.nodeId,
+                                phase = PronunciationEvaluationPhase.Error,
+                                message = pronunciationFailureMessage(error),
+                                canRetry = retryable,
+                            ),
+                        )
+                    },
+                )
+            }
+        }
+    }
+
+    private fun clearPronunciationAttempt() {
+        pronunciationEvaluationJob?.cancel()
+        pronunciationEvaluationJob = null
+        pendingPronunciationAttempt = null
     }
 
     fun selectScene(sceneId: String) {
@@ -666,47 +1150,41 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refreshReadAirExercises() {
-        val state = _uiState.value
         _uiState.update {
             it.copy(
                 readAir = it.readAir.copy(
                     status = SyncStatus.Loading,
-                    message = "正在更新读空气练习",
+                    message = "正在更新语言学题库",
                 ),
             )
         }
         viewModelScope.launch {
-            val result = runCatching {
+            val result = runSuspendCatching {
                 withContext(Dispatchers.IO) {
                     remoteClient().fetchLinguisticExercises()
                 }
             }
-            val fallback = if (result.isFailure || result.getOrNull().orEmpty().isEmpty()) {
-                withContext(Dispatchers.Default) {
-                    repository.allReadAirExercises()
-                }
-            } else {
-                emptyList()
-            }
             _uiState.update { current ->
                 result.fold(
                     onSuccess = { remoteExercises ->
-                        val exercises = remoteExercises.ifEmpty { fallback }
+                        val selectedAnswers = restoreReadAirAnswers(
+                            exercises = remoteExercises,
+                            progressItems = current.progressItems,
+                            inMemoryAnswers = current.readAir.selectedAnswers,
+                        )
                         current.copy(
                             readAir = current.readAir.copy(
                                 status = SyncStatus.Success,
                                 message = if (remoteExercises.isEmpty()) {
-                                    "当前章节暂无云端练习，继续使用样例题。"
+                                    "数据库暂时没有返回语言学题。"
                                 } else {
-                                    "已更新 ${remoteExercises.size} 道读空气练习。"
+                                    "已更新 ${remoteExercises.size} 道语言学题。"
                                 },
-                                exercises = exercises,
-                                usingFallback = remoteExercises.isEmpty(),
+                                exercises = remoteExercises,
+                                usingFallback = false,
                                 currentIndex = 0,
                                 reviewFocusExerciseId = null,
-                                selectedAnswers = current.readAir.selectedAnswers.filterKeys { id ->
-                                    exercises.any { it.id == id }
-                                },
+                                selectedAnswers = selectedAnswers,
                                 pinnedExerciseId = null,
                                 aiCoach = AiCoachState(question = ReadAirAiQuestion),
                             ),
@@ -716,9 +1194,8 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                         current.copy(
                             readAir = current.readAir.copy(
                                 status = SyncStatus.Error,
-                                message = "练习更新失败：${error.message ?: "网络不可用"}；继续使用现有题目。",
-                                exercises = current.readAir.exercises.ifEmpty { fallback },
-                                usingFallback = current.readAir.usingFallback || current.readAir.exercises.isEmpty(),
+                                message = "练习更新失败：${error.message ?: "网络不可用"}",
+                                usingFallback = false,
                             ),
                         )
                     },
@@ -733,7 +1210,6 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 readAir = state.readAir.copy(
                     filters = state.readAir.filters.copy(
                         domain = domain,
-                        phenomenonKey = ReadAirAllFilter,
                     ),
                     currentIndex = 0,
                     reviewFocusExerciseId = null,
@@ -773,11 +1249,11 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun selectReadAirPhenomenon(phenomenonKey: String) {
+    fun selectReadAirQuestionType(questionType: String) {
         _uiState.update { state ->
             state.copy(
                 readAir = state.readAir.copy(
-                    filters = state.readAir.filters.copy(phenomenonKey = phenomenonKey),
+                    filters = state.readAir.filters.copy(questionType = questionType),
                     currentIndex = 0,
                     reviewFocusExerciseId = null,
                     restoreFiltersAfterSession = null,
@@ -786,11 +1262,11 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun selectReadAirQuestionType(questionType: String) {
+    fun selectReadAirTopic(topic: String) {
         _uiState.update { state ->
             state.copy(
                 readAir = state.readAir.copy(
-                    filters = state.readAir.filters.copy(questionType = questionType),
+                    filters = state.readAir.filters.copy(topic = topic),
                     currentIndex = 0,
                     reviewFocusExerciseId = null,
                     restoreFiltersAfterSession = null,
@@ -848,9 +1324,23 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun selectReadAirAnswer(option: String) {
-        var syncPayload: SyncAnswer? = null
-        _uiState.update { state ->
-            val exercise = state.readAir.currentExercise ?: return@update state
+        val exerciseId = _uiState.value.readAir.currentExercise?.id ?: return
+        commitReadAirAnswer(exerciseId, option, fromBrowse = false)
+    }
+
+    fun selectReadAirBrowseAnswer(exerciseId: String, option: String) {
+        commitReadAirAnswer(exerciseId, option, fromBrowse = true)
+    }
+
+    private fun commitReadAirAnswer(
+        exerciseId: String,
+        option: String,
+        fromBrowse: Boolean,
+    ) {
+        var committedEffects: AnswerCommitEffects? = null
+        while (committedEffects == null) {
+            val state = _uiState.value
+            val exercise = state.readAir.exercises.firstOrNull { it.id == exerciseId } ?: return
             val correct = exercise.isCorrect(option)
             val answeredBefore = state.readAir.selectedAnswers.containsKey(exercise.id)
             val nextMistakes = if (correct) {
@@ -858,8 +1348,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
             } else {
                 upsertReadAirMistake(state.mistakes, exercise, option, selectionForExercise(exercise, state.selection))
             }
-            store.writeMistakes(nextMistakes)
-            syncPayload = SyncAnswer(
+            val syncPayload = SyncAnswer(
                 itemId = exercise.id,
                 itemType = "exercise",
                 selection = selectionForExercise(exercise, state.selection),
@@ -867,32 +1356,43 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 label = exercise.prompt.take(90),
                 payload = buildLinguisticProgressPayload(exercise, option),
             )
-            state.copy(
+            val progressItem = syncPayload.toProgressItem()
+            val nextProgressItems = listOf(progressItem) + state.progressItems.filterNot {
+                it.sameProgressIdentity(progressItem)
+            }
+            val nextState = state.copy(
                 readAir = state.readAir.copy(
                     selectedAnswers = state.readAir.selectedAnswers + (exercise.id to option),
-                    pinnedExerciseId = exercise.id,
+                    browseAnswers = if (fromBrowse) {
+                        state.readAir.browseAnswers + (exercise.id to option)
+                    } else {
+                        state.readAir.browseAnswers
+                    },
+                    pinnedExerciseId = if (fromBrowse) state.readAir.pinnedExerciseId else exercise.id,
                 ),
-                sessionXp = state.sessionXp + if (correct && !answeredBefore) 8 else 0,
-                focus = state.focus.copy(energy = (state.focus.energy + if (correct || answeredBefore) 0 else -1).coerceIn(0, 5)),
+                sessionXp = state.sessionXp + if (!fromBrowse && correct && !answeredBefore) 8 else 0,
+                focus = if (fromBrowse) {
+                    state.focus
+                } else {
+                    state.focus.copy(
+                        energy = (state.focus.energy + if (correct || answeredBefore) 0 else -1).coerceIn(0, 5),
+                    )
+                },
                 mistakes = nextMistakes,
+                progressItems = nextProgressItems,
             )
-        }
-        syncPayload?.let { payload ->
-            if (_uiState.value.settings.cloudSync) {
-                syncAnswer(payload)
+            if (_uiState.compareAndSet(state, nextState)) {
+                committedEffects = AnswerCommitEffects(
+                    mistakes = nextMistakes,
+                    progressItems = nextProgressItems,
+                    syncPayloads = listOf(syncPayload),
+                )
             }
         }
-    }
-
-    fun selectReadAirBrowseAnswer(exerciseId: String, option: String) {
-        _uiState.update { state ->
-            if (state.readAir.exercises.none { it.id == exerciseId }) return@update state
-            state.copy(
-                readAir = state.readAir.copy(
-                    browseAnswers = state.readAir.browseAnswers + (exerciseId to option),
-                ),
-            )
-        }
+        val effects = checkNotNull(committedEffects)
+        store.writeMistakes(effects.mistakes)
+        persistOptimisticProgress(effects.progressItems, effects.syncPayloads)
+        effects.syncPayloads.forEach(::syncAnswer)
     }
 
     fun nextReadAirExercise() {
@@ -909,7 +1409,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
             it.copy(readAir = it.readAir.copy(aiCoach = it.readAir.aiCoach.copy(status = SyncStatus.Loading, answer = "", result = null)))
         }
         viewModelScope.launch {
-            val result = runCatching {
+            val result = runSuspendCatching {
                 withContext(Dispatchers.IO) {
                     remoteClient().askAi(
                         deviceId = state.deviceId,
@@ -947,7 +1447,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         val node = state.lesson.currentNode ?: return
         _uiState.update { it.copy(aiCoach = it.aiCoach.copy(status = SyncStatus.Loading, answer = "", result = null)) }
         viewModelScope.launch {
-            val result = runCatching {
+            val result = runSuspendCatching {
                 withContext(Dispatchers.IO) {
                     remoteClient().askAi(
                         deviceId = state.deviceId,
@@ -983,7 +1483,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
         viewModelScope.launch {
-            val result = runCatching {
+            val result = runSuspendCatching {
                 withContext(Dispatchers.IO) {
                     remoteClient().askAi(
                         deviceId = state.deviceId,
@@ -1010,69 +1510,122 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun askAiAboutMistake(itemId: String) {
+        val state = _uiState.value
+        val mistake = state.mistakes.firstOrNull { it.itemId == itemId } ?: return
+        _uiState.update {
+            it.copy(
+                reviewAiTargetId = itemId,
+                aiCoach = it.aiCoach.copy(status = SyncStatus.Loading, answer = "", result = null),
+            )
+        }
+        viewModelScope.launch {
+            val result = runSuspendCatching {
+                withContext(Dispatchers.IO) {
+                    remoteClient().askAi(
+                        deviceId = state.deviceId,
+                        model = state.settings.aiModel,
+                        reasoningEffort = state.settings.reasoningEffort,
+                        kind = if (mistake.typeLabel == "语言学题" || mistake.typeLabel == "读空气") "linguistic" else "exercise",
+                        text = mistake.prompt,
+                        context = buildString {
+                            append("请用简体中文讲解这道错题。\n")
+                            append("题目：").append(mistake.prompt)
+                            append("\n我的答案：").append(mistake.selected)
+                            append("\n正确答案：").append(mistake.expected)
+                            if (mistake.explanation.isNotBlank()) append("\n站内说明：").append(mistake.explanation)
+                            append("\n来源：").append(mistake.workSlug).append(" EP").append(mistake.episode)
+                            append("\n请按“语境线索 -> 错因 -> 正确判断 -> 下次判断方法”讲解。")
+                        },
+                    )
+                }
+            }
+            _uiState.update {
+                it.copy(
+                    aiCoach = it.aiCoach.copy(
+                        status = if (result.isSuccess) SyncStatus.Success else SyncStatus.Error,
+                        answer = result.fold(
+                            onSuccess = { aiResult -> aiResult.text },
+                            onFailure = { error -> "AI 请求失败：${error.message ?: "未知错误"}" },
+                        ),
+                        result = result.getOrNull(),
+                    ),
+                )
+            }
+        }
+    }
+
     fun refreshFromServer() {
         val state = _uiState.value
+        val request = RemoteRefreshRequest(
+            selection = state.selection,
+            lessonMode = state.lessonMode,
+            lessonBatch = state.lessonBatch,
+        )
+        remoteRefreshJob?.cancel()
         _uiState.update {
             it.copy(sync = it.sync.copy(status = SyncStatus.Loading, message = "正在更新课程和当前集资料"))
         }
-        viewModelScope.launch {
-            val result = runCatching {
+        remoteRefreshJob = viewModelScope.launch {
+            val result = runSuspendCatching {
                 withContext(Dispatchers.IO) {
                     val client = remoteClient()
                     val works = normalizeEpisodeCounts(client.fetchWorks().ifEmpty { repository.works() })
                     val episodes = normalizeEpisodes(
-                        workSlug = state.selection.workSlug,
-                        episodes = client.fetchEpisodes(state.selection.workSlug).ifEmpty { repository.episodes(state.selection.workSlug) },
+                        workSlug = request.selection.workSlug,
+                        episodes = client.fetchEpisodes(request.selection.workSlug).ifEmpty { repository.episodes(request.selection.workSlug) },
                         works = works,
                     )
-                    val payload = client.fetchEpisodePayload(state.selection)
+                    val payload = client.fetchEpisodePayload(request.selection)
+                    val episodePlan = runSuspendCatching { client.fetchEpisodePlan(request.selection) }.getOrNull()
                     val readAirExercises = client.fetchLinguisticExercises()
-                    val fallbackReadAirExercises = if (readAirExercises.isEmpty()) {
-                        repository.allReadAirExercises()
-                    } else {
-                        emptyList()
-                    }
                     val content = repository.contentFromRemote(
-                        selection = state.selection,
-                        vocab = payload.vocab,
+                        selection = request.selection,
+                        vocab = prioritizeCoreVocab(payload.vocab, episodePlan),
                         grammar = payload.grammar,
                         shadowing = payload.shadowing,
-                        mode = state.lessonMode,
-                        batch = state.lessonBatch,
+                        exercises = payload.exercises,
+                        mode = request.lessonMode,
+                        batch = request.lessonBatch,
                     )
-                    RemoteRefresh(works, episodes, content, readAirExercises, fallbackReadAirExercises)
+                    RemoteRefresh(works, episodes, content, readAirExercises, episodePlan)
                 }
             }
             _uiState.update { current ->
+                if (!request.matches(current)) return@update current
                 result.fold(
                     onSuccess = { remote ->
-                        val readAirExercises = remote.readAirExercises.ifEmpty { remote.fallbackReadAirExercises }
+                        val selectedAnswers = restoreReadAirAnswers(
+                            exercises = remote.readAirExercises,
+                            progressItems = current.progressItems,
+                            inMemoryAnswers = current.readAir.selectedAnswers,
+                        )
                         current.copy(
                             works = remote.works,
                             episodes = remote.episodes,
-                            focus = remote.content.focus,
+                            focus = remote.content.focus.copy(streakDays = learningStreakDays(current.progressItems)),
                             vocab = remote.content.vocab,
                             grammar = remote.content.grammar,
                             shadowing = remote.content.shadowing,
+                            exercises = remote.content.exercises,
+                            episodePlan = remote.episodePlan,
                             scenes = remote.content.scenes,
                             selectedScene = remote.content.scenes.first(),
                             readAir = current.readAir.copy(
                                 status = SyncStatus.Success,
                                 message = if (remote.readAirExercises.isEmpty()) {
-                                    "资料已更新；当前集暂无云端读空气题，使用样例题。"
+                                    "资料已更新；数据库暂时没有返回语言学题。"
                                 } else {
-                                    "资料已更新；读空气题库 ${remote.readAirExercises.size} 道。"
+                                    "资料已更新；语言学题库 ${remote.readAirExercises.size} 道。"
                                 },
-                                exercises = readAirExercises,
-                                usingFallback = remote.readAirExercises.isEmpty(),
+                                exercises = remote.readAirExercises,
+                                usingFallback = false,
                                 currentIndex = 0,
-                                selectedAnswers = current.readAir.selectedAnswers.filterKeys { id ->
-                                    readAirExercises.any { it.id == id }
-                                },
+                                selectedAnswers = selectedAnswers,
                                 pinnedExerciseId = null,
                                 aiCoach = AiCoachState(question = ReadAirAiQuestion),
                             ),
-                            lesson = LessonEngine.start(remote.content.lessonNodes),
+                            lesson = resumeLessonFromProgress(remote.content.lessonNodes, current.progressItems),
                             lessonTarget = null,
                             hasNextLessonBatch = repository.hasNextLessonBatch(
                                 vocab = remote.content.vocab,
@@ -1083,7 +1636,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                             ),
                             sync = SyncSnapshot(
                                 status = SyncStatus.Success,
-                                message = "已更新作品目录和 ${remote.content.focus.episodeLabel}",
+                                message = "已更新 ${remote.content.focus.episodeLabel} · 数据库题 ${remote.content.exercises.size} 道",
                                 lastSyncedAt = Instant.now().toString(),
                                 catalogUpdated = true,
                                 remoteReviewCount = current.sync.remoteReviewCount,
@@ -1103,37 +1656,66 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun refreshSubtitleLines() {
+        val selection = _uiState.value.selection
+        _uiState.update {
+            it.copy(
+                subtitleStatus = SyncStatus.Loading,
+                subtitleMessage = "正在读取 ${selection.workSlug} EP${selection.episode.toString().padStart(2, '0')} 台词",
+            )
+        }
+        viewModelScope.launch {
+            val result = runSuspendCatching {
+                withContext(Dispatchers.IO) {
+                    remoteClient().fetchSubtitleLines(selection)
+                }
+            }
+            _uiState.update { state ->
+                if (state.selection != selection) return@update state
+                result.fold(
+                    onSuccess = { lines ->
+                        state.copy(
+                            subtitles = lines,
+                            subtitleStatus = SyncStatus.Success,
+                            subtitleMessage = if (lines.isEmpty()) "这一集暂时没有可浏览台词。" else "已读取 ${lines.size} 行台词。",
+                        )
+                    },
+                    onFailure = { error ->
+                        state.copy(
+                            subtitles = emptyList(),
+                            subtitleStatus = SyncStatus.Error,
+                            subtitleMessage = "台词读取失败：${error.message ?: "网络不可用"}",
+                        )
+                    },
+                )
+            }
+        }
+    }
+
     fun syncProgressNow() {
-        val state = _uiState.value
+        flushPendingProgress()
         _uiState.update { it.copy(sync = it.sync.copy(status = SyncStatus.Loading, message = "正在同步进度和今日复习")) }
         viewModelScope.launch {
-            val result = runCatching {
+            val result = runSuspendCatching {
                 withContext(Dispatchers.IO) {
                     val client = remoteClient()
                     val user = client.fetchAuthMe()
-                    user to fetchRemoteProgressSnapshot(client, state.deviceId)
+                    if (user == null) error("请先登录账号。")
+                    user to fetchRemoteProgressSnapshot(client)
                 }
-            }
-            if (result.isSuccess && result.getOrNull()?.first == null) {
-                store.clearSessionCookie()
             }
             _uiState.update { current ->
                 result.fold(
                     onSuccess = { (user, snapshot) ->
-                        val scope = if (user == null) "deviceId" else "账号"
                         current.withRemoteProgressSnapshot(snapshot).copy(
                             auth = current.auth.copy(
                                 status = SyncStatus.Success,
                                 user = user,
-                                message = if (user == null) {
-                                    "未登录或登录态已过期；当前使用 deviceId 读取进度 ${snapshot.progress.size} 条，复习 ${snapshot.review.size} 条。"
-                                } else {
-                                    "已登录：${user.email}；当前按账号读取进度 ${snapshot.progress.size} 条，复习 ${snapshot.review.size} 条。"
-                                },
+                                message = "已登录：${user.email}；已读取账号进度 ${snapshot.progress.size} 条，复习 ${snapshot.review.size} 条。",
                             ),
                             sync = SyncSnapshot(
                                 status = SyncStatus.Success,
-                                message = "已同步 $scope 范围 ${snapshot.progress.size} 条进度，今日复习 ${snapshot.review.size} 条",
+                                message = "已同步账号进度 ${snapshot.progress.size} 条，今日复习 ${snapshot.review.size} 条",
                                 lastSyncedAt = Instant.now().toString(),
                                 remoteReviewCount = snapshot.review.size,
                                 catalogUpdated = current.sync.catalogUpdated,
@@ -1154,26 +1736,15 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun markMistakeReviewed(itemId: String) {
-        _uiState.update { state ->
+        var committedMistakes: List<MistakeRecord>? = null
+        while (committedMistakes == null) {
+            val state = _uiState.value
             val nextMistakes = state.mistakes.filterNot { it.itemId == itemId }
-            store.writeMistakes(nextMistakes)
-            state.copy(mistakes = nextMistakes)
+            if (_uiState.compareAndSet(state, state.copy(mistakes = nextMistakes))) {
+                committedMistakes = nextMistakes
+            }
         }
-    }
-
-    fun practiceWeakestReviewItem() {
-        val state = _uiState.value
-        val localMistake = state.mistakes.firstOrNull()
-        if (localMistake != null) {
-            practiceLocalMistake(localMistake.itemId)
-            return
-        }
-        val remoteTask = state.reviewTasks.firstOrNull()
-        if (remoteTask != null) {
-            practiceReviewTask(remoteTask)
-            return
-        }
-        selectTab(LabTab.Lesson)
+        store.writeMistakes(checkNotNull(committedMistakes))
     }
 
     fun practiceLocalMistake(itemId: String) {
@@ -1182,7 +1753,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
             selectTab(LabTab.Lesson)
             return
         }
-        if (mistake.typeLabel == "读空气") {
+        if (mistake.typeLabel == "语言学题" || mistake.typeLabel == "读空气") {
             startReviewReadAir(
                 ProgressItem(
                     itemId = mistake.itemId,
@@ -1218,6 +1789,20 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
             "sentence" -> LessonTarget.Sentence(reviewNode.sourceId)
             else -> null
         }
+        if (reviewNode.sourceKind == "exercise") {
+            startOrdinaryExerciseReview(
+                task = ProgressItem(
+                    itemId = reviewNode.id,
+                    itemType = "exercise",
+                    workSlug = selection.workSlug,
+                    episode = selection.episode,
+                    state = mistake.lastState,
+                    label = mistake.prompt,
+                ),
+                node = reviewNode,
+            )
+            return
+        }
         if (target == null) {
             _uiState.update {
                 it.copy(
@@ -1241,18 +1826,116 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun practiceReviewTask(task: ProgressItem) {
+        val targetSelection = task.selectionOrFallback(_uiState.value.selection)
+        if (targetSelection != _uiState.value.selection) {
+            loadRemoteReviewContent(task, targetSelection)
+            return
+        }
         when (task.itemType) {
-            "vocab" -> startReviewLesson(task, LessonTarget.Vocab(task.itemId))
-            "grammar" -> startReviewLesson(task, LessonTarget.Grammar(task.itemId))
-            "sentence" -> startReviewLesson(task, LessonTarget.Sentence(task.itemId))
-            "exercise" -> startReviewReadAir(task)
+            "vocab",
+            "grammar",
+            "sentence" -> {
+                val state = _uiState.value
+                val selection = task.selectionOrFallback(state.selection)
+                val exactNode = findReviewLessonNode(selection, state, task.itemId)
+                if (exactNode != null) {
+                    startOrdinaryExerciseReview(task, exactNode)
+                } else {
+                    val sourceId = task.primarySourceId()
+                    when (task.itemType) {
+                        "vocab" -> startReviewLesson(task, LessonTarget.Vocab(sourceId))
+                        "grammar" -> startReviewLesson(task, LessonTarget.Grammar(sourceId))
+                        else -> startReviewLesson(task, LessonTarget.Sentence(sourceId))
+                    }
+                }
+            }
+            "exercise" -> {
+                val state = _uiState.value
+                val selection = task.selectionOrFallback(state.selection)
+                val ordinaryNode = findReviewLessonNode(selection, state, task.itemId)
+                    ?.takeIf { it.sourceKind == "exercise" }
+                if (ordinaryNode != null) {
+                    startOrdinaryExerciseReview(task, ordinaryNode)
+                } else {
+                    startReviewReadAir(task)
+                }
+            }
             else -> selectTab(LabTab.Lesson)
+        }
+    }
+
+    private fun loadRemoteReviewContent(task: ProgressItem, selection: EpisodeSelection) {
+        reviewContentJob?.cancel()
+        _uiState.update { state ->
+            state.copy(
+                selectedTab = LabTab.Review,
+                activeSession = null,
+                sync = state.sync.copy(
+                    status = SyncStatus.Loading,
+                    message = "正在加载 ${selection.workSlug} EP${selection.episode} 的复习材料。",
+                ),
+            )
+        }
+        reviewContentJob = viewModelScope.launch {
+            val mode = _uiState.value.lessonMode
+            val result = runSuspendCatching {
+                withContext(Dispatchers.IO) {
+                    val client = remoteClient()
+                    val payload = client.fetchEpisodePayload(selection)
+                    val episodePlan = runSuspendCatching { client.fetchEpisodePlan(selection) }.getOrNull()
+                    val episodes = client.fetchEpisodes(selection.workSlug)
+                    val content = repository.contentFromRemote(
+                        selection = selection,
+                        vocab = prioritizeCoreVocab(payload.vocab, episodePlan),
+                        grammar = payload.grammar,
+                        shadowing = payload.shadowing,
+                        exercises = payload.exercises,
+                        mode = mode,
+                        batch = 1,
+                    )
+                    LoadedReviewContent(content, episodePlan, episodes)
+                }
+            }
+            result.onSuccess { loaded ->
+                _uiState.update { state ->
+                    state.copy(
+                        selection = selection,
+                        episodes = normalizeEpisodes(selection.workSlug, loaded.episodes, state.works),
+                        focus = loaded.content.focus.copy(streakDays = learningStreakDays(state.progressItems)),
+                        vocab = loaded.content.vocab,
+                        grammar = loaded.content.grammar,
+                        shadowing = loaded.content.shadowing,
+                        exercises = loaded.content.exercises,
+                        episodePlan = loaded.episodePlan,
+                        scenes = loaded.content.scenes,
+                        selectedScene = loaded.content.scenes.firstOrNull() ?: state.selectedScene,
+                        sync = state.sync.copy(status = SyncStatus.Success, message = "复习材料已加载。"),
+                    )
+                }
+                practiceReviewTask(task)
+            }.onFailure { error ->
+                _uiState.update { state ->
+                    state.copy(
+                        selectedTab = LabTab.Review,
+                        activeSession = null,
+                        sync = state.sync.copy(
+                            status = SyncStatus.Error,
+                            message = "复习材料加载失败：${error.message ?: "网络不可用"}",
+                        ),
+                    )
+                }
+            }
         }
     }
 
     fun updateSettings(settings: LabSettings) {
         store.writeSettings(settings)
         _uiState.update { it.copy(settings = settings) }
+        if (settings.cloudSync) {
+            val progress = store.readProgress()
+            store.writePendingProgress(mergeProgressItems(progress, store.readPendingProgress()))
+            progress.map(ProgressItem::toSyncAnswer).forEach(::syncAnswer)
+        }
     }
 
     private fun findReviewLessonNode(
@@ -1269,6 +1952,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                     vocab = state.vocab,
                     grammar = state.grammar,
                     shadowing = state.shadowing,
+                    exercises = state.exercises,
                     scenes = state.scenes,
                 )
             } else {
@@ -1278,6 +1962,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                     vocab = remoteContent.vocab,
                     grammar = remoteContent.grammar,
                     shadowing = remoteContent.shadowing,
+                    exercises = remoteContent.exercises,
                     scenes = remoteContent.scenes,
                 )
             }
@@ -1288,6 +1973,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 grammar = content.grammar,
                 sentences = content.shadowing,
                 mode = mode,
+                exercises = content.exercises,
             ).firstOrNull { it.id == itemId }
         }
     }
@@ -1302,6 +1988,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                     vocab = state.vocab,
                     grammar = state.grammar,
                     shadowing = state.shadowing,
+                    exercises = state.exercises,
                     scenes = state.scenes,
                 )
             } else {
@@ -1311,6 +1998,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                     vocab = remoteContent.vocab,
                     grammar = remoteContent.grammar,
                     shadowing = remoteContent.shadowing,
+                    exercises = remoteContent.exercises,
                     scenes = remoteContent.scenes,
                 )
             }
@@ -1321,6 +2009,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 grammar = content.grammar,
                 sentences = content.shadowing,
                 mode = state.lessonMode,
+                exercises = content.exercises,
                 target = target,
             )
             if (nodes.isEmpty()) {
@@ -1329,30 +2018,34 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
             state.copy(
-                selectedTab = LabTab.Lesson,
+                selectedTab = LabTab.Review,
                 activeSession = TrainingSessionKind.Lesson,
+                isExerciseLabSession = false,
+                activeExerciseLabKind = null,
                 selection = selection,
+                episodePlan = null,
                 episodes = if (sameSelection) state.episodes else repository.episodes(selection.workSlug),
-                focus = content.focus.copy(lessonTitle = "复习训练 · ${task.label.ifBlank { target.labelFromContent(content) }}"),
+                focus = content.focus.copy(
+                    lessonTitle = "复习训练 · ${task.label.ifBlank { target.labelFromContent(content) }}",
+                    streakDays = learningStreakDays(state.progressItems),
+                ),
                 vocab = content.vocab,
                 grammar = content.grammar,
                 shadowing = content.shadowing,
+                exercises = content.exercises,
                 scenes = content.scenes,
                 selectedScene = content.scenes.firstOrNull() ?: state.selectedScene,
                 readAir = if (sameSelection) {
                     state.readAir
                 } else {
                     state.readAir.copy(
-                        exercises = mergeReadAirExercises(
-                            state.readAir.exercises,
-                            repository.readAirExercises(selection),
-                        ),
-                        message = "已切到复习所属章节；读空气入口保留全题库筛选。",
+                        message = "已切到复习所属章节；语言学题库仍按数据库数据筛选。",
                         reviewFocusExerciseId = null,
                         pinnedExerciseId = null,
                     )
                 },
                 lessonTarget = target,
+                activeLessonPathKey = null,
                 lessonBatch = 1,
                 hasNextLessonBatch = false,
                 lesson = LessonEngine.start(nodes),
@@ -1362,8 +2055,29 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private fun startOrdinaryExerciseReview(task: ProgressItem, node: LessonNode) {
+        _uiState.update { state ->
+            val selection = task.selectionOrFallback(state.selection)
+            state.copy(
+                selectedTab = LabTab.Review,
+                activeSession = TrainingSessionKind.Lesson,
+                isExerciseLabSession = false,
+                activeExerciseLabKind = null,
+                selection = selection,
+                focus = state.focus.copy(lessonTitle = "数据库错题复习"),
+                lessonTarget = null,
+                activeLessonPathKey = null,
+                lessonBatch = 1,
+                hasNextLessonBatch = false,
+                lesson = LessonEngine.start(listOf(node)),
+                sessionXp = 0,
+                aiCoach = AiCoachState(),
+                sync = state.sync.copy(message = "已打开数据库错题：${task.label.ifBlank { node.prompt }}"),
+            )
+        }
+    }
+
     private fun startReviewReadAir(task: ProgressItem) {
-        ensureFallbackReadAirCatalogLoaded()
         if (startReviewReadAirFromLoadedCatalog(task, showMissingMessage = false)) return
 
         _uiState.update { state ->
@@ -1372,12 +2086,12 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 activeSession = null,
                 sync = state.sync.copy(
                     status = SyncStatus.Loading,
-                    message = "正在从云端匹配这条读空气复习题。",
+                    message = "正在从云端匹配这条语言学复习题。",
                 ),
             )
         }
         viewModelScope.launch {
-            val result = runCatching {
+            val result = runSuspendCatching {
                 withContext(Dispatchers.IO) {
                     remoteClient().fetchLinguisticExercises()
                 }
@@ -1388,15 +2102,15 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                         readAir = state.readAir.copy(
                             exercises = mergeReadAirExercises(remoteExercises, state.readAir.exercises),
                             status = SyncStatus.Success,
-                            message = "已补齐云端读空气题库，正在进入复习题。",
+                            message = "已补齐云端语言学题库，正在进入复习题。",
                             usingFallback = remoteExercises.isEmpty() && state.readAir.usingFallback,
                         ),
                         sync = state.sync.copy(
                             status = SyncStatus.Success,
                             message = if (remoteExercises.isEmpty()) {
-                                "云端暂时没有返回读空气题库；继续使用本机题库匹配。"
+                                "数据库暂时没有返回语言学题库。"
                             } else {
-                                "已补齐云端读空气题库 ${remoteExercises.size} 道。"
+                                "已补齐云端语言学题库 ${remoteExercises.size} 道。"
                             },
                         ),
                     )
@@ -1409,7 +2123,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                         activeSession = null,
                         sync = state.sync.copy(
                             status = SyncStatus.Error,
-                            message = "这条读空气复习题还没在本机题库里，云端匹配失败：${error.message ?: "网络不可用"}",
+                            message = "这条语言学复习题还没在本机题库里，云端匹配失败：${error.message ?: "网络不可用"}",
                         ),
                     )
                 }
@@ -1422,12 +2136,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         showMissingMessage: Boolean,
     ): Boolean {
         val snapshot = _uiState.value
-        val fallbackSelection = task.selectionOrFallback(snapshot.selection)
-        val catalogExercises = mergeReadAirExercises(
-            snapshot.readAir.exercises,
-            repository.readAirExercises(fallbackSelection),
-        )
-        val exercise = findReviewReadAirExercise(task, catalogExercises)
+        val exercise = findReviewReadAirExercise(task, snapshot.readAir.exercises)
         if (exercise == null) {
             if (showMissingMessage) {
                 _uiState.update { state ->
@@ -1436,7 +2145,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                         activeSession = null,
                         sync = state.sync.copy(
                             status = SyncStatus.Error,
-                            message = "这条读空气复习题还没在本机题库里；请先更新资料后再试。",
+                            message = "这条语言学复习题还没在本机题库里；请先更新资料后再试。",
                         ),
                     )
                 }
@@ -1452,7 +2161,6 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
             val filters = ReadAirFilters(
                 workSlug = exercise.workSlug.ifBlank { task.workSlug.ifBlank { ReadAirAllFilter } },
                 domain = exercise.domain.ifBlank { ReadAirAllFilter },
-                phenomenonKey = exercise.phenomenonKey.ifBlank { ReadAirAllFilter },
                 questionType = exercise.questionType.ifBlank { ReadAirAllFilter },
                 difficulty = exercise.difficulty.ifBlank { ReadAirAllFilter },
                 episode = exercise.episode.takeIf { it > 0 },
@@ -1486,52 +2194,74 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun applySelection(selection: EpisodeSelection) {
+        clearPronunciationAttempt()
+        reviewContentJob?.cancel()
         val mode = _uiState.value.lessonMode
         val batch = 1
         val content = repository.content(selection, mode, batch)
-        val selectedEpisodeReadAirExercises = repository.readAirExercises(selection)
         lastEpisodesByWork[selection.workSlug] = selection.episode
         store.writeSelection(selection)
         store.writeLastEpisodeForWork(selection)
         _uiState.update { state ->
-            val readAirExercises = mergeReadAirExercises(
-                state.readAir.exercises,
-                selectedEpisodeReadAirExercises,
-            )
             state.copy(
                 selection = selection,
                 episodes = repository.episodes(selection.workSlug),
-                focus = content.focus,
+                focus = content.focus.copy(streakDays = learningStreakDays(state.progressItems)),
                 vocab = content.vocab,
                 grammar = content.grammar,
                 shadowing = content.shadowing,
+                exercises = content.exercises,
+                episodePlan = null,
                 scenes = content.scenes,
                 selectedScene = content.scenes.first(),
                 readAir = state.readAir.copy(
-                    exercises = readAirExercises,
-                message = "已切换章节；读空气题库保留 ${readAirExercises.size} 道，可从云端更新。",
-                currentIndex = 0,
-                reviewFocusExerciseId = null,
-                pinnedExerciseId = null,
-                restoreFiltersAfterSession = null,
-                aiCoach = AiCoachState(question = ReadAirAiQuestion),
-            ),
+                    message = "已切换章节；正在按数据库刷新语言学题库。",
+                    currentIndex = 0,
+                    reviewFocusExerciseId = null,
+                    pinnedExerciseId = null,
+                    restoreFiltersAfterSession = null,
+                    aiCoach = AiCoachState(question = ReadAirAiQuestion),
+                ),
                 lessonMode = mode,
                 lessonBatch = batch,
                 lessonTarget = null,
+                isExerciseLabSession = false,
+                activeExerciseLabKind = null,
+                activeLessonPathKey = null,
                 hasNextLessonBatch = repository.hasNextLessonBatch(content.vocab, content.grammar, content.shadowing, mode, batch),
-                lesson = LessonEngine.start(content.lessonNodes),
+                lesson = resumeLessonFromProgress(content.lessonNodes, state.progressItems),
                 sessionXp = 0,
                 readAirAnswer = "",
                 aiCoach = AiCoachState(),
                 activeSession = null,
+                pronunciationEvaluation = PronunciationEvaluationState(),
             )
         }
     }
 
+    private fun persistOptimisticProgress(
+        progressItems: List<ProgressItem>,
+        syncPayloads: List<SyncAnswer>,
+    ) {
+        store.writeProgress(progressItems)
+        if (!_uiState.value.settings.cloudSync) return
+        val pending = mergeProgressItems(
+            syncPayloads.map(SyncAnswer::toProgressItem),
+            store.readPendingProgress(),
+        )
+        store.writePendingProgress(pending)
+    }
+
     private fun syncAnswer(payload: SyncAnswer) {
+        if (!_uiState.value.settings.cloudSync) {
+            _uiState.update { state ->
+                state.copy(sync = state.sync.copy(status = SyncStatus.Success, message = "进度已保存在本机；云端同步已关闭。"))
+            }
+            return
+        }
+        val localItem = payload.toProgressItem()
         viewModelScope.launch {
-            val result = runCatching {
+            val result = runSuspendCatching {
                 withContext(Dispatchers.IO) {
                     val client = remoteClient()
                     try {
@@ -1548,8 +2278,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                         )
                     } catch (error: Throwable) {
                         if (!error.isProgressDuplicateConflict()) throw error
-                        runCatching { client.claimCurrentDevice(deviceId) }
-                        val existing = runCatching {
+                        val existing = runSuspendCatching {
                             client.fetchProgress(deviceId).firstOrNull { it.itemId == payload.itemId }
                         }.getOrNull()
                         ProgressSyncResult(
@@ -1560,40 +2289,62 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
             result.onSuccess { synced ->
-                _uiState.update { state ->
-                    val nextProgressItems = listOf(synced.item) + state.progressItems.filterNot { it.itemId == synced.item.itemId }
+                val durableSyncedItem = mergeSyncedProgressItem(
+                    serverItem = synced.item,
+                    localItem = localItem,
+                )
+                var persistedProgress: List<ProgressItem>? = null
+                while (persistedProgress == null) {
+                    val state = _uiState.value
+                    val nextProgressItems = listOf(durableSyncedItem) + state.progressItems.filterNot {
+                        it.sameProgressIdentity(durableSyncedItem)
+                    }
                     val nextAuth = state.auth.user?.let { user ->
                         state.auth.copy(
                             status = SyncStatus.Success,
                             message = "已登录：${user.email}；本机已保存进度 ${nextProgressItems.size} 条，复习 ${state.reviewTasks.size} 条。",
                         )
                     } ?: state.auth
-                    state.copy(
+                    val nextState = state.copy(
                         progressItems = nextProgressItems,
+                        focus = state.focus.copy(streakDays = learningStreakDays(nextProgressItems)),
                         auth = nextAuth,
                         sync = state.sync.copy(
                             status = SyncStatus.Success,
                             message = if (synced.recoveredDuplicate) {
-                                "进度已存在；已按本机记录继续并尝试合并：${synced.item.label}"
+                                "进度已存在；已按账号记录继续：${durableSyncedItem.label}"
                             } else {
-                                "已保存进度：${synced.item.label}"
+                                "已保存进度：${durableSyncedItem.label}"
                             },
                             lastSyncedAt = Instant.now().toString(),
                         ),
                     )
+                    if (_uiState.compareAndSet(state, nextState)) {
+                        persistedProgress = nextProgressItems
+                    }
                 }
+                store.writeProgress(checkNotNull(persistedProgress))
+                store.writePendingProgress(store.readPendingProgress().filterNot {
+                    it.sameProgressIdentity(durableSyncedItem)
+                })
             }
             result.onFailure { error ->
                 _uiState.update { state ->
                     state.copy(
                         sync = state.sync.copy(
                             status = SyncStatus.Error,
-                            message = "进度保存失败：${error.message ?: "网络不可用"}",
+                            message = "进度已保存在本机；云端同步失败：${error.message ?: "网络不可用"}",
                         ),
                     )
                 }
             }
         }
+    }
+
+    private fun flushPendingProgress() {
+        val state = _uiState.value
+        if (!state.settings.cloudSync || state.auth.user == null) return
+        store.readPendingProgress().map(ProgressItem::toSyncAnswer).forEach(::syncAnswer)
     }
 }
 
@@ -1602,6 +2353,12 @@ data class LabUiState(
     val settings: LabSettings,
     val selectedTab: LabTab = LabTab.Today,
     val activeSession: TrainingSessionKind? = null,
+    val exerciseLabLoading: Boolean = false,
+    val isExerciseLabSession: Boolean = false,
+    val activeExerciseLabKind: LessonExerciseKind? = null,
+    val secondaryScreen: SecondaryScreen? = null,
+    val deviceCapabilities: DeviceCapabilitySnapshot? = null,
+    val deviceCapabilitiesRefreshing: Boolean = false,
     val libraryRevealEpisodeActionsRequest: Int = 0,
     val works: List<WorkOption>,
     val episodes: List<EpisodeOption>,
@@ -1610,6 +2367,12 @@ data class LabUiState(
     val vocab: List<VocabItem>,
     val grammar: List<GrammarPoint>,
     val shadowing: List<ShadowingSentence>,
+    val exercises: List<LearningExercise> = emptyList(),
+    val episodePlan: EpisodePlan? = null,
+    val subtitles: List<SubtitleLine> = emptyList(),
+    val subtitleStatus: SyncStatus = SyncStatus.Idle,
+    val subtitleMessage: String = "",
+    val subtitleFocusLineNo: Int? = null,
     val scenes: List<ReadAirScene>,
     val selectedScene: ReadAirScene,
     val readAir: ReadAirTrainingState,
@@ -1617,6 +2380,7 @@ data class LabUiState(
     val lessonMode: LessonMode,
     val lessonBatch: Int = 1,
     val lessonTarget: LessonTarget? = null,
+    val activeLessonPathKey: String? = null,
     val hasNextLessonBatch: Boolean = false,
     val sessionXp: Int = 0,
     val readAirQuestion: String = "这句话是在表达字面意思，还是在调整关系和语气？",
@@ -1624,10 +2388,28 @@ data class LabUiState(
     val mistakes: List<MistakeRecord> = emptyList(),
     val progressItems: List<ProgressItem> = emptyList(),
     val reviewTasks: List<ProgressItem> = emptyList(),
+    val smartReviewPlan: SmartReviewPlan = SmartReviewPlan(),
     val auth: AuthState = AuthState(),
     val sync: SyncSnapshot = SyncSnapshot(),
     val aiCoach: AiCoachState = AiCoachState(),
     val libraryAiTargetKey: String? = null,
+    val reviewAiTargetId: String? = null,
+    val pronunciationEvaluation: PronunciationEvaluationState = PronunciationEvaluationState(),
+)
+
+enum class PronunciationEvaluationPhase {
+    Idle,
+    Loading,
+    Complete,
+    Error,
+}
+
+data class PronunciationEvaluationState(
+    val nodeId: String? = null,
+    val phase: PronunciationEvaluationPhase = PronunciationEvaluationPhase.Idle,
+    val result: PronunciationEvaluation? = null,
+    val message: String = "",
+    val canRetry: Boolean = false,
 )
 
 data class AuthState(
@@ -1648,20 +2430,28 @@ data class ReadAirTrainingState(
     val browseAnswers: Map<String, String> = emptyMap(),
     val reviewFocusExerciseId: String? = null,
     val pinnedExerciseId: String? = null,
+    val sessionExerciseIds: Set<String> = emptySet(),
+    val sessionBatch: Int? = null,
     val aiCoach: AiCoachState = AiCoachState(question = ReadAirAiQuestion),
     val usingFallback: Boolean = false,
 ) {
     val scopedExercises: List<LinguisticExercise>
-        get() = exercises.filter { exercise ->
+        get() {
+            val filterMatched = exercises.filter { exercise ->
             val workMatch = filters.workSlug == ReadAirAllFilter ||
                 normalizeReadAirWorkSlug(exercise.workSlug) == normalizeReadAirWorkSlug(filters.workSlug)
             val domainMatch = filters.domain == ReadAirAllFilter || exercise.domain == filters.domain
-            val phenomenonMatch = filters.phenomenonKey == ReadAirAllFilter || exercise.phenomenonKey == filters.phenomenonKey
             val questionTypeMatch = filters.questionType == ReadAirAllFilter || exercise.questionType == filters.questionType
             val difficultyMatch = filters.difficulty == ReadAirAllFilter || exercise.difficulty == filters.difficulty
+            val topicMatch = filters.topic == ReadAirAllFilter || exercise.matchesReadAirTopic(filters.topic)
             val episodeMatch = filters.episode == null || exercise.episode == filters.episode
             val focusMatch = reviewFocusExerciseId == null || exercise.id == reviewFocusExerciseId
-            workMatch && domainMatch && phenomenonMatch && questionTypeMatch && difficultyMatch && episodeMatch && focusMatch
+            val sessionMatch = sessionExerciseIds.isEmpty() || exercise.id in sessionExerciseIds
+            workMatch && domainMatch && questionTypeMatch && difficultyMatch && topicMatch && episodeMatch && focusMatch && sessionMatch
+            }
+            if (sessionExerciseIds.isNotEmpty()) return filterMatched
+            val batch = sessionBatch ?: return filterMatched
+            return filterMatched.drop((batch - 1) * 7).take(7)
         }
 
     val filteredExercises: List<LinguisticExercise>
@@ -1689,6 +2479,12 @@ data class ReadAirTrainingState(
             value = { it.domain },
         )
 
+    val domainCounts: Map<String, Int>
+        get() = exercises
+            .filter { exercise -> matchesReadAirFilters(exercise, ignore = ReadAirFilterField.Domain) }
+            .groupingBy { it.domain }
+            .eachCount()
+
     val workOptions: List<String>
         get() {
             val options = exercises
@@ -1698,13 +2494,6 @@ data class ReadAirTrainingState(
             filters.workSlug.takeUnless { it == ReadAirAllFilter }?.let { options.add(normalizeReadAirWorkSlug(it)) }
             return listOf(ReadAirAllFilter) + options.sorted()
         }
-
-    val phenomenonOptions: List<String>
-        get() = cascadingStringOptions(
-            selectedValue = filters.phenomenonKey,
-            field = ReadAirFilterField.Phenomenon,
-            value = { it.phenomenonKey },
-        )
 
     val questionTypeOptions: List<String>
         get() = cascadingStringOptions(
@@ -1719,6 +2508,14 @@ data class ReadAirTrainingState(
             field = ReadAirFilterField.Difficulty,
             value = { it.difficulty },
         )
+
+    val topicOptions: List<String>
+        get() = buildList {
+            add(ReadAirAllFilter)
+            if (exercises.any { it.matchesReadAirTopic(ReadAirCognitiveTopic) }) {
+                add(ReadAirCognitiveTopic)
+            }
+        }
 
     val episodeOptions: List<Int>
         get() {
@@ -1761,19 +2558,19 @@ data class ReadAirTrainingState(
         val domainMatch = ignore == ReadAirFilterField.Domain ||
             filters.domain == ReadAirAllFilter ||
             exercise.domain == filters.domain
-        val phenomenonMatch = ignore == ReadAirFilterField.Phenomenon ||
-            filters.phenomenonKey == ReadAirAllFilter ||
-            exercise.phenomenonKey == filters.phenomenonKey
         val questionTypeMatch = ignore == ReadAirFilterField.QuestionType ||
             filters.questionType == ReadAirAllFilter ||
             exercise.questionType == filters.questionType
         val difficultyMatch = ignore == ReadAirFilterField.Difficulty ||
             filters.difficulty == ReadAirAllFilter ||
             exercise.difficulty == filters.difficulty
+        val topicMatch = ignore == ReadAirFilterField.Topic ||
+            filters.topic == ReadAirAllFilter ||
+            exercise.matchesReadAirTopic(filters.topic)
         val episodeMatch = ignore == ReadAirFilterField.Episode ||
             filters.episode == null ||
             exercise.episode == filters.episode
-        return workMatch && domainMatch && phenomenonMatch && questionTypeMatch && difficultyMatch && episodeMatch
+        return workMatch && domainMatch && questionTypeMatch && difficultyMatch && topicMatch && episodeMatch
     }
 }
 
@@ -1819,36 +2616,76 @@ private fun Throwable.loginFailureMessage(): String {
     }
 }
 
+private fun pronunciationResultMessage(evaluation: PronunciationEvaluation): String {
+    return when (evaluation.assessmentStatus) {
+        PronunciationAssessmentStatus.Scored -> "真实测评完成。分数为体验评分 Beta，请结合可靠度一起看。"
+        PronunciationAssessmentStatus.Uncertain -> "本次无法稳定判断，请在更安静的环境里再读一次。"
+        PronunciationAssessmentStatus.ReRecord -> when (evaluation.audioQuality.status) {
+            "too_short" -> "录音太短，请读完整句子。"
+            "too_long" -> "录音超过 15 秒，请重新录制。"
+            "silent" -> "没有检测到有效语音，请确认麦克风后再录。"
+            "too_quiet" -> "音量太小，请靠近麦克风。"
+            "clipped" -> "音量过大出现爆音，请稍微远离麦克风。"
+            "noisy" -> "环境噪声太大，请换到安静位置。"
+            else -> "这段录音暂时无法评分，请重新录制。"
+        }
+    }
+}
+
+private fun pronunciationFailureMessage(error: Throwable): String {
+    if (error !is PronunciationApiException) {
+        return "发音测评连接失败，录音仍保留在内存中，可以直接重试上传。"
+    }
+    return when (error.httpStatus) {
+        401 -> "评测票据已失效，请直接重试上传。"
+        403 -> "评测票据与当前句子不匹配，请重新录音后再试。"
+        404 -> "这句话暂未开放真实测评。"
+        409 -> "本次录音标识冲突，请重新录音。"
+        413 -> "录音文件过大，请缩短后重新录制。"
+        429 -> "请求过于频繁，录音仍保留，可以稍后重试上传。"
+        502 -> "识别服务暂时不可用，录音仍保留，可以稍后重试上传。"
+        503 -> "主站尚未配置发音测评票据，请完成服务端配置后重试。"
+        else -> "发音测评暂时失败：${error.message.orEmpty().take(100)}"
+    }
+}
+
 private enum class ReadAirFilterField {
     Work,
     Domain,
-    Phenomenon,
     QuestionType,
     Difficulty,
+    Topic,
     Episode,
 }
 
 data class ReadAirFilters(
     val workSlug: String = ReadAirAllFilter,
     val domain: String = ReadAirAllFilter,
-    val phenomenonKey: String = ReadAirAllFilter,
     val questionType: String = ReadAirAllFilter,
     val difficulty: String = ReadAirAllFilter,
+    val topic: String = ReadAirAllFilter,
     val episode: Int? = null,
 )
 
 enum class LabTab(val label: String) {
     Today("今日"),
     Lesson("训练"),
+    Linguistics("语言学"),
     Library("资料"),
-    ReadAir("读空气"),
-    Review("错题"),
-    Settings("设置"),
+    Review("复盘"),
 }
 
 enum class TrainingSessionKind {
     Lesson,
     ReadAir,
+}
+
+enum class SecondaryScreen {
+    Settings,
+    Subtitles,
+    SmartReviewQueue,
+    AiHistory,
+    Search,
 }
 
 enum class ReadAirMode(val label: String) {
@@ -1865,18 +2702,49 @@ private data class SyncAnswer(
     val payload: JSONObject? = null,
 )
 
+private data class AnswerCommitEffects(
+    val mistakes: List<MistakeRecord>,
+    val progressItems: List<ProgressItem>,
+    val syncPayloads: List<SyncAnswer>,
+)
+
+private data class PendingPronunciationAttempt(
+    val nodeId: String,
+    val sentenceId: String,
+    val attemptId: String,
+    val wavBytes: ByteArray,
+)
+
 private data class RemoteRefresh(
     val works: List<WorkOption>,
     val episodes: List<EpisodeOption>,
     val content: com.animejapaneselab.nativeapp.data.EpisodeContent,
     val readAirExercises: List<LinguisticExercise>,
-    val fallbackReadAirExercises: List<LinguisticExercise>,
+    val episodePlan: EpisodePlan?,
 )
+
+private data class LoadedReviewContent(
+    val content: com.animejapaneselab.nativeapp.data.EpisodeContent,
+    val episodePlan: EpisodePlan?,
+    val episodes: List<EpisodeOption>,
+)
+
+private data class RemoteRefreshRequest(
+    val selection: EpisodeSelection,
+    val lessonMode: LessonMode,
+    val lessonBatch: Int,
+) {
+    fun matches(state: LabUiState): Boolean {
+        return selection == state.selection &&
+            lessonMode == state.lessonMode &&
+            lessonBatch == state.lessonBatch
+    }
+}
 
 private fun normalizeEpisodeCounts(works: List<WorkOption>): List<WorkOption> {
     return works.map { work ->
         val knownMax = knownEpisodeCount(work.slug)
-        if (knownMax != null && work.episodeCount > knownMax) {
+        if (knownMax != null && work.episodeCount != knownMax) {
             work.copy(episodeCount = knownMax)
         } else {
             work
@@ -1884,16 +2752,29 @@ private fun normalizeEpisodeCounts(works: List<WorkOption>): List<WorkOption> {
     }
 }
 
+private fun prioritizeCoreVocab(vocab: List<VocabItem>, episodePlan: EpisodePlan?): List<VocabItem> {
+    if (vocab.isEmpty()) return emptyList()
+    val byId = vocab.associateBy(VocabItem::id)
+    val prioritized = episodePlan?.vocabItemIds.orEmpty().mapNotNull(byId::get).distinctBy(VocabItem::id)
+    val prioritizedIds = prioritized.map(VocabItem::id).toSet()
+    return prioritized + vocab.filterNot { it.id in prioritizedIds }
+}
+
 private fun normalizeEpisodes(
     workSlug: String,
     episodes: List<EpisodeOption>,
     works: List<WorkOption>,
 ): List<EpisodeOption> {
-    val maxEpisode = works.firstOrNull { it.slug == workSlug }?.episodeCount
-        ?: knownEpisodeCount(workSlug)
-        ?: episodes.maxOfOrNull { it.episode }
-        ?: return episodes
-    return episodes.filter { it.episode in 1..maxEpisode }
+    val maxEpisode = listOfNotNull(
+        works.firstOrNull { it.slug == workSlug }?.episodeCount,
+        knownEpisodeCount(workSlug),
+        episodes.maxOfOrNull { it.episode },
+    ).maxOrNull() ?: return episodes
+    val remoteByEpisode = episodes.associateBy { it.episode }
+    val fallbackByEpisode = SampleLearningRepository().episodes(workSlug).associateBy { it.episode }
+    return (1..maxEpisode).mapNotNull { episode ->
+        remoteByEpisode[episode] ?: fallbackByEpisode[episode]
+    }
 }
 
 private fun knownEpisodeCount(workSlug: String): Int? {
@@ -1906,13 +2787,12 @@ private fun knownEpisodeCount(workSlug: String): Int? {
 
 private data class InitialEpisodeContent(
     val content: com.animejapaneselab.nativeapp.data.EpisodeContent,
-    val readAirExercises: List<LinguisticExercise>,
     val hasNextLessonBatch: Boolean,
 )
 
 private data class RemoteProgressSnapshot(
-    val progress: List<ProgressItem>,
-    val review: List<ProgressItem>,
+    val progress: List<ProgressItem> = emptyList(),
+    val review: List<ProgressItem> = emptyList(),
 )
 
 private data class EpisodeContentSnapshot(
@@ -1920,14 +2800,24 @@ private data class EpisodeContentSnapshot(
     val vocab: List<VocabItem>,
     val grammar: List<GrammarPoint>,
     val shadowing: List<ShadowingSentence>,
+    val exercises: List<LearningExercise>,
     val scenes: List<ReadAirScene>,
 )
 
 private fun ProgressItem.selectionOrFallback(fallback: EpisodeSelection): EpisodeSelection {
     return EpisodeSelection(
-        workSlug = workSlug.ifBlank { fallback.workSlug },
+        workSlug = normalizeReadAirWorkSlug(workSlug.ifBlank { fallback.workSlug }),
         episode = episode.takeIf { it > 0 } ?: fallback.episode,
     )
+}
+
+private fun ProgressItem.primarySourceId(): String {
+    return listOf(payload["sourceId"], payload["source_id"], payload["source"])
+        .firstOrNull { !it.isNullOrBlank() }
+        ?.substringBefore(',')
+        ?.trim()
+        .orEmpty()
+        .ifBlank { itemId }
 }
 
 internal fun findReviewReadAirExercise(
@@ -2026,12 +2916,17 @@ private val reviewTextScripts = setOf(
 )
 
 private fun LabUiState.withRemoteProgressSnapshot(snapshot: RemoteProgressSnapshot): LabUiState {
-    val persistedReadAirAnswers = persistedReadAirAnswers(readAir.exercises, snapshot.progress)
+    val persistedReadAirAnswers = restoreReadAirAnswers(
+        exercises = readAir.exercises,
+        progressItems = snapshot.progress,
+        inMemoryAnswers = readAir.selectedAnswers,
+    )
     return copy(
         progressItems = snapshot.progress,
         reviewTasks = snapshot.review,
+        focus = focus.copy(streakDays = learningStreakDays(snapshot.progress)),
         readAir = readAir.copy(
-            selectedAnswers = readAir.selectedAnswers + persistedReadAirAnswers,
+            selectedAnswers = persistedReadAirAnswers,
             pinnedExerciseId = readAir.pinnedExerciseId?.takeIf { id ->
                 readAir.exercises.any { it.id == id }
             },
@@ -2039,18 +2934,54 @@ private fun LabUiState.withRemoteProgressSnapshot(snapshot: RemoteProgressSnapsh
     )
 }
 
-private fun persistedReadAirAnswers(
+private fun learningStreakDays(
+    progressItems: List<ProgressItem>,
+    zoneId: ZoneId = ZoneId.systemDefault(),
+    today: LocalDate = LocalDate.now(zoneId),
+): Int {
+    val activityDates = progressItems
+        .mapNotNull { item -> item.lastReviewedAt.toActivityDate(zoneId) }
+        .toSet()
+    if (activityDates.isEmpty()) return 0
+
+    var cursor = when {
+        today in activityDates -> today
+        today.minusDays(1) in activityDates -> today.minusDays(1)
+        else -> return 0
+    }
+    var streak = 0
+    while (cursor in activityDates) {
+        streak += 1
+        cursor = cursor.minusDays(1)
+    }
+    return streak
+}
+
+private fun String.toActivityDate(zoneId: ZoneId): LocalDate? {
+    val raw = trim()
+    if (raw.isBlank()) return null
+    return try {
+        Instant.parse(raw).atZone(zoneId).toLocalDate()
+    } catch (_: DateTimeParseException) {
+        runCatching { LocalDate.parse(raw.take(10)) }.getOrNull()
+    }
+}
+
+internal fun restoreReadAirAnswers(
     exercises: List<LinguisticExercise>,
     progressItems: List<ProgressItem>,
+    inMemoryAnswers: Map<String, String> = emptyMap(),
 ): Map<String, String> {
     val exerciseIds = exercises.map { it.id }.toSet()
-    return progressItems
+    val persistedAnswers = progressItems
         .filter { it.itemType == "exercise" && it.itemId in exerciseIds }
         .mapNotNull { item ->
             val selected = item.payload["selected"].orEmpty()
             if (selected.isBlank()) null else item.itemId to selected
         }
         .toMap()
+    val matchingInMemoryAnswers = inMemoryAnswers.filterKeys { it in exerciseIds }
+    return persistedAnswers + matchingInMemoryAnswers
 }
 
 private fun LessonTarget.labelFrom(state: LabUiState): String {
@@ -2069,6 +3000,17 @@ private fun LessonTarget.labelFromContent(content: EpisodeContentSnapshot): Stri
     }
 }
 
+private fun LessonExerciseKind.defaultLessonMode(): LessonMode {
+    return when (this) {
+        LessonExerciseKind.PairMatch,
+        LessonExerciseKind.SingleChoice -> LessonMode.Vocab
+        LessonExerciseKind.Cloze -> LessonMode.Grammar
+        LessonExerciseKind.TranslationOrder,
+        LessonExerciseKind.AudioOrder,
+        LessonExerciseKind.Shadowing -> LessonMode.Shadowing
+    }
+}
+
 private fun lessonTitle(mode: LessonMode, focus: EpisodeFocus, batch: Int): String {
     val batchPart = if (batch > 1) " 第 $batch 批" else ""
     return "${mode.titleLabel}$batchPart · ${focus.episodeLabel}"
@@ -2084,7 +3026,7 @@ private fun lightweightFocus(selection: EpisodeSelection, works: List<WorkOption
         episodeLabel = episodeLabel,
         lessonTitle = "正在准备 · $episodeLabel",
         sectionTitle = "课程内容加载中",
-        guidebook = "正在准备本集词汇、语法、跟读和读空气题库。",
+        guidebook = "正在准备本集词汇、语法、跟读和语言学题库。",
         dailyGoal = 8,
         xp = 0,
         streakDays = 0,
@@ -2097,7 +3039,7 @@ private fun lightweightReadAirScene(selection: EpisodeSelection): ReadAirScene {
     return ReadAirScene(
         id = "${selection.workSlug}-$episodeLabel-loading",
         title = "题库准备中",
-        context = "正在准备当前集读空气练习。",
+        context = "正在准备当前集语言学练习。",
         lines = listOf(
             com.animejapaneselab.nativeapp.data.DialogueLine(
                 speaker = "系统",
@@ -2140,11 +3082,31 @@ private fun LessonNode.progressType(): String {
     return sourceKind
 }
 
+private fun LessonNode.progressItemId(): String {
+    // Each Android interaction node owns its progress record. sourceId remains in the payload
+    // so material-level path progress can still aggregate it.
+    return id
+}
+
+private fun LessonNode.buildLessonProgressPayload(selected: String, expected: String): JSONObject {
+    return JSONObject()
+        .put("nodeId", id)
+        .put("sourceId", sourceId)
+        .put("sourceKind", sourceKind)
+        .put("typeLabel", typeLabel)
+        .put("sourceLabel", sourceLabel)
+        .put("label", prompt.take(90))
+        .put("prompt", prompt)
+        .put("selected", selected)
+        .put("expected", expected)
+}
+
 private fun LessonNode.aiKind(): String {
     return when (progressType()) {
         "vocab" -> "vocab"
         "grammar" -> "grammar"
         "sentence" -> "sentence"
+        "exercise" -> "exercise"
         else -> "linguistic"
     }
 }
@@ -2192,7 +3154,7 @@ private fun upsertReadAirMistake(
     }
     val next = MistakeRecord(
         itemId = exercise.id,
-        typeLabel = "读空气",
+        typeLabel = "语言学题",
         prompt = exercise.prompt,
         selected = selected,
         expected = exercise.correctOption,
@@ -2220,6 +3182,18 @@ private fun normalizeReadAirWorkSlug(workSlug: String): String {
     }
 }
 
+internal fun LinguisticExercise.matchesReadAirTopic(topic: String): Boolean {
+    if (topic == ReadAirAllFilter) return true
+    if (topic != ReadAirCognitiveTopic) return false
+    val searchable = listOf(
+        phenomenonKey,
+        phenomenonNameZh,
+        phenomenonDefinitionZh,
+        prompt,
+    ).joinToString(" ").lowercase()
+    return listOf("认知", "隐喻", "metaphor", "框架").any(searchable::contains)
+}
+
 private data class ProgressSyncResult(
     val item: ProgressItem,
     val recoveredDuplicate: Boolean = false,
@@ -2244,6 +3218,78 @@ private fun SyncAnswer.toProgressItem(): ProgressItem {
         lastReviewedAt = Instant.now().toString(),
         payload = payload?.toFlatStringMap().orEmpty(),
     )
+}
+
+private fun ProgressItem.toSyncAnswer(): SyncAnswer {
+    val json = JSONObject()
+    payload.forEach(json::put)
+    return SyncAnswer(
+        itemId = itemId,
+        itemType = itemType,
+        selection = EpisodeSelection(workSlug = workSlug, episode = episode),
+        state = state,
+        label = label,
+        payload = json,
+    )
+}
+
+internal fun mergeProgressItems(vararg sources: List<ProgressItem>): List<ProgressItem> {
+    val merged = linkedMapOf<String, ProgressItem>()
+    sources.asSequence().flatten().forEach { candidate ->
+        val key = "${candidate.itemType}\u0000${candidate.workSlug}\u0000${candidate.episode}\u0000${candidate.itemId}"
+        val current = merged[key]
+        merged[key] = if (current == null) candidate else mergeProgressVersions(current, candidate)
+    }
+    return merged.values.sortedByDescending(ProgressItem::lastReviewedAt)
+}
+
+internal fun mergeSyncedProgressItem(
+    serverItem: ProgressItem,
+    localItem: ProgressItem,
+): ProgressItem {
+    return serverItem.copy(
+        workSlug = serverItem.workSlug.ifBlank { localItem.workSlug },
+        episode = serverItem.episode.takeIf { it > 0 } ?: localItem.episode,
+        label = serverItem.label.ifBlank { localItem.label },
+        lastReviewedAt = serverItem.lastReviewedAt.ifBlank { localItem.lastReviewedAt },
+        payload = localItem.payload + serverItem.payload,
+    )
+}
+
+private fun mergeProgressVersions(
+    left: ProgressItem,
+    right: ProgressItem,
+): ProgressItem {
+    val (older, newer) = if (right.lastReviewedAt >= left.lastReviewedAt) {
+        left to right
+    } else {
+        right to left
+    }
+    return newer.copy(
+        label = newer.label.ifBlank { older.label },
+        payload = older.payload + newer.payload,
+    )
+}
+
+private suspend fun <T> runSuspendCatching(block: suspend () -> T): Result<T> {
+    return try {
+        Result.success(block())
+    } catch (error: CancellationException) {
+        throw error
+    } catch (error: Throwable) {
+        Result.failure(error)
+    }
+}
+
+private fun pathNodeProgressId(selection: EpisodeSelection, pathNodeKey: String): String {
+    return "path-node:${selection.workSlug}:${selection.episode}:$pathNodeKey"
+}
+
+private fun ProgressItem.sameProgressIdentity(other: ProgressItem): Boolean {
+    return itemId == other.itemId &&
+        itemType == other.itemType &&
+        workSlug == other.workSlug &&
+        episode == other.episode
 }
 
 private fun JSONObject.toFlatStringMap(): Map<String, String> {

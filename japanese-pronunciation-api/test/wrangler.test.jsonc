@@ -1,0 +1,46 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "ajl-pronunciation-api-test",
+  "main": "../src/index.ts",
+  "compatibility_date": "2026-07-10",
+  "compatibility_flags": ["nodejs_compat"],
+  "kv_namespaces": [
+    {
+      "binding": "SENTENCES",
+      "id": "00000000000000000000000000000000"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ajl-pronunciation-test",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "../migrations"
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "EVALUATION_RATE_LIMITER",
+      "namespace_id": "38472",
+      "simple": {
+        "limit": 100,
+        "period": 60
+      }
+    }
+  ],
+  "vars": {
+    "ENVIRONMENT": "test",
+    "AI_GATEWAY_ID": "my-ai-gateway",
+    "ALLOWED_ORIGINS": "http://localhost:5173",
+    "AUTH_REQUIRED": "true",
+    "MAX_AUDIO_BYTES": "1572864",
+    "MAX_REQUEST_BYTES": "1638400",
+    "ATTEMPT_TTL_DAYS": "7",
+    "SCORER_VERSION": "ja-mora-v1.1.0",
+    "NOVA_CONFIDENCE_THRESHOLD": "0.82",
+    "FALLBACK_ALIGNMENT_MIN": "60",
+    "FALLBACK_ALIGNMENT_MAX": "88",
+    "UNKNOWN_RATIO_THRESHOLD": "0.20",
+    "RELIABILITY_THRESHOLD": "0.65"
+  }
+}

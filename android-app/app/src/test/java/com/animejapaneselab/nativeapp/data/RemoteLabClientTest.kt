@@ -5,6 +5,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.io.Closeable
@@ -23,9 +24,23 @@ class RemoteLabClientTest {
                 "/api/works/test-work/episodes/7/vocab" to vocabJson(17),
                 "/api/works/test-work/episodes/7/grammar" to grammarJson(11),
                 "/api/works/test-work/episodes/7/sentences" to sentencesJson(12),
+                "/api/works/test-work/episodes/7/exercises?limit=600" to exercisesJson(),
+                "/api/works/test-work/episodes/7/subtitles" to subtitleLinesJson(),
                 "/api/linguistic-exercises?workSlug=test-work&episode=7" to linguisticJson(),
             ),
         )
+    }
+
+    @Test
+    fun fetchSubtitleLinesParsesWorkerTimelineShape() {
+        val client = RemoteLabClient(server.baseUrl)
+        val lines = client.fetchSubtitleLines(EpisodeSelection("test-work", 7))
+
+        assertEquals(2, lines.size)
+        assertEquals(12, lines.first().lineNo)
+        assertEquals("00:00:12.100", lines.first().startTime)
+        assertEquals("そろそろ起きないと。", lines.first().jaText)
+        assertEquals("再五分钟……", lines.last().zhText)
     }
 
     @After
@@ -49,6 +64,11 @@ class RemoteLabClientTest {
         assertEquals("EP07 第 12 行", payload.shadowing.last().sourceLabel)
         assertEquals(AudioKind.Source, payload.shadowing.last().audioKind)
         assertEquals("https://cdn.example.test/test-work/ep07/sentence-12.mp3", payload.shadowing.last().audioUrl)
+        assertEquals(4, payload.exercises.size)
+        assertEquals("exercise-vocab-1", payload.exercises.first().id)
+        assertEquals("vocab_meaning", payload.exercises.first().exerciseType)
+        assertEquals("vocab-1", payload.exercises.first().vocabItemId)
+        assertEquals("安静", payload.exercises.first().answer)
     }
 
     @Test
@@ -114,7 +134,89 @@ class RemoteLabClientTest {
     }
 
     @Test
-    fun fetchLinguisticExercisesParsesWebDraftFields() {
+    fun fetchEpisodePlanParsesWorkerPlanShape() {
+        server.close()
+        server = LocalJsonServer(
+            responses = mapOf(
+                "/api/works/k-on/episodes/1/plan" to episodePlanJson(),
+            ),
+        )
+
+        val plan = RemoteLabClient(server.baseUrl).fetchEpisodePlan(EpisodeSelection("k-on", 1))
+
+        assertNotNull(plan)
+        requireNotNull(plan)
+        assertEquals("k-on-ep01-plan", plan.id)
+        assertEquals("k-on", plan.workSlug)
+        assertEquals(1, plan.episode)
+        assertEquals(20, plan.vocabCount)
+        assertEquals(10, plan.handwritingCount)
+        assertEquals(5, plan.shadowingCount)
+        assertEquals(5, plan.grammarCount)
+        assertEquals(17, plan.exerciseCount)
+        assertEquals(listOf("vocab-1", "vocab-2"), plan.vocabItemIds)
+        assertEquals(listOf("write-1"), plan.handwritingVocabIds)
+        assertEquals(listOf("sentence-1", "sentence-2"), plan.shadowingSentenceIds)
+        assertEquals(listOf("grammar-1"), plan.grammarPointIds)
+        assertEquals(listOf("exercise-1", "exercise-2", "exercise-3"), plan.exerciseIds)
+        assertEquals("第1集学习计划", plan.notes)
+    }
+
+    @Test
+    fun fetchEpisodePlanParsesMergedWorkerPlanShape() {
+        server.close()
+        server = LocalJsonServer(
+            responses = mapOf(
+                "/api/works/re-zero/episodes/26/plan" to """
+                {
+                  "id": "re-zero-ep26-plan-merged",
+                  "workSlug": "re-zero",
+                  "episode": 26,
+                  "planSlot": null,
+                  "vocabCount": 54,
+                  "handwritingCount": 0,
+                  "shadowingCount": 15,
+                  "grammarCount": 26,
+                  "exerciseCount": 149,
+                  "vocabItemIds": ["vocab-1", "vocab-2"],
+                  "handwritingVocabIds": [],
+                  "shadowingSentenceIds": ["sentence-1"],
+                  "grammarPointIds": ["grammar-1", "grammar-2"],
+                  "exerciseIds": ["exercise-1", "exercise-2", "exercise-3"],
+                  "notes": "merged"
+                }
+                """.trimIndent(),
+            ),
+        )
+
+        val plan = RemoteLabClient(server.baseUrl).fetchEpisodePlan(EpisodeSelection("re-zero", 26))
+
+        assertNotNull(plan)
+        requireNotNull(plan)
+        assertNull(plan.planSlot)
+        assertEquals(54, plan.vocabCount)
+        assertEquals(149, plan.exerciseCount)
+        assertEquals(listOf("sentence-1"), plan.shadowingSentenceIds)
+        assertEquals(listOf("grammar-1", "grammar-2"), plan.grammarPointIds)
+        assertEquals(listOf("exercise-1", "exercise-2", "exercise-3"), plan.exerciseIds)
+    }
+
+    @Test
+    fun fetchEpisodePlanReturnsNullForMissingWorkerPlan() {
+        server.close()
+        server = LocalJsonServer(
+            responses = mapOf(
+                "/api/works/k-on/episodes/9/plan" to "null",
+            ),
+        )
+
+        val plan = RemoteLabClient(server.baseUrl).fetchEpisodePlan(EpisodeSelection("k-on", 9))
+
+        assertNull(plan)
+    }
+
+    @Test
+    fun fetchLinguisticExercisesParsesCurrentAndLegacyFields() {
         val client = RemoteLabClient(server.baseUrl)
         val exercises = client.fetchLinguisticExercises(EpisodeSelection("test-work", 7))
 
@@ -161,7 +263,7 @@ class RemoteLabClientTest {
     }
 
     @Test
-    fun buildLinguisticProgressPayloadMatchesWebReviewFields() {
+    fun buildLinguisticProgressPayloadContainsAndroidReviewFields() {
         val exercise = parseLinguisticExercisesJson(linguisticJson()).first()
         val payload = buildLinguisticProgressPayload(exercise, "字面确认")
 
@@ -262,12 +364,12 @@ class RemoteLabClientTest {
     }
 
     @Test
-    fun fetchProgressAndReviewTasksUseDeviceIdAndSessionCookie() {
+    fun fetchProgressAndReviewTasksUseAccountSessionCookieWithoutDeviceQuery() {
         server.close()
         server = LocalJsonServer(
             responses = mapOf(
-                "/api/progress?deviceId=device-test" to progressJson("progress-1", "known"),
-                "/api/review/today?deviceId=device-test" to """{"tasks":${progressJson("review-1", "bad")}}""",
+                "/api/progress" to progressJson("progress-1", "known"),
+                "/api/review/today" to """{"tasks":${progressJson("review-1", "bad")}}""",
             ),
         )
 
@@ -279,8 +381,8 @@ class RemoteLabClientTest {
         assertEquals(ReviewState.Known, progress.single().state)
         assertEquals("review-1", review.single().itemId)
         assertEquals(ReviewState.Bad, review.single().state)
-        assertEquals("ajl_session=session-token", server.requestHeadersFor("/api/progress?deviceId=device-test").last()["cookie"])
-        assertEquals("ajl_session=session-token", server.requestHeadersFor("/api/review/today?deviceId=device-test").last()["cookie"])
+        assertEquals("ajl_session=session-token", server.requestHeadersFor("/api/progress").last()["cookie"])
+        assertEquals("ajl_session=session-token", server.requestHeadersFor("/api/review/today").last()["cookie"])
     }
 
     @Test
@@ -310,7 +412,7 @@ class RemoteLabClientTest {
         val body = JSONObject(request.body)
         assertEquals("POST", request.method)
         assertEquals("ajl_session=session-token", request.headers["cookie"])
-        assertEquals("device-test", body.getString("deviceId"))
+        assertEquals(false, body.has("deviceId"))
         assertEquals("exercise-1", body.getString("itemId"))
         assertEquals("exercise", body.getString("itemType"))
         assertEquals("re-zero", body.getString("workSlug"))
@@ -320,6 +422,17 @@ class RemoteLabClientTest {
         assertEquals("exercise-1", progress.itemId)
         assertEquals(ReviewState.Bad, progress.state)
         assertEquals("读空气错题", progress.label)
+    }
+
+    @Test
+    fun externalLinguisticPromptContainsUserAnswerAndScene() {
+        val exercise = parseLinguisticExercisesJson(linguisticJson()).first()
+        val prompt = buildExternalQuestionPrompt(exercise, "字面确认")
+
+        assertTrue(prompt.contains("【我的答案】字面确认"))
+        assertTrue(prompt.contains("【正确答案】在缓和提醒"))
+        assertTrue(prompt.contains("そろそろ起きないと。"))
+        assertTrue(prompt.contains("语境线索 -> 选项对比 -> 正确判断 -> 可迁移判断方法"))
     }
 
     @Test
@@ -498,6 +611,90 @@ private fun sentencesJson(count: Int): String {
         }
         """.trimIndent()
     }
+}
+
+private fun exercisesJson(): String =
+    """
+    [
+      {
+        "id":"exercise-vocab-1",
+        "exerciseType":"vocab_meaning",
+        "prompt":"「静か」在本集语境中的中文意思是？",
+        "answer":"安静",
+        "hint":"参考读音：しずか。",
+        "difficulty":"N5",
+        "vocabItemId":"vocab-1"
+      },
+      {
+        "id":"exercise-vocab-2",
+        "exercise_type":"vocab_meaning",
+        "prompt":"「元気」在本集语境中的中文意思是？",
+        "answer":"有精神",
+        "hint":"参考读音：げんき。",
+        "difficulty":"N5",
+        "vocab_item_id":"vocab-2"
+      },
+      {
+        "id":"exercise-vocab-3",
+        "exerciseType":"vocab_meaning",
+        "prompt":"「大切」在本集语境中的中文意思是？",
+        "answer":"重要",
+        "hint":"参考读音：たいせつ。",
+        "difficulty":"N5",
+        "vocabItemId":"vocab-3"
+      },
+      {
+        "id":"exercise-vocab-4",
+        "exerciseType":"vocab_meaning",
+        "prompt":"「約束」在本集语境中的中文意思是？",
+        "answer":"约定",
+        "hint":"参考读音：やくそく。",
+        "difficulty":"N5",
+        "vocabItemId":"vocab-4"
+      }
+    ]
+    """.trimIndent()
+
+private fun subtitleLinesJson(): String {
+    return """
+    [
+      {
+        "line_no": 12,
+        "start_time": "00:00:12.100",
+        "end_time": "00:00:14.000",
+        "ja_text": "そろそろ起きないと。",
+        "zh_text": "差不多该起床了。"
+      },
+      {
+        "line_no": 13,
+        "start_time": "00:00:14.200",
+        "end_time": "00:00:16.000",
+        "ja_text": "あと五分……。",
+        "zh_text": "再五分钟……"
+      }
+    ]
+    """.trimIndent()
+}
+
+private fun episodePlanJson(): String {
+    return """
+    {
+      "id": "k-on-ep01-plan",
+      "workSlug": "k-on",
+      "episode": 1,
+      "vocabCount": 20,
+      "handwritingCount": 10,
+      "shadowingCount": 5,
+      "grammarCount": 5,
+      "exerciseCount": 17,
+      "vocabItemIds": ["vocab-1", "vocab-2"],
+      "handwritingVocabIds": ["write-1"],
+      "shadowingSentenceIds": ["sentence-1", "sentence-2"],
+      "grammarPointIds": ["grammar-1"],
+      "exerciseIds": ["exercise-1", "exercise-2", "exercise-3"],
+      "notes": "第1集学习计划"
+    }
+    """.trimIndent()
 }
 
 private fun linguisticJson(): String {

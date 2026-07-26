@@ -1,3 +1,33 @@
 <resources>
     <string name="app_name">Nihongo Lab</string>
+    <string name="app_update_title">应用更新</string>
+    <string name="app_update_current_version">当前版本 %1$s（%2$d）</string>
+    <string name="app_update_idle">从云端检查并安装新的个人版本，不再需要通过微信传 APK。</string>
+    <string name="app_update_checking">正在检查云端版本…</string>
+    <string name="app_update_up_to_date">当前已经是最新版。</string>
+    <string name="app_update_available">发现新版本，可以直接下载到本机。</string>
+    <string name="app_update_downloading">正在下载更新…</string>
+    <string name="app_update_downloading_progress">正在下载更新：%1$d%%</string>
+    <string name="app_update_ready">下载和安全校验已完成，可以交给系统安装。</string>
+    <string name="app_update_permission_required">Android 需要你允许 Nihongo Lab 安装来自此来源的更新；只需授权一次。</string>
+    <string name="app_update_preparing_install">正在再次校验安装包…</string>
+    <string name="app_update_release_summary">新版本 %1$s · %2$s</string>
+    <string name="app_update_security_note">安装前校验 SHA-256、包名、版本号和当前签名证书。</string>
+    <string name="app_update_check_button">检查更新</string>
+    <string name="app_update_checking_button">正在检查</string>
+    <string name="app_update_download_button">下载更新</string>
+    <string name="app_update_downloading_button">正在下载</string>
+    <string name="app_update_install_button">安装更新</string>
+    <string name="app_update_permission_button">打开安装授权</string>
+    <string name="app_update_preparing_button">正在校验</string>
+    <string name="app_update_error_no_release">云端还没有发布 Android 安装包。</string>
+    <string name="app_update_error_network">无法连接更新服务，请检查网络后重试。</string>
+    <string name="app_update_error_manifest">云端更新清单格式不正确，已停止下载。</string>
+    <string name="app_update_error_download">更新下载失败，请重新检查后再试。</string>
+    <string name="app_update_error_storage">无法创建或读取本机更新文件。</string>
+    <string name="app_update_error_integrity">安装包大小或 SHA-256 校验失败，文件已删除。</string>
+    <string name="app_update_error_package">安装包的应用 ID 或版本号不匹配，文件已删除。</string>
+    <string name="app_update_error_signature">安装包签名与当前 APP 不一致，已阻止安装。</string>
+    <string name="app_update_error_installer">没有找到可信的系统安装器，无法继续安装。</string>
+    <string name="app_update_error_unknown">更新过程中出现未知错误，请稍后重试。</string>
 </resources>

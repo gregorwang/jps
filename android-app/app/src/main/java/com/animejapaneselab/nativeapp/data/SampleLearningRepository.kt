@@ -2,8 +2,21 @@ package com.animejapaneselab.nativeapp.data
 
 import kotlin.math.abs
 
-private const val WebLessonLimit = 10
-private const val WebSpecialtyBatchSize = 6
+private const val AndroidLessonLimit = 10
+private const val AndroidSpecialtyBatchSize = 6
+private const val VocabSpecialtyBatchSize = 20
+private const val DatabaseExercisesPerTypePerBatch = 8
+private const val MaxDistractorCandidates = 48
+
+private val VocabExerciseTypes = setOf(
+    "vocab_meaning",
+    "vocab_reading",
+    "meaning_to_vocab",
+    "meaning_to_japanese",
+    "kana_to_kanji",
+)
+private val GrammarExerciseTypes = setOf("grammar_meaning", "grammar_short_answer")
+private val SentenceExerciseTypes = setOf("sentence_understanding", "sentence_meaning")
 
 class SampleLearningRepository {
     val defaultSelection = EpisodeSelection(workSlug = "k-on", episode = 1)
@@ -39,6 +52,7 @@ class SampleLearningRepository {
             vocab = vocab,
             grammar = grammar,
             shadowing = shadowing,
+            exercises = emptyList(),
             scenes = scenes,
             lessonNodes = buildLessonNodes(selection, focus, vocab, grammar, shadowing, mode, batch = batch),
         )
@@ -49,6 +63,7 @@ class SampleLearningRepository {
         vocab: List<VocabItem>,
         grammar: List<GrammarPoint>,
         shadowing: List<ShadowingSentence>,
+        exercises: List<LearningExercise> = emptyList(),
         mode: LessonMode = LessonMode.Mixed,
         batch: Int = 1,
     ): EpisodeContent {
@@ -56,18 +71,35 @@ class SampleLearningRepository {
         val nextVocab = vocab.ifEmpty { fallback.vocab }
         val nextGrammar = grammar.ifEmpty { fallback.grammar }
         val nextShadowing = shadowing.ifEmpty { fallback.shadowing }
+        val nextExercises = exercises.filter { exercise ->
+            exercise.id.isNotBlank() && exercise.prompt.isNotBlank() && exercise.answer.isNotBlank()
+        }
         val episodeLabel = lessonEpisodeLabel(selection)
         val focus = episodeFocus(selection, mode).copy(
             lessonTitle = "线上${mode.titleLabel} · $episodeLabel",
-            guidebook = "已从云端同步本集词汇、语法和跟读句：原声优先，标准语音只作为辅助。",
+            guidebook = if (nextExercises.isEmpty()) {
+                "已从云端同步本集词汇、语法和跟读句：原声优先，系统语音只作为辅助。"
+            } else {
+                "已同步 ${nextExercises.size} 道数据库题；题干与答案以题库为准，客户端只负责交互呈现。"
+            },
         )
         return EpisodeContent(
             focus = focus,
             vocab = nextVocab,
             grammar = nextGrammar,
             shadowing = nextShadowing,
+            exercises = nextExercises,
             scenes = fallback.scenes,
-            lessonNodes = buildLessonNodes(selection, focus, nextVocab, nextGrammar, nextShadowing, mode, batch = batch),
+            lessonNodes = buildLessonNodes(
+                selection,
+                focus,
+                nextVocab,
+                nextGrammar,
+                nextShadowing,
+                mode,
+                exercises = nextExercises,
+                batch = batch,
+            ),
         )
     }
 
@@ -79,15 +111,116 @@ class SampleLearningRepository {
         batch: Int,
         target: LessonTarget? = null,
     ): Boolean {
-        if (target != null || mode == LessonMode.Mixed || mode == LessonMode.Review || mode == LessonMode.Vocab) return false
+        if (target != null || mode == LessonMode.Mixed || mode == LessonMode.Review) return false
         val itemCount = when (mode) {
+            LessonMode.Vocab -> vocab.count { it.surface.isNotBlank() && it.meaningZh.isNotBlank() }
             LessonMode.Grammar -> buildGrammarStudyNodes(EpisodeSelection("", 1), grammar).size
             LessonMode.Shadowing -> buildSentenceStudyNodes(EpisodeSelection("", 1), sentences).size
             LessonMode.Mixed,
-            LessonMode.Vocab,
             LessonMode.Review -> 0
         }
-        return batch.coerceAtLeast(1) * WebSpecialtyBatchSize < itemCount
+        val batchSize = when (mode) {
+            LessonMode.Vocab -> VocabSpecialtyBatchSize
+            LessonMode.Grammar,
+            LessonMode.Shadowing -> AndroidSpecialtyBatchSize
+            LessonMode.Mixed,
+            LessonMode.Review -> itemCount.coerceAtLeast(1)
+        }
+        return batch.coerceAtLeast(1) * batchSize < itemCount
+    }
+
+    fun buildExerciseKindNodes(
+        selection: EpisodeSelection,
+        focus: EpisodeFocus,
+        vocab: List<VocabItem>,
+        grammar: List<GrammarPoint>,
+        sentences: List<ShadowingSentence>,
+        kind: LessonExerciseKind,
+        exercises: List<LearningExercise> = emptyList(),
+        progressItems: List<ProgressItem> = emptyList(),
+        limit: Int = 6,
+    ): List<LessonNode> {
+        val safeLimit = limit.coerceAtLeast(1)
+        val progress = PracticeProgressIndex(progressItems)
+        val rankedVocab = vocab.prioritizeForPractice(progress, "vocab", VocabItem::id)
+        val rankedGrammar = grammar.prioritizeForPractice(progress, "grammar", GrammarPoint::id)
+        val rankedSentences = sentences.prioritizeForPractice(progress, "sentence", ShadowingSentence::id)
+        val rankedExercises = exercises.sortedWith { left, right ->
+            progress.compare(
+                left.practiceItemType() to left.practiceItemId(),
+                right.practiceItemType() to right.practiceItemId(),
+            )
+        }
+        val candidates = when (kind) {
+            LessonExerciseKind.TranslationOrder -> buildSentenceTranslationNodes(selection, rankedSentences, safeLimit)
+            LessonExerciseKind.AudioOrder -> buildSentenceAudioTileNodes(selection, rankedSentences, safeLimit)
+            LessonExerciseKind.Shadowing -> buildSentenceShadowingNodes(selection, rankedSentences, safeLimit)
+            LessonExerciseKind.Cloze -> buildGrammarClozeNodes(
+                selection = selection,
+                grammar = rankedGrammar,
+                sentences = rankedSentences,
+                limit = safeLimit,
+            )
+
+            LessonExerciseKind.SingleChoice -> {
+                val databaseNodes = buildDatabaseSingleChoiceNodes(
+                    exercises = rankedExercises.filter { it.exerciseType in VocabExerciseTypes },
+                    vocab = rankedVocab,
+                    limit = safeLimit,
+                )
+                val generatedNodes = buildVocabChoiceNodes(selection, rankedVocab, safeLimit)
+                (databaseNodes + generatedNodes)
+                    .distinctBy(LessonNode::id)
+                    .prioritizeForPractice(progress)
+                    .take(safeLimit)
+            }
+
+            LessonExerciseKind.PairMatch -> {
+                val pairExercises = rankedExercises.filter {
+                    it.exerciseType == "vocab_meaning" ||
+                        it.exerciseType == "meaning_to_vocab" ||
+                        it.exerciseType == "meaning_to_japanese"
+                }
+                val databaseNodes = buildDatabasePairNodes(selection, focus, pairExercises)
+                val databaseVocabIds = pairExercises.map(LearningExercise::vocabItemId)
+                    .filter(String::isNotBlank)
+                    .toSet()
+                val generatedNodes = buildVocabPairNodes(
+                    selection = selection,
+                    focus = focus,
+                    vocab = rankedVocab.filterNot { it.id in databaseVocabIds },
+                )
+                (databaseNodes + generatedNodes)
+                    .distinctBy(LessonNode::id)
+                    .prioritizeForPractice(progress)
+                    .take(safeLimit)
+            }
+        }
+        return candidates
+    }
+
+    fun buildExerciseLabMix(
+        selection: EpisodeSelection,
+        focus: EpisodeFocus,
+        vocab: List<VocabItem>,
+        grammar: List<GrammarPoint>,
+        sentences: List<ShadowingSentence>,
+        exercises: List<LearningExercise> = emptyList(),
+        progressItems: List<ProgressItem> = emptyList(),
+    ): List<LessonNode> {
+        return LessonExerciseKind.entries.mapNotNull { kind ->
+            buildExerciseKindNodes(
+                selection = selection,
+                focus = focus,
+                vocab = vocab,
+                grammar = grammar,
+                sentences = sentences,
+                kind = kind,
+                exercises = exercises,
+                progressItems = progressItems,
+                limit = 1,
+            ).firstOrNull()
+        }
     }
 
     fun buildLessonNodes(
@@ -97,25 +230,27 @@ class SampleLearningRepository {
         grammar: List<GrammarPoint>,
         sentences: List<ShadowingSentence>,
         mode: LessonMode,
+        exercises: List<LearningExercise> = emptyList(),
         target: LessonTarget? = null,
         batch: Int = 1,
     ): List<LessonNode> {
-        val lessonVocab = scopeVocab(vocab, target)
-        val lessonGrammar = scopeGrammar(grammar, target)
-        val lessonSentences = scopeSentences(sentences, target)
-        val pools = LessonPools(
-            vocabPair = buildVocabPairNodes(selection, focus, lessonVocab),
-            vocabChoice = buildVocabChoiceNodes(selection, lessonVocab),
-            sentenceAudio = buildSentenceAudioTileNodes(selection, lessonSentences),
-            sentenceTranslation = buildSentenceTranslationNodes(selection, lessonSentences),
-            sentenceShadowing = buildSentenceShadowingNodes(selection, lessonSentences),
-            grammarCloze = buildGrammarClozeNodes(selection, lessonGrammar),
-            grammarChoice = buildGrammarChoiceNodes(selection, lessonGrammar),
-            vocabStudy = buildVocabStudyNodes(selection, lessonVocab),
-            grammarStudy = buildGrammarStudyNodes(selection, lessonGrammar),
-            sentenceStudy = buildSentenceStudyNodes(selection, lessonSentences),
+        val lessonVocab = scopedVocabForLesson(vocab, mode, target, batch)
+        val lessonGrammar = scopedGrammarForLesson(grammar, mode, target, batch)
+        val lessonSentences = scopedSentencesForLesson(sentences, mode, target, batch)
+        val lessonExercises = scopedExercisesForLesson(exercises, mode, target, batch)
+        val grammarAudioSentences = if (lessonGrammar.isNotEmpty()) sentences else lessonSentences
+        val pools = buildLessonPools(
+            selection = selection,
+            focus = focus,
+            vocab = lessonVocab,
+            grammar = lessonGrammar,
+            sentences = lessonSentences,
+            exercises = lessonExercises,
+            grammarAudioSentences = grammarAudioSentences,
         )
         val practiceNodes = listOf(
+            pools.databasePair,
+            pools.databaseChoice,
             pools.vocabPair,
             pools.vocabChoice,
             pools.sentenceAudio,
@@ -131,40 +266,90 @@ class SampleLearningRepository {
                     quota = targetQuota(target),
                 )
             }.ifEmpty {
-                practiceNodes.take(WebLessonLimit)
+                practiceNodes.take(AndroidLessonLimit)
             }
         }
         return when (mode) {
-            LessonMode.Vocab -> buildStudyPracticeSequence(
-                studyNodes = pools.vocabStudy,
-                practiceNodes = pools.vocabChoice,
-                batch = 1,
-                batchSize = pools.vocabStudy.size,
-            )
+            LessonMode.Vocab -> {
+                val databasePractice = pools.databaseChoice.ifEmpty { pools.vocabChoice }
+                val studySequence = buildStudyPracticeSequence(
+                    studyNodes = pools.vocabStudy,
+                    practiceNodes = databasePractice,
+                    batch = 1,
+                    batchSize = pools.vocabStudy.size,
+                )
+                (studySequence + pools.databasePair.take(1) + databasePractice.filterNot { it in studySequence }.take(4))
+                    .distinctBy { it.id }
+            }
 
-            LessonMode.Grammar -> buildStudyPracticeSequence(
-                studyNodes = pools.grammarStudy,
-                practiceNodes = pools.grammarCloze + pools.grammarChoice,
-                batch = batch,
-                batchSize = WebSpecialtyBatchSize,
-            )
+            LessonMode.Grammar -> (
+                buildStudyPracticeSequence(
+                    studyNodes = pools.grammarStudy,
+                    practiceNodes = pools.grammarCloze + pools.grammarChoice,
+                    batch = 1,
+                    batchSize = AndroidSpecialtyBatchSize,
+                ) + pools.databaseChoice.take(4)
+            ).distinctBy { it.id }
 
-            LessonMode.Shadowing -> buildStudyPracticeSequence(
-                studyNodes = pools.sentenceStudy,
-                practiceNodes = prioritizeAudioNodes(pools.sentenceAudio + pools.sentenceTranslation) + pools.sentenceShadowing,
-                batch = batch,
-                batchSize = WebSpecialtyBatchSize,
-                practiceLimit = 3,
-            )
+            LessonMode.Shadowing -> (
+                buildStudyPracticeSequence(
+                    studyNodes = pools.sentenceStudy,
+                    practiceNodes = prioritizeAudioNodes(pools.sentenceAudio + pools.sentenceTranslation) + pools.sentenceShadowing,
+                    batch = 1,
+                    batchSize = AndroidSpecialtyBatchSize,
+                    practiceLimit = 3,
+                ) + pools.databaseChoice.take(3)
+            ).distinctBy { it.id }
 
             LessonMode.Review -> balanceLessonNodes(
                 prioritizeAudioNodes(practiceNodes),
                 quota = mapOf("配对" to 1, "选择" to 2, "听音" to 2, "拼句" to 2, "填空" to 3),
             )
 
-            LessonMode.Mixed -> buildMixedStudyPracticeSequence(pools, batch)
+            // Mixed inputs are already scoped to this batch. Applying [batch] again here used to
+            // skip most materials from batch 2 onward.
+            LessonMode.Mixed -> buildMixedStudyPracticeSequence(pools, batch = 1)
         }.ifEmpty {
-            practiceNodes.take(WebLessonLimit)
+            practiceNodes.take(AndroidLessonLimit)
+        }
+    }
+
+    private fun buildLessonPools(
+        selection: EpisodeSelection,
+        focus: EpisodeFocus,
+        vocab: List<VocabItem>,
+        grammar: List<GrammarPoint>,
+        sentences: List<ShadowingSentence>,
+        exercises: List<LearningExercise> = emptyList(),
+        grammarAudioSentences: List<ShadowingSentence> = sentences,
+        exerciseCandidateLimit: Int? = null,
+        includeStudyNodes: Boolean = true,
+    ): LessonPools {
+        val labLimit = exerciseCandidateLimit?.coerceAtLeast(1)
+        return LessonPools(
+            databasePair = buildDatabasePairNodes(selection, focus, exercises, limit = labLimit ?: Int.MAX_VALUE),
+            databaseChoice = buildDatabaseSingleChoiceNodes(exercises, vocab, limit = labLimit ?: Int.MAX_VALUE),
+            vocabPair = buildVocabPairNodes(selection, focus, vocab),
+            vocabChoice = buildVocabChoiceNodes(selection, vocab, limit = labLimit ?: Int.MAX_VALUE),
+            sentenceAudio = buildSentenceAudioTileNodes(selection, sentences, limit = labLimit ?: 6),
+            sentenceTranslation = buildSentenceTranslationNodes(selection, sentences, limit = labLimit ?: 6),
+            sentenceShadowing = buildSentenceShadowingNodes(selection, sentences, limit = labLimit ?: 6),
+            grammarCloze = buildGrammarClozeNodes(selection, grammar, grammarAudioSentences, limit = labLimit ?: 8),
+            grammarChoice = buildGrammarChoiceNodes(selection, grammar, grammarAudioSentences, limit = labLimit ?: 6),
+            vocabStudy = if (includeStudyNodes) buildVocabStudyNodes(selection, vocab) else emptyList(),
+            grammarStudy = if (includeStudyNodes) buildGrammarStudyNodes(selection, grammar, grammarAudioSentences) else emptyList(),
+            sentenceStudy = if (includeStudyNodes) buildSentenceStudyNodes(selection, sentences) else emptyList(),
+        )
+    }
+
+    private fun LessonPools.exerciseCandidates(kind: LessonExerciseKind): List<LessonNode> {
+        return when (kind) {
+            LessonExerciseKind.TranslationOrder -> sentenceTranslation
+            LessonExerciseKind.PairMatch -> (databasePair + vocabPair).distinctBy(LessonNode::id)
+            LessonExerciseKind.SingleChoice -> (databaseChoice + vocabChoice + grammarChoice).distinctBy(LessonNode::id)
+            LessonExerciseKind.Cloze -> grammarCloze
+            LessonExerciseKind.AudioOrder -> sentenceAudio
+            LessonExerciseKind.Shadowing -> sentenceShadowing
         }
     }
 
@@ -234,7 +419,7 @@ class SampleLearningRepository {
                 deepExplanationZh = scene.evidence.joinToString("；"),
                 animeContextNoteZh = scene.context,
                 difficulty = readAirDifficulty(scene.id),
-                qualityScore = 70,
+                qualityScore = 0.70,
                 status = "local_fallback",
                 phenomenonNameZh = readAirPhenomenonName(scene.id),
                 phenomenonDefinitionZh = scene.learningPoint,
@@ -264,7 +449,7 @@ class SampleLearningRepository {
             guidebook = if (isKon) {
                 "先看一个词或语法点，马上做对应小题；跟读句按原声优先策略进入听音拼句，不再把资料页当训练页。"
             } else {
-                "先抓台词声音和语气，再进入拼句、填空和自评跟读。可靠原声自动播放，不可靠原声只手动播放并提供标准语音。"
+                "先抓台词声音和语气，再进入拼句、填空和自评跟读。可靠原声自动播放，其他内容使用系统语音辅助。"
             },
             dailyGoal = 8,
             xp = if (isKon) 820 else 1260,
@@ -607,7 +792,8 @@ class SampleLearningRepository {
                 ).filter { it.isNotBlank() },
                 sourceKind = "vocab",
                 sourceId = item.id,
-                audio = PromptAudio.Tts(item.surface, autoPlay = false, label = "播放读音"),
+                audio = PromptAudio.Tts(item.surface, autoPlay = false, label = "播放语音"),
+                linguistic = item.linguistic,
             )
         }
     }
@@ -618,21 +804,34 @@ class SampleLearningRepository {
         return "$workName EP${selection.episode.toString().padStart(2, '0')}"
     }
 
-    private fun buildGrammarStudyNodes(selection: EpisodeSelection, grammar: List<GrammarPoint>): List<StudyCardNode> {
+    private fun buildGrammarStudyNodes(
+        selection: EpisodeSelection,
+        grammar: List<GrammarPoint>,
+        sentences: List<ShadowingSentence> = emptyList(),
+    ): List<StudyCardNode> {
         return grammar.filter { it.pattern.isNotBlank() && it.titleZh.isNotBlank() }.map { point ->
+            val compactExplanation = compactGrammarStudyExplanation(
+                pattern = point.pattern,
+                meaningZh = point.titleZh,
+                explanation = point.explanationZh,
+            )
             StudyCardNode(
                 id = "${point.id}-study",
                 title = "先学这个语法",
                 prompt = point.pattern,
-                explanation = "${point.pattern}：${point.titleZh}",
-                sourceLabel = "第 ${point.sourceLineNo.takeIf { it > 0 } ?: selection.episode} 行",
+                explanation = compactExplanation.ifBlank { point.pragmaticsNote.ifBlank { point.titleZh } },
+                sourceLabel = point.sourceLineNo.takeIf { it > 0 }
+                    ?.let { lineNo -> "原台词 · 第 $lineNo 行" }
+                    ?: "本集语法",
                 japanese = point.exampleJa.ifBlank { point.pattern },
                 reading = point.pattern,
                 meaningZh = point.titleZh,
-                notes = listOf(point.explanationZh, point.pragmaticsNote, point.realWorldNote, point.difficulty).filter { it.isNotBlank() },
+                notes = listOf(compactExplanation, point.pragmaticsNote, point.realWorldNote, point.difficulty)
+                    .filter { it.isNotBlank() },
                 sourceKind = "grammar",
                 sourceId = point.id,
-                audio = PromptAudio.Tts(point.exampleJa.ifBlank { point.pattern }, autoPlay = false, label = "播放例句"),
+                audio = grammarPromptAudio(selection, point, sentences, autoPlay = false),
+                linguistic = point.linguistic,
             )
         }
     }
@@ -652,57 +851,238 @@ class SampleLearningRepository {
                 sourceKind = "sentence",
                 sourceId = sentence.id,
                 audio = promptAudioForSentence(selection.workSlug, sentence, autoPlay = false),
+                linguistic = sentence.linguistic,
             )
         }
+    }
+
+    private fun buildDatabaseSingleChoiceNodes(
+        exercises: List<LearningExercise>,
+        vocab: List<VocabItem>,
+        limit: Int = Int.MAX_VALUE,
+    ): List<SingleChoiceNode> {
+        val usable = exercises.filter { exercise ->
+            exercise.exerciseType.isNotBlank() && exercise.prompt.isNotBlank() && exercise.answer.isNotBlank()
+        }
+        val vocabById = vocab.associateBy(VocabItem::id)
+        val answersByType = usable.groupBy { it.exerciseType }
+            .mapValues { (_, values) -> values.map { it.answer }.distinct() }
+        return usable.mapIndexedNotNull { index, exercise ->
+            val linkedVocab = vocabById[exercise.vocabItemId]
+            val isKanaToKanji = exercise.exerciseType == "kana_to_kanji"
+            if (isKanaToKanji && linkedVocab == null) return@mapIndexedNotNull null
+            val prompt = if (isKanaToKanji) {
+                "「${linkedVocab?.surface.orEmpty()}」是什么意思？"
+            } else {
+                exercise.prompt
+            }
+            val answer = if (isKanaToKanji) linkedVocab?.meaningZh.orEmpty() else exercise.answer
+            val distractorValues = if (isKanaToKanji) {
+                vocab.map(VocabItem::meaningZh).filter(String::isNotBlank)
+            } else {
+                answersByType[exercise.exerciseType].orEmpty()
+            }
+            val choices = buildDistractors(values = distractorValues, answer = answer, offset = index)
+            if (choices.size < 2) return@mapIndexedNotNull null
+            SingleChoiceNode(
+                id = exercise.id,
+                title = if (isKanaToKanji) "选择正确词义" else databaseExerciseTitle(exercise.exerciseType),
+                prompt = prompt,
+                explanation = if (isKanaToKanji) {
+                    listOfNotNull(
+                        linkedVocab?.reading?.takeIf(String::isNotBlank)?.let { "读音：$it" },
+                        linkedVocab?.meaningZh?.takeIf(String::isNotBlank),
+                    ).joinToString(" · ")
+                } else {
+                    exercise.hint.trim()
+                },
+                sourceLabel = listOf(
+                    "数据库题库",
+                    if (isKanaToKanji) "词义" else databaseExerciseLabel(exercise.exerciseType),
+                    exercise.difficulty.uppercase().takeIf { it.isNotBlank() },
+                ).filterNotNull().joinToString(" · "),
+                body = null,
+                choices = choices,
+                answer = answer,
+                sourceKind = databaseExerciseSourceKind(exercise.exerciseType),
+                sourceId = exercise.vocabItemId.ifBlank { exercise.id },
+                audio = if (isKanaToKanji) {
+                    PromptAudio.Tts(linkedVocab?.surface.orEmpty(), autoPlay = true, label = "重播单词")
+                } else {
+                    databaseExerciseAudio(exercise)
+                },
+            )
+        }.take(limit.coerceAtLeast(1))
+    }
+
+    private fun buildDatabasePairNodes(
+        selection: EpisodeSelection,
+        focus: EpisodeFocus,
+        exercises: List<LearningExercise>,
+        limit: Int = Int.MAX_VALUE,
+    ): List<PairMatchNode> {
+        val candidates = exercises.mapNotNull(::databasePairCandidate)
+            .distinctBy { candidate -> compactText(candidate.left) to compactText(candidate.right) }
+        return candidates.groupBy { it.exerciseType }.values.flatMap { sameType ->
+            sameType.chunked(5).mapNotNull { group ->
+                if (group.size < 4) return@mapNotNull null
+                val first = group.first()
+                PairMatchNode(
+                    id = "${selection.workSlug}-${selection.episode}-db-pair-${first.exerciseId}",
+                    title = "选择配对",
+                    prompt = "",
+                    explanation = "每一组词义和日语表达都直接来自本集已发布题库。",
+                    sourceLabel = "${focus.episodeLabel} · 数据库题库",
+                    pairs = group.map { candidate ->
+                        MatchPair(
+                            id = candidate.exerciseId,
+                            left = candidate.left,
+                            right = candidate.right,
+                            audioText = candidate.right,
+                        )
+                    },
+                    sourceKind = "exercise",
+                    sourceId = group.joinToString(",") { it.exerciseId },
+                    audio = PromptAudio.None,
+                )
+            }
+        }.take(limit.coerceAtLeast(1))
+    }
+
+    private fun databasePairCandidate(exercise: LearningExercise): DatabasePairCandidate? {
+        val candidate = when (exercise.exerciseType) {
+            "vocab_meaning" -> DatabasePairCandidate(
+                exerciseId = exercise.id,
+                exerciseType = exercise.exerciseType,
+                left = exercise.answer,
+                right = japaneseQuotedText(exercise.prompt),
+            )
+
+            "meaning_to_vocab",
+            "meaning_to_japanese" -> DatabasePairCandidate(
+                exerciseId = exercise.id,
+                exerciseType = exercise.exerciseType,
+                left = exercise.prompt
+                    .removePrefix("中文意思：")
+                    .removePrefix("中文：")
+                    .trim(),
+                right = exercise.answer,
+            )
+
+            else -> null
+        } ?: return null
+        return candidate.takeIf {
+            it.left.isNotBlank() && it.right.isNotBlank() && compactText(it.left) != compactText(it.right)
+        }
+    }
+
+    private fun databaseExerciseTitle(type: String): String = when (type) {
+        "vocab_meaning" -> "选择正确词义"
+        "vocab_reading" -> "选择正确读音"
+        "meaning_to_vocab",
+        "meaning_to_japanese" -> "选择对应的日语表达"
+        "kana_to_kanji" -> "选择对应的汉字表达"
+        "grammar_meaning",
+        "grammar_short_answer" -> "判断语法作用"
+        "sentence_understanding",
+        "sentence_meaning" -> "理解这句台词"
+        else -> "选择正确答案"
+    }
+
+    private fun databaseExerciseLabel(type: String): String = when (type) {
+        "vocab_meaning" -> "词义"
+        "vocab_reading" -> "读音"
+        "meaning_to_vocab",
+        "meaning_to_japanese" -> "中译日"
+        "kana_to_kanji" -> "假名转汉字"
+        "grammar_meaning",
+        "grammar_short_answer" -> "语法理解"
+        "sentence_understanding",
+        "sentence_meaning" -> "台词理解"
+        else -> type
+    }
+
+    private fun databaseExerciseSourceKind(type: String): String = when (type) {
+        in VocabExerciseTypes -> "vocab"
+        in GrammarExerciseTypes -> "grammar"
+        in SentenceExerciseTypes -> "sentence"
+        else -> "exercise"
+    }
+
+    private fun databaseExerciseAudio(exercise: LearningExercise): PromptAudio {
+        val promptJapanese = japaneseQuotedText(exercise.prompt)
+        return when {
+            promptJapanese.isNotBlank() -> PromptAudio.Tts(promptJapanese, autoPlay = true, label = "重播日语")
+            exercise.exerciseType in setOf("meaning_to_vocab", "meaning_to_japanese") ->
+                PromptAudio.Tts(exercise.answer, autoPlay = false, label = "重播单词")
+            else -> PromptAudio.None
+        }
+    }
+
+    private fun japaneseQuotedText(text: String): String {
+        return Regex("「([^」]+)」").find(text)?.groupValues?.getOrNull(1).orEmpty().trim()
     }
 
     private fun buildVocabPairNodes(selection: EpisodeSelection, focus: EpisodeFocus, vocab: List<VocabItem>): List<PairMatchNode> {
-        val usable = vocab.filter { it.surface.isNotBlank() && it.meaningZh.isNotBlank() }.take(8)
+        val usable = vocab.filter { it.surface.isNotBlank() && it.meaningZh.isNotBlank() }
         if (usable.size < 4) return emptyList()
-        return listOf(
+        val groups = usable.chunkedForPairMatch()
+        return groups.mapIndexed { index, group ->
             PairMatchNode(
-                id = "${selection.workSlug}-${selection.episode}-vocab-pair-core",
+                id = "${selection.workSlug}-${selection.episode}-vocab-pair-${index + 1}-${group.first().id}",
                 title = "选择配对",
-                prompt = "把中文意思和日文表达配起来",
+                prompt = "",
                 explanation = "配对时点击日文会播放辅助读音。失败会撤销本次选择，答对的组合会保留。",
                 sourceLabel = "${focus.episodeLabel} 高频词",
-                pairs = usable.take(5).map { MatchPair(it.id, it.meaningZh, it.surface, it.surface) },
+                pairs = group.map { MatchPair(it.id, it.meaningZh, it.surface, it.surface) },
                 sourceKind = "vocab",
-                sourceId = usable.joinToString(",") { it.id },
+                sourceId = group.joinToString(",") { it.id },
                 audio = PromptAudio.None,
-            ),
-        )
-    }
-
-    private fun buildVocabChoiceNodes(selection: EpisodeSelection, vocab: List<VocabItem>): List<SingleChoiceNode> {
-        return vocab.filter { it.surface.isNotBlank() && it.meaningZh.isNotBlank() }.mapIndexed { index, item ->
-            SingleChoiceNode(
-                id = "${item.id}-meaning-to-ja",
-                title = "选择正确的日文",
-                prompt = "「${item.meaningZh}」对应哪个日文？",
-                explanation = "${item.surface} = ${item.meaningZh}。${item.realWorldNote.ifBlank { item.occurrence }}",
-                sourceLabel = "词汇",
-                body = item.reading.takeIf { it.isNotBlank() }?.let { "读音：$it" },
-                choices = buildVocabDistractors(vocab, item, index),
-                answer = item.surface,
-                sourceKind = "vocab",
-                sourceId = item.id,
-                audio = PromptAudio.Tts(item.surface, autoPlay = false, label = "听答案"),
             )
         }
     }
 
-    private fun buildSentenceAudioTileNodes(selection: EpisodeSelection, sentences: List<ShadowingSentence>): List<TileOrderNode> {
+    private fun buildVocabChoiceNodes(
+        selection: EpisodeSelection,
+        vocab: List<VocabItem>,
+        limit: Int = Int.MAX_VALUE,
+    ): List<SingleChoiceNode> {
+        val usable = vocab.filter { it.surface.isNotBlank() && it.meaningZh.isNotBlank() }
+        return usable.take(limit.coerceAtLeast(1)).mapIndexed { index, item ->
+            SingleChoiceNode(
+                id = "${item.id}-ja-to-meaning",
+                title = "选择正确词义",
+                prompt = "「${item.surface}」是什么意思？",
+                explanation = listOf(
+                    "${item.surface}（${item.reading}）= ${item.meaningZh}",
+                    item.realWorldNote.ifBlank { item.occurrence },
+                ).filter(String::isNotBlank).joinToString("。"),
+                sourceLabel = "词汇",
+                body = null,
+                choices = buildDistractors(usable.map(VocabItem::meaningZh), item.meaningZh, index),
+                answer = item.meaningZh,
+                sourceKind = "vocab",
+                sourceId = item.id,
+                audio = PromptAudio.Tts(item.surface, autoPlay = true, label = "重播单词"),
+            )
+        }
+    }
+
+    private fun buildSentenceAudioTileNodes(
+        selection: EpisodeSelection,
+        sentences: List<ShadowingSentence>,
+        limit: Int = 6,
+    ): List<TileOrderNode> {
         return sentences.filter { sentence ->
             val tiles = splitJapaneseTiles(sentence.ja)
             sentence.ja.isNotBlank() && tiles.size >= 2 && !hasBadTileFragments(tiles)
-        }.take(6).map { sentence ->
+        }.take(limit.coerceAtLeast(1)).map { sentence ->
             val targetTiles = splitJapaneseTiles(sentence.ja)
             val audio = promptAudioForSentence(selection.workSlug, sentence, autoPlay = true)
             TileOrderNode(
                 id = "${sentence.id}-audio-tiles",
                 title = "选择听到的内容",
-                prompt = "听句子，把下面的语块按顺序拼起来",
+                prompt = "",
                 explanation = if (isUsableChineseMeaning(sentence.meaningZh)) "意思：${sentence.meaningZh}" else sentence.ja,
                 sourceLabel = sentence.sourceLabel,
                 displayText = "先听音频，再拼日文",
@@ -719,94 +1099,136 @@ class SampleLearningRepository {
         }
     }
 
-    private fun buildSentenceTranslationNodes(selection: EpisodeSelection, sentences: List<ShadowingSentence>): List<TileOrderNode> {
+    private fun buildSentenceTranslationNodes(
+        selection: EpisodeSelection,
+        sentences: List<ShadowingSentence>,
+        limit: Int = 6,
+    ): List<TileOrderNode> {
         return sentences.filter { sentence ->
             val tiles = splitChineseTiles(sentence.meaningZh)
             sentence.ja.isNotBlank() && isUsableChineseMeaning(sentence.meaningZh) && tiles.size >= 2 && !hasBadTileFragments(tiles)
-        }.take(6).map { sentence ->
+        }.take(limit.coerceAtLeast(1)).map { sentence ->
             val targetTiles = splitChineseTiles(sentence.meaningZh)
             TileOrderNode(
                 id = "${sentence.id}-translation-tiles",
                 title = "用中文拼出这句话",
-                prompt = "理解日文句子，再拼出自然中文意思",
+                prompt = "",
                 explanation = "原句：${sentence.ja}",
                 sourceLabel = sentence.sourceLabel,
                 displayText = sentence.ja,
                 targetTiles = targetTiles,
-                bankTiles = stableShuffle(
-                    (targetTiles + translationDistractorTiles(sentences, sentence.id)).distinct(),
-                    sentence.id,
-                ).take(maxOf(6, targetTiles.size)),
+                bankTiles = stableShuffle(targetTiles, sentence.id),
                 audioTile = false,
                 sourceKind = "sentence",
                 sourceId = sentence.id,
-                audio = promptAudioForSentence(selection.workSlug, sentence, autoPlay = false),
-            )
-        }
-    }
-
-    private fun buildSentenceShadowingNodes(selection: EpisodeSelection, sentences: List<ShadowingSentence>): List<ShadowingNode> {
-        return sentences.filter { sentence ->
-            sentence.ja.isNotBlank() && isUsableChineseMeaning(sentence.meaningZh)
-        }.take(6).map { sentence ->
-            ShadowingNode(
-                id = "${sentence.id}-shadowing-self-check",
-                title = "跟读自评",
-                prompt = "听原句，开口跟读后选一个最接近的状态",
-                explanation = "原句：${sentence.ja} / ${sentence.meaningZh}",
-                sourceLabel = sentence.sourceLabel,
-                sentence = sentence,
-                ratings = listOf("像原声", "大致跟上", "还要再练"),
                 audio = promptAudioForSentence(selection.workSlug, sentence, autoPlay = true),
             )
         }
     }
 
-    private fun buildGrammarClozeNodes(selection: EpisodeSelection, grammar: List<GrammarPoint>): List<ClozeNode> {
-        return grammar.filter { it.pattern.isNotBlank() && it.exampleJa.isNotBlank() }.take(8).mapIndexedNotNull { index, point ->
-            val cloze = buildGrammarCloze(point, grammar, index) ?: return@mapIndexedNotNull null
-            ClozeNode(
-                id = "${point.id}-cloze",
-                title = "选词填空",
-                prompt = "选择最自然的表达：${point.titleZh}",
-                explanation = listOf(point.explanationZh, point.pragmaticsNote).filter { it.isNotBlank() }.joinToString(" "),
-                sourceLabel = "第 ${point.sourceLineNo.takeIf { it > 0 } ?: selection.episode} 行",
-                before = cloze.before,
-                after = cloze.after,
-                choices = cloze.values.map { value ->
-                    ClozeChoice(
-                        value = value,
-                        note = if (value == cloze.answer) point.titleZh else "干扰项：注意语气、结构或意义是否匹配。",
-                    )
-                },
-                answer = cloze.answer,
-                sourceKind = "grammar",
-                sourceId = point.id,
-                audio = PromptAudio.Tts(point.exampleJa, autoPlay = false, label = "播放例句"),
+    private fun buildSentenceShadowingNodes(
+        selection: EpisodeSelection,
+        sentences: List<ShadowingSentence>,
+        limit: Int = 6,
+    ): List<ShadowingNode> {
+        return sentences.filter { sentence ->
+            sentence.ja.isNotBlank() && isUsableChineseMeaning(sentence.meaningZh)
+        }.take(limit.coerceAtLeast(1)).map { sentence ->
+            val pronunciationId = pronunciationSentenceId(sentence)
+            ShadowingNode(
+                id = "${sentence.id}-shadowing-self-check",
+                title = "真实跟读测评",
+                prompt = "听原句并跟读，查看发音测评",
+                explanation = "原句：${sentence.ja} / ${sentence.meaningZh}",
+                sourceLabel = sentence.sourceLabel,
+                sentence = sentence,
+                ratings = listOf("像原声", "大致跟上", "还要再练"),
+                pronunciationSentenceId = pronunciationId,
+                audio = promptAudioForSentence(selection.workSlug, sentence, autoPlay = true),
             )
         }
     }
 
-    private fun buildGrammarChoiceNodes(selection: EpisodeSelection, grammar: List<GrammarPoint>): List<SingleChoiceNode> {
-        return grammar.filter { it.pattern.isNotBlank() && it.titleZh.isNotBlank() }.take(6).mapIndexed { index, point ->
-            SingleChoiceNode(
-                id = "${point.id}-function-choice",
-                title = "判断语法功能",
-                prompt = "这句里的「${point.pattern}」主要表达什么？",
-                explanation = listOf(point.explanationZh, point.pragmaticsNote).filter { it.isNotBlank() }.joinToString(" "),
-                sourceLabel = "第 ${point.sourceLineNo.takeIf { it > 0 } ?: selection.episode} 行",
-                body = point.exampleJa,
-                choices = buildDistractors(grammar.map { it.titleZh }, point.titleZh, index),
-                answer = point.titleZh,
-                sourceKind = "grammar",
-                sourceId = point.id,
-                audio = PromptAudio.Tts(point.exampleJa, autoPlay = false, label = "播放例句"),
-            )
+    private fun buildGrammarClozeNodes(
+        selection: EpisodeSelection,
+        grammar: List<GrammarPoint>,
+        sentences: List<ShadowingSentence>,
+        limit: Int = 8,
+    ): List<ClozeNode> {
+        return grammar.filter { it.pattern.isNotBlank() && it.exampleJa.isNotBlank() }
+            .mapIndexedNotNull { index, point ->
+                val cloze = buildGrammarCloze(point, grammar, index) ?: return@mapIndexedNotNull null
+                ClozeNode(
+                    id = "${point.id}-cloze",
+                    title = "选词填空",
+                    prompt = "",
+                    explanation = listOf(point.explanationZh, point.pragmaticsNote).filter { it.isNotBlank() }.joinToString(" "),
+                    sourceLabel = point.sourceLineNo.takeIf { it > 0 }
+                        ?.let { lineNo -> "原台词 · 第 $lineNo 行" }
+                        ?: "本集语法",
+                    before = cloze.before,
+                    after = cloze.after,
+                    choices = cloze.values.map { value ->
+                        ClozeChoice(
+                            value = value,
+                            note = "",
+                        )
+                    },
+                    answer = cloze.answer,
+                    sourceKind = "grammar",
+                    sourceId = point.id,
+                    audio = grammarPromptAudio(selection, point, sentences, autoPlay = true),
+                )
+            }
+            .take(limit.coerceAtLeast(1))
+    }
+
+    private fun buildGrammarChoiceNodes(
+        selection: EpisodeSelection,
+        grammar: List<GrammarPoint>,
+        sentences: List<ShadowingSentence>,
+        limit: Int = 6,
+    ): List<SingleChoiceNode> {
+        return grammar.filter { it.pattern.isNotBlank() && it.titleZh.isNotBlank() }
+            .take(limit.coerceAtLeast(1))
+            .mapIndexed { index, point ->
+                SingleChoiceNode(
+                    id = "${point.id}-function-choice",
+                    title = "判断语法功能",
+                    prompt = "这句里的「${point.pattern}」主要表达什么？",
+                    explanation = listOf(point.explanationZh, point.pragmaticsNote).filter { it.isNotBlank() }.joinToString(" "),
+                    sourceLabel = point.sourceLineNo.takeIf { it > 0 }
+                        ?.let { lineNo -> "原台词 · 第 $lineNo 行" }
+                        ?: "本集语法",
+                    body = point.exampleJa,
+                    choices = buildDistractors(grammar.map { it.titleZh }, point.titleZh, index),
+                    answer = point.titleZh,
+                    sourceKind = "grammar",
+                    sourceId = point.id,
+                    audio = grammarPromptAudio(selection, point, sentences, autoPlay = true),
+                )
+            }
+    }
+
+    private fun grammarPromptAudio(
+        selection: EpisodeSelection,
+        point: GrammarPoint,
+        sentences: List<ShadowingSentence>,
+        autoPlay: Boolean,
+    ): PromptAudio {
+        val sourceLineNo = point.sourceLineNo.takeIf { it > 0 }
+        val sourceSentence = sourceLineNo?.let { lineNo ->
+            sentences.firstOrNull { sentence -> sentence.sourceLineNo == lineNo }
+        }
+        return if (sourceSentence != null) {
+            promptAudioForSentence(selection.workSlug, sourceSentence, autoPlay = autoPlay)
+        } else {
+            PromptAudio.Tts(point.exampleJa.ifBlank { point.pattern }, autoPlay = autoPlay, label = "播放语音")
         }
     }
 
     private fun buildMixedStudyPracticeSequence(pools: LessonPools, batch: Int): List<LessonNode> {
-        return (
+        val curriculumNodes =
             buildStudyPracticeSequence(pools.vocabStudy, pools.vocabChoice, batch, batchSize = 2) +
                 buildStudyPracticeSequence(pools.grammarStudy, pools.grammarCloze + pools.grammarChoice, batch, batchSize = 1) +
                 buildStudyPracticeSequence(
@@ -814,9 +1236,15 @@ class SampleLearningRepository {
                     prioritizeAudioNodes(pools.sentenceAudio + pools.sentenceTranslation),
                     batch,
                     batchSize = 1,
-                ) +
-                pools.vocabPair.take(1)
-            ).take(WebLessonLimit)
+                )
+        val databaseNodes = pools.databasePair.take(1) + pools.databaseChoice.take(3)
+        val fallbackPair = if (pools.databasePair.isEmpty()) pools.vocabPair.take(1) else emptyList()
+        return (
+            curriculumNodes.take(4) +
+                databaseNodes +
+                curriculumNodes.drop(4) +
+                fallbackPair
+            ).distinctBy { it.id }.take(AndroidLessonLimit)
     }
 
     private fun buildTargetStudyPracticeSequence(pools: LessonPools, target: LessonTarget): List<LessonNode> {
@@ -868,7 +1296,7 @@ class SampleLearningRepository {
         listOf("学习卡", "配对", "听音", "填空", "拼句", "选择", "跟读").forEach { type ->
             output += nodes.filter { it.typeLabel == type }.take(quota[type] ?: 0)
         }
-        return output.take(WebLessonLimit)
+        return output.take(AndroidLessonLimit)
     }
 
     private fun targetQuota(target: LessonTarget): Map<String, Int> {
@@ -884,15 +1312,141 @@ class SampleLearningRepository {
         return prioritizeTarget(vocab, target.id) { it.id }
     }
 
+    private fun scopedVocabForLesson(
+        vocab: List<VocabItem>,
+        mode: LessonMode,
+        target: LessonTarget?,
+        batch: Int,
+    ): List<VocabItem> {
+        return when {
+            target is LessonTarget.Vocab -> scopeVocab(vocab, target).take(VocabSpecialtyBatchSize)
+            target != null -> emptyList()
+            mode == LessonMode.Vocab -> vocab.lessonWindow(batch, VocabSpecialtyBatchSize)
+            mode == LessonMode.Mixed -> vocab.lessonRemainder(batch, 2)
+            else -> emptyList()
+        }
+    }
+
     private fun scopeGrammar(grammar: List<GrammarPoint>, target: LessonTarget?): List<GrammarPoint> {
         if (target !is LessonTarget.Grammar) return grammar
         return prioritizeTarget(grammar, target.id) { it.id }
+    }
+
+    private fun scopedGrammarForLesson(
+        grammar: List<GrammarPoint>,
+        mode: LessonMode,
+        target: LessonTarget?,
+        batch: Int,
+    ): List<GrammarPoint> {
+        return when {
+            target is LessonTarget.Grammar -> scopeGrammar(grammar, target).take(AndroidSpecialtyBatchSize)
+            target != null -> emptyList()
+            mode == LessonMode.Grammar -> grammar.lessonWindow(batch, AndroidSpecialtyBatchSize)
+            mode == LessonMode.Mixed -> grammar.lessonRemainder(batch, 1)
+            else -> emptyList()
+        }
     }
 
     private fun scopeSentences(sentences: List<ShadowingSentence>, target: LessonTarget?): List<ShadowingSentence> {
         if (target !is LessonTarget.Sentence) return sentences
         return prioritizeTarget(sentences, target.id) { it.id }
     }
+
+    private fun scopedSentencesForLesson(
+        sentences: List<ShadowingSentence>,
+        mode: LessonMode,
+        target: LessonTarget?,
+        batch: Int,
+    ): List<ShadowingSentence> {
+        return when {
+            target is LessonTarget.Sentence -> scopeSentences(sentences, target).take(AndroidSpecialtyBatchSize)
+            target != null -> emptyList()
+            mode == LessonMode.Shadowing -> sentences.lessonWindow(batch, AndroidSpecialtyBatchSize)
+            mode == LessonMode.Mixed -> sentences.lessonRemainder(batch, 1)
+            else -> emptyList()
+        }
+    }
+
+    private fun scopedExercisesForLesson(
+        exercises: List<LearningExercise>,
+        mode: LessonMode,
+        target: LessonTarget?,
+        batch: Int,
+    ): List<LearningExercise> {
+        if (target != null || exercises.isEmpty()) return emptyList()
+        val matching = when (mode) {
+            LessonMode.Vocab -> exercises.filter { it.exerciseType in VocabExerciseTypes }
+            LessonMode.Grammar -> exercises.filter { it.exerciseType in GrammarExerciseTypes }
+            LessonMode.Shadowing -> exercises.filter { it.exerciseType in SentenceExerciseTypes }
+            LessonMode.Mixed,
+            LessonMode.Review -> exercises
+        }
+        return matching.balancedExerciseWindow(batch, DatabaseExercisesPerTypePerBatch)
+    }
+
+    private fun List<LearningExercise>.balancedExerciseWindow(
+        batch: Int,
+        perType: Int,
+    ): List<LearningExercise> {
+        val windows = groupBy { it.exerciseType }.values.map { group ->
+            group.lessonWindow(batch, perType)
+        }
+        val maxSize = windows.maxOfOrNull { it.size } ?: return emptyList()
+        return buildList {
+            for (index in 0 until maxSize) {
+                windows.forEach { group -> group.getOrNull(index)?.let(::add) }
+            }
+        }
+    }
+
+    private fun <T> List<T>.lessonWindow(batch: Int, batchSize: Int): List<T> {
+        val safeBatchSize = batchSize.coerceAtLeast(1)
+        val start = (batch.coerceAtLeast(1) - 1) * safeBatchSize
+        return drop(start).take(safeBatchSize)
+    }
+
+    private fun <T> List<T>.lessonRemainder(batch: Int, stepSize: Int): List<T> {
+        val start = (batch.coerceAtLeast(1) - 1) * stepSize.coerceAtLeast(1)
+        return drop(start)
+    }
+
+    private fun <T> List<T>.prioritizeForPractice(
+        progress: PracticeProgressIndex,
+        itemType: String,
+        idOf: (T) -> String,
+    ): List<T> {
+        return withIndex()
+            .sortedWith { left, right ->
+                val compared = progress.compare(
+                    itemType to idOf(left.value),
+                    itemType to idOf(right.value),
+                )
+                if (compared != 0) compared else left.index.compareTo(right.index)
+            }
+            .map { it.value }
+    }
+
+    private fun List<LessonNode>.prioritizeForPractice(progress: PracticeProgressIndex): List<LessonNode> {
+        return withIndex()
+            .sortedWith { left, right ->
+                val compared = progress.compare(left.value, right.value)
+                if (compared != 0) compared else left.index.compareTo(right.index)
+            }
+            .map { it.value }
+    }
+
+    private fun List<VocabItem>.chunkedForPairMatch(): List<List<VocabItem>> {
+        val groups = chunked(5).map(List<VocabItem>::toMutableList).toMutableList()
+        if (groups.size > 1 && groups.last().size < 4) {
+            val tail = groups.removeAt(groups.lastIndex)
+            groups.last().addAll(tail)
+        }
+        return groups.filter { it.size >= 4 }
+    }
+
+    private fun LearningExercise.practiceItemType(): String = databaseExerciseSourceKind(exerciseType)
+
+    private fun LearningExercise.practiceItemId(): String = vocabItemId.ifBlank { id }
 
     private fun <T> prioritizeTarget(items: List<T>, targetId: String, idOf: (T) -> String): List<T> {
         val index = items.indexOfFirst { idOf(it) == targetId }
@@ -911,11 +1465,12 @@ class SampleLearningRepository {
     }
 
     private fun buildVocabDistractors(vocab: List<VocabItem>, item: VocabItem, offset: Int): List<String> {
-        val ranked = vocab
+        val candidates = vocab
             .filter { it.id != item.id && it.surface.isNotBlank() }
+        val ranked = boundedCandidates(candidates, offset)
             .sortedWith(compareByDescending<VocabItem> { vocabDistractorScore(item, it) }.thenBy { it.surface })
             .map { it.surface }
-        return buildDistractors(ranked, item.surface, offset)
+        return stableShuffle((listOf(item.surface) + ranked.take(3)).distinct(), item.surface)
     }
 
     private fun vocabDistractorScore(item: VocabItem, candidate: VocabItem): Int {
@@ -931,9 +1486,17 @@ class SampleLearningRepository {
         val unique = values.map { it.trim() }
             .filter { it.isNotBlank() && compactText(it) != normalizedAnswer }
             .distinct()
-        val ranked = unique.sortedWith(compareByDescending<String> { distractorScore(answer, it) }.thenBy { it })
-        val rotated = ranked.drop(offset % (ranked.size.coerceAtLeast(1))) + ranked.take(offset % (ranked.size.coerceAtLeast(1)))
-        return stableShuffle((listOf(answer) + rotated.take(3)).distinct(), answer)
+        val answerFeatures = distractorFeatures(answer)
+        val ranked = boundedCandidates(unique, offset)
+            .map(::distractorFeatures)
+            .sortedWith(compareByDescending<DistractorFeatures> { distractorScore(answerFeatures, it) }.thenBy { it.value })
+        return stableShuffle((listOf(answer) + ranked.take(3).map { it.value }).distinct(), answer)
+    }
+
+    private fun <T> boundedCandidates(values: List<T>, offset: Int): List<T> {
+        if (values.size <= MaxDistractorCandidates) return values
+        val start = Math.floorMod(offset * MaxDistractorCandidates, values.size)
+        return List(MaxDistractorCandidates) { index -> values[(start + index) % values.size] }
     }
 
     private data class GrammarCloze(val before: String, val after: String, val answer: String, val values: List<String>)
@@ -1083,13 +1646,6 @@ class SampleLearningRepository {
             .take(4)
     }
 
-    private fun translationDistractorTiles(sentences: List<ShadowingSentence>, sourceId: String): List<String> {
-        return sentences.filter { it.id != sourceId }
-            .flatMap { splitChineseTiles(it.meaningZh) }
-            .filter { it.length <= 6 && isCleanTileFragment(it) }
-            .take(4)
-    }
-
     private fun hasBadTileFragments(tiles: List<String>): Boolean {
         return tiles.any { !isCleanTileFragment(it) }
     }
@@ -1121,18 +1677,119 @@ class SampleLearningRepository {
         return output
     }
 
-    private fun compactText(value: String): String = value.replace(Regex("""\s+"""), "").trim()
+    private fun compactText(value: String): String = value.filterNot { it.isWhitespace() }
 
-    private fun distractorScore(answer: String, candidate: String): Int {
+    private fun distractorFeatures(value: String): DistractorFeatures {
+        val compact = compactText(value)
+        return DistractorFeatures(
+            value = value,
+            compactLength = compact.length,
+            hasKana = compact.any { char -> char in '\u3040'..'\u30ff' || char == 'ー' },
+            hasKanji = compact.any { char -> char in '\u3400'..'\u9fff' },
+        )
+    }
+
+    private fun distractorScore(answer: DistractorFeatures, candidate: DistractorFeatures): Int {
         var score = 0
-        score -= abs(compactText(answer).length - compactText(candidate).length)
-        if (Regex("""[\u3040-\u30ffー]""").containsMatchIn(answer) == Regex("""[\u3040-\u30ffー]""").containsMatchIn(candidate)) score += 2
-        if (Regex("""[\u4E00-\u9FFF]""").containsMatchIn(answer) == Regex("""[\u4E00-\u9FFF]""").containsMatchIn(candidate)) score += 1
+        score -= abs(answer.compactLength - candidate.compactLength)
+        if (answer.hasKana == candidate.hasKana) score += 2
+        if (answer.hasKanji == candidate.hasKanji) score += 1
         return score
     }
 }
 
+private data class PracticeProgressRecord(
+    val state: ReviewState,
+    val lastReviewedAt: String,
+)
+
+/**
+ * Stable practice ordering: unseen material first, then weak material, then mastered material
+ * from least-recently reviewed to most-recently reviewed.
+ */
+private class PracticeProgressIndex(items: List<ProgressItem>) {
+    private val exactNodes = linkedMapOf<String, PracticeProgressRecord>()
+    private val materials = linkedMapOf<Pair<String, String>, PracticeProgressRecord>()
+
+    init {
+        items.forEach { item ->
+            val record = PracticeProgressRecord(item.state, item.lastReviewedAt)
+            listOf(item.itemId, item.payload["nodeId"].orEmpty())
+                .filter(String::isNotBlank)
+                .forEach { nodeId -> putLatest(exactNodes, nodeId, record) }
+            val sourceIds = listOf(
+                item.payload["sourceId"],
+                item.payload["source_id"],
+                item.payload["source"],
+            ).firstOrNull { !it.isNullOrBlank() }
+                ?.split(',')
+                ?.map(String::trim)
+                ?.filter(String::isNotBlank)
+                .orEmpty()
+            sourceIds.forEach { sourceId ->
+                putLatest(materials, item.itemType to sourceId, record)
+            }
+            if (sourceIds.isEmpty() && item.itemId.isNotBlank()) {
+                putLatest(materials, item.itemType to item.itemId, record)
+            }
+        }
+    }
+
+    fun compare(left: Pair<String, String>, right: Pair<String, String>): Int {
+        return compareRecords(materials[left], materials[right])
+    }
+
+    fun compare(left: LessonNode, right: LessonNode): Int {
+        return compareRecords(recordFor(left), recordFor(right))
+    }
+
+    private fun recordFor(node: LessonNode): PracticeProgressRecord? {
+        exactNodes[node.id]?.let { return it }
+        val sourceIds = node.sourceId.split(',').map(String::trim).filter(String::isNotBlank)
+        if (sourceIds.isEmpty()) return null
+        val records = sourceIds.map { sourceId -> materials[node.sourceKind to sourceId] }
+        if (records.any { it == null }) return null
+        val present = records.filterNotNull()
+        return present.firstOrNull { it.state.isWeakPracticeState() }
+            ?: present.minByOrNull(PracticeProgressRecord::lastReviewedAt)
+    }
+
+    private fun compareRecords(left: PracticeProgressRecord?, right: PracticeProgressRecord?): Int {
+        val bucket = practiceBucket(left).compareTo(practiceBucket(right))
+        if (bucket != 0) return bucket
+        return left?.lastReviewedAt.orEmpty().compareTo(right?.lastReviewedAt.orEmpty())
+    }
+
+    private fun practiceBucket(record: PracticeProgressRecord?): Int {
+        return when {
+            record == null -> 0
+            record.state.isWeakPracticeState() -> 1
+            else -> 2
+        }
+    }
+
+    private fun ReviewState.isWeakPracticeState(): Boolean {
+        return this == ReviewState.Bad ||
+            this == ReviewState.Fuzzy ||
+            this == ReviewState.Unknown ||
+            this == ReviewState.Ok
+    }
+
+    private fun <K> putLatest(
+        target: MutableMap<K, PracticeProgressRecord>,
+        key: K,
+        candidate: PracticeProgressRecord,
+    ) {
+        val existing = target[key]
+        if (existing == null || candidate.lastReviewedAt > existing.lastReviewedAt) {
+            target[key] = candidate
+        }
+    }
+}
+
 private data class LessonPools(
+    val databasePair: List<PairMatchNode>,
+    val databaseChoice: List<SingleChoiceNode>,
     val vocabPair: List<PairMatchNode>,
     val vocabChoice: List<SingleChoiceNode>,
     val sentenceAudio: List<TileOrderNode>,
@@ -1143,4 +1800,18 @@ private data class LessonPools(
     val vocabStudy: List<StudyCardNode>,
     val grammarStudy: List<StudyCardNode>,
     val sentenceStudy: List<StudyCardNode>,
+)
+
+private data class DatabasePairCandidate(
+    val exerciseId: String,
+    val exerciseType: String,
+    val left: String,
+    val right: String,
+)
+
+private data class DistractorFeatures(
+    val value: String,
+    val compactLength: Int,
+    val hasKana: Boolean,
+    val hasKanji: Boolean,
 )

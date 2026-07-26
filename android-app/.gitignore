@@ -7,3 +7,22 @@ captures/
 .cxx/
 *.iml
 .idea/
+.kotlin/
+duolingo-like-assets/
+verification-*/
+*.out
+*.err
+window.xml
+local-duolingolike-assets/
+
+# Internal reference assets without public redistribution clearance
+# (see ../docs/assets-license.md and ../docs/TARGET-ASSET-WHITELIST.json).
+# The repository is public; these stay local-only until rights are cleared.
+local-fusion-assets/
+app/src/main/res/drawable-nodpi/
+app/src/main/res/drawable/duo_*.xml
+app/src/main/res/drawable/duoradio_*.xml
+app/src/main/res/drawable/path_bea_*.xml
+app/src/main/res/drawable/common_level_chest_locked_v2.xml
+app/src/main/res/drawable/in_challenge_junior.xml
+app/src/main/res/drawable/guidebook_white.xml

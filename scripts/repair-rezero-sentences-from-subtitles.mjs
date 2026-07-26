@@ -278,7 +278,7 @@ function normalizedJapaneseLength(value) {
 function normalizeJaKey(value) {
   return stringValue(value)
     .replace(/（[^）]*）/gu, '')
-    .replace(/[「」『』【】\[\]（）()]/gu, '')
+    .replace(/[「」『』【】[\]（）()]/gu, '')
     .replace(/[、。！？!?…・･\-\s　]/gu, '')
     .trim()
 }

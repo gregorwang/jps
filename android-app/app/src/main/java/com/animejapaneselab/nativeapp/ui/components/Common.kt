@@ -1,6 +1,7 @@
 package com.animejapaneselab.nativeapp.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,8 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -31,7 +30,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.animejapaneselab.nativeapp.data.AiExplainResult
+import com.animejapaneselab.nativeapp.ui.motion.PressablePrimaryButton
 
 @Composable
 fun ScreenColumn(
@@ -47,7 +49,6 @@ fun ScreenColumn(
 ) {
     Column(
         modifier = modifier
-            .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 18.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         content = content,
@@ -59,14 +60,26 @@ fun SectionTitle(
     eyebrow: String,
     title: String,
     modifier: Modifier = Modifier,
+    accentColor: Color = MaterialTheme.colorScheme.primary,
 ) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(
-            text = eyebrow,
-            color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Bold,
-        )
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(width = 16.dp, height = 5.dp)
+                    .clip(CircleShape)
+                    .background(accentColor),
+            )
+            Text(
+                text = eyebrow,
+                color = accentColor,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+            )
+        }
         Text(
             text = title,
             style = MaterialTheme.typography.headlineSmall,
@@ -86,7 +99,8 @@ fun MetricPill(
         modifier = modifier,
         color = containerColor,
         shape = MaterialTheme.shapes.large,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.8f)),
+        shadowElevation = 1.dp,
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
@@ -109,16 +123,18 @@ fun MetricPill(
 @Composable
 fun LabCard(
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(18.dp),
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    ElevatedCard(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+    Surface(
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.8f)),
         shape = MaterialTheme.shapes.large,
+        shadowElevation = 1.dp,
     ) {
         Column(
-            modifier = Modifier.padding(18.dp),
+            modifier = Modifier.padding(contentPadding),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             content = content,
         )
@@ -131,10 +147,27 @@ fun TagChip(
     modifier: Modifier = Modifier,
     selected: Boolean = false,
 ) {
+    val container by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+        label = "tag-chip-container",
+    )
+    val content by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+        label = "tag-chip-content",
+    )
+    val border by animateColorAsState(
+        targetValue = if (selected) {
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.45f)
+        } else {
+            MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+        },
+        label = "tag-chip-border",
+    )
     Surface(
         modifier = modifier,
-        color = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-        contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+        color = container,
+        contentColor = content,
+        border = BorderStroke(1.dp, border),
         shape = CircleShape,
     ) {
         Text(
@@ -154,18 +187,17 @@ fun PrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    containerColor: Color = MaterialTheme.colorScheme.primary,
+    contentColor: Color = MaterialTheme.colorScheme.onPrimary,
 ) {
-    Button(
+    PressablePrimaryButton(
+        text = text,
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = 52.dp),
-        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-    ) {
-        Text(text = text, fontWeight = FontWeight.Black)
-    }
+        containerColor = containerColor,
+        contentColor = contentColor,
+        modifier = modifier,
+    )
 }
 
 @Composable
@@ -179,6 +211,15 @@ fun SecondaryButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier.heightIn(min = 48.dp),
+        shape = MaterialTheme.shapes.large,
+        border = BorderStroke(
+            width = 1.5.dp,
+            color = if (enabled) {
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.55f)
+            } else {
+                MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+            },
+        ),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
     ) {
         Text(text = text, fontWeight = FontWeight.Bold)
@@ -227,7 +268,7 @@ fun LearningChoiceButton(
         label = "learning-choice-scale",
     )
     val elevation by animateDpAsState(
-        targetValue = if (selected || correct || wrong) 1.dp else 5.dp,
+        targetValue = if (selected || correct || wrong) 1.dp else 3.dp,
         label = "learning-choice-elevation",
     )
 
@@ -284,6 +325,7 @@ fun LearningTileButton(
     modifier: Modifier = Modifier,
     selected: Boolean = false,
     enabled: Boolean = true,
+    accentColor: Color = MaterialTheme.colorScheme.primary,
 ) {
     val targetContainer = when {
         selected -> MaterialTheme.colorScheme.surface
@@ -296,7 +338,7 @@ fun LearningTileButton(
         else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.52f)
     }
     val targetBorder = when {
-        selected -> MaterialTheme.colorScheme.primary
+        selected -> accentColor
         enabled -> MaterialTheme.colorScheme.outline.copy(alpha = 0.42f)
         else -> MaterialTheme.colorScheme.outline.copy(alpha = 0.18f)
     }
@@ -393,6 +435,9 @@ fun RewardMetricCard(
                 } else {
                     MaterialTheme.colorScheme.surfaceVariant
                 },
+                strokeCap = StrokeCap.Round,
+                gapSize = (-1).dp,
+                drawStopIndicator = {},
             )
         }
     }

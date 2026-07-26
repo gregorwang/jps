@@ -172,15 +172,16 @@ async function fetchAll(table, query) {
 }
 
 async function request(method, pathName, body, options = {}) {
-  const response = await fetch(`${supabaseUrl}${pathName}`, {
+  const init = {
     method,
     headers: {
       apikey: serviceKey,
       Authorization: `Bearer ${serviceKey}`,
       ...(body ? { 'Content-Type': 'application/json', Prefer: options.prefer ?? 'return=minimal' } : {}),
     },
-    body: body ? JSON.stringify(body) : undefined,
-  })
+  }
+  if (body) init.body = JSON.stringify(body)
+  const response = await fetch(`${supabaseUrl}${pathName}`, init)
   if (!response.ok) throw new Error(`${method} ${pathName} failed: ${response.status} ${await response.text()}`)
   if (response.status === 204) return []
   const text = await response.text()

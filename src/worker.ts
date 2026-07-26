@@ -1,3 +1,10 @@
+import {
+  createEvaluationTicket,
+  LegacyPronunciationSentenceId,
+  normalizePronunciationSentenceId,
+  pronunciationSentenceLookupPath,
+} from './server/pronunciationTicket'
+
 type Env = {
   ASSETS: Fetcher
   SUBTITLE_RAG_WORKER?: Fetcher
@@ -12,6 +19,7 @@ type Env = {
   SUBTITLE_RAG_WORKER_URL?: string
   AI_GATEWAY_BASE_URL: string
   CF_AIG_TOKEN: string
+  PRONUNCIATION_AUTH_HMAC_SECRET?: string
 }
 
 const EMBEDDING_MODEL = '@cf/baai/bge-m3'
@@ -80,6 +88,7 @@ type PlanRow = {
   id: string
   work_slug: string
   episode: number
+  plan_slot?: number
   vocab_item_ids: string[]
   handwriting_vocab_ids: string[]
   shadowing_sentence_ids: string[]
@@ -246,6 +255,10 @@ async function handleApi(request: Request, env: Env, url: URL) {
     return handleClaimDevice(request, env)
   }
 
+  if (url.pathname === '/api/pronunciation/ticket' && request.method === 'POST') {
+    return handlePronunciationTicket(request, env)
+  }
+
   if (url.pathname === '/api/works') {
     const rows = await supabase<WorkRow[]>(env, '/rest/v1/works?select=*&order=display_name.asc')
     return json(rows.map(mapWork))
@@ -271,9 +284,9 @@ async function handleApi(request: Request, env: Env, url: URL) {
     if (parts[5] === 'plan') {
       const rows = await supabase<PlanRow[]>(
         env,
-        `/rest/v1/episode_learning_plans?select=*&work_slug=eq.${encodeURIComponent(workSlug)}&episode=eq.${episodeNo}&limit=1`,
+        `/rest/v1/episode_learning_plans?select=*&work_slug=eq.${encodeURIComponent(workSlug)}&episode=eq.${episodeNo}&order=plan_slot.asc`,
       )
-      return json(rows[0] ? mapPlan(rows[0]) : null)
+      return json(rows.length > 0 ? mapPlanRows(rows) : null)
     }
 
     if (parts[5] === 'vocab') {
@@ -302,9 +315,12 @@ async function handleApi(request: Request, env: Env, url: URL) {
     }
 
     if (parts[5] === 'exercises') {
+      const requestedLimit = url.searchParams.get('limit')
+      const parsedLimit = requestedLimit === null ? 30 : Number(requestedLimit)
+      const limit = Number.isInteger(parsedLimit) ? Math.min(Math.max(parsedLimit, 1), 600) : 30
       const rows = await supabase<unknown[]>(
         env,
-        `/rest/v1/learning_exercises?select=*&work_slug=eq.${encodeURIComponent(workSlug)}&episode=eq.${episodeNo}&order=sort_order.asc,id.asc&limit=30`,
+        `/rest/v1/learning_exercises?select=*&work_slug=eq.${encodeURIComponent(workSlug)}&episode=eq.${episodeNo}&order=sort_order.asc,id.asc&limit=${limit}`,
       )
       return json(rows.map(mapExercise))
     }
@@ -1161,11 +1177,7 @@ function withProfileMetadata(resultPayload: unknown, row: Record<string, unknown
 async function writeCharacterProfileCache(env: Env, row: Record<string, unknown>) {
   const path = '/rest/v1/character_language_profiles?on_conflict=work_slug,character_key,model'
   try {
-    if (env.SUPABASE_SERVICE_ROLE_KEY) {
-      await supabaseAdmin(env, 'POST', path, row)
-    } else {
-      await supabaseWrite(env, path, row)
-    }
+    await supabaseWrite(env, path, row)
     return null
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
@@ -1782,8 +1794,9 @@ async function airQuestionCandidateToLinguisticRow(candidate: Record<string, unk
 async function handleProgressList(request: Request, env: Env, url: URL) {
   const scope = await getDataScope(request, env, url.searchParams.get('deviceId'))
   if (scope instanceof Response) return scope
-  const rows = await supabase<Record<string, unknown>[]>(
+  const rows = await supabaseAdmin<Record<string, unknown>[]>(
     env,
+    'GET',
     `/rest/v1/user_progress?select=*&${scope.query}&order=last_reviewed_at.desc&limit=500`,
   )
   return json(rows.map(mapProgress))
@@ -1791,6 +1804,7 @@ async function handleProgressList(request: Request, env: Env, url: URL) {
 
 async function handleProgressUpsert(request: Request, env: Env) {
   const auth = await getAuthContext(request, env)
+  if (!auth.user) return json({ error: { message: 'Authentication required' } }, 401)
   const body = (await request.json().catch(() => null)) as
     | {
         deviceId?: string
@@ -1802,17 +1816,16 @@ async function handleProgressUpsert(request: Request, env: Env) {
         payload?: Record<string, unknown>
       }
     | null
-  if (!body?.deviceId || !body.itemId || !body.state) {
-    return json({ error: { message: 'deviceId, itemId and state are required' } }, 400)
+  if (!body?.itemId || !body.state) {
+    return json({ error: { message: 'itemId and state are required' } }, 400)
   }
-  if (!isValidDeviceId(body.deviceId)) return json({ error: { message: 'deviceId is invalid' } }, 400)
   if (!allowedReviewStates.has(body.state)) return json({ error: { message: 'state is invalid' } }, 400)
   const itemType = normalizeProgressItemType(body.itemType)
   if (!itemType) return json({ error: { message: 'itemType is invalid' } }, 400)
   const nextReviewOn = nextReviewDate(body.state)
   const row = {
-    device_id: body.deviceId,
-    user_id: auth.user?.id ?? null,
+    device_id: null,
+    user_id: auth.user.id,
     item_id: body.itemId,
     item_type: itemType,
     work_slug: body.workSlug ?? null,
@@ -1825,7 +1838,7 @@ async function handleProgressUpsert(request: Request, env: Env) {
   }
   await supabaseWrite(
     env,
-    auth.user ? '/rest/v1/user_progress?on_conflict=user_id,item_id' : '/rest/v1/user_progress?on_conflict=device_id,item_id',
+    '/rest/v1/user_progress?on_conflict=user_id,item_id',
     row,
   )
   return json(mapProgress(row))
@@ -1929,8 +1942,9 @@ async function handleWritingSubmit(request: Request, env: Env) {
 async function handleTodayReview(request: Request, env: Env, url: URL) {
   const scope = await getDataScope(request, env, url.searchParams.get('deviceId'))
   if (scope instanceof Response) return scope
-  const rows = await supabase<Record<string, unknown>[]>(
+  const rows = await supabaseAdmin<Record<string, unknown>[]>(
     env,
+    'GET',
     `/rest/v1/user_progress?select=*&${scope.query}&state=in.(fuzzy,unknown,bad,ok)&order=next_review_on.asc&limit=80`,
   )
   const tasks = rows.map(mapReviewTask).sort(compareReviewTasks).slice(0, 30)
@@ -1954,12 +1968,14 @@ async function handleHistory(request: Request, env: Env, url: URL) {
   if (scope instanceof Response) return scope
 
   const [corrections, interactions, profileRows] = await Promise.all([
-    supabase<Record<string, unknown>[]>(
+    supabaseAdmin<Record<string, unknown>[]>(
       env,
+      'GET',
       `/rest/v1/sentence_correction_history?select=id,target_type,target_id,work_slug,episode,model,prompt_text,result_payload,created_at&${scope.query}&order=created_at.desc&limit=20`,
     ).catch(() => []),
-    supabase<Record<string, unknown>[]>(
+    supabaseAdmin<Record<string, unknown>[]>(
       env,
+      'GET',
       `/rest/v1/ai_interaction_history?select=id,cache_key,cache_kind,model,work_slug,episode,source_id,result_payload,created_at&${scope.query}&order=created_at.desc&limit=30`,
     ).catch(() => []),
     supabase<Record<string, unknown>[]>(
@@ -1984,8 +2000,9 @@ async function handleHistoryDetail(request: Request, env: Env, url: URL) {
   if (!id) return json({ error: { message: 'id is required' } }, 400)
 
   if (type === 'correction') {
-    const rows = await supabase<Record<string, unknown>[]>(
+    const rows = await supabaseAdmin<Record<string, unknown>[]>(
       env,
+      'GET',
       `/rest/v1/sentence_correction_history?select=*&id=eq.${encodeURIComponent(id)}&${scope.query}&limit=1`,
     ).catch(() => [])
     const row = rows[0]
@@ -1993,8 +2010,9 @@ async function handleHistoryDetail(request: Request, env: Env, url: URL) {
   }
 
   if (type === 'ai') {
-    const rows = await supabase<Record<string, unknown>[]>(
+    const rows = await supabaseAdmin<Record<string, unknown>[]>(
       env,
+      'GET',
       `/rest/v1/ai_interaction_history?select=*&cache_key=eq.${encodeURIComponent(id)}&${scope.query}&limit=1`,
     ).catch(() => [])
     const row = rows[0]
@@ -2335,6 +2353,64 @@ async function requireAuth(request: Request, env: Env) {
   return auth as AuthContext & { user: AuthUser }
 }
 
+async function handlePronunciationTicket(request: Request, env: Env) {
+  const auth = await getAuthContext(request, env)
+  if (!auth.user) {
+    return Response.json(
+      { error: { message: 'Authentication required' } },
+      { status: 401, headers: { 'Cache-Control': 'no-store' } },
+    )
+  }
+
+  const body = (await request.json().catch(() => null)) as { sentenceId?: unknown } | null
+  const sentenceId = normalizePronunciationSentenceId(body?.sentenceId)
+  if (!sentenceId) {
+    return Response.json(
+      { error: { message: 'Invalid pronunciation sentence ID' } },
+      { status: 400, headers: { 'Cache-Control': 'no-store' } },
+    )
+  }
+
+  let sentenceEnabled = sentenceId === LegacyPronunciationSentenceId
+  if (!sentenceEnabled) {
+    try {
+      const sentences = await supabase<Array<{ id: string }>>(env, pronunciationSentenceLookupPath(sentenceId))
+      sentenceEnabled = sentences.length > 0
+    } catch (error) {
+      console.error('Failed to validate pronunciation sentence membership', error)
+      return Response.json(
+        { error: { message: 'Pronunciation sentence validation is temporarily unavailable' } },
+        { status: 503, headers: { 'Cache-Control': 'no-store' } },
+      )
+    }
+  }
+  if (!sentenceEnabled) {
+    return Response.json(
+      { error: { message: 'Sentence is not enabled for pronunciation evaluation' } },
+      { status: 404, headers: { 'Cache-Control': 'no-store' } },
+    )
+  }
+
+  const secret = env.PRONUNCIATION_AUTH_HMAC_SECRET?.trim() ?? ''
+  if (secret.length < 32) {
+    return Response.json(
+      { error: { message: 'Pronunciation evaluation is not configured' } },
+      { status: 503, headers: { 'Cache-Control': 'no-store' } },
+    )
+  }
+
+  const ticket = await createEvaluationTicket({
+    subject: auth.user.id,
+    sentenceId,
+    secret,
+    ttlSeconds: 60,
+  })
+  return Response.json(
+    { ticket, expiresIn: 60 },
+    { headers: { 'Cache-Control': 'no-store' } },
+  )
+}
+
 function publicUser(user: AppUserRow): AuthUser {
   return { id: user.id, email: user.email }
 }
@@ -2662,24 +2738,7 @@ function quotePostgrestString(value: string) {
 }
 
 async function supabaseWrite(env: Env, path: string, row: Record<string, unknown>) {
-  if (!env.SUPABASE_PUBLISHABLE_KEY) {
-    throw new Error('SUPABASE_PUBLISHABLE_KEY is not configured')
-  }
-
-  const response = await fetch(`${env.SUPABASE_URL}${path}`, {
-    method: 'POST',
-    headers: {
-      apikey: env.SUPABASE_PUBLISHABLE_KEY,
-      Authorization: `Bearer ${env.SUPABASE_PUBLISHABLE_KEY}`,
-      'Content-Type': 'application/json',
-      Prefer: 'resolution=merge-duplicates,return=minimal',
-    },
-    body: JSON.stringify(row),
-  })
-
-  if (!response.ok) {
-    throw new Error(`Supabase REST write failed: ${response.status} ${await response.text()}`)
-  }
+  await supabaseAdmin(env, 'POST', path, row)
 }
 
 async function supabaseAdmin<T = unknown>(
@@ -2715,8 +2774,9 @@ async function supabaseAdmin<T = unknown>(
 }
 
 async function readAiCache(env: Env, cacheKey: string) {
-  const rows = await supabase<AiCacheRow[]>(
+  const rows = await supabaseAdmin<AiCacheRow[]>(
     env,
+    'GET',
     `/rest/v1/ai_result_cache?select=result_payload&cache_key=eq.${encodeURIComponent(cacheKey)}&limit=1`,
   ).catch(() => [])
   return rows[0]?.result_payload
@@ -2859,17 +2919,11 @@ async function getDataScope(request: Request, env: Env, deviceId: string | null)
   if (auth.user) {
     return {
       user: auth.user,
-      deviceId: deviceId && isValidDeviceId(deviceId) ? deviceId : null,
+      deviceId: null,
       query: `user_id=eq.${encodeURIComponent(auth.user.id)}`,
     }
   }
-  if (!deviceId) return json({ error: { message: 'deviceId is required' } }, 400)
-  if (!isValidDeviceId(deviceId)) return json({ error: { message: 'deviceId is invalid' } }, 400)
-  return {
-    user: null,
-    deviceId,
-    query: `device_id=eq.${encodeURIComponent(deviceId)}`,
-  }
+  return json({ error: { message: 'Authentication required' } }, 401)
 }
 
 function json(data: unknown, status = 200) {
@@ -2915,6 +2969,7 @@ function mapPlan(row: PlanRow) {
     id: row.id,
     workSlug: row.work_slug,
     episode: row.episode,
+    planSlot: row.plan_slot ?? 1,
     vocabCount: row.vocab_item_ids.length,
     handwritingCount: row.handwriting_vocab_ids.length,
     shadowingCount: row.shadowing_sentence_ids.length,
@@ -2922,7 +2977,38 @@ function mapPlan(row: PlanRow) {
     exerciseCount: row.exercise_ids.length,
     vocabItemIds: row.vocab_item_ids,
     handwritingVocabIds: row.handwriting_vocab_ids,
+    shadowingSentenceIds: row.shadowing_sentence_ids,
+    grammarPointIds: row.grammar_point_ids,
+    exerciseIds: row.exercise_ids,
     notes: row.notes,
+  }
+}
+
+function mapPlanRows(rows: PlanRow[]) {
+  if (rows.length === 1) return mapPlan(rows[0])
+  const first = rows[0]
+  const unique = (values: string[][]) => Array.from(new Set(values.flat().filter(Boolean)))
+  const vocabItemIds = unique(rows.map((row) => row.vocab_item_ids))
+  const handwritingVocabIds = unique(rows.map((row) => row.handwriting_vocab_ids))
+  const shadowingSentenceIds = unique(rows.map((row) => row.shadowing_sentence_ids))
+  const grammarPointIds = unique(rows.map((row) => row.grammar_point_ids))
+  const exerciseIds = unique(rows.map((row) => row.exercise_ids))
+  return {
+    id: `${first.work_slug}-ep${String(first.episode).padStart(2, '0')}-plan-merged`,
+    workSlug: first.work_slug,
+    episode: first.episode,
+    planSlot: null,
+    vocabCount: vocabItemIds.length,
+    handwritingCount: handwritingVocabIds.length,
+    shadowingCount: shadowingSentenceIds.length,
+    grammarCount: grammarPointIds.length,
+    exerciseCount: exerciseIds.length,
+    vocabItemIds,
+    handwritingVocabIds,
+    shadowingSentenceIds,
+    grammarPointIds,
+    exerciseIds,
+    notes: rows.map((row) => row.notes).filter(Boolean).join(' / '),
   }
 }
 
@@ -3023,6 +3109,7 @@ function mapExercise(input: unknown) {
     answer: readAnswer(row),
     hint: readString(row, 'hint', readString(row, 'basic_explanation_zh')),
     difficulty: readString(row, 'difficulty'),
+    vocabItemId: readString(row, 'vocab_item_id'),
   }
 }
 

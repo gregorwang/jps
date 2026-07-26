@@ -17,10 +17,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.animejapaneselab.nativeapp.R
 import com.animejapaneselab.nativeapp.data.PromptAudio
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -31,6 +34,8 @@ import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.util.Locale
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 private val JapaneseTtsVoices = listOf("ja-JP-NanamiNeural", "ja-JP-KeitaNeural")
 private const val RemoteTtsUserAgent = "Mozilla/5.0"
@@ -51,20 +56,89 @@ class LessonAudioController(context: Context) {
     private val appContext = context.applicationContext
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val ttsCacheDir = File(appContext.cacheDir, "lesson-tts").apply { mkdirs() }
-    private var ttsReady = false
-    private var ttsSupported = false
-    private var pendingTts: PendingTts? = null
-    private var activeLocalTts: PendingTts? = null
-    private var tts: TextToSpeech? = null
     private var mediaPlayer: MediaPlayer? = null
+    private var ttsJob: Job? = null
+    private var localTtsInitTimeoutJob: Job? = null
+    private var localTts: TextToSpeech? = null
+    private var localTtsInitialized = false
+    private var localTtsReady = false
+    private var pendingTtsRequest: TtsRequest? = null
+    private val localFallbacks = ConcurrentHashMap<String, TtsRequest>()
+    private var failedSourceUrl: String? = null
+    private var failedSourceFallback: TtsRequest? = null
     var playbackState by mutableStateOf(AudioPlaybackState())
         private set
+
+    private val localTtsListener = object : UtteranceProgressListener() {
+        override fun onStart(utteranceId: String) {
+            postPlaybackState(AudioPlaybackPhase.Playing, "本机语音播放中")
+        }
+
+        override fun onDone(utteranceId: String) {
+            localFallbacks.remove(utteranceId)
+            postPlaybackState(AudioPlaybackPhase.Idle, "")
+        }
+
+        @Deprecated("Deprecated in Android")
+        override fun onError(utteranceId: String) {
+            retryWithConfiguredWorker(utteranceId)
+        }
+
+        override fun onError(utteranceId: String, errorCode: Int) {
+            retryWithConfiguredWorker(utteranceId)
+        }
+
+        private fun retryWithConfiguredWorker(utteranceId: String) {
+            val request = localFallbacks.remove(utteranceId) ?: return
+            scope.launch { playRemoteTts(request.text, request.workerUrl) }
+        }
+    }
+
+    init {
+        localTts = TextToSpeech(appContext) { status ->
+            scope.launch {
+                val engine = localTts
+                localTtsInitTimeoutJob?.cancel()
+                localTtsReady = status == TextToSpeech.SUCCESS &&
+                    engine != null &&
+                    engine.setLanguage(Locale.JAPAN) >= TextToSpeech.LANG_AVAILABLE
+                if (localTtsReady) {
+                    engine?.setOnUtteranceProgressListener(localTtsListener)
+                }
+                localTtsInitialized = true
+                pendingTtsRequest?.also {
+                    pendingTtsRequest = null
+                    playTts(it.text, it.workerUrl)
+                }
+            }
+        }
+        localTtsInitTimeoutJob = scope.launch {
+            delay(2_000L)
+            if (!localTtsInitialized) {
+                localTtsInitialized = true
+                localTtsReady = false
+                pendingTtsRequest?.also {
+                    pendingTtsRequest = null
+                    playRemoteTts(it.text, it.workerUrl)
+                }
+            }
+        }
+    }
 
     fun play(cue: PromptAudio, ttsWorkerUrl: String, autoAttempt: Boolean = false) {
         when (cue) {
             PromptAudio.None -> Unit
             is PromptAudio.Tts -> playTts(cue.text, ttsWorkerUrl)
-            is PromptAudio.Source -> playSource(cue, ttsWorkerUrl, autoAttempt)
+            is PromptAudio.Source -> {
+                val fallback = failedSourceFallback
+                if (!autoAttempt && failedSourceUrl == cue.url && fallback != null) {
+                    failedSourceUrl = null
+                    failedSourceFallback = null
+                    playTts(fallback.text, fallback.workerUrl)
+                } else {
+                    playSource(cue, ttsWorkerUrl, autoAttempt)
+                }
+            }
         }
     }
 
@@ -73,6 +147,10 @@ class LessonAudioController(context: Context) {
     }
 
     private fun playSource(cue: PromptAudio.Source, ttsWorkerUrl: String, autoAttempt: Boolean) {
+        failedSourceUrl = null
+        failedSourceFallback = null
+        ttsJob?.cancel()
+        ttsJob = null
         stopMedia()
         postPlaybackState(AudioPlaybackPhase.Loading, "原声加载中")
         runCatching {
@@ -86,6 +164,8 @@ class LessonAudioController(context: Context) {
             )
             player.setDataSource(cue.url)
             player.setOnPreparedListener { prepared ->
+                failedSourceUrl = null
+                failedSourceFallback = null
                 postPlaybackState(AudioPlaybackPhase.Playing, "原声播放中")
                 prepared.start()
             }
@@ -97,118 +177,60 @@ class LessonAudioController(context: Context) {
             player.setOnErrorListener { failed, _, _ ->
                 if (mediaPlayer === failed) mediaPlayer = null
                 failed.release()
-                if (!autoAttempt && cue.fallbackTtsText.isNotBlank()) {
-                    postPlaybackState(AudioPlaybackPhase.Error, "原声播放失败，正在尝试标准语音")
-                    playTts(cue.fallbackTtsText, ttsWorkerUrl)
-                } else if (cue.fallbackTtsText.isNotBlank()) {
-                    postPlaybackState(AudioPlaybackPhase.Error, "原声自动播放失败，可手动点标准语音兜底")
-                } else {
-                    postPlaybackState(AudioPlaybackPhase.Error, "原声播放失败")
-                }
+                failedSourceUrl = cue.url
+                failedSourceFallback = cue.fallbackTtsText.takeIf(String::isNotBlank)?.let { TtsRequest(it, ttsWorkerUrl) }
+                val suffix = if (failedSourceFallback == null) "" else "；再次点击可改用本机/配置语音"
+                postPlaybackState(AudioPlaybackPhase.Error, if (autoAttempt) "原声自动播放失败$suffix" else "原声播放失败$suffix")
                 true
             }
             player.prepareAsync()
         }.onFailure {
-            if (!autoAttempt && cue.fallbackTtsText.isNotBlank()) {
-                postPlaybackState(AudioPlaybackPhase.Error, "原声加载失败，正在尝试标准语音")
-                playTts(cue.fallbackTtsText, ttsWorkerUrl)
-            } else if (cue.fallbackTtsText.isNotBlank()) {
-                postPlaybackState(AudioPlaybackPhase.Error, "原声加载失败，可手动点标准语音兜底")
-            } else {
-                postPlaybackState(AudioPlaybackPhase.Error, "原声加载失败")
-            }
-        }
-    }
-
-    private fun ensureLocalTts() {
-        if (tts != null || ttsReady) return
-        runCatching {
-            tts = TextToSpeech(appContext) { status ->
-                scope.launch {
-                    configureTts(status)
-                }
-            }
-        }.onFailure {
-            ttsReady = true
-            ttsSupported = false
-        }
-    }
-
-    private fun configureTts(status: Int) {
-        val engine = tts ?: run {
-            ttsReady = true
-            ttsSupported = false
-            return
-        }
-        val languageResult = engine.setLanguage(Locale.JAPAN)
-        ttsSupported = status == TextToSpeech.SUCCESS &&
-            languageResult != TextToSpeech.LANG_MISSING_DATA &&
-            languageResult != TextToSpeech.LANG_NOT_SUPPORTED
-        ttsReady = true
-        engine.setSpeechRate(0.94f)
-        engine.setPitch(1.0f)
-        engine.setOnUtteranceProgressListener(
-            object : UtteranceProgressListener() {
-                override fun onStart(utteranceId: String?) {
-                    postPlaybackState(AudioPlaybackPhase.Playing, "系统标准语音播放中")
-                }
-
-                override fun onDone(utteranceId: String?) {
-                    activeLocalTts = null
-                    postPlaybackState(AudioPlaybackPhase.Idle, "")
-                }
-
-                @Deprecated("Deprecated in Android framework")
-                override fun onError(utteranceId: String?) {
-                    handleLocalTtsError()
-                }
-
-                override fun onError(utteranceId: String?, errorCode: Int) {
-                    handleLocalTtsError()
-                }
-            },
-        )
-        pendingTts?.let { pending ->
-            pendingTts = null
-            playTts(pending.text, pending.ttsWorkerUrl)
+            failedSourceUrl = cue.url
+            failedSourceFallback = cue.fallbackTtsText.takeIf(String::isNotBlank)?.let { TtsRequest(it, ttsWorkerUrl) }
+            val suffix = if (failedSourceFallback == null) "" else "；再次点击可改用本机/配置语音"
+            postPlaybackState(AudioPlaybackPhase.Error, if (autoAttempt) "原声自动加载失败$suffix" else "原声加载失败$suffix")
         }
     }
 
     private fun playTts(text: String, ttsWorkerUrl: String) {
         val clean = text.trim()
         if (clean.isBlank()) return
-        if (!ttsReady) {
-            pendingTts = PendingTts(clean, ttsWorkerUrl)
-            ensureLocalTts()
-            if (ttsReady) {
-                pendingTts = null
-                playRemoteTts(clean, ttsWorkerUrl)
-                return
-            }
-            postPlaybackState(AudioPlaybackPhase.Loading, "系统标准语音初始化中")
+        stopMedia()
+        ttsJob?.cancel()
+        localTts?.stop()
+        val request = TtsRequest(clean, ttsWorkerUrl)
+        if (!localTtsInitialized) {
+            pendingTtsRequest = request
+            postPlaybackState(AudioPlaybackPhase.Loading, "正在准备本机日语语音")
             return
         }
-        stopMedia()
-        if (ttsSupported) {
-            runCatching { tts?.stop() }
-            activeLocalTts = PendingTts(clean, ttsWorkerUrl)
-            postPlaybackState(AudioPlaybackPhase.Loading, "系统标准语音准备中")
-            val result = runCatching {
-                tts?.speak(clean, TextToSpeech.QUEUE_FLUSH, null, "lesson-${sha256(clean).take(12)}")
-            }.getOrNull()
-            if (result == TextToSpeech.SUCCESS) return
-            activeLocalTts = null
-        }
+        if (localTtsReady && speakWithLocalTts(request)) return
         playRemoteTts(clean, ttsWorkerUrl)
     }
 
+    private fun speakWithLocalTts(request: TtsRequest): Boolean {
+        val engine = localTts ?: return false
+        val utteranceId = UUID.randomUUID().toString()
+        localFallbacks[utteranceId] = request
+        val status = engine.speak(request.text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
+        if (status == TextToSpeech.SUCCESS) {
+            postPlaybackState(AudioPlaybackPhase.Loading, "本机语音准备中")
+            return true
+        }
+        localFallbacks.remove(utteranceId)
+        return false
+    }
+
     private fun playRemoteTts(text: String, ttsWorkerUrl: String) {
-        scope.launch {
-            postPlaybackState(AudioPlaybackPhase.Loading, "云端标准语音加载中")
-            val file = runCatching {
+        ttsJob?.cancel()
+        ttsJob = scope.launch {
+            postPlaybackState(AudioPlaybackPhase.Loading, "语音加载中")
+            val file = try {
                 withContext(Dispatchers.IO) { fetchRemoteTts(text, ttsWorkerUrl) }
-            }.getOrElse { error ->
-                postPlaybackState(AudioPlaybackPhase.Error, "云端标准语音请求失败：${error.message ?: "未知错误"}")
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                postPlaybackState(AudioPlaybackPhase.Error, "语音请求失败：${error.message ?: "未知错误"}")
                 return@launch
             }
             stopMedia()
@@ -223,7 +245,7 @@ class LessonAudioController(context: Context) {
                 )
                 player.setDataSource(file.absolutePath)
                 player.setOnPreparedListener { prepared ->
-                    postPlaybackState(AudioPlaybackPhase.Playing, "云端标准语音播放中")
+                    postPlaybackState(AudioPlaybackPhase.Playing, "语音播放中")
                     prepared.start()
                 }
                 player.setOnCompletionListener { completed ->
@@ -234,35 +256,23 @@ class LessonAudioController(context: Context) {
                 player.setOnErrorListener { failed, _, _ ->
                     if (mediaPlayer === failed) mediaPlayer = null
                     failed.release()
-                    postPlaybackState(AudioPlaybackPhase.Error, "云端标准语音播放失败")
+                    postPlaybackState(AudioPlaybackPhase.Error, "语音播放失败")
                     true
                 }
                 player.prepareAsync()
             }.onFailure { error ->
-                postPlaybackState(AudioPlaybackPhase.Error, "云端标准语音播放失败：${error.message ?: "未知错误"}")
+                postPlaybackState(AudioPlaybackPhase.Error, "语音播放失败：${error.message ?: "未知错误"}")
             }
-        }
-    }
-
-    private fun handleLocalTtsError() {
-        val fallback = activeLocalTts
-        activeLocalTts = null
-        if (fallback != null) {
-            postPlaybackState(AudioPlaybackPhase.Error, "系统标准语音播放失败，正在尝试云端语音")
-            playRemoteTts(fallback.text, fallback.ttsWorkerUrl)
-        } else {
-            postPlaybackState(AudioPlaybackPhase.Error, "系统标准语音播放失败")
         }
     }
 
     private fun fetchRemoteTts(text: String, ttsWorkerUrl: String): File {
         val normalizedBase = ttsWorkerUrl.trim().trimEnd('/')
-        val cacheFile = File(ttsCacheDir, "${sha256(text)}.mp3")
-        if (cacheFile.exists() && cacheFile.length() > 0) return cacheFile
-
         var lastError: Throwable? = null
         if (normalizedBase.isNotBlank()) {
             for (voice in JapaneseTtsVoices) {
+                val cacheFile = File(ttsCacheDir, "${sha256("$normalizedBase|$voice|$text")}.mp3")
+                if (cacheFile.exists() && cacheFile.length() > 0) return cacheFile
                 runCatching {
                     fetchRemoteTtsWorkerVoice(
                         normalizedBase = normalizedBase,
@@ -278,15 +288,7 @@ class LessonAudioController(context: Context) {
                 }
             }
         }
-        runCatching {
-            fetchGoogleTranslateTts(text = text, cacheFile = cacheFile)
-        }.onSuccess {
-            return it
-        }.onFailure { error ->
-            cacheFile.delete()
-            lastError = error
-        }
-        throw lastError ?: IllegalStateException("标准语音请求失败")
+        throw lastError ?: IllegalStateException("未配置可用的语音 Worker")
     }
 
     private fun fetchRemoteTtsWorkerVoice(
@@ -299,6 +301,7 @@ class LessonAudioController(context: Context) {
             .put("text", text)
             .put("voice", voice)
             .toString()
+        val tempFile = File.createTempFile(cacheFile.nameWithoutExtension, ".part", ttsCacheDir)
         val connection = (URL("$normalizedBase/tts").openConnection() as HttpURLConnection).apply {
             requestMethod = "POST"
             connectTimeout = 15_000
@@ -307,43 +310,24 @@ class LessonAudioController(context: Context) {
             setRequestProperty("Content-Type", "application/json")
             setRequestProperty("Accept", "audio/mpeg,application/octet-stream")
             setRequestProperty("User-Agent", RemoteTtsUserAgent)
-            outputStream.use { stream ->
+        }
+        try {
+            connection.outputStream.use { stream ->
                 stream.write(body.toByteArray(StandardCharsets.UTF_8))
             }
-        }
-        try {
             val status = connection.responseCode
-            if (status !in 200..299) error("标准语音请求失败：HTTP $status")
+            if (status !in 200..299) error("语音请求失败：HTTP $status")
             BufferedInputStream(connection.inputStream).use { input ->
-                cacheFile.outputStream().use { output -> input.copyTo(output) }
+                tempFile.outputStream().use { output -> input.copyTo(output) }
+            }
+            check(tempFile.length() > 0) { "语音服务返回空音频" }
+            if (!tempFile.renameTo(cacheFile)) {
+                tempFile.copyTo(cacheFile, overwrite = true)
+                tempFile.delete()
             }
             return cacheFile
         } catch (error: Throwable) {
-            cacheFile.delete()
-            throw error
-        } finally {
-            connection.disconnect()
-        }
-    }
-
-    private fun fetchGoogleTranslateTts(text: String, cacheFile: File): File {
-        val connection = (URL(buildGoogleTranslateTtsUrl(text)).openConnection() as HttpURLConnection).apply {
-            requestMethod = "GET"
-            connectTimeout = 15_000
-            readTimeout = 25_000
-            setRequestProperty("Accept", "audio/mpeg,application/octet-stream")
-            setRequestProperty("User-Agent", RemoteTtsUserAgent)
-        }
-        try {
-            val status = connection.responseCode
-            if (status !in 200..299) error("备用标准语音请求失败：HTTP $status")
-            BufferedInputStream(connection.inputStream).use { input ->
-                cacheFile.outputStream().use { output -> input.copyTo(output) }
-            }
-            check(cacheFile.length() > 0) { "备用标准语音返回空音频" }
-            return cacheFile
-        } catch (error: Throwable) {
-            cacheFile.delete()
+            tempFile.delete()
             throw error
         } finally {
             connection.disconnect()
@@ -360,15 +344,16 @@ class LessonAudioController(context: Context) {
 
     fun release() {
         playbackState = AudioPlaybackState()
+        ttsJob?.cancel()
+        localTtsInitTimeoutJob?.cancel()
+        ttsJob = null
         scope.cancel()
+        pendingTtsRequest = null
+        localFallbacks.clear()
+        localTts?.stop()
+        localTts?.shutdown()
+        localTts = null
         stopMedia()
-        val textToSpeech = tts
-        tts = null
-        runCatching { textToSpeech?.shutdown() }
-        ttsReady = false
-        ttsSupported = false
-        pendingTts = null
-        activeLocalTts = null
     }
 
     private fun postPlaybackState(phase: AudioPlaybackPhase, message: String) {
@@ -377,6 +362,11 @@ class LessonAudioController(context: Context) {
         }
     }
 }
+
+private data class TtsRequest(
+    val text: String,
+    val workerUrl: String,
+)
 
 class FeedbackSoundController(context: Context) {
     private val rewardHandler = Handler(Looper.getMainLooper())
@@ -490,11 +480,6 @@ fun rememberFeedbackSoundController(): FeedbackSoundController {
     }
     return controller
 }
-
-private data class PendingTts(
-    val text: String,
-    val ttsWorkerUrl: String,
-)
 
 private fun sha256(value: String): String {
     val digest = MessageDigest.getInstance("SHA-256").digest(value.toByteArray(StandardCharsets.UTF_8))

@@ -1,0 +1,65 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "ajl-pronunciation-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-10",
+  "compatibility_flags": ["nodejs_compat"],
+  "ai": {
+    "binding": "AI",
+    "remote": true
+  },
+  "kv_namespaces": [
+    {
+      "binding": "SENTENCES",
+      "id": "314d5324649343b980a57547a5a84e85"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ajl-pronunciation-prod",
+      "database_id": "e9154e90-38e3-4ce8-90fe-368e61033557",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "EVALUATION_RATE_LIMITER",
+      "namespace_id": "38471",
+      "simple": {
+        "limit": 20,
+        "period": 60
+      }
+    }
+  ],
+  "vars": {
+    "ENVIRONMENT": "production",
+    "AI_GATEWAY_ID": "my-ai-gateway",
+    "ALLOWED_ORIGINS": "https://anime-japanese-lab.ishallnotwant123.workers.dev,http://localhost:5173,http://127.0.0.1:5173",
+    "AUTH_REQUIRED": "true",
+    "MAX_AUDIO_BYTES": "1572864",
+    "MAX_REQUEST_BYTES": "1638400",
+    "ATTEMPT_TTL_DAYS": "7",
+    "SCORER_VERSION": "ja-mora-v1.1.0",
+    "NOVA_CONFIDENCE_THRESHOLD": "0.82",
+    "FALLBACK_ALIGNMENT_MIN": "60",
+    "FALLBACK_ALIGNMENT_MAX": "88",
+    "UNKNOWN_RATIO_THRESHOLD": "0.20",
+    "RELIABILITY_THRESHOLD": "0.65"
+  },
+  "triggers": {
+    "crons": ["17 3 * * *"]
+  },
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 0.1
+    }
+  }
+}

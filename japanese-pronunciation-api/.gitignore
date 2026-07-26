@@ -1,0 +1,13 @@
+node_modules/
+.wrangler/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+.generated/
+coverage/
+dist/
+*.log
+worker-startup.cpuprofile
+*.wav
+*.mp3
+*.webm

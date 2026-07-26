@@ -2,6 +2,7 @@ package com.animejapaneselab.nativeapp.ui
 
 import com.animejapaneselab.nativeapp.data.LinguisticExercise
 import com.animejapaneselab.nativeapp.data.LinguisticExerciseAnswer
+import com.animejapaneselab.nativeapp.ui.screens.linguisticPromptForDisplay
 import com.animejapaneselab.nativeapp.data.AiCoachState
 import com.animejapaneselab.nativeapp.data.ProgressItem
 import com.animejapaneselab.nativeapp.data.ReviewState
@@ -10,6 +11,98 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class ReadAirTrainingStateTest {
+    @Test
+    fun restoredCatalogRehydratesAnswersFromPersistedProgress() {
+        val first = exercise("exercise-1", "答え1")
+        val second = exercise("exercise-2", "答え2")
+        val progress = listOf(
+            ProgressItem(
+                itemId = first.id,
+                itemType = "exercise",
+                workSlug = first.workSlug,
+                episode = first.episode,
+                state = ReviewState.Good,
+                label = first.prompt,
+                payload = mapOf("selected" to "答え1"),
+            ),
+            ProgressItem(
+                itemId = second.id,
+                itemType = "sentence",
+                workSlug = second.workSlug,
+                episode = second.episode,
+                state = ReviewState.Good,
+                label = second.prompt,
+                payload = mapOf("selected" to "答え2"),
+            ),
+        )
+
+        val restored = restoreReadAirAnswers(
+            exercises = listOf(first, second),
+            progressItems = progress,
+        )
+
+        assertEquals(mapOf(first.id to "答え1"), restored)
+    }
+
+    @Test
+    fun inMemoryReadAirAnswerWinsWhenCatalogRefreshes() {
+        val exercise = exercise("exercise-1", "答え1")
+        val progress = listOf(
+            ProgressItem(
+                itemId = exercise.id,
+                itemType = "exercise",
+                workSlug = exercise.workSlug,
+                episode = exercise.episode,
+                state = ReviewState.Bad,
+                label = exercise.prompt,
+                payload = mapOf("selected" to "旧答案"),
+            ),
+        )
+
+        val restored = restoreReadAirAnswers(
+            exercises = listOf(exercise),
+            progressItems = progress,
+            inMemoryAnswers = mapOf(exercise.id to "本次答案", "removed" to "无效"),
+        )
+
+        assertEquals(mapOf(exercise.id to "本次答案"), restored)
+    }
+
+    @Test
+    fun cognitiveTopicFiltersDatabasePhenomenaWithoutInventingANewDomain() {
+        val cognitive = exercise("cognitive", "答え1", domain = "pragmatics").copy(
+            phenomenonKey = "time_object_container_metaphor",
+            phenomenonNameZh = "时间作为物体/容器的认知隐喻",
+        )
+        val ordinary = exercise("ordinary", "答え2", domain = "pragmatics")
+        val state = ReadAirTrainingState(
+            exercises = listOf(cognitive, ordinary),
+            filters = ReadAirFilters(topic = ReadAirCognitiveTopic),
+        )
+
+        assertEquals(listOf(cognitive.id), state.scopedExercises.map { it.id })
+        assertEquals(listOf(ReadAirAllFilter, ReadAirCognitiveTopic), state.topicOptions)
+        assertEquals("pragmatics", state.scopedExercises.single().domain)
+    }
+
+    @Test
+    fun linguisticPromptForDisplayRemovesInternalCueAndTimestampPrefix() {
+        assertEquals(
+            "「無知蒙昧にして天下不滅の無一文」里的「にして」为什么会显得夸张、有修辞感？",
+            linguisticPromptForDisplay(
+                "【cue 277 / 00:14:09,098-00:14:11,809】「無知蒙昧にして天下不滅の無一文」里的「にして」为什么会显得夸张、有修辞感？",
+            ),
+        )
+    }
+
+    @Test
+    fun linguisticPromptForDisplayRemovesParenthesizedSourceMetadata() {
+        assertEquals(
+            "为什么这里使用省略？",
+            linguisticPromptForDisplay("(【cue 25/00:01:02,000-00:01:04,000】Re:Zero · EP01 · 第25句) 为什么这里使用省略？"),
+        )
+    }
+
     @Test
     fun answeredExerciseStaysInQueueOnlyWhilePinned() {
         val first = exercise("exercise-1", "答え1")
@@ -42,19 +135,20 @@ class ReadAirTrainingStateTest {
     }
 
     @Test
-    fun browseAnswersRevealExplanationsWithoutConsumingTrainingQueue() {
+    fun committedBrowseAnswersCountAsCompletedAndLeaveTheTrainingQueue() {
         val first = exercise("exercise-1", "答え1")
         val second = exercise("exercise-2", "答え2")
         val state = ReadAirTrainingState(
             exercises = listOf(first, second),
             mode = ReadAirMode.Browse,
             browseAnswers = mapOf(first.id to "答え1"),
+            selectedAnswers = mapOf(first.id to "答え1"),
         )
 
         assertEquals("答え1", state.browseAnswerFor(first.id))
-        assertEquals(0, state.answeredScopedCount)
-        assertEquals(2, state.remainingScopedCount)
-        assertEquals(listOf(first.id, second.id), state.filteredExercises.map { it.id })
+        assertEquals(1, state.answeredScopedCount)
+        assertEquals(1, state.remainingScopedCount)
+        assertEquals(listOf(second.id), state.filteredExercises.map { it.id })
     }
 
     @Test
@@ -88,7 +182,7 @@ class ReadAirTrainingStateTest {
     }
 
     @Test
-    fun combinedFiltersNarrowQueueAcrossWorkEpisodePhenomenonQuestionTypeAndDifficulty() {
+    fun combinedFiltersNarrowQueueAcrossWorkEpisodeDomainQuestionTypeAndDifficulty() {
         val target = exercise(
             id = "target",
             answer = "答え1",
@@ -105,14 +199,12 @@ class ReadAirTrainingStateTest {
                 target.copy(id = "wrong-work", workSlug = "k-on"),
                 target.copy(id = "wrong-episode", episode = 1),
                 target.copy(id = "wrong-domain", domain = "pragmatics"),
-                target.copy(id = "wrong-phenomenon", phenomenonKey = "ellipsis"),
                 target.copy(id = "wrong-type", questionType = "relationship_reading"),
                 target.copy(id = "wrong-difficulty", difficulty = "advanced"),
             ),
             filters = ReadAirFilters(
                 workSlug = "rezero",
                 domain = "sociolinguistics",
-                phenomenonKey = "topic_shift",
                 questionType = "implicit_intent",
                 difficulty = "intermediate",
                 episode = 2,
@@ -162,7 +254,7 @@ class ReadAirTrainingStateTest {
     }
 
     @Test
-    fun filterOptionsExposeDistinctWorksEpisodesPhenomenaTypesAndDifficulties() {
+    fun filterOptionsExposeDistinctWorksEpisodesDomainsTypesAndDifficulties() {
         val state = ReadAirTrainingState(
             exercises = listOf(
                 exercise(
@@ -190,7 +282,6 @@ class ReadAirTrainingStateTest {
 
         assertEquals(listOf(ReadAirAllFilter, "k-on", "re-zero"), state.workOptions)
         assertEquals(listOf(ReadAirAllFilter, "pragmatics", "sociolinguistics"), state.domainOptions)
-        assertEquals(listOf(ReadAirAllFilter, "ellipsis", "topic_shift"), state.phenomenonOptions)
         assertEquals(listOf(ReadAirAllFilter, "implicit_intent", "kuuki_yomi"), state.questionTypeOptions)
         assertEquals(listOf(ReadAirAllFilter, "advanced", "intro"), state.difficultyOptions)
         assertEquals(listOf(1, 2), state.episodeOptions)
@@ -236,7 +327,6 @@ class ReadAirTrainingStateTest {
 
         assertEquals(listOf(ReadAirAllFilter, "k-on", "re-zero"), state.workOptions)
         assertEquals(listOf(ReadAirAllFilter, "pragmatics"), state.domainOptions)
-        assertEquals(listOf(ReadAirAllFilter, "soft_obligation"), state.phenomenonOptions)
         assertEquals(listOf(ReadAirAllFilter, "relationship_reading"), state.questionTypeOptions)
         assertEquals(listOf(ReadAirAllFilter, "intermediate"), state.difficultyOptions)
         assertEquals(listOf(1, 2), state.episodeOptions)
@@ -257,7 +347,7 @@ class ReadAirTrainingStateTest {
     }
 
     @Test
-    fun cascadingOptionsKeepCurrentInvalidSelectionVisibleSoItCanBeCleared() {
+    fun cascadingOptionsKeepCurrentInvalidDomainVisibleSoItCanBeCleared() {
         val state = ReadAirTrainingState(
             exercises = listOf(
                 exercise(
@@ -269,10 +359,10 @@ class ReadAirTrainingStateTest {
                     phenomenonKey = "ellipsis",
                 ),
             ),
-            filters = ReadAirFilters(workSlug = "k-on", phenomenonKey = "topic_shift"),
+            filters = ReadAirFilters(workSlug = "k-on", domain = "sociolinguistics"),
         )
 
-        assertEquals(listOf(ReadAirAllFilter, "ellipsis", "topic_shift"), state.phenomenonOptions)
+        assertEquals(listOf(ReadAirAllFilter, "pragmatics", "sociolinguistics"), state.domainOptions)
         assertEquals(emptyList<LinguisticExercise>(), state.scopedExercises)
     }
 

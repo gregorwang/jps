@@ -8,3 +8,6 @@ srt/
 .env
 .env.*
 !.env.example
+.agents/
+.codex-remote-attachments/
+verification-*/

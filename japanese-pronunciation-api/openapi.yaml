@@ -1,0 +1,226 @@
+openapi: 3.1.0
+info:
+  title: AJL Japanese Pronunciation Evaluation API
+  version: 1.0.0
+  description: Real Japanese shadowing/pronunciation evaluation backed by Cloudflare Workers AI and deterministic mora scoring.
+servers:
+  - url: https://ajl-pronunciation-api.ishallnotwant123.workers.dev
+paths:
+  /health:
+    get:
+      operationId: health
+      responses:
+        "200":
+          description: Service health
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, service, environment, scorerVersion]
+                properties:
+                  ok: { const: true }
+                  service: { type: string }
+                  environment: { type: string }
+                  scorerVersion: { type: string }
+  /v1/pronunciation/evaluate:
+    post:
+      operationId: evaluatePronunciation
+      security:
+        - evaluationTicket: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [sentenceId, attemptId, mode, audio]
+              properties:
+                sentenceId:
+                  type: string
+                  maxLength: 100
+                  example: kon-ep01-046
+                attemptId:
+                  type: string
+                  format: uuid
+                mode:
+                  type: string
+                  enum: [pronunciation, shadowing]
+                clientVersion:
+                  type: string
+                audio:
+                  type: string
+                  contentMediaType: audio/wav
+                  contentEncoding: binary
+                  description: 16 kHz mono PCM16 RIFF/WAVE, 0.4–15 seconds, at most 1.5 MB.
+      responses:
+        "200":
+          description: Scored result or an intentionally uncertain assessment
+          headers:
+            X-Idempotent-Replay:
+              schema: { type: boolean }
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Evaluation"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/SentenceNotFound" }
+        "409": { $ref: "#/components/responses/AttemptConflict" }
+        "413": { $ref: "#/components/responses/TooLarge" }
+        "422":
+          description: Audio quality failed. The body has assessmentStatus=re_record and no score.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Evaluation"
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "502": { $ref: "#/components/responses/AsrUnavailable" }
+components:
+  securitySchemes:
+    evaluationTicket:
+      type: http
+      scheme: bearer
+      bearerFormat: HMAC sentence-scoped ticket
+  responses:
+    BadRequest:
+      description: Invalid form, identifier, WAV format, duration, or MIME
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Unauthorized:
+      description: Missing, invalid, or expired ticket
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Forbidden:
+      description: Origin or ticket scope rejected
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    SentenceNotFound:
+      description: sentenceId is not present in the reference KV
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    AttemptConflict:
+      description: attemptId belongs to another user or sentence
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    TooLarge:
+      description: Multipart body or audio exceeds the limit
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    RateLimited:
+      description: Per-user/IP/sentence rate limit exceeded
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    AsrUnavailable:
+      description: Primary ASR is temporarily unavailable
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+  schemas:
+    Error:
+      type: object
+      required: [ok, error]
+      properties:
+        ok: { const: false }
+        error:
+          type: object
+          required: [code, message, requestId]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            requestId: { type: string, format: uuid }
+    Evaluation:
+      type: object
+      required: [ok, attemptId, sentenceId, assessmentStatus, scorerVersion, reference, engine, audioQuality, segments, feedback]
+      properties:
+        ok: { const: true }
+        attemptId: { type: string, format: uuid }
+        sentenceId: { type: string }
+        assessmentStatus:
+          type: string
+          enum: [scored, uncertain, re_record]
+        scorerVersion: { type: string }
+        reference:
+          type: object
+          required: [timingSource]
+          properties:
+            timingSource:
+              type: string
+              enum: [native, subtitle, estimated]
+        engine:
+          $ref: "#/components/schemas/Engine"
+        recognized:
+          $ref: "#/components/schemas/Recognized"
+        score:
+          $ref: "#/components/schemas/Score"
+        audioQuality:
+          $ref: "#/components/schemas/AudioQuality"
+        segments:
+          type: array
+          items: { $ref: "#/components/schemas/Segment" }
+        feedback:
+          type: array
+          items: { type: string }
+          maxItems: 3
+    Engine:
+      type: object
+      required: [primary, secondary, selected, fallbackUsed, reliability]
+      properties:
+        primary: { const: "@cf/deepgram/nova-3" }
+        secondary: { const: "@cf/openai/whisper-large-v3-turbo" }
+        selected: { type: string, enum: [primary, secondary] }
+        fallbackUsed: { type: boolean }
+        reliability: { type: number, minimum: 0, maximum: 1 }
+        agreement: { type: number, minimum: 0, maximum: 1 }
+    Recognized:
+      type: object
+      required: [text, durationMs]
+      properties:
+        text: { type: string }
+        phoneticKana: { type: string }
+        durationMs: { type: integer, minimum: 0, maximum: 15000 }
+    Score:
+      type: object
+      required: [overall, accuracy, completeness, clarity, fluency, rhythm, band]
+      properties:
+        overall: { type: integer, minimum: 0, maximum: 100 }
+        accuracy: { type: integer, minimum: 0, maximum: 100 }
+        completeness: { type: integer, minimum: 0, maximum: 100 }
+        clarity: { type: integer, minimum: 0, maximum: 100 }
+        fluency: { type: integer, minimum: 0, maximum: 100 }
+        rhythm: { type: integer, minimum: 0, maximum: 100 }
+        band: { type: string, enum: [excellent, good, fair, retry] }
+    AudioQuality:
+      type: object
+      required: [status, scorable, durationMs, speechDurationMs, speechRatio, clippingRatio, qualityScore, reasons, speechSegments]
+      properties:
+        status:
+          type: string
+          enum: [ok, too_short, too_long, silent, too_quiet, clipped, noisy]
+        scorable: { type: boolean }
+        durationMs: { type: integer }
+        speechDurationMs: { type: integer }
+        speechStartMs: { type: [integer, "null"] }
+        speechEndMs: { type: [integer, "null"] }
+        speechRatio: { type: number, minimum: 0, maximum: 1 }
+        clippingRatio: { type: number, minimum: 0, maximum: 1 }
+        rms: { type: number }
+        peak: { type: number }
+        noiseFloor: { type: number }
+        snrDb: { type: [number, "null"] }
+        qualityScore: { type: integer, minimum: 0, maximum: 100 }
+        reasons: { type: array, items: { type: string } }
+        speechSegments:
+          type: array
+          items:
+            type: object
+            required: [startMs, endMs]
+            properties:
+              startMs: { type: number }
+              endMs: { type: number }
+    Segment:
+      type: object
+      required: [tokenIndex, surface, expected, status]
+      properties:
+        tokenIndex: { type: integer, minimum: -1 }
+        surface: { type: string }
+        expected: { type: string }
+        heard: { type: string }
+        status:
+          type: string
+          enum: [correct, unclear, substitution, omission, extra, pause, unscored]
+        score: { type: integer, minimum: 0, maximum: 100 }
+        message: { type: string }
+        startMs: { type: integer, minimum: 0, maximum: 15000 }
+        endMs: { type: integer, minimum: 0, maximum: 15000 }

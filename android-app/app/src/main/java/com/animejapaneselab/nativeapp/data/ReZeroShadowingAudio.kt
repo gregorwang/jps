@@ -86,7 +86,7 @@ fun promptAudioForSentence(
             return promptSourceAudio(source, sentence, autoPlay)
         }
     }
-    return PromptAudio.Tts(sentence.ja, autoPlay = autoPlay, label = "播放标准语音")
+    return PromptAudio.Tts(sentence.ja, autoPlay = autoPlay, label = "播放语音")
 }
 
 private fun promptSourceAudio(

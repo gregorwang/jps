@@ -39,7 +39,7 @@ class ReZeroShadowingAudioTest {
     }
 
     @Test
-    fun flagsLateSeasonOneUnmatchedAudioLikeWeb() {
+    fun flagsLateSeasonOneUnmatchedAudioAsUnreliable() {
         val source = buildReZeroShadowingAudio(
             sentenceId = "re-zero-s01e25-sentence-096",
             audioUrl = "",

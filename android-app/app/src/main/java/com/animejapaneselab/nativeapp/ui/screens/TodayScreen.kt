@@ -1,718 +1,747 @@
 package com.animejapaneselab.nativeapp.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoStories
+import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.Bolt
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.LocalFireDepartment
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Psychology
-import androidx.compose.material.icons.rounded.Stars
-import androidx.compose.material3.FilterChip
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.TrackChanges
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.minimumInteractiveComponentSize
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.animejapaneselab.nativeapp.data.EpisodeOption
-import com.animejapaneselab.nativeapp.data.LessonMode
-import com.animejapaneselab.nativeapp.data.LessonNode
-import com.animejapaneselab.nativeapp.data.SyncStatus
 import com.animejapaneselab.nativeapp.ui.LabUiState
-import com.animejapaneselab.nativeapp.ui.components.LabCard
-import com.animejapaneselab.nativeapp.ui.components.MetricPill
-import com.animejapaneselab.nativeapp.ui.components.PrimaryButton
-import com.animejapaneselab.nativeapp.ui.components.SecondaryButton
+import com.animejapaneselab.nativeapp.ui.components.CourseCharacterArtwork
+import com.animejapaneselab.nativeapp.ui.components.CourseCharacterRole
 import com.animejapaneselab.nativeapp.ui.components.SectionTitle
 import com.animejapaneselab.nativeapp.ui.components.TagChip
-import com.animejapaneselab.nativeapp.ui.theme.LabPalette
+import com.animejapaneselab.nativeapp.ui.motion.MotionTokens
+import com.animejapaneselab.nativeapp.ui.motion.PressablePrimaryButton
+import com.animejapaneselab.nativeapp.ui.motion.rememberReducedMotion
+import com.animejapaneselab.nativeapp.ui.theme.LabSpacing
+import com.animejapaneselab.nativeapp.ui.theme.LabTheme
+import java.util.Calendar
 
 @Composable
 fun TodayScreen(
     uiState: LabUiState,
     onStartLesson: () -> Unit,
-    onWorkSelected: (String) -> Unit,
-    onEpisodeSelected: (Int) -> Unit,
-    onOpenLibrary: () -> Unit,
     onStartReadAir: () -> Unit,
-    onRefresh: () -> Unit,
-    onLessonModeSelected: (LessonMode) -> Unit,
+    onStartReview: () -> Unit,
+    onOpenSubtitles: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val currentNode = uiState.lesson.nodes.getOrNull(uiState.lesson.index)
-    LazyColumn(
-        modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-    ) {
-        item {
-            TodayHero(uiState = uiState)
-        }
-        item {
-            CourseSelector(
-                uiState = uiState,
-                onWorkSelected = onWorkSelected,
-                onEpisodeSelected = onEpisodeSelected,
-                onRefresh = onRefresh,
-            )
-        }
-        item {
-            LessonModeSelector(
-                selectedMode = uiState.lessonMode,
-                onModeSelected = onLessonModeSelected,
-            )
-        }
-        item {
-            ReadAirShortcut(
-                episodeLabel = uiState.focus.episodeLabel,
-                onStartReadAir = onStartReadAir,
-            )
-        }
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                SectionTitle(eyebrow = "今日路径", title = "今天下一步")
-                TagChip(
-                    text = "剩余 ${maxOf(0, uiState.lesson.nodes.size - uiState.lesson.answered)}",
-                    selected = true,
-                )
-            }
-        }
-        itemsIndexed(uiState.lesson.nodes, key = { _, node -> node.id }) { index, node ->
-            LearningPathNode(
-                index = index,
-                node = node,
-                done = index < uiState.lesson.index,
-                current = index == uiState.lesson.index,
-                onStartLesson = onStartLesson,
-            )
-        }
-        item {
-            LabCard {
-                SectionTitle(eyebrow = "本集重点", title = uiState.focus.episodeLabel)
-                Text(uiState.focus.guidebook, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TagChip("词汇 ${uiState.vocab.size}")
-                    TagChip("语法 ${uiState.grammar.size}")
-                    TagChip("跟读 ${uiState.shadowing.size}")
-                }
-                if (currentNode != null) {
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(
-                            text = "下一题：${uiState.lesson.index + 1}. ${currentNode.title}",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Black,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Text(
-                            text = currentNode.prompt,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                    PrimaryButton(
-                        text = "开始${uiState.lessonMode.titleLabel}",
-                        onClick = onStartLesson,
-                    )
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                    SecondaryButton(text = "资料", onClick = onOpenLibrary, modifier = Modifier.weight(1f))
-                    SecondaryButton(text = "读空气", onClick = onStartReadAir, modifier = Modifier.weight(1f))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ReadAirShortcut(
-    episodeLabel: String,
-    onStartReadAir: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    LabCard(modifier = modifier) {
-        SectionTitle(eyebrow = "读空气专项", title = "读懂这一集的潜台词")
-        Text(
-            text = "当前集 · $episodeLabel",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-        PrimaryButton(
-            text = "开始读空气专项",
-            onClick = onStartReadAir,
-        )
-    }
-}
-
-@Composable
-private fun LessonModeSelector(
-    selectedMode: LessonMode,
-    onModeSelected: (LessonMode) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = "训练重点",
-            color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Black,
-        )
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(LessonMode.entries, key = { it.name }) { mode ->
-                FilterChip(
-                    selected = selectedMode == mode,
-                    onClick = { onModeSelected(mode) },
-                    label = { Text(mode.titleLabel, fontWeight = FontWeight.Bold) },
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun CourseSelector(
-    uiState: LabUiState,
-    onWorkSelected: (String) -> Unit,
-    onEpisodeSelected: (Int) -> Unit,
-    onRefresh: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val selectedEpisodePage = episodePageFor(uiState.selection.episode)
-    var episodePage by rememberSaveable(uiState.selection.workSlug) { mutableStateOf(selectedEpisodePage) }
-    LaunchedEffect(uiState.selection.workSlug, uiState.selection.episode) {
-        episodePage = episodePageFor(uiState.selection.episode)
-    }
-    val maxEpisode = uiState.works
-        .firstOrNull { it.slug == uiState.selection.workSlug }
-        ?.episodeCount
-        ?: uiState.episodes.maxOfOrNull { it.episode }
-        ?: uiState.selection.episode
-    val selectableEpisodes = uiState.episodes.filter { it.episode <= maxEpisode }
-    val episodePages = selectableEpisodes
-        .map { episodePageFor(it.episode) }
-        .distinct()
-    val visibleEpisodes = selectableEpisodes.filter { episodePageFor(it.episode) == episodePage }
-    val selectedEpisode = selectableEpisodes.firstOrNull { it.episode == uiState.selection.episode }
-    var episodePickerOpen by rememberSaveable(uiState.selection.workSlug) { mutableStateOf(false) }
-
-    LabCard(modifier = modifier) {
-        SectionTitle(eyebrow = "作品 / 单集", title = uiState.focus.episodeLabel)
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(uiState.works, key = { it.slug }) { work ->
-                CourseWorkChip(
-                    label = work.displayName,
-                    selected = work.slug == uiState.selection.workSlug,
-                    onClick = { onWorkSelected(work.slug) },
-                )
-            }
-        }
-
-        selectedEpisode?.let { episode ->
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                MetricPill(
-                    label = "句子",
-                    value = episode.usableJaLines.toString(),
-                    modifier = Modifier.weight(1f),
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                )
-                MetricPill(
-                    label = "chunks",
-                    value = episode.chunkCount.toString(),
-                    modifier = Modifier.weight(1f),
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                )
-                MetricPill(
-                    label = "字幕",
-                    value = episode.totalCues.toString(),
-                    modifier = Modifier.weight(1f),
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                )
-            }
-        }
-
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-            SecondaryButton(
-                text = if (episodePickerOpen) "收起选集" else "换集",
-                onClick = { episodePickerOpen = !episodePickerOpen },
-                modifier = Modifier.weight(1f),
-            )
-            SecondaryButton(text = "更新资料", onClick = onRefresh, modifier = Modifier.weight(1f))
-        }
-
-        if (episodePickerOpen) {
-            if (episodePages.size > 1) {
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    episodePages.forEach { page ->
-                        FilterChip(
-                            selected = page == episodePage,
-                            onClick = { episodePage = page },
-                            label = { Text(episodePageRangeLabel(page, selectableEpisodes), fontWeight = FontWeight.Bold) },
-                        )
-                    }
-                }
-            }
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                visibleEpisodes.forEach { episode ->
-                    FilterChip(
-                        selected = episode.episode == uiState.selection.episode,
-                        onClick = { onEpisodeSelected(episode.episode) },
-                        label = { Text(episode.label) },
-                    )
-                }
-            }
-        }
-        MetricPill(
-            label = "同步",
-            value = uiState.sync.status.labelForToday(),
-            modifier = Modifier.fillMaxWidth(),
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        )
-        if (uiState.sync.message.isNotBlank()) {
-            Text(uiState.sync.message, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-    }
-}
-
-@Composable
-private fun CourseWorkChip(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val shape = MaterialTheme.shapes.large
-    Surface(
+    val plan = rememberTodayPlan(uiState)
+    val reducedMotion = rememberReducedMotion()
+    val headerLine = remember { todayHeaderLine() }
+    val enterState = remember { MutableTransitionState(false).apply { targetState = true } }
+    Box(
         modifier = modifier
-            .heightIn(min = 56.dp)
-            .minimumInteractiveComponentSize()
-            .clickable(
-                role = Role.Button,
-                onClickLabel = "选择作品 $label",
-                onClick = onClick,
-            ),
-        color = if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface,
-        contentColor = if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
-        shape = shape,
-        border = BorderStroke(
-            width = 1.dp,
-            color = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.4f) else MaterialTheme.colorScheme.outline.copy(alpha = 0.18f),
-        ),
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        contentAlignment = Alignment.TopCenter,
     ) {
-        Text(
-            text = label,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 15.dp),
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Black,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+        LazyColumn(
+            modifier = Modifier
+                .widthIn(max = 840.dp)
+                .fillMaxWidth(),
+            contentPadding = PaddingValues(
+                start = LabSpacing.Screen,
+                end = LabSpacing.Screen,
+                top = LabSpacing.Large,
+                bottom = LabSpacing.XLarge,
+            ),
+            verticalArrangement = Arrangement.spacedBy(LabSpacing.Medium),
+        ) {
+            item(key = "today-header", contentType = "header") {
+                TodayEntrance(visibleState = enterState, order = 0, reducedMotion = reducedMotion) {
+                    TodayHeader(
+                        subtitle = headerLine,
+                        streakDays = uiState.focus.streakDays,
+                        xp = uiState.focus.xp,
+                    )
+                }
+            }
+            item(key = "today-hero", contentType = "hero") {
+                TodayEntrance(visibleState = enterState, order = 1, reducedMotion = reducedMotion) {
+                    TodayHero(
+                        plan = plan,
+                        workSlug = uiState.selection.workSlug,
+                        episode = uiState.selection.episode,
+                        motionEnabled = uiState.settings.richAnimationsEnabled && !reducedMotion,
+                        onStartLesson = onStartLesson,
+                    )
+                }
+            }
+            item(key = "today-section", contentType = "section") {
+                TodayEntrance(visibleState = enterState, order = 2, reducedMotion = reducedMotion) {
+                    TodaySectionHeader(
+                        eyebrow = "现在就做",
+                        title = "今天想练哪一块？",
+                    )
+                }
+            }
+            item(key = "today-actions", contentType = "actions") {
+                TodayEntrance(visibleState = enterState, order = 3, reducedMotion = reducedMotion) {
+                    TodayActionGrid(
+                        dueReviewCount = plan.dueReviewCount,
+                        onStartLesson = onStartLesson,
+                        onStartReview = onStartReview,
+                        onStartReadAir = onStartReadAir,
+                        onOpenSubtitles = onOpenSubtitles,
+                    )
+                }
+            }
+            item(key = "today-metrics", contentType = "metrics") {
+                TodayEntrance(visibleState = enterState, order = 4, reducedMotion = reducedMotion) {
+                    TodayMetricsBar(plan = plan)
+                }
+            }
+            item(key = "today-focus", contentType = "focus") {
+                TodayEntrance(visibleState = enterState, order = 5, reducedMotion = reducedMotion) {
+                    TodayFocusCard(weaknesses = plan.weaknesses)
+                }
+            }
+        }
+    }
+}
+
+/** Page header: greeting line, big title and the streak / XP semantic stat chips. */
+@Composable
+private fun TodayHeader(
+    subtitle: String,
+    streakDays: Int,
+    xp: Int,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(LabSpacing.XSmall),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = "今日",
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+        TodayStatChip(
+            icon = Icons.Rounded.LocalFireDepartment,
+            value = "${streakDays.coerceAtLeast(0)} 天",
+            containerColor = LabTheme.colors.streakContainer,
+            contentColor = LabTheme.colors.streak,
+        )
+        TodayStatChip(
+            icon = Icons.Rounded.Star,
+            value = "${xp.coerceAtLeast(0)} XP",
+            containerColor = LabTheme.colors.xpContainer,
+            contentColor = LabTheme.colors.xp,
         )
     }
 }
 
-private const val EpisodePageSize = 12
-
-private fun episodePageFor(episode: Int): Int {
-    return ((episode.coerceAtLeast(1) - 1) / EpisodePageSize)
+@Composable
+private fun TodayStatChip(
+    icon: ImageVector,
+    value: String,
+    containerColor: Color,
+    contentColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier,
+        color = containerColor,
+        contentColor = contentColor,
+        shape = CircleShape,
+        border = BorderStroke(1.dp, contentColor.copy(alpha = 0.22f)),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(16.dp))
+            Text(
+                text = value,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Black,
+                maxLines = 1,
+            )
+        }
+    }
 }
 
-private fun episodePageRangeLabel(page: Int, episodes: List<EpisodeOption>): String {
-    val pageEpisodes = episodes.filter { episodePageFor(it.episode) == page }
-    val start = pageEpisodes.firstOrNull()?.episode ?: (page * EpisodePageSize + 1)
-    val end = pageEpisodes.lastOrNull()?.episode ?: (start + EpisodePageSize - 1)
-    return "查看 EP${start.toString().padStart(2, '0')}-${end.toString().padStart(2, '0')}"
-}
-
-private fun SyncStatus.labelForToday(): String {
-    return when (this) {
-        SyncStatus.Idle -> "待同步"
-        SyncStatus.Loading -> "同步中"
-        SyncStatus.Success -> "已同步"
-        SyncStatus.Error -> "需重试"
+/**
+ * Gentle first-frame entrance: fade + small upward slide, staggered per item.
+ * Uses a shared transition state so scrolling back never replays the animation,
+ * and collapses to an instant reveal when reduced motion is requested.
+ */
+@Composable
+private fun TodayEntrance(
+    visibleState: MutableTransitionState<Boolean>,
+    order: Int,
+    reducedMotion: Boolean,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    val duration = MotionTokens.duration(MotionTokens.Duration.CardEnter, reducedMotion)
+    val delay = if (reducedMotion) 0 else order * 40
+    AnimatedVisibility(
+        visibleState = visibleState,
+        modifier = modifier,
+        enter = fadeIn(
+            animationSpec = tween(
+                durationMillis = duration,
+                delayMillis = delay,
+                easing = MotionTokens.Curve.Decelerate,
+            ),
+        ) + slideInVertically(
+            animationSpec = tween(
+                durationMillis = duration,
+                delayMillis = delay,
+                easing = MotionTokens.Curve.Decelerate,
+            ),
+            initialOffsetY = { it / 10 },
+        ),
+        exit = ExitTransition.None,
+        label = "today-entrance-$order",
+    ) {
+        content()
     }
 }
 
 @Composable
 private fun TodayHero(
-    uiState: LabUiState,
+    plan: TodayPlan,
+    workSlug: String,
+    episode: Int,
+    motionEnabled: Boolean,
+    onStartLesson: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val onHero = LabTheme.colors.onHero
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 8.dp,
+                shape = MaterialTheme.shapes.extraLarge,
+                ambientColor = LabTheme.colors.heroGradientStart,
+                spotColor = LabTheme.colors.heroGradientStart,
+            )
+            .clip(MaterialTheme.shapes.extraLarge)
+            .background(LabTheme.heroBrush()),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(150.dp)
+                .align(Alignment.TopEnd)
+                .offset(x = 44.dp, y = (-52).dp)
+                .background(onHero.copy(alpha = 0.08f), CircleShape),
+        )
+        Box(
+            modifier = Modifier
+                .size(96.dp)
+                .align(Alignment.BottomStart)
+                .offset(x = (-34).dp, y = 38.dp)
+                .background(onHero.copy(alpha = 0.06f), CircleShape),
+        )
+        Column(
+            modifier = Modifier.padding(LabSpacing.Large),
+            verticalArrangement = Arrangement.spacedBy(LabSpacing.Medium),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(LabSpacing.Small),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(LabSpacing.XSmall),
+                ) {
+                    Surface(
+                        color = onHero.copy(alpha = 0.16f),
+                        contentColor = onHero,
+                        shape = CircleShape,
+                    ) {
+                        Text(
+                            text = plan.nextEpisodeLabel,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    Text(
+                        text = "继续上次的训练",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = onHero,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = if (plan.dueReviewCount > 0) {
+                            "先清掉 ${plan.dueReviewCount} 项复习，再推进 ${plan.newContentCount} 项新内容，约 ${plan.estimatedMinutes} 分钟"
+                        } else {
+                            "没有积压复习，直接推进 ${plan.newContentCount} 项新内容，约 ${plan.estimatedMinutes} 分钟"
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = onHero.copy(alpha = 0.82f),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                CourseCharacterArtwork(
+                    workSlug = workSlug,
+                    role = CourseCharacterRole.Today,
+                    motionEnabled = motionEnabled,
+                    modifier = Modifier.size(72.dp),
+                    stableSeed = episode,
+                )
+            }
+            PressablePrimaryButton(
+                onClick = onStartLesson,
+                modifier = Modifier.fillMaxWidth(),
+                containerColor = onHero,
+                contentColor = LabTheme.colors.heroGradientStart,
+            ) {
+                Text("继续本集训练", fontWeight = FontWeight.Bold)
+                Icon(
+                    Icons.Rounded.PlayArrow,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(start = LabSpacing.XSmall)
+                        .size(20.dp),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TodaySectionHeader(
+    eyebrow: String,
+    title: String,
+    modifier: Modifier = Modifier,
+) {
+    SectionTitle(
+        eyebrow = eyebrow,
+        title = title,
+        modifier = modifier.fillMaxWidth(),
+    )
+}
+
+@Composable
+private fun TodayActionGrid(
+    dueReviewCount: Int,
+    onStartLesson: () -> Unit,
+    onStartReview: () -> Unit,
+    onStartReadAir: () -> Unit,
+    onOpenSubtitles: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(LabSpacing.Small),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(LabSpacing.Small),
+        ) {
+            TodayActionCard(
+                icon = Icons.Rounded.Bolt,
+                title = "快速训练",
+                body = "词汇、语法混合练",
+                highlighted = true,
+                onClick = onStartLesson,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+            )
+            TodayActionCard(
+                icon = Icons.Rounded.BarChart,
+                title = "智能复盘",
+                body = if (dueReviewCount > 0) "${dueReviewCount} 项待处理" else "保持记忆手感",
+                onClick = onStartReview,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(LabSpacing.Small),
+        ) {
+            TodayActionCard(
+                icon = Icons.Rounded.Psychology,
+                title = "语言学训练",
+                body = "语用、句法与潜台词",
+                onClick = onStartReadAir,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+            )
+            TodayActionCard(
+                icon = Icons.Rounded.AutoStories,
+                title = "台词浏览",
+                body = "回看本集上下文",
+                onClick = onOpenSubtitles,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+            )
+        }
+    }
+}
+
+@Composable
+private fun TodayActionCard(
+    icon: ImageVector,
+    title: String,
+    body: String,
+    onClick: () -> Unit,
+    highlighted: Boolean = false,
+    modifier: Modifier = Modifier,
+) {
+    val reducedMotion = rememberReducedMotion()
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (pressed && !reducedMotion) MotionTokens.Scale.OptionPressed else 1f,
+        animationSpec = if (pressed) {
+            MotionTokens.microSpec(reducedMotion)
+        } else {
+            MotionTokens.popSpring(reducedMotion)
+        },
+        label = "today-action-press",
+    )
+    val accent = todayEntryAccent(icon)
+    val containerTone = if (highlighted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+    val contentTone = if (highlighted) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+    Surface(
+        onClick = onClick,
+        modifier = modifier
+            .heightIn(min = 132.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            },
+        color = containerTone,
+        contentColor = contentTone,
+        shape = MaterialTheme.shapes.large,
+        border = if (highlighted) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.8f)),
+        shadowElevation = if (highlighted) 4.dp else 1.dp,
+        interactionSource = interactionSource,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(LabSpacing.Medium),
+            verticalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Surface(
+                    color = if (highlighted) contentTone.copy(alpha = 0.14f) else accent.container,
+                    contentColor = if (highlighted) contentTone else accent.content,
+                    shape = MaterialTheme.shapes.small,
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(9.dp)
+                            .size(22.dp),
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Rounded.ChevronRight,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = contentTone.copy(alpha = if (highlighted) 0.75f else 0.4f),
+                )
+            }
+            Column(
+                modifier = Modifier.padding(top = LabSpacing.Small),
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
+                Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    text = body,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (highlighted) contentTone.copy(alpha = 0.82f) else MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
+}
+
+private data class TodayEntryAccent(
+    val container: Color,
+    val content: Color,
+)
+
+/** Feature-entry accent mapping keyed on the entry icon declared in [TodayActionGrid]. */
+@Composable
+private fun todayEntryAccent(icon: ImageVector): TodayEntryAccent {
+    val extended = LabTheme.colors
+    val scheme = MaterialTheme.colorScheme
+    return when (icon) {
+        Icons.Rounded.BarChart -> TodayEntryAccent(extended.successContainer, extended.success)
+        Icons.Rounded.Psychology -> TodayEntryAccent(extended.infoContainer, extended.info)
+        Icons.Rounded.AutoStories -> TodayEntryAccent(extended.warningContainer, extended.warning)
+        else -> TodayEntryAccent(scheme.primaryContainer, scheme.primary)
+    }
+}
+
+@Composable
+private fun TodayMetricsBar(
+    plan: TodayPlan,
     modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimary,
-        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        shape = MaterialTheme.shapes.large,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        shadowElevation = 0.dp,
     ) {
-        Column(
-            modifier = Modifier.padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+        Row(
+            modifier = Modifier.padding(horizontal = LabSpacing.XSmall, vertical = LabSpacing.Small),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "今日单元",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.86f),
-                    )
-                    Text(
-                        text = uiState.focus.lessonTitle,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Black,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(
-                        text = "${uiState.focus.workTitle} · ${uiState.focus.episodeLabel}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.86f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                Surface(
-                    modifier = Modifier.size(50.dp),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    contentColor = MaterialTheme.colorScheme.primary,
-                    shape = CircleShape,
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Stars,
-                        contentDescription = null,
-                        modifier = Modifier.padding(12.dp),
-                    )
-                }
-            }
-            LinearProgressIndicator(
-                progress = { uiState.lesson.progress },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(CircleShape),
-                color = MaterialTheme.colorScheme.onPrimary,
-                trackColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.22f),
+            TodayMetric("待复盘", plan.dueReviewCount.toString(), Modifier.weight(1f))
+            VerticalDivider(
+                modifier = Modifier.height(28.dp),
+                color = MaterialTheme.colorScheme.outlineVariant,
             )
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                TodayHeroStat(label = "连续", value = "${uiState.focus.streakDays}天", modifier = Modifier.weight(1f))
-                TodayHeroStat(label = "能量", value = "${uiState.focus.energy}/5", modifier = Modifier.weight(1f))
-                TodayHeroStat(label = "XP", value = "${uiState.focus.xp + uiState.sessionXp}", modifier = Modifier.weight(1f))
-            }
+            TodayMetric("本轮内容", plan.newContentCount.toString(), Modifier.weight(1f))
+            VerticalDivider(
+                modifier = Modifier.height(28.dp),
+                color = MaterialTheme.colorScheme.outlineVariant,
+            )
+            TodayMetric("预计", "${plan.estimatedMinutes} 分", Modifier.weight(1f))
         }
     }
 }
 
 @Composable
-private fun TodayHeroStat(
+private fun TodayMetric(
     label: String,
     value: String,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
-        modifier = modifier,
-        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.14f),
-        contentColor = MaterialTheme.colorScheme.onPrimary,
-        shape = CircleShape,
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.78f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = value,
-                modifier = Modifier.padding(start = 5.dp),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Black,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
+    val accent = when {
+        label == "待复盘" && value == "0" -> LabTheme.colors.success
+        label == "待复盘" -> LabTheme.colors.warning
+        label == "本轮内容" -> LabTheme.colors.info
+        else -> MaterialTheme.colorScheme.primary
     }
-}
-
-@Composable
-private fun LearningPathNode(
-    index: Int,
-    node: LessonNode,
-    done: Boolean,
-    current: Boolean,
-    onStartLesson: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val alignRight = index % 2 == 1
-    val locked = !done && !current
-    val statusLabel = pathStatusLabel(done = done, current = current)
-    Box(modifier = modifier.fillMaxWidth()) {
-        TodayPathNodeRow(
-            index = index,
-            node = node,
-            alignRight = alignRight,
-            current = current,
-            done = done,
-            locked = locked,
-            statusLabel = statusLabel,
-            modifier = Modifier.fillMaxWidth(),
-        )
-        if (current) {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clickable(
-                        onClickLabel = "开始当前训练",
-                        role = Role.Button,
-                        onClick = onStartLesson,
-                    ),
-            )
-        }
-    }
-}
-
-@Composable
-private fun TodayPathNodeRow(
-    index: Int,
-    node: LessonNode,
-    alignRight: Boolean,
-    current: Boolean,
-    done: Boolean,
-    locked: Boolean,
-    statusLabel: String,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (alignRight) Spacer(modifier = Modifier.weight(0.16f))
-        if (alignRight && current) {
-            TodayCurrentPathBubble(
-                index = index,
-                node = node,
-                modifier = Modifier.weight(1f),
-            )
-        }
-        TodayPathOrb(
-            current = current,
-            done = done,
-            locked = locked,
-            node = node,
-        )
-        if (!alignRight && current) {
-            TodayCurrentPathBubble(
-                index = index,
-                node = node,
-                modifier = Modifier.weight(1f),
-            )
-        }
-        if (!current) {
-            TodayPathCaption(
-                index = index,
-                title = node.title,
-                statusLabel = statusLabel,
-                highlighted = done,
-                alignRight = alignRight,
-                modifier = Modifier.weight(1f),
-            )
-        }
-        if (!alignRight) Spacer(modifier = Modifier.weight(0.16f))
-    }
-}
-
-@Composable
-private fun TodayPathOrb(
-    current: Boolean,
-    done: Boolean,
-    locked: Boolean,
-    node: LessonNode,
-) {
-    val color = when {
-        done -> MaterialTheme.colorScheme.primary
-        current -> LabPalette.Yellow
-        else -> MaterialTheme.colorScheme.surfaceVariant
-    }
-    val contentColor = when {
-        done -> MaterialTheme.colorScheme.onPrimary
-        current -> MaterialTheme.colorScheme.onTertiary
-        else -> MaterialTheme.colorScheme.onSurfaceVariant
-    }
-    val modifier = Modifier.size(if (current) 72.dp else 58.dp)
-
-    Surface(
-        modifier = modifier,
-        color = color,
-        contentColor = contentColor,
-        shape = CircleShape,
-        tonalElevation = if (current) 6.dp else 1.dp,
-    ) {
-        TodayPathOrbContent(done = done, current = current, locked = locked, node = node)
-    }
-}
-
-@Composable
-private fun TodayPathOrbContent(
-    done: Boolean,
-    current: Boolean,
-    locked: Boolean,
-    node: LessonNode,
-) {
-    Box(contentAlignment = Alignment.Center) {
-        Icon(
-            imageVector = when {
-                done -> Icons.Rounded.CheckCircle
-                current -> Icons.Rounded.PlayArrow
-                locked -> Icons.Rounded.Lock
-                else -> node.pathIcon()
-            },
-            contentDescription = null,
-        )
-    }
-}
-
-@Composable
-private fun TodayCurrentPathBubble(
-    index: Int,
-    node: LessonNode,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier,
-        color = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        shape = MaterialTheme.shapes.large,
-        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
-        shadowElevation = 3.dp,
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "${index + 1}. ${node.title}",
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Black,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                TagChip(text = "继续", selected = true)
-            }
-            Text(
-                text = node.prompt,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-    }
-}
-
-@Composable
-private fun TodayPathCaption(
-    index: Int,
-    title: String,
-    statusLabel: String,
-    highlighted: Boolean,
-    alignRight: Boolean,
-    modifier: Modifier = Modifier,
-) {
     Column(
-        modifier = modifier.padding(vertical = 6.dp),
-        horizontalAlignment = if (alignRight) Alignment.End else Alignment.Start,
+        modifier = modifier.padding(horizontal = LabSpacing.XSmall, vertical = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         Text(
-            text = "${index + 1}. $title",
-            style = MaterialTheme.typography.titleSmall,
+            text = value,
+            style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Black,
-            textAlign = if (alignRight) TextAlign.End else TextAlign.Start,
+            color = accent,
+            maxLines = 1,
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        Text(
-            text = statusLabel,
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Bold,
-            color = if (highlighted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun TodayFocusCard(
+    weaknesses: List<String>,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        shape = MaterialTheme.shapes.large,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.8f)),
+        shadowElevation = 1.dp,
+    ) {
+        Row(
+            modifier = Modifier.padding(LabSpacing.Medium),
+            horizontalArrangement = Arrangement.spacedBy(LabSpacing.Small),
+            verticalAlignment = Alignment.Top,
+        ) {
+            Surface(
+                modifier = Modifier.size(44.dp),
+                color = LabTheme.colors.infoContainer,
+                contentColor = LabTheme.colors.info,
+                shape = CircleShape,
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Rounded.TrackChanges,
+                        contentDescription = null,
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(LabSpacing.XSmall),
+            ) {
+                Text(
+                    text = "今天只盯这几个点",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    text = "结合错题信号与常见易错点提炼",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    weaknesses.forEach { weakness ->
+                        TagChip(text = weakness)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private data class TodayPlan(
+    val dueReviewCount: Int,
+    val newContentCount: Int,
+    val estimatedMinutes: Int,
+    val nextEpisodeLabel: String,
+    val weaknesses: List<String>,
+)
+
+@Composable
+private fun rememberTodayPlan(uiState: LabUiState): TodayPlan {
+    return remember(uiState.reviewTasks, uiState.mistakes, uiState.lesson.nodes, uiState.focus.episodeLabel) {
+        val due = (uiState.reviewTasks.map { it.itemId } + uiState.mistakes.map { it.itemId }).distinct().size
+        val newContent = uiState.lesson.nodes.size.coerceAtLeast(6)
+        val minutes = ((due.coerceAtMost(8) * 2) + (newContent / 4)).coerceIn(5, 25)
+        TodayPlan(
+            dueReviewCount = due,
+            newContentCount = newContent,
+            estimatedMinutes = minutes,
+            nextEpisodeLabel = uiState.focus.episodeLabel,
+            weaknesses = weaknessLabels(uiState).take(3),
         )
     }
 }
 
-private fun LessonNode.pathIcon() = when (typeLabel) {
-    "读空气" -> Icons.Rounded.Psychology
-    "学习卡" -> Icons.Rounded.AutoStories
-    else -> Icons.Rounded.Bolt
+private fun weaknessLabels(uiState: LabUiState): List<String> {
+    val fromMistakes = uiState.mistakes
+        .map { it.typeLabel }
+        .map { label ->
+            when {
+                label.contains("词") || label.contains("学习卡") -> "词义混淆"
+                label.contains("语法") || label.contains("填空") -> "语法功能"
+                label.contains("听") || label.contains("跟读") -> "听力跟读"
+                label.contains("语言") || label.contains("读空气") -> "语境判断"
+                else -> "语境判断"
+            }
+        }
+        .distinct()
+    return (fromMistakes + listOf("语境判断", "词义混淆", "语法功能")).distinct()
 }
 
-private fun pathStatusLabel(done: Boolean, current: Boolean): String {
-    return when {
-        done -> "已完成"
-        current -> "继续"
-        else -> "待解锁"
+/** Greeting + date line for the page header, e.g. "下午好 · 7月26日 周日". */
+private fun todayHeaderLine(): String {
+    val calendar = Calendar.getInstance()
+    val greeting = when (calendar.get(Calendar.HOUR_OF_DAY)) {
+        in 5..10 -> "早上好"
+        in 11..13 -> "中午好"
+        in 14..17 -> "下午好"
+        in 18..22 -> "晚上好"
+        else -> "夜深了"
     }
+    val weekdays = listOf("周日", "周一", "周二", "周三", "周四", "周五", "周六")
+    val weekday = weekdays[(calendar.get(Calendar.DAY_OF_WEEK) - 1).coerceIn(0, 6)]
+    val month = calendar.get(Calendar.MONTH) + 1
+    val day = calendar.get(Calendar.DAY_OF_MONTH)
+    return "$greeting · ${month}月${day}日 $weekday"
 }

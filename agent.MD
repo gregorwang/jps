@@ -1,5 +1,6 @@
 # Agent Rules
 
+- DO NOT send optional commentary.
 - Do not call Playwright in this project unless the user explicitly asks for browser automation or E2E testing. Prefer TypeScript, build, lint, or unit tests for routine verification to avoid unnecessary token and runtime cost.
 - Exception: if the user reports a UI/rendering mismatch, especially "backend/API returns data but the frontend does not show it", use browser verification before declaring the issue fixed. Check the actual rendered DOM text, visible controls, network responses, console errors, and service worker/cache behavior. A passing build plus a correct API response is not enough for UI bugs.
 
@@ -14,6 +15,10 @@
 
 ## Product UI Judgment Rules
 
+- For Android product/UI iteration, spend the majority of the turn on product logic, creative direction, interaction design, and implementation. Do not consume the turn by manually answering exercises one by one or repeatedly proving streak, sound, haptic, or animation triggers that the user can efficiently experience-test.
+- Default Android verification is: compile/build, focused deterministic tests for changed business logic, and one basic launch/crash smoke check. Run long emulator walkthroughs or repeated end-to-end interaction checks only when the user explicitly requests them or when a reported runtime bug cannot be diagnosed otherwise.
+- Hand broad experiential acceptance back to the user with a short checklist of what changed and what to try. Device testing is a safety net, not the main work product.
+- During active exercise redesign, make every implemented question type directly reachable without lesson-node or progression unlock requirements. Add progression gating only in the final integration stage when the user asks for it.
 - When the user asks to make one page match another page, first inspect the referenced page and any screenshots in `public/` before changing colors, spacing, or layout. Extract concrete tokens and structure from the reference: background, card color, borders, accent color, header density, and content hierarchy.
 - Do not interpret "unify style" as "invent a nearby new theme". In this project, pages under the same product area should reuse the existing app shell, light card system, purple/blue accents, and compact control language unless the user explicitly asks for a new visual direction.
 - For learning, quiz, and training surfaces, preserve readability over an arbitrary one-screen target. Do not force long prompts, dialogue context, translations, answers, or explanations into fixed-height cards that clip text or require nested scrolling. Let the document grow vertically when content is genuinely long.

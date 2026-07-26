@@ -13,6 +13,8 @@ data class LessonSession(
     val index: Int = 0,
     val correct: Int = 0,
     val answered: Int = 0,
+    val currentStreak: Int = 0,
+    val bestStreak: Int = 0,
     val feedback: AnswerFeedback? = null,
 ) {
     val currentNode: LessonNode? = nodes.getOrNull(index)
@@ -35,9 +37,12 @@ object LessonEngine {
         if (session.feedback != null) return session
 
         val correct = isCorrect(node, selected)
+        val nextStreak = if (correct) session.currentStreak + 1 else 0
         return session.copy(
             correct = session.correct + if (correct) 1 else 0,
             answered = session.answered + 1,
+            currentStreak = nextStreak,
+            bestStreak = maxOf(session.bestStreak, nextStreak),
             feedback = AnswerFeedback(
                 correct = correct,
                 selected = selected,
@@ -64,7 +69,7 @@ object LessonEngine {
             is ClozeNode -> selected == node.answer
             is TileOrderNode -> selected == node.expectedAnswer
             is PairMatchNode -> selected == node.expectedAnswer
-            is ShadowingNode -> selected in node.ratings
+            is ShadowingNode -> selected == "像原声" || selected == "大致跟上"
         }
     }
 }

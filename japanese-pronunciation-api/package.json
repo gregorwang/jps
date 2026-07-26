@@ -1,0 +1,45 @@
+{
+  "name": "ajl-pronunciation-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "deploy:dry": "wrangler deploy --dry-run --outdir .wrangler/dry-run",
+    "types": "wrangler types",
+    "types:check": "wrangler types --check",
+    "typecheck": "tsc --noEmit",
+    "openapi:check": "node scripts/validate-openapi.mjs",
+    "lint": "oxlint --type-aware src test scripts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "secrets:bootstrap": "node scripts/bootstrap-secrets.mjs",
+    "secrets:deploy": "node scripts/deploy-secret.mjs",
+    "seed:build": "node scripts/build-kv-bulk.mjs",
+    "seed:sync": "node scripts/sync-course-sentences.mjs",
+    "seed:sync:remote": "pnpm seed:sync && pnpm seed:remote",
+    "seed:local": "wrangler kv bulk put .generated/sentences-kv.json --binding SENTENCES --local",
+    "seed:remote": "wrangler kv bulk put .generated/sentences-kv.json --binding SENTENCES --remote",
+    "ticket": "node scripts/create-ticket.mjs",
+    "db:migrate:local": "wrangler d1 migrations apply ajl-pronunciation-prod --local",
+    "db:migrate:remote": "wrangler d1 migrations apply ajl-pronunciation-prod --remote"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "kuromoji": "0.1.2",
+    "oxlint": "^1.73.0",
+    "oxlint-tsgolint": "^0.24.0",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.0",
+    "wrangler": "^4.110.0",
+    "yaml": "^2.8.1"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "packageManager": "pnpm@11.7.0",
+  "dependencies": {
+    "wanakana": "5.3.1"
+  }
+}

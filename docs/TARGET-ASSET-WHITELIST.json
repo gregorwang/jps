@@ -1,0 +1,468 @@
+{
+  "schemaVersion": 1,
+  "generatedOn": "2026-07-10",
+  "releasePolicy": "internal-reference-assets-must-not-ship-without-rights-clearance",
+  "assets": [
+    {
+      "key": "SessionCompleteCelebration",
+      "owner": "ui-completion",
+      "status": "internal-only",
+      "license": "internal-reference-only",
+      "evidence": "E3_RUNTIME",
+      "verification": "V2_SCREENSHOT",
+      "primary": [
+        {
+          "resource": "raw/session_complete_bea_duo.json",
+          "sha256": "B87D39E381D22020D52C0E7CB7DC89CDEE631C588CBEA34515606FB0F48B469C"
+        },
+        {
+          "resource": "raw/complete_particles_loop.json",
+          "sha256": "38FCB00F36EB619267461CF6E40D199AEC6F5BD8C6D4EAE2A0B1A582C970E7F5"
+        },
+        {
+          "resource": "raw/complete_stars_loop.json",
+          "sha256": "32424BE4A68D8119A18680359C347B5BC8529912575AD75B9ECCAADC21DAD88F"
+        }
+      ],
+      "fallbacks": [
+        "raw/duo_funboarding_celebration.json",
+        "raw/session_complete_stats_sparkles.json",
+        "original-compose-jl-hero"
+      ],
+      "evidenceRefs": [
+        "C:/Users/\u6c6a\u5bb6\u4fca/proui/mirror-app/MIRROR-APP-FUSION-PLAYBOOK-20260710.zh-CN.md",
+        "C:/Users/\u6c6a\u5bb6\u4fca/proui/mirror-app/ASSET-INTEGRATION-REPORT-20260710.zh-CN.md",
+        "C:/Users/\u6c6a\u5bb6\u4fca/proui/mirror-app/verification-screenshots/emulator-5554-20260710-integrated-final/session_summary.png"
+      ],
+      "knownIssues": [
+        "No public distribution clearance recorded.",
+        "Animation is presentation only and must not own lesson state or navigation."
+      ]
+    },
+    {
+      "key": "TrainingPathAmbientCompanion",
+      "owner": "ui-training-path",
+      "status": "internal-only",
+      "license": "internal-reference-only",
+      "evidence": "E1_E2_CANDIDATE",
+      "verification": "V1_PREVIEW",
+      "primary": [
+        {
+          "resource": "raw/path_bea_smores.json",
+          "sha256": "05F41C6E014341563A5311C2899D5A7524B8072019B41A463951950BB3B8DAD3"
+        }
+      ],
+      "fallbacks": [
+        "original-compose-companion-mark"
+      ],
+      "knownIssues": [
+        "Resource family is verified, but the original app's exact current-node assignment is not closed.",
+        "Decorative only; it cannot own path state, click handling, or progression."
+      ]
+    },
+    {
+      "key": "TrainingPathLockedCompanionSmores",
+      "owner": "ui-training-path",
+      "status": "internal-only",
+      "license": "internal-reference-only",
+      "evidence": "E2_STATIC",
+      "verification": "V2_SCREENSHOT",
+      "primary": [
+        {
+          "resource": "drawable/path_bea_smores_locked.xml",
+          "sha256": "074E74A423B21D6BA768014B3479C107BB2FAC368C25E31C140499B5A852CD71"
+        }
+      ],
+      "fallbacks": [
+        "none"
+      ]
+    },
+    {
+      "key": "TrainingPathLockedCompanionTennis",
+      "owner": "ui-training-path",
+      "status": "internal-only",
+      "license": "internal-reference-only",
+      "evidence": "E2_STATIC",
+      "verification": "V2_SCREENSHOT",
+      "primary": [
+        {
+          "resource": "drawable/path_bea_tennis_locked.xml",
+          "sha256": "BC22B583F6C4B88DE2ED225959C285C9F3A8E2AB5F8DD7FE156D91D55FF1F0E1"
+        }
+      ],
+      "fallbacks": [
+        "none"
+      ]
+    },
+    {
+      "key": "TrainingPathLockedRewardChest",
+      "owner": "ui-training-path",
+      "status": "internal-only",
+      "license": "internal-reference-only",
+      "evidence": "E2_STATIC",
+      "verification": "V2_SCREENSHOT",
+      "primary": [
+        {
+          "resource": "drawable/common_level_chest_locked_v2.xml",
+          "sha256": "11831AFE79687A374D4D0F7A26127F9DCE6696A3C8BDC503745C153487FABB68"
+        }
+      ],
+      "fallbacks": [
+        "original-compose-lock-icon"
+      ],
+      "knownIssues": [
+        "Only bind to a genuinely non-actionable locked reward node."
+      ]
+    },
+    {
+      "key": "TrainingPathGuidebookIcon",
+      "owner": "ui-training-path",
+      "status": "internal-only",
+      "license": "internal-reference-only",
+      "evidence": "E3_RUNTIME",
+      "verification": "V2_SCREENSHOT",
+      "primary": [
+        {
+          "resource": "drawable/guidebook_white.xml",
+          "sha256": "FAA1C9F98064E2BE375CFD5DDDC7083E82D949F01D97CAF3D3399A7BD591729B"
+        }
+      ],
+      "fallbacks": [
+        "material-menu-book-icon"
+      ]
+    },
+    {
+      "key": "TodayHeroCompanion",
+      "owner": "ui-today",
+      "status": "internal-only",
+      "license": "internal-reference-only",
+      "evidence": "E2_STATIC",
+      "verification": "V2_TARGET_SCREENSHOT",
+      "primary": [
+        {
+          "resource": "raw/path_bea_smores.json",
+          "sha256": "05F41C6E014341563A5311C2899D5A7524B8072019B41A463951950BB3B8DAD3"
+        }
+      ],
+      "fallbacks": [
+        "target-course-artwork"
+      ]
+    },
+    {
+      "key": "LessonPromptCompanion",
+      "owner": "ui-lesson",
+      "status": "internal-only",
+      "license": "internal-reference-only",
+      "evidence": "E2_STATIC",
+      "verification": "V2_TARGET_SCREENSHOT",
+      "primary": [
+        {
+          "resource": "raw/duo_normal_mid_lesson.json",
+          "sha256": "BBA13361166E9B05E0BAE07FA9330F8B0DE62B41E80BA7E55D3D77187B1A4261"
+        }
+      ],
+      "fallbacks": [
+        "target-course-artwork"
+      ]
+    },
+    {
+      "key": "LessonAudioSpeaker",
+      "owner": "ui-lesson-audio",
+      "status": "internal-only",
+      "license": "internal-reference-only",
+      "evidence": "E2_STATIC",
+      "verification": "V2_TARGET_SCREENSHOT",
+      "primary": [
+        {
+          "resource": "raw/speaker_normal_ocean.json",
+          "sha256": "AE4E053944863478106FF08F5EC1F8BA147A9DF3872816A3E6C7AEF83430EFB9"
+        }
+      ],
+      "fallbacks": [
+        "material-volume-icon"
+      ]
+    },
+    {
+      "key": "LessonAnswerFeedbackIcons",
+      "owner": "ui-lesson-feedback",
+      "status": "internal-only",
+      "license": "internal-reference-only",
+      "evidence": "E2_STATIC",
+      "verification": "V2_TARGET_SCREENSHOT",
+      "primary": [
+        {
+          "resource": "drawable/duo_radio_check_correct.xml",
+          "sha256": "C3BDCD4E8B946FE8A37121F8BEC2EFDC256997EAE4D484B8E255B3EF794E69AF"
+        },
+        {
+          "resource": "drawable/duo_radio_x_incorrect.xml",
+          "sha256": "9C1EA9BBE0BE8311415F65A8C4340993076726FE078044569F95548444E7B36C"
+        }
+      ],
+      "fallbacks": [
+        "material-check-close-icons"
+      ]
+    },
+    {
+      "key": "LessonProgressRive",
+      "owner": "ui-lesson-progress",
+      "status": "internal-only",
+      "license": "internal-reference-only",
+      "evidence": "E3_RUNTIME",
+      "verification": "V2_TARGET_VIDEO",
+      "primary": [
+        {
+          "resource": "raw/in_lesson_pb_008.riv",
+          "sha256": "8E59380FA4A74F7963DD2972BE853AF29C20F77AD087166FB9E96D809B09D8B4"
+        }
+      ],
+      "fallbacks": [
+        "target-compose-progress-bar"
+      ],
+      "evidenceRefs": [
+        "android-app/verification-2026-07-10-fusion-phase1/cta-combo2.mp4"
+      ]
+    },
+    {
+      "key": "LessonStreakDelightRive",
+      "owner": "ui-lesson-feedback",
+      "status": "internal-only",
+      "license": "internal-reference-only",
+      "evidence": "E2_STATIC_AND_RUNTIME_BINDING",
+      "verification": "V2_TARGET_VIDEO",
+      "primary": [
+        {
+          "resource": "raw/streakmidlesson_xinarow_31.riv",
+          "sha256": "CEB8CBEDB2D5F5C1BB493C242A76CDC5FB39DADF83EDEF6E9E5CBADABE2855F7"
+        }
+      ],
+      "fallbacks": [
+        "target-compose-streak-pill"
+      ],
+      "evidenceRefs": [
+        "android-app/verification-2026-07-10-fusion-phase1/streak-x5.mp4"
+      ]
+    },
+    {
+      "key": "LessonCtaLightningRive",
+      "owner": "ui-lesson-feedback",
+      "status": "internal-only",
+      "license": "internal-reference-only",
+      "evidence": "E3_RUNTIME",
+      "verification": "V2_TARGET_VIDEO",
+      "primary": [
+        {
+          "resource": "raw/cta_lightning_09.riv",
+          "sha256": "BBE033C500A10B9A40C6EC411F45EEC305F0CB802AAE17BB696E0449D94EC4AF"
+        }
+      ],
+      "fallbacks": [
+        "none-decorative-only"
+      ],
+      "evidenceRefs": [
+        "android-app/verification-2026-07-10-fusion-phase1/cta-combo2.mp4"
+      ]
+    },
+    {
+      "key": "LessonTranslationJuniorCoach",
+      "owner": "ui-lesson-translation",
+      "status": "internal-only",
+      "license": "internal-reference-only",
+      "evidence": "E2_STATIC_SCHEMA",
+      "verification": "V1_BUILD_USER_UX_PENDING",
+      "primary": [
+        {
+          "resource": "raw/junior_inlesson_v01_13.riv",
+          "sha256": "08C6E77C94C2C66BEC6E7F6D1AA1BD34359DDCEC3C4207A03000447E101E710F"
+        }
+      ],
+      "fallbacks": [
+        {
+          "resource": "drawable/in_challenge_junior.xml",
+          "sha256": "0EF7B3CF217768273E97E07D4F0C8C09F9EB224269324C313DA66B3EF5807BC6"
+        }
+      ],
+      "knownIssues": [
+        "Personal/internal use only; no public distribution clearance recorded.",
+        "Junior is presentation-only; translation ordering and grading remain target-owned."
+      ]
+    },
+    {
+      "key": "LessonDuoRadioListeningMatch",
+      "owner": "ui-lesson-pair-match",
+      "status": "internal-only",
+      "license": "internal-reference-only",
+      "evidence": "E2_STATIC_SCHEMA",
+      "verification": "V1_BUILD_USER_UX_PENDING",
+      "primary": [
+        {
+          "resource": "raw/duo_radio_host.riv",
+          "sha256": "190017F666D68FEC4BEE09DF67808FE3E2B7B79501F053266566AFBB1C81C27C"
+        },
+        {
+          "resource": "drawable/listen_match_wave_1.xml",
+          "sha256": "5A975B5963176850785155AB8FE8DEEF0CB4C8BD661CDE51CC2E503A4507ECA7"
+        },
+        {
+          "resource": "drawable/listen_match_wave_2.xml",
+          "sha256": "F661F2ED6E36DEA02D0158AD76E09A6A85856C214029B65B3CEFC0BFF1BBC9EC"
+        },
+        {
+          "resource": "drawable/listen_match_wave_3.xml",
+          "sha256": "5281FB9AF0A8DFF329649DAD3F0F75741723D9F4A7BDE5271199CA74B446964C"
+        },
+        {
+          "resource": "drawable/listen_match_wave_4.xml",
+          "sha256": "8955C615EFD7AFD1E299465F5D9F21F1BCE7B437C6EEAE8C5415AECB82960880"
+        }
+      ],
+      "fallbacks": [
+        {
+          "resource": "drawable/duoradio_host_falstaff_exercise.xml",
+          "sha256": "423D36E836BD98D8030E57CFCEE3AE4D0D5398AE52AFEBF4E57AFF2829F6D33E"
+        }
+      ],
+      "knownIssues": [
+        "Personal/internal use only; no public distribution clearance recorded.",
+        "The host and waveforms are visual controls; Japanese audio still comes from the target app audio pipeline."
+      ]
+    },
+    {
+      "key": "LessonAudioOrderWaveform",
+      "owner": "ui-lesson-audio-order",
+      "status": "internal-only",
+      "license": "internal-reference-only",
+      "evidence": "E2_STATIC",
+      "verification": "V1_BUILD_USER_UX_PENDING",
+      "primary": [
+        {
+          "resource": "raw/listening_waveform_speaker.json",
+          "sha256": "6AD37EE84DE41B511901C1BFF4B76D5C838DB8C3C62676CAF9F93B027C1994FE"
+        }
+      ],
+      "fallbacks": [
+        "material-volume-icon"
+      ]
+    },
+    {
+      "key": "CourseAnimeCharacterPack",
+      "owner": "ui-course-character-system",
+      "status": "internal-only",
+      "license": "official-rights-reserved-personal-local-use",
+      "evidence": "E2_OFFICIAL_SOURCE",
+      "verification": "V1_BUILD_USER_UX_PENDING",
+      "primary": [
+        {
+          "resource": "drawable-nodpi/k_on_yui_character.gif",
+          "sha256": "05DCD50D649094E9EA06C1B8F3E535408B2614CF13D08E194B1CA8B268AAB8DB"
+        },
+        {
+          "resource": "drawable-nodpi/k_on_mio_character.gif",
+          "sha256": "AF7433CD621C43291E9B1B6F8164767898431EC28AA2E67565DC81E1F23898E5"
+        },
+        {
+          "resource": "drawable-nodpi/k_on_ritsu_character.gif",
+          "sha256": "784B9367E435E088AF4715A8099DD5F163A421B23562364918AE695946EDB20A"
+        },
+        {
+          "resource": "drawable-nodpi/k_on_mugi_character.gif",
+          "sha256": "92257E27276147680219505CC08E61C077F8E9A966F97D305A68FF1597AB6955"
+        },
+        {
+          "resource": "drawable-nodpi/k_on_azusa_character.gif",
+          "sha256": "C872B71B0129692EA0E9C6DE9133899C8E4F43EB2F53A64B5B51DF399B02813C"
+        },
+        {
+          "resource": "drawable-nodpi/k_on_azusa_character_v2.gif",
+          "sha256": "0B7497834ED9650E804581EA4A997BADBF450B466D02DB98F3BA2C97763F4D71"
+        },
+        {
+          "resource": "drawable-nodpi/k_on_ui_character.gif",
+          "sha256": "8C9030DFAD7E8981C370E6ADA1BC0586515734BCD5727F2D1ECB7BF20A7D0792"
+        },
+        {
+          "resource": "drawable-nodpi/k_on_sawako_character.gif",
+          "sha256": "8C92BCF2E3FF0AECBC7F166BCD6A8BEB4B714F4431CB4F6161B1ACA5C72B55F9"
+        },
+        {
+          "resource": "drawable-nodpi/k_on_jun_character.gif",
+          "sha256": "6B74A95329A13825875604BFC671CEF4F6F19B7426FC8C11D6BDEC176617FA9A"
+        },
+        {
+          "resource": "drawable-nodpi/rezero_subaru_character.jpg",
+          "sha256": "CF351E76B3B77A0BCBAD4276511F05FFFDF5FAD5081DD00A3FFC1C872E871E77"
+        },
+        {
+          "resource": "drawable-nodpi/rezero_emilia_character.jpg",
+          "sha256": "8E73806DD1D6A5BF9907AA7CD3762E63D873A62C418F0803EED8CB04F0DD6200"
+        },
+        {
+          "resource": "drawable-nodpi/rezero_puck_character.jpg",
+          "sha256": "09138E8C8D132945EF68758E16B771B3E23BA657DBFA99CC5162AF9D5A9E5AA8"
+        },
+        {
+          "resource": "drawable-nodpi/rezero_ram_character.jpg",
+          "sha256": "56913F72F9414B5FD68CA97FC75B75F3541A142EC4EABC034BBAAC574187EE7B"
+        },
+        {
+          "resource": "drawable-nodpi/rezero_rem_character.jpg",
+          "sha256": "B3A5F39D442B19EB238347A608D81A9957F818B3C0A9375D8080188E3F369ECD"
+        },
+        {
+          "resource": "drawable-nodpi/rezero_beatrice_character.jpg",
+          "sha256": "6953833F9C8D2A4EA68AAA7789B842EE6AA811D4F4D3D86995740BA9EDB5504E"
+        },
+        {
+          "resource": "drawable-nodpi/rezero_otto_character.jpg",
+          "sha256": "441A494B422F8634FA479B25D2C0487079BF561E024BB065319D98EEA2B72C3E"
+        },
+        {
+          "resource": "drawable-nodpi/rezero_frederica_character.jpg",
+          "sha256": "B53DE64E297E07A6FC77036549F2DDEDF6EA16C73589AD418FF6C4CA669E68D6"
+        },
+        {
+          "resource": "drawable-nodpi/rezero_echidna_character.jpg",
+          "sha256": "22C4ACC4D4FBD9EB9BD965C218D84888A734F2D508C942D0121DB192A602A80E"
+        },
+        {
+          "resource": "drawable-nodpi/rezero_petelgeuse_character.jpg",
+          "sha256": "9643987A241F32CA219D0FBB38389EFE1E23190D5349F159981A41C7F93039D3"
+        }
+      ],
+      "fallbacks": [
+        "original-compose-course-icon"
+      ],
+      "evidenceRefs": [
+        "https://www.tbs.co.jp/anime/k-on/k-on_tv/chara/chara.html",
+        "https://re-zero.com/character/"
+      ],
+      "knownIssues": [
+        "Personal/internal use only; no public distribution clearance recorded.",
+        "Decorative only; lesson selection, audio, matching and grading remain target-owned.",
+        "Role and episode mappings are deterministic; recomposition must never choose a random character."
+      ]
+    },
+    {
+      "key": "LessonAnswerSounds",
+      "owner": "ui-feedback-sound",
+      "status": "internal-only",
+      "license": "internal-reference-only",
+      "evidence": "E2_STATIC",
+      "verification": "V1_LOCAL_RUNTIME",
+      "primary": [
+        {
+          "resource": "raw/right_answer.mp3",
+          "sha256": "C509A5957AF198939AE868C9CF17676D00927D400B7C721EA08D3F734C39301E"
+        },
+        {
+          "resource": "raw/wrong_answer.mp3",
+          "sha256": "BC134B0E6339896B74486065E94B1E2053015E3D8D69F890E9E631424980EE1E"
+        }
+      ],
+      "fallbacks": [
+        "raw/feedback_success.mp3",
+        "raw/feedback_error.mp3"
+      ]
+    }
+  ]
+}

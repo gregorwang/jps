@@ -1,0 +1,13 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "anime-japanese-lab-android-updates",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-13",
+  "workers_dev": true,
+  "r2_buckets": [
+    {
+      "binding": "ANDROID_RELEASES",
+      "bucket_name": "anime-japanese-lab-android-updates"
+    }
+  ]
+}
