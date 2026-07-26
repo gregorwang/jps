@@ -271,9 +271,10 @@ Do not print session cookies, passwords, authorization headers, release password
 Observed after the 2026-07-26 search/profile/SRS pass (RAG subtitle search `SearchScreen`, character language profiles, SRS-weighted review planning with due buckets, mistake→source-line jump — see `ANDROID_PRODUCT_ROADMAP.md` "已完成"; also same-day reading/explanation pass: furigana annotation, linguistic card payloads, sentence deep-dive, AI history screen; new `ui/reading/` package, `data/FuriganaCache.kt`, `ui/screens/AiHistoryScreen.kt`, `ui/screens/SearchScreen.kt`):
 
 - Third same-day pass added: JLPT vocab filtering, episode plan card, change-password, online AI model list, real XP (`learningXp`), and a dead-code sweep (MineScreen.kt deleted; ~2,142 unreferenced lines removed from the four big screens).
-- `testDebugUnitTest`: **BUILD SUCCESSFUL, all tests green** (27 test files; +`LearningXpTest`, `ReadingLayerParsingTest`/`LinguisticCardPipingTest`, `SmartReviewPlannerTest` extended for the SRS priority formula).
+- 2026-07-27 pass added: offline content cache (`data/EpisodeContentCache.kt`, IOException-only fallback for catalog/content GETs), exercise-type mapping repairs (`databaseDistractorPool`, explicit `reading_air_tone` exclusion), client-side subtitle scene grouping (collapsible, focus-jump aware), dead-code round 3 (−148 lines).
+- `testDebugUnitTest`: **BUILD SUCCESSFUL, all tests green** (29 test files; + `EpisodeContentCacheTest`, `ExerciseTypeMappingTest`).
 - `lintDebug`: **0 errors** (report at `app/build/reports/lint-results-debug.html`).
-- `assembleLocalSlim`: successful incl. R8, resource shrinking, Lint Vital. APK `app\build\outputs\apk\localSlim\app-localSlim.apk`, 23,440,661 bytes, SHA-256 `6BD3CDD0DB9B104722A6EC2DF90306878BECD2EB28C3DBFAA69749F3C9913F6F`.
+- `assembleLocalSlim`: successful incl. R8, resource shrinking, Lint Vital. APK `app\build\outputs\apk\localSlim\app-localSlim.apk`, 23,440,661 bytes, SHA-256 `35AA72FC913CB850A79F1C0A616270EC6F0C8AC097FCAF7B352FA3F3C6CC2721`.
 - Known pre-existing Kotlin deprecation warnings: `LocalClipboardManager` in LessonScreen/ReadAirScreen/SubtitleBrowserScreen.
 - Emulator smoke test not re-run in this pass (source-level + build verification only). Same for the earlier same-day UI/design-system overhaul (theme rework, per-screen refresh, `LabTheme.colors` semantic tokens).
 

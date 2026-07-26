@@ -32,6 +32,7 @@ class RemoteLabClient(
     private val baseUrl: String,
     private val sessionCookie: String = "",
     pronunciationBaseUrl: String = DefaultPronunciationApiBaseUrl,
+    private val contentCache: EpisodeContentCache? = null,
 ) {
     private val normalizedBase = baseUrl.trim().trimEnd('/')
     private val normalizedPronunciationBase = pronunciationBaseUrl.trim().trimEnd('/')
@@ -497,7 +498,20 @@ class RemoteLabClient(
         )
     }
 
-    private fun get(path: String): String = request("GET", path, null)
+    private fun get(path: String): String {
+        if (contentCache == null || !isCacheableContentPath(path)) {
+            return request("GET", path, null)
+        }
+        val fresh = try {
+            request("GET", path, null)
+        } catch (error: java.io.IOException) {
+            // Connectivity failure: fall back to the last good copy. HTTP errors
+            // (IllegalStateException) deliberately do NOT serve stale content.
+            return contentCache.read(path) ?: throw error
+        }
+        contentCache.write(path, fresh)
+        return fresh
+    }
 
     private fun post(path: String, body: JSONObject): String = request("POST", path, body.toString())
 
@@ -795,6 +809,17 @@ internal fun parseAiHistoryDetailJson(json: String): AiHistoryDetail? {
         createdAt = response.string("createdAt", response.string("updatedAt")),
         result = parsedResult,
     )
+}
+
+/**
+ * Only catalog/content reads may be served from [EpisodeContentCache]; auth,
+ * progress, review, AI and RAG endpoints always go to the network.
+ */
+internal fun isCacheableContentPath(path: String): Boolean {
+    val pathname = path.substringBefore('?')
+    return pathname == "/api/works" ||
+        pathname.startsWith("/api/works/") ||
+        pathname == "/api/linguistic-exercises"
 }
 
 /** Catalog slug → Vectorize index slug (`re-zero` → `rezero`, everything else → `k-on`). */

@@ -230,6 +230,13 @@ curl -s -X POST -H "Authorization: Bearer $env:SUPABASE_TOKEN" -H "Content-Type:
 
 ## 已完成
 
+2026-07-27 第四批(离线与内容质量;`testDebugUnitTest` 全绿 + `lintDebug` 0 错误 + `assembleLocalSlim` 成功):
+
+- **P2-离线内容包(原 5.4,仅Android)**:新增 `data/EpisodeContentCache.kt`(filesDir/content-cache,原子写,400 条上限自动清理)。`RemoteLabClient.get` 对目录/内容类路径(works/episodes/vocab/grammar/sentences/exercises/plan/subtitles/linguistic-exercises)网络成功即写缓存、**连接失败(IOException)回退最后一次成功响应**;HTTP 错误不吃陈旧数据;auth/进度/AI/RAG 永远直连。打开过的集数断网可学,本地进度先行语义不变。+`EpisodeContentCacheTest` 6 用例。
+- **P1-7(原 4.7)练习题型映射审计**:审出 grammar_short_answer/sentence_meaning 因同型干扰池过小被**静默丢弃**、kana_to_kanji 无关联词汇时被丢弃、reading_air_tone 泄漏原始 slug 进 sourceLabel——全部修复(新增 `databaseDistractorPool` 跨同域借池、kana_to_kanji 原样渲染、`UnrenderableExerciseTypes` 显式排除 reading_air_tone、空答案防御)。+`ExerciseTypeMappingTest` 7 用例。**遗留决策项**:kana_to_kanji 在有关联词汇时的既有"改写为词义题"行为与 LearningModels 红线冲突,但被既有测试锁定——需产品确认后连测试一起改。
+- **P1-8(原 4.8)字幕场景分组(客户端先行版)**:按时间间隔(>9s)切场景,场景头(编号+时间范围+行数)可折叠,「场景分组」chip 默认开;搜索时自动平铺;LazyColumn 改为单一 item 描述列表驱动,外部行定位在分组/折叠四种情形下索引一致(定位前自动展开目标场景)。后端 chunk 版仍见 §4.8 [需后端]。
+- **工程清理第三轮(收尾)**:再删 4 个无引用函数 + 26 条无用 import(−148 行,委托 import 例外表保护);新暴露 4 个第四轮候选已记录在案。
+
 2026-07-26 第三批(P1 收尾 + 真实数据 + 工程清理;`testDebugUnitTest` 全绿 + `lintDebug` 0 错误 + `assembleLocalSlim` 成功):
 
 - **P1-1(原 4.1)JLPT 难度贯穿**:资料库词汇区 N5→N1 筛选 chips(带当前集词数、rememberSaveable 记忆、与搜索叠加过滤),词汇卡等级标签按难度语义着色(N5/N4 绿、N3 蓝、N2 橙、N1 红容器色)。

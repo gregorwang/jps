@@ -7,6 +7,7 @@ private const val AndroidSpecialtyBatchSize = 6
 private const val VocabSpecialtyBatchSize = 20
 private const val DatabaseExercisesPerTypePerBatch = 8
 private const val MaxDistractorCandidates = 48
+private const val DatabaseExerciseNeutralExplanation = "题干与答案来自本集已发布题库。"
 
 private val VocabExerciseTypes = setOf(
     "vocab_meaning",
@@ -17,6 +18,13 @@ private val VocabExerciseTypes = setOf(
 )
 private val GrammarExerciseTypes = setOf("grammar_meaning", "grammar_short_answer")
 private val SentenceExerciseTypes = setOf("sentence_understanding", "sentence_meaning")
+
+/**
+ * Published types dropped on purpose instead of falling through to the generic choice branch.
+ * `reading_air_tone` answers describe tone and subtext, so rendering them next to vocabulary or
+ * sentence answers would silently turn the published question into a different learning task.
+ */
+private val UnrenderableExerciseTypes = setOf("reading_air_tone")
 
 class SampleLearningRepository {
     val defaultSelection = EpisodeSelection(workSlug = "k-on", episode = 1)
@@ -862,57 +870,84 @@ class SampleLearningRepository {
         limit: Int = Int.MAX_VALUE,
     ): List<SingleChoiceNode> {
         val usable = exercises.filter { exercise ->
-            exercise.exerciseType.isNotBlank() && exercise.prompt.isNotBlank() && exercise.answer.isNotBlank()
+            exercise.exerciseType.isNotBlank() &&
+                exercise.exerciseType !in UnrenderableExerciseTypes &&
+                exercise.prompt.isNotBlank() &&
+                exercise.answer.isNotBlank()
         }
         val vocabById = vocab.associateBy(VocabItem::id)
         val answersByType = usable.groupBy { it.exerciseType }
             .mapValues { (_, values) -> values.map { it.answer }.distinct() }
         return usable.mapIndexedNotNull { index, exercise ->
             val linkedVocab = vocabById[exercise.vocabItemId]
+                ?.takeIf { it.surface.isNotBlank() && it.meaningZh.isNotBlank() }
             val isKanaToKanji = exercise.exerciseType == "kana_to_kanji"
-            if (isKanaToKanji && linkedVocab == null) return@mapIndexedNotNull null
-            val prompt = if (isKanaToKanji) {
+            val useLinkedMeaning = isKanaToKanji && linkedVocab != null
+            val prompt = if (useLinkedMeaning) {
                 "「${linkedVocab?.surface.orEmpty()}」是什么意思？"
             } else {
                 exercise.prompt
             }
-            val answer = if (isKanaToKanji) linkedVocab?.meaningZh.orEmpty() else exercise.answer
-            val distractorValues = if (isKanaToKanji) {
+            val answer = if (useLinkedMeaning) linkedVocab?.meaningZh.orEmpty() else exercise.answer
+            if (answer.isBlank()) return@mapIndexedNotNull null
+            val distractorValues = if (useLinkedMeaning) {
                 vocab.map(VocabItem::meaningZh).filter(String::isNotBlank)
             } else {
-                answersByType[exercise.exerciseType].orEmpty()
+                databaseDistractorPool(exercise, answersByType, vocab)
             }
             val choices = buildDistractors(values = distractorValues, answer = answer, offset = index)
             if (choices.size < 2) return@mapIndexedNotNull null
             SingleChoiceNode(
                 id = exercise.id,
-                title = if (isKanaToKanji) "选择正确词义" else databaseExerciseTitle(exercise.exerciseType),
+                title = if (useLinkedMeaning) "选择正确词义" else databaseExerciseTitle(exercise.exerciseType),
                 prompt = prompt,
-                explanation = if (isKanaToKanji) {
-                    listOfNotNull(
+                explanation = when {
+                    useLinkedMeaning -> listOfNotNull(
                         linkedVocab?.reading?.takeIf(String::isNotBlank)?.let { "读音：$it" },
                         linkedVocab?.meaningZh?.takeIf(String::isNotBlank),
                     ).joinToString(" · ")
-                } else {
-                    exercise.hint.trim()
+
+                    isKanaToKanji -> exercise.hint.trim().ifBlank { DatabaseExerciseNeutralExplanation }
+                    else -> exercise.hint.trim()
                 },
                 sourceLabel = listOf(
                     "数据库题库",
-                    if (isKanaToKanji) "词义" else databaseExerciseLabel(exercise.exerciseType),
+                    if (useLinkedMeaning) "词义" else databaseExerciseLabel(exercise.exerciseType),
                     exercise.difficulty.uppercase().takeIf { it.isNotBlank() },
-                ).filterNotNull().joinToString(" · "),
+                ).filterNotNull().filter(String::isNotBlank).joinToString(" · "),
                 body = null,
                 choices = choices,
                 answer = answer,
                 sourceKind = databaseExerciseSourceKind(exercise.exerciseType),
                 sourceId = exercise.vocabItemId.ifBlank { exercise.id },
-                audio = if (isKanaToKanji) {
+                audio = if (useLinkedMeaning) {
                     PromptAudio.Tts(linkedVocab?.surface.orEmpty(), autoPlay = true, label = "重播单词")
                 } else {
                     databaseExerciseAudio(exercise)
                 },
             )
         }.take(limit.coerceAtLeast(1))
+    }
+
+    /**
+     * Option pool for a published exercise. Same-type answers come first; a few published types are
+     * too thin inside one episode batch to fill four options on their own, so they borrow from the
+     * closest same-domain pool instead of being dropped. The published answer is never rewritten.
+     */
+    private fun databaseDistractorPool(
+        exercise: LearningExercise,
+        answersByType: Map<String, List<String>>,
+        vocab: List<VocabItem>,
+    ): List<String> {
+        val sameType = answersByType[exercise.exerciseType].orEmpty()
+        val extra = when (exercise.exerciseType) {
+            // Kana -> kanji answers are Japanese surfaces, so episode vocabulary tops up the pool.
+            "kana_to_kanji" -> vocab.map(VocabItem::surface)
+            "grammar_short_answer" -> answersByType["grammar_meaning"].orEmpty()
+            "sentence_meaning" -> answersByType["sentence_understanding"].orEmpty()
+            else -> emptyList()
+        }
+        return (sameType + extra).filter(String::isNotBlank).distinct()
     }
 
     private fun buildDatabasePairNodes(
@@ -999,7 +1034,8 @@ class SampleLearningRepository {
         "grammar_short_answer" -> "语法理解"
         "sentence_understanding",
         "sentence_meaning" -> "台词理解"
-        else -> type
+        // Unknown future types render without a label rather than leaking the raw database slug.
+        else -> ""
     }
 
     private fun databaseExerciseSourceKind(type: String): String = when (type) {

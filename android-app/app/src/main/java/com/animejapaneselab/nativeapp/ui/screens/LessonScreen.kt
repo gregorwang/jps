@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,7 +38,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
@@ -48,11 +46,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.automirrored.rounded.MenuBook
-import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.AutoStories
 import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.EmojiEvents
@@ -68,8 +64,6 @@ import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -77,7 +71,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -115,7 +108,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.animejapaneselab.nativeapp.data.ClozeNode
-import com.animejapaneselab.nativeapp.data.EpisodeOption
 import com.animejapaneselab.nativeapp.data.EpisodePlan
 import com.animejapaneselab.nativeapp.data.FuriganaResult
 import com.animejapaneselab.nativeapp.data.LabSettings
@@ -154,36 +146,25 @@ import com.animejapaneselab.nativeapp.ui.components.JuicyLessonProgressBar
 import com.animejapaneselab.nativeapp.ui.components.JuicyLessonTone
 import com.animejapaneselab.nativeapp.ui.components.CourseCharacterArtwork
 import com.animejapaneselab.nativeapp.ui.components.CourseCharacterRole
-import com.animejapaneselab.nativeapp.ui.components.LabCard
-import com.animejapaneselab.nativeapp.ui.components.LearningChoiceButton
 import com.animejapaneselab.nativeapp.ui.components.LearningTileButton
-import com.animejapaneselab.nativeapp.ui.components.PrimaryButton
 import com.animejapaneselab.nativeapp.ui.components.RewardMetricCard
-import com.animejapaneselab.nativeapp.ui.components.SectionTitle
 import com.animejapaneselab.nativeapp.ui.components.TagChip
 import com.animejapaneselab.nativeapp.ui.feedback.FeedbackEvent
 import com.animejapaneselab.nativeapp.ui.feedback.LearningAssetRegistry
 import com.animejapaneselab.nativeapp.ui.feedback.LocalFeedbackEngine
-import com.animejapaneselab.nativeapp.ui.feedback.LocalRiveMascotController
 import com.animejapaneselab.nativeapp.ui.feedback.VisualAsset
 import com.animejapaneselab.nativeapp.ui.fusion.AnimeLabFusionDrawableResolver
 import com.animejapaneselab.nativeapp.ui.fusion.AnimeLabFusionRollout
 import com.animejapaneselab.nativeapp.ui.fusion.FusionDrawableHost
 import com.animejapaneselab.nativeapp.ui.fusion.FusionVisualKey
-import com.animejapaneselab.nativeapp.ui.motion.AnimatedAnswerOption
-import com.animejapaneselab.nativeapp.ui.motion.AnimatedLessonNode
-import com.animejapaneselab.nativeapp.ui.motion.AnswerOptionState
 import com.animejapaneselab.nativeapp.ui.motion.LessonPageTransition
-import com.animejapaneselab.nativeapp.ui.motion.LessonNodeVisualState
 import com.animejapaneselab.nativeapp.ui.motion.MotionTokens
-import com.animejapaneselab.nativeapp.ui.motion.PressablePrimaryButton
 import com.animejapaneselab.nativeapp.ui.motion.rememberReducedMotion
 import com.animejapaneselab.nativeapp.ui.reading.RubyText
 import com.animejapaneselab.nativeapp.ui.reading.rememberFuriganaAnnotator
 import com.animejapaneselab.nativeapp.ui.rive.DuolingoLikeVisualHost
 import com.animejapaneselab.nativeapp.ui.rive.FusionCtaLightningRive
 import com.animejapaneselab.nativeapp.ui.rive.FusionMidLessonStreakRive
-import com.animejapaneselab.nativeapp.ui.rive.RiveAnimationHost
 import com.animejapaneselab.nativeapp.ui.theme.LabPalette
 import com.animejapaneselab.nativeapp.ui.theme.LabTheme
 import androidx.core.content.ContextCompat
@@ -2207,57 +2188,6 @@ private fun Modifier.minimumPathTouchTarget(
 }
 
 @Composable
-private fun TrainingPathOrb(
-    node: TrainingPathNode,
-    modifier: Modifier = Modifier,
-) {
-    val colors = node.trainingPathColors()
-    Surface(
-        modifier = modifier.size(if (node.state == TrainingPathNodeState.Current) 68.dp else 58.dp),
-        color = colors.container,
-        contentColor = colors.content,
-        shape = CircleShape,
-        shadowElevation = if (node.state == TrainingPathNodeState.Current) 6.dp else 2.dp,
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Icon(node.pathIcon(), contentDescription = null, modifier = Modifier.size(30.dp))
-        }
-    }
-}
-
-@Composable
-private fun TrainingPathNodeBubble(
-    node: TrainingPathNode,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val colors = node.trainingPathColors()
-    val enabled = node.action != TrainingPathNodeAction.None && node.state != TrainingPathNodeState.Locked
-    if (enabled) {
-        Surface(
-            onClick = onClick,
-            modifier = modifier,
-            color = colors.softContainer,
-            contentColor = colors.softContent,
-            shape = MaterialTheme.shapes.large,
-            border = BorderStroke(1.dp, colors.container.copy(alpha = 0.42f)),
-        ) {
-            TrainingPathNodeBubbleContent(node = node)
-        }
-    } else {
-        Surface(
-            modifier = modifier,
-            color = colors.softContainer,
-            contentColor = colors.softContent,
-            shape = MaterialTheme.shapes.large,
-            border = BorderStroke(1.dp, colors.container.copy(alpha = 0.28f)),
-        ) {
-            TrainingPathNodeBubbleContent(node = node)
-        }
-    }
-}
-
-@Composable
 private fun TrainingPathNodeBubbleContent(node: TrainingPathNode) {
     Column(
         modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
@@ -2284,28 +2214,6 @@ private fun TrainingPathNodeBubbleContent(node: TrainingPathNode) {
             text = node.state.label,
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Black,
-        )
-    }
-}
-
-@Composable
-private fun LessonPathOrbContent(
-    done: Boolean,
-    current: Boolean,
-    locked: Boolean,
-    pendingFeedback: Boolean,
-    node: LessonNode,
-) {
-    Box(contentAlignment = Alignment.Center) {
-        Icon(
-            imageVector = when {
-                done -> Icons.Rounded.CheckCircle
-                pendingFeedback -> Icons.AutoMirrored.Rounded.ArrowForward
-                current -> Icons.Rounded.PlayArrow
-                locked -> Icons.Rounded.Lock
-                else -> node.pathIcon()
-            },
-            contentDescription = null,
         )
     }
 }

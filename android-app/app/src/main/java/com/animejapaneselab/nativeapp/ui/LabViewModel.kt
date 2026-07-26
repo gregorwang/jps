@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.animejapaneselab.nativeapp.data.AiCoachState
 import com.animejapaneselab.nativeapp.data.AuthUser
+import com.animejapaneselab.nativeapp.data.EpisodeContentCache
 import com.animejapaneselab.nativeapp.data.EpisodeFocus
 import com.animejapaneselab.nativeapp.data.EpisodeOption
 import com.animejapaneselab.nativeapp.data.EpisodePlan
@@ -64,6 +65,7 @@ const val ReadAirAiQuestion = "请结合台词解释这道语言学训练题。"
 class LabViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = SampleLearningRepository()
     private val store = LocalLabStore(application)
+    private val contentCache = EpisodeContentCache(application.filesDir)
     private val initialWorks = repository.works()
     private val deviceId = store.deviceId()
     private val initialSettings = store.readSettings()
@@ -172,7 +174,11 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun remoteClient(): RemoteLabClient {
-        return RemoteLabClient(_uiState.value.settings.apiBaseUrl, store.readSessionCookie())
+        return RemoteLabClient(
+            _uiState.value.settings.apiBaseUrl,
+            store.readSessionCookie(),
+            contentCache = contentCache,
+        )
     }
 
     private fun fetchRemoteProgressSnapshot(client: RemoteLabClient): RemoteProgressSnapshot {

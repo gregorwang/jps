@@ -748,55 +748,6 @@ private fun ReadAirSelectChip(
 }
 
 @Composable
-private fun ReadAirPathCaption(
-    index: Int,
-    exercise: LinguisticExercise,
-    current: Boolean,
-    alignRight: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    val phrase = exercise.jaText.ifBlank { exercise.sceneLines.firstOrNull { it.isTarget }?.jaText.orEmpty() }
-    Surface(
-        modifier = modifier,
-        color = if (current) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
-        contentColor = if (current) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
-        shape = MaterialTheme.shapes.large,
-        border = BorderStroke(
-            width = if (current) 2.dp else 1.dp,
-            color = if (current) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-        ),
-        shadowElevation = if (current) 3.dp else 0.dp,
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-            horizontalAlignment = if (alignRight) Alignment.End else Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(3.dp),
-        ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "$index. ${questionTypeLabel(exercise.questionType)}",
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Black,
-                    textAlign = if (alignRight) TextAlign.End else TextAlign.Start,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                if (current) TagChip("继续", selected = true)
-            }
-            Text(
-                text = phrase.ifBlank { exercise.prompt },
-                color = if (current) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = if (alignRight) TextAlign.End else TextAlign.Start,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-    }
-}
-
-@Composable
 private fun ReadAirEmptyNode(
     modifier: Modifier = Modifier,
     onResetFilters: (() -> Unit)? = null,

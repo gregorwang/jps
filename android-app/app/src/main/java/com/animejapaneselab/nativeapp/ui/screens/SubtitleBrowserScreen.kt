@@ -51,12 +51,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
@@ -101,6 +103,16 @@ fun SubtitleBrowserScreen(
     var furiganaRequested by rememberSaveable(uiState.selection.workSlug, uiState.selection.episode) {
         mutableStateOf(false)
     }
+    // 场景分组是纯本地视图偏好：默认开，跨作品/集保留用户的选择。
+    var sceneGroupingRequested by rememberSaveable { mutableStateOf(true) }
+    // 已折叠的场景序号；换作品/集自动清空，跟其余每集状态同一套 key。
+    var collapsedScenes by rememberSaveable(
+        uiState.selection.workSlug,
+        uiState.selection.episode,
+        stateSaver = CollapsedScenesSaver,
+    ) {
+        mutableStateOf(emptySet<Int>())
+    }
     val normalizedQuery = query.trim()
     val visibleSubtitles = remember(uiState.subtitles, normalizedQuery) {
         if (normalizedQuery.isBlank()) {
@@ -126,15 +138,43 @@ fun SubtitleBrowserScreen(
     var consumedFocusLineNo by remember(uiState.selection.workSlug, uiState.selection.episode) {
         mutableIntStateOf(-1)
     }
+    // 按台词间的静默切段；只切一次，结果跟着这一集的字幕缓存。
+    val scenes = remember(uiState.subtitles) { splitSubtitleScenes(uiState.subtitles) }
     val furiganaToggleVisible = uiState.settings.showFurigana && uiState.subtitles.isNotEmpty()
-    // LazyColumn 固定头部：顶栏 / 范围选择 / 搜索框 /（可选）注音开关 / 状态行。
-    // 所以台词行下标 = 头部项数 + 该行在未过滤列表里的位置。
-    val headerItemCount = if (furiganaToggleVisible) 5 else 4
+    // 只有真的切出两段以上才值得给开关：单场景（含时间全解析失败）等同于平铺，chip 藏起来。
+    val sceneToggleVisible = scenes.size > 1
+    val toolbarVisible = furiganaToggleVisible || sceneToggleVisible
+    // 搜索命中天然跨场景，分组没有意义，一旦有搜索词就退化为平铺。
+    val groupingActive = sceneGroupingRequested && sceneToggleVisible && normalizedQuery.isBlank()
+
+    // 整个 LazyColumn 的 item 序列先算成一份描述列表：渲染和“目标行下标”共用它，
+    // 于是头部有几项、场景头插在哪里、哪些行因为折叠而消失，都不需要再手工数。
+    val listItems = remember(
+        uiState.subtitles,
+        visibleSubtitles,
+        scenes,
+        groupingActive,
+        collapsedScenes,
+        toolbarVisible,
+    ) {
+        buildSubtitleItems(
+            hasSubtitles = uiState.subtitles.isNotEmpty(),
+            visibleLines = visibleSubtitles,
+            scenes = scenes,
+            grouped = groupingActive,
+            collapsedScenes = collapsedScenes,
+            toolbarVisible = toolbarVisible,
+        )
+    }
 
     // 只在用户主动打开注音后，为“当前这批可见台词”排队请求；重复文本由 annotator 内部去重。
-    LaunchedEffect(furiganaOn, visibleSubtitles) {
+    // 分组模式下折叠掉的行不在 listItems 里，也就不会被请求。
+    LaunchedEffect(furiganaOn, listItems) {
         if (!furiganaOn) return@LaunchedEffect
-        annotator.request("subtitle", visibleSubtitles.map(SubtitleLine::jaText))
+        annotator.request(
+            "subtitle",
+            listItems.mapNotNull { item -> (item as? SubtitleItemSpec.Line)?.line?.jaText },
+        )
     }
 
     // 行定位：带着目标行号进来时滚过去并高亮，滚完通知外部把焦点清掉。
@@ -148,8 +188,7 @@ fun SubtitleBrowserScreen(
         if (target == consumedFocusLineNo) return@LaunchedEffect
         // 台词还没加载完，等这一集的字幕到位后本效果会以新列表重跑。
         if (uiState.subtitles.isEmpty()) return@LaunchedEffect
-        val lineIndex = uiState.subtitles.indexOfFirst { it.lineNo == target }
-        if (lineIndex < 0) {
+        if (uiState.subtitles.none { it.lineNo == target }) {
             // 目标行不在这一集里：直接消费掉，别让焦点一直挂着。
             consumedFocusLineNo = target
             onFocusConsumed()
@@ -157,10 +196,33 @@ fun SubtitleBrowserScreen(
         }
         // 定位优先：本地搜索词可能把目标行过滤掉，先清空搜索框再滚。
         if (query.isNotEmpty()) query = ""
-        // 等列表按未过滤内容重新组合、测量完再滚，否则下标会落空。
+        // 分组开着时目标行所在场景若是折叠的，先展开——否则它压根没有对应的 item。
+        if (sceneGroupingRequested && scenes.size > 1) {
+            val scene = scenes.firstOrNull { candidate ->
+                candidate.lines.any { line -> line.lineNo == target }
+            }
+            if (scene != null && scene.number in collapsedScenes) {
+                collapsedScenes = collapsedScenes - scene.number
+            }
+        }
+        // 等列表按“搜索已清空 + 目标场景已展开”的新状态重新组合、测量完再滚，否则下标会落空。
         withFrameNanos { }
         withFrameNanos { }
-        val itemIndex = headerItemCount + lineIndex
+        // 用和渲染同一个构建函数、按滚动这一刻的状态重演一遍 item 序列，直接查目标行的真实下标。
+        // 搜索已清空所以可见行就是整集；分组开关与折叠集合都读最新值，和刚组合出来的列表逐项一致。
+        val itemIndex = buildSubtitleItems(
+            hasSubtitles = true,
+            visibleLines = uiState.subtitles,
+            scenes = scenes,
+            grouped = sceneGroupingRequested && scenes.size > 1,
+            collapsedScenes = collapsedScenes,
+            toolbarVisible = toolbarVisible,
+        ).indexOfFirst { item -> item is SubtitleItemSpec.Line && item.line.lineNo == target }
+        if (itemIndex < 0) {
+            consumedFocusLineNo = target
+            onFocusConsumed()
+            return@LaunchedEffect
+        }
         if (reducedMotion) {
             listState.scrollToItem(itemIndex, FocusScrollOffsetPx)
         } else {
@@ -185,148 +247,333 @@ fun SubtitleBrowserScreen(
             contentPadding = PaddingValues(horizontal = LabSpacing.Screen, vertical = LabSpacing.Small),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            item(key = "subtitle-top-bar") {
-                SubtitleTopBar(
-                    title = uiState.focus.episodeLabel.ifBlank { uiState.focus.workTitle },
-                    onBack = onBack,
-                    onRefresh = onRefresh,
-                    onOpenSearch = onOpenSearch,
-                    loading = uiState.subtitleStatus == SyncStatus.Loading,
-                )
-            }
-            item(key = "subtitle-scope") {
-                SubtitleScopeSelector(
-                    uiState = uiState,
-                    onWorkSelected = onWorkSelected,
-                    onEpisodeSelected = onEpisodeSelected,
-                )
-            }
-            item(key = "subtitle-search") {
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    leadingIcon = {
-                        Icon(Icons.Rounded.Search, contentDescription = null)
-                    },
-                    trailingIcon = if (query.isNotEmpty()) {
-                        {
-                            IconButton(onClick = { query = "" }) {
-                                Icon(Icons.Rounded.Close, contentDescription = "清除搜索")
+            items(
+                items = listItems,
+                key = { item -> item.key },
+                contentType = { item -> item.contentType },
+            ) { item ->
+                when (item) {
+                    is SubtitleItemSpec.Fixed -> when (item.slot) {
+                        SubtitleFixedSlot.TopBar -> SubtitleTopBar(
+                            title = uiState.focus.episodeLabel.ifBlank { uiState.focus.workTitle },
+                            onBack = onBack,
+                            onRefresh = onRefresh,
+                            onOpenSearch = onOpenSearch,
+                            loading = uiState.subtitleStatus == SyncStatus.Loading,
+                        )
+
+                        SubtitleFixedSlot.Scope -> SubtitleScopeSelector(
+                            uiState = uiState,
+                            onWorkSelected = onWorkSelected,
+                            onEpisodeSelected = onEpisodeSelected,
+                        )
+
+                        SubtitleFixedSlot.Search -> OutlinedTextField(
+                            value = query,
+                            onValueChange = { query = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            leadingIcon = {
+                                Icon(Icons.Rounded.Search, contentDescription = null)
+                            },
+                            trailingIcon = if (query.isNotEmpty()) {
+                                {
+                                    IconButton(onClick = { query = "" }) {
+                                        Icon(Icons.Rounded.Close, contentDescription = "清除搜索")
+                                    }
+                                }
+                            } else {
+                                null
+                            },
+                            placeholder = { Text("搜索日文或中文台词") },
+                            shape = MaterialTheme.shapes.large,
+                            colors = labFieldColors(),
+                        )
+
+                        SubtitleFixedSlot.Toolbar -> SubtitleToolbar(
+                            furiganaVisible = furiganaToggleVisible,
+                            furiganaEnabled = furiganaRequested,
+                            onFuriganaToggle = { furiganaRequested = !furiganaRequested },
+                            sceneGroupingVisible = sceneToggleVisible,
+                            sceneGroupingEnabled = sceneGroupingRequested,
+                            onSceneGroupingToggle = { sceneGroupingRequested = !sceneGroupingRequested },
+                        )
+
+                        SubtitleFixedSlot.Status -> {
+                            if (uiState.subtitleMessage.isNotBlank()) {
+                                Text(
+                                    text = uiState.subtitleMessage,
+                                    modifier = Modifier.padding(horizontal = LabSpacing.XXSmall),
+                                    color = if (uiState.subtitleStatus == SyncStatus.Error) {
+                                        MaterialTheme.colorScheme.error
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    },
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                            } else if (uiState.subtitles.isNotEmpty()) {
+                                Text(
+                                    text = when {
+                                        normalizedQuery.isNotBlank() -> "找到 ${visibleSubtitles.size} 行"
+                                        groupingActive -> "共 ${uiState.subtitles.size} 行 · ${scenes.size} 个场景"
+                                        else -> "共 ${uiState.subtitles.size} 行"
+                                    },
+                                    modifier = Modifier.padding(horizontal = LabSpacing.XXSmall),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                )
                             }
                         }
-                    } else {
-                        null
-                    },
-                    placeholder = { Text("搜索日文或中文台词") },
-                    shape = MaterialTheme.shapes.large,
-                    colors = labFieldColors(),
-                )
-            }
-            if (furiganaToggleVisible) {
-                item(key = "subtitle-furigana-toggle") {
-                    FuriganaToggle(
-                        enabled = furiganaRequested,
-                        onToggle = { furiganaRequested = !furiganaRequested },
-                    )
-                }
-            }
-            item(key = "subtitle-status") {
-                if (uiState.subtitleMessage.isNotBlank()) {
-                    Text(
-                        text = uiState.subtitleMessage,
-                        modifier = Modifier.padding(horizontal = LabSpacing.XXSmall),
-                        color = if (uiState.subtitleStatus == SyncStatus.Error) {
-                            MaterialTheme.colorScheme.error
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                    )
-                } else if (uiState.subtitles.isNotEmpty()) {
-                    Text(
-                        text = if (normalizedQuery.isBlank()) {
-                            "共 ${uiState.subtitles.size} 行"
-                        } else {
-                            "找到 ${visibleSubtitles.size} 行"
-                        },
-                        modifier = Modifier.padding(horizontal = LabSpacing.XXSmall),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-            }
-            if (uiState.subtitles.isEmpty()) {
-                item(key = "subtitle-empty") {
-                    LabCard {
-                        Column(verticalArrangement = Arrangement.spacedBy(LabSpacing.XXSmall)) {
-                            Text("暂无台词", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black)
+
+                        SubtitleFixedSlot.Empty -> LabCard {
+                            Column(verticalArrangement = Arrangement.spacedBy(LabSpacing.XXSmall)) {
+                                Text("暂无台词", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black)
+                                Text(
+                                    "点右上角刷新，或换一集查看。",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                            }
+                        }
+
+                        SubtitleFixedSlot.NoSearchResult -> Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = LabTheme.colors.infoContainer,
+                            contentColor = LabTheme.colors.onInfoContainer,
+                            shape = MaterialTheme.shapes.large,
+                        ) {
                             Text(
-                                "点右上角刷新，或换一集查看。",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                text = "没有找到“$normalizedQuery”",
+                                modifier = Modifier.padding(LabSpacing.Medium),
                                 style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
                             )
                         }
                     }
-                }
-            } else if (visibleSubtitles.isEmpty()) {
-                item(key = "subtitle-no-search-result") {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = LabTheme.colors.infoContainer,
-                        contentColor = LabTheme.colors.onInfoContainer,
-                        shape = MaterialTheme.shapes.large,
-                    ) {
-                        Text(
-                            text = "没有找到“$normalizedQuery”",
-                            modifier = Modifier.padding(LabSpacing.Medium),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                        )
-                    }
-                }
-            } else {
-                items(
-                    items = visibleSubtitles,
-                    key = { line -> "${line.lineNo}-${line.startTime}" },
-                    contentType = { "subtitle-line" },
-                ) { line ->
-                    SubtitleLineRow(
-                        line = line,
-                        copied = copiedLineNo == line.lineNo,
-                        focused = focusPulseLineNo == line.lineNo,
-                        furigana = if (furiganaOn) annotator.resultFor(line.jaText) else null,
-                        onCopy = {
-                            clipboard.setText(
-                                AnnotatedString(
-                                    listOf(line.jaText, line.zhText)
-                                        .filter(String::isNotBlank)
-                                        .joinToString("\n"),
-                                ),
-                            )
-                            copiedLineNo = line.lineNo
-                        },
-                        onDeepDive = {
-                            deepDive.request(
-                                DeepDiveTarget(
-                                    workSlug = uiState.selection.workSlug,
-                                    episode = uiState.selection.episode,
-                                    lineNo = line.lineNo,
-                                    jaText = line.jaText,
-                                    zhText = line.zhText,
-                                ),
-                            )
+
+                    is SubtitleItemSpec.SceneHeader -> SubtitleSceneHeader(
+                        scene = item.scene,
+                        collapsed = item.scene.number in collapsedScenes,
+                        onToggle = {
+                            val number = item.scene.number
+                            collapsedScenes = if (number in collapsedScenes) {
+                                collapsedScenes - number
+                            } else {
+                                collapsedScenes + number
+                            }
                         },
                     )
+
+                    is SubtitleItemSpec.Line -> {
+                        val line = item.line
+                        SubtitleLineRow(
+                            line = line,
+                            copied = copiedLineNo == line.lineNo,
+                            focused = focusPulseLineNo == line.lineNo,
+                            furigana = if (furiganaOn) annotator.resultFor(line.jaText) else null,
+                            onCopy = {
+                                clipboard.setText(
+                                    AnnotatedString(
+                                        listOf(line.jaText, line.zhText)
+                                            .filter(String::isNotBlank)
+                                            .joinToString("\n"),
+                                    ),
+                                )
+                                copiedLineNo = line.lineNo
+                            },
+                            onDeepDive = {
+                                deepDive.request(
+                                    DeepDiveTarget(
+                                        workSlug = uiState.selection.workSlug,
+                                        episode = uiState.selection.episode,
+                                        lineNo = line.lineNo,
+                                        jaText = line.jaText,
+                                        zhText = line.zhText,
+                                    ),
+                                )
+                            },
+                        )
+                    }
                 }
             }
         }
         SentenceDeepDiveSheet(deepDive)
     }
 }
+
+// ---------------------------------------------------------------------------
+// 场景切分（纯逻辑，不碰 Compose）
+// ---------------------------------------------------------------------------
+
+/** 一段连续对白。[number] 从 1 开始，同时兼作折叠状态与 item key 的标识。 */
+private data class SubtitleScene(
+    val number: Int,
+    val lines: List<SubtitleLine>,
+    val startMillis: Long?,
+    val endMillis: Long?,
+) {
+    /** "MM:SS–MM:SS"；整段时间戳都解析不出来时为 null，场景头就只显示行数。 */
+    val timeRangeLabel: String? = if (startMillis == null || endMillis == null) {
+        null
+    } else {
+        "${formatSceneClock(startMillis)}–${formatSceneClock(maxOf(startMillis, endMillis))}"
+    }
+}
+
+/**
+ * 把 "HH:MM:SS,mmm" 这类时间戳解析成毫秒。
+ *
+ * 防御式：容忍 "MM:SS" / "SS" 的短写、用 '.' 分隔毫秒、毫秒不足或超过 3 位、
+ * 以及后面跟着多余内容（只取第一个空格前的片段）。任何解析不出来的形态一律返回
+ * null，由调用方决定退化行为，绝不抛异常。
+ */
+private fun parseSubtitleTimeMillis(raw: String?): Long? {
+    val token = raw?.trim()?.substringBefore(' ')?.takeIf { it.isNotEmpty() } ?: return null
+    val separator = token.indexOfLast { it == ',' || it == '.' }
+    val clock = if (separator >= 0) token.substring(0, separator) else token
+    val fraction = if (separator >= 0) token.substring(separator + 1) else ""
+    val millis = when {
+        fraction.isEmpty() -> 0L
+        !fraction.all(Char::isDigit) -> return null
+        else -> fraction.take(3).padEnd(3, '0').toLongOrNull() ?: return null
+    }
+    val parts = clock.split(':')
+    if (parts.isEmpty() || parts.size > 3) return null
+    val numbers = parts.map { part ->
+        val cleaned = part.trim()
+        if (cleaned.isEmpty() || !cleaned.all(Char::isDigit)) return null
+        cleaned.toLongOrNull() ?: return null
+    }
+    val seconds = when (numbers.size) {
+        3 -> numbers[0] * 3600 + numbers[1] * 60 + numbers[2]
+        2 -> numbers[0] * 60 + numbers[1]
+        else -> numbers[0]
+    }
+    return seconds * 1000 + millis
+}
+
+/**
+ * 按静默间隔把整集台词切成场景：
+ * 「本行开始时间 − 上一行结束时间（结束解析失败就退回它自己的开始时间）」超过
+ * [SceneGapMillis] 就开新场景。
+ *
+ * 时间解析失败的行不产生边界、也不更新比较基准，直接跟着当前场景走；
+ * 整集一个时间戳都解析不出来时自然只剩一个场景，调用方据此退化成平铺。
+ */
+private fun splitSubtitleScenes(lines: List<SubtitleLine>): List<SubtitleScene> {
+    if (lines.isEmpty()) return emptyList()
+    val starts = lines.map { parseSubtitleTimeMillis(it.startTime) }
+    val ends = lines.mapIndexed { index, line ->
+        parseSubtitleTimeMillis(line.endTime) ?: starts[index]
+    }
+    val boundaries = mutableListOf(0)
+    var previousEnd: Long? = null
+    for (index in lines.indices) {
+        val start = starts[index]
+        val prev = previousEnd
+        if (index > 0 && start != null && prev != null && start - prev > SceneGapMillis) {
+            boundaries += index
+        }
+        val end = ends[index]
+        if (end != null) previousEnd = end
+    }
+    boundaries += lines.size
+    return boundaries.zipWithNext().mapIndexed { sceneIndex, (from, to) ->
+        SubtitleScene(
+            number = sceneIndex + 1,
+            lines = lines.subList(from, to).toList(),
+            startMillis = (from until to).mapNotNull { starts[it] }.minOrNull(),
+            endMillis = (from until to).mapNotNull { ends[it] }.maxOrNull(),
+        )
+    }
+}
+
+/** 毫秒 → "MM:SS"。纯 Kotlin 补零，不受 Locale 影响（阿拉伯语环境也还是 ASCII 数字）。 */
+private fun formatSceneClock(millis: Long): String {
+    val totalSeconds = (millis / 1000).coerceAtLeast(0)
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return "${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
+}
+
+// ---------------------------------------------------------------------------
+// LazyColumn item 序列
+// ---------------------------------------------------------------------------
+
+/** 固定头部/占位槽位；[key] 同时用作 LazyColumn 的 key 与 contentType。 */
+private enum class SubtitleFixedSlot(val key: String) {
+    TopBar("subtitle-top-bar"),
+    Scope("subtitle-scope"),
+    Search("subtitle-search"),
+    Toolbar("subtitle-toolbar"),
+    Status("subtitle-status"),
+    Empty("subtitle-empty"),
+    NoSearchResult("subtitle-no-search-result"),
+}
+
+/**
+ * LazyColumn 里一条 item 的描述。渲染与“目标行在列表中的下标”都由同一份序列驱动，
+ * 所以不再需要按头部数量手算偏移。
+ */
+private sealed interface SubtitleItemSpec {
+    val key: String
+    val contentType: String
+
+    data class Fixed(val slot: SubtitleFixedSlot) : SubtitleItemSpec {
+        override val key: String get() = slot.key
+        override val contentType: String get() = slot.key
+    }
+
+    data class SceneHeader(val scene: SubtitleScene) : SubtitleItemSpec {
+        override val key: String get() = "scene-${scene.number}"
+        override val contentType: String get() = "subtitle-scene-header"
+    }
+
+    data class Line(val line: SubtitleLine) : SubtitleItemSpec {
+        override val key: String get() = "${line.lineNo}-${line.startTime}"
+        override val contentType: String get() = "subtitle-line"
+    }
+}
+
+/**
+ * 生成整个列表的 item 序列。纯函数：给定同样的入参必然得到同样的顺序，
+ * 因此行定位可以拿“定位后的入参”预演一遍，直接算出目标行的下标。
+ */
+private fun buildSubtitleItems(
+    hasSubtitles: Boolean,
+    visibleLines: List<SubtitleLine>,
+    scenes: List<SubtitleScene>,
+    grouped: Boolean,
+    collapsedScenes: Set<Int>,
+    toolbarVisible: Boolean,
+): List<SubtitleItemSpec> {
+    val items = mutableListOf<SubtitleItemSpec>()
+    items += SubtitleItemSpec.Fixed(SubtitleFixedSlot.TopBar)
+    items += SubtitleItemSpec.Fixed(SubtitleFixedSlot.Scope)
+    items += SubtitleItemSpec.Fixed(SubtitleFixedSlot.Search)
+    if (toolbarVisible) items += SubtitleItemSpec.Fixed(SubtitleFixedSlot.Toolbar)
+    items += SubtitleItemSpec.Fixed(SubtitleFixedSlot.Status)
+    when {
+        !hasSubtitles -> items += SubtitleItemSpec.Fixed(SubtitleFixedSlot.Empty)
+        visibleLines.isEmpty() -> items += SubtitleItemSpec.Fixed(SubtitleFixedSlot.NoSearchResult)
+        // 分组只在“无搜索词”时开启，此时 visibleLines 就是整集，scenes 正好把它切完。
+        grouped -> scenes.forEach { scene ->
+            items += SubtitleItemSpec.SceneHeader(scene)
+            if (scene.number !in collapsedScenes) {
+                scene.lines.forEach { line -> items += SubtitleItemSpec.Line(line) }
+            }
+        }
+
+        else -> visibleLines.forEach { line -> items += SubtitleItemSpec.Line(line) }
+    }
+    return items
+}
+
+// ---------------------------------------------------------------------------
+// UI
+// ---------------------------------------------------------------------------
 
 @Composable
 private fun SubtitleTopBar(
@@ -489,13 +736,19 @@ private fun SubtitleScopeSelector(
 }
 
 /**
- * 注音开关：注音要走 AI，所以默认关闭，只有用户点亮这枚 chip 才会为当前列表请求假名。
- * 总开关（设置里的 showFurigana）关掉时调用方根本不会渲染它。
+ * 工具区：同一行里并排放「假名注音」和「场景分组」两枚同款 chip。
+ * 注音要走 AI，所以默认关闭，只有用户点亮才会为当前列表请求假名；
+ * 总开关（设置里的 showFurigana）关掉时 [furiganaVisible] 为 false，chip 直接不出现。
+ * 场景分组是纯本地视图开关，默认开，只有切得出两段以上时才显示。
  */
 @Composable
-private fun FuriganaToggle(
-    enabled: Boolean,
-    onToggle: () -> Unit,
+private fun SubtitleToolbar(
+    furiganaVisible: Boolean,
+    furiganaEnabled: Boolean,
+    onFuriganaToggle: () -> Unit,
+    sceneGroupingVisible: Boolean,
+    sceneGroupingEnabled: Boolean,
+    onSceneGroupingToggle: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val reducedMotion = rememberReducedMotion()
@@ -507,23 +760,41 @@ private fun FuriganaToggle(
             horizontalArrangement = Arrangement.spacedBy(LabSpacing.XSmall),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            FilterChip(
-                selected = enabled,
-                onClick = onToggle,
-                label = {
-                    Text(
-                        text = "假名注音",
-                        modifier = Modifier.padding(vertical = 4.dp),
-                        fontWeight = FontWeight.Bold,
-                    )
-                },
-                shape = MaterialTheme.shapes.small,
-                colors = subtitleChipColors(),
-                border = subtitleChipBorder(enabled),
-            )
+            if (furiganaVisible) {
+                FilterChip(
+                    selected = furiganaEnabled,
+                    onClick = onFuriganaToggle,
+                    label = {
+                        Text(
+                            text = "假名注音",
+                            modifier = Modifier.padding(vertical = 4.dp),
+                            fontWeight = FontWeight.Bold,
+                        )
+                    },
+                    shape = MaterialTheme.shapes.small,
+                    colors = subtitleChipColors(),
+                    border = subtitleChipBorder(furiganaEnabled),
+                )
+            }
+            if (sceneGroupingVisible) {
+                FilterChip(
+                    selected = sceneGroupingEnabled,
+                    onClick = onSceneGroupingToggle,
+                    label = {
+                        Text(
+                            text = "场景分组",
+                            modifier = Modifier.padding(vertical = 4.dp),
+                            fontWeight = FontWeight.Bold,
+                        )
+                    },
+                    shape = MaterialTheme.shapes.small,
+                    colors = subtitleChipColors(),
+                    border = subtitleChipBorder(sceneGroupingEnabled),
+                )
+            }
         }
         AnimatedVisibility(
-            visible = enabled,
+            visible = furiganaVisible && furiganaEnabled,
             enter = fadeIn(
                 animationSpec = tween(
                     durationMillis = MotionTokens.duration(MotionTokens.Duration.CardEnter, reducedMotion),
@@ -553,6 +824,68 @@ private fun FuriganaToggle(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Medium,
+            )
+        }
+    }
+}
+
+/**
+ * 场景头：一条 surfaceContainerHigh 小胶囊，点一下折叠/展开整段。
+ * 折叠时该场景的行根本不进 item 序列，所以不需要额外的进出场动画，只让箭头转一下。
+ */
+@Composable
+private fun SubtitleSceneHeader(
+    scene: SubtitleScene,
+    collapsed: Boolean,
+    onToggle: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val reducedMotion = rememberReducedMotion()
+    val arrowRotation by animateFloatAsState(
+        targetValue = if (collapsed) 0f else 180f,
+        animationSpec = tween(
+            durationMillis = MotionTokens.duration(MotionTokens.Duration.Micro, reducedMotion),
+            easing = MotionTokens.Curve.Standard,
+        ),
+        label = "subtitle-scene-arrow",
+    )
+    val detail = listOfNotNull(scene.timeRangeLabel, "${scene.lines.size} 行").joinToString(" · ")
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        shape = MaterialTheme.shapes.small,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onToggle)
+                .heightIn(min = 44.dp)
+                .padding(horizontal = LabSpacing.Small, vertical = LabSpacing.XXSmall),
+            horizontalArrangement = Arrangement.spacedBy(LabSpacing.XSmall),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "场景 ${scene.number}",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = detail,
+                modifier = Modifier.weight(1f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Icon(
+                imageVector = Icons.Rounded.ExpandMore,
+                contentDescription = if (collapsed) "展开场景 ${scene.number}" else "折叠场景 ${scene.number}",
+                modifier = Modifier
+                    .size(20.dp)
+                    .rotate(arrowRotation),
+                tint = MaterialTheme.colorScheme.primary,
             )
         }
     }
@@ -763,6 +1096,15 @@ private fun subtitleChipBorder(selected: Boolean) = FilterChipDefaults.filterChi
     borderColor = MaterialTheme.colorScheme.outline,
     selectedBorderColor = MaterialTheme.colorScheme.primary,
 )
+
+/** 折叠场景序号的持久化：Bundle 存不了 Set，落成 List<Int> 再还原。 */
+private val CollapsedScenesSaver = listSaver<Set<Int>, Int>(
+    save = { collapsed -> collapsed.toList() },
+    restore = { saved -> saved.toSet() },
+)
+
+/** 相邻两行之间静默超过这个时长就判为换场。 */
+private const val SceneGapMillis = 9_000L
 
 /** 定位时给目标行留的顶部余量（像素，负值=多往上滚一点），免得它顶死在列表最上沿。 */
 private const val FocusScrollOffsetPx = -100
