@@ -231,6 +231,55 @@ private data class LibraryTabSpec(
 
 private const val VocabPageSize = 40
 
+/** 「全部」筛选键：不做等级过滤。 */
+private const val VocabLevelAll = "ALL"
+
+/** 「其他」筛选键：收纳 "N?" / "N/A" / 空串等无法识别的杂值。 */
+private const val VocabLevelOther = "OTHER"
+
+/** JLPT chips 的展示顺序：由易到难。 */
+private val JlptLevelKeys = listOf("N5", "N4", "N3", "N2", "N1")
+
+/**
+ * 把 [VocabItem.level] 归一化成筛选键：trim + uppercase 后精确匹配 N1..N5，
+ * 其余（"N?"、"N/A"、空串、杂值）一律归入「其他」。
+ */
+private fun normalizeJlptLevel(rawLevel: String): String {
+    val normalized = rawLevel.trim().uppercase()
+    return if (normalized in JlptLevelKeys) normalized else VocabLevelOther
+}
+
+private data class VocabLevelBucket(
+    val key: String,
+    val label: String,
+    val count: Int,
+)
+
+/**
+ * 统计当前集各等级词数。首项恒为「全部」，随后按 N5→N1 排列，「其他」垫底；
+ * 词数为 0 的等级不产出 chip。
+ */
+private fun buildVocabLevelBuckets(vocab: List<VocabItem>): List<VocabLevelBucket> {
+    if (vocab.isEmpty()) return emptyList()
+    val counts = mutableMapOf<String, Int>()
+    vocab.forEach { item ->
+        val key = normalizeJlptLevel(item.level)
+        counts[key] = (counts[key] ?: 0) + 1
+    }
+    val buckets = mutableListOf(VocabLevelBucket(VocabLevelAll, "全部", vocab.size))
+    JlptLevelKeys.forEach { key ->
+        val count = counts[key] ?: 0
+        if (count > 0) {
+            buckets += VocabLevelBucket(key, key, count)
+        }
+    }
+    val otherCount = counts[VocabLevelOther] ?: 0
+    if (otherCount > 0) {
+        buckets += VocabLevelBucket(VocabLevelOther, "其他", otherCount)
+    }
+    return buckets
+}
+
 private fun libraryTabHasContent(selectedTab: Int, uiState: LabUiState): Boolean {
     return when (selectedTab) {
         0 -> uiState.vocab.isNotEmpty()
@@ -621,99 +670,6 @@ private fun EpisodeTile(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun EpisodeLearningSummary(
-    episode: EpisodeOption,
-    vocabCount: Int,
-    grammarCount: Int,
-    shadowingCount: Int,
-    readAirCount: Int,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        shape = MaterialTheme.shapes.large,
-    ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            Text("${episode.label} 学习材料", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                TagChip("台词 ${episode.totalCues}")
-                TagChip("场景片段 ${episode.chunkCount}")
-                TagChip("词汇 $vocabCount")
-                TagChip("语法 $grammarCount")
-                TagChip("跟读 $shadowingCount")
-                TagChip("语感题 $readAirCount")
-            }
-            Text(
-                text = "本集重点：场面压力、反问、立场表达",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.78f),
-            )
-        }
-    }
-}
-@Composable
-private fun LibraryEntryButton(
-    label: String,
-    meta: String,
-    icon: ImageVector,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier
-            .width(124.dp)
-            .heightIn(min = 64.dp)
-            .minimumInteractiveComponentSize(),
-        color = if (selected) LabPalette.Violet else MaterialTheme.colorScheme.surface,
-        contentColor = if (selected) Color.White else LabPalette.Ink,
-        shape = MaterialTheme.shapes.large,
-        border = BorderStroke(
-            1.dp,
-            if (selected) LabPalette.Violet else LabPalette.Violet.copy(alpha = 0.18f),
-        ),
-        tonalElevation = if (selected) 2.dp else 0.dp,
-        onClick = onClick,
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 9.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Surface(
-                modifier = Modifier.size(32.dp),
-                color = if (selected) Color.White.copy(alpha = 0.18f) else LabPalette.VioletPanel,
-                contentColor = if (selected) Color.White else LabPalette.Violet,
-                shape = CircleShape,
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
-                }
-            }
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                Text(label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Black, maxLines = 1)
-                Text(
-                    meta,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = if (selected) Color.White.copy(alpha = 0.82f) else LabPalette.Muted,
-                    maxLines = 1,
-                )
-            }
-        }
-    }
-}
-
 @Composable
 private fun LibraryQuickAccessPanel(
     episodeLabel: String,
@@ -962,185 +918,6 @@ private fun LibraryGuideHeader(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun LibraryStudyGuide(
-    episodeLabel: String,
-    sectionTitle: String,
-    guidebook: String,
-    subtitleCount: Int,
-    chunkCount: Int,
-    shadowingCount: Int,
-    readAirCount: Int,
-    modifier: Modifier = Modifier,
-) {
-    var expanded by rememberSaveable(episodeLabel) { mutableStateOf(false) }
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface,
-        contentColor = LabPalette.Ink,
-        shape = MaterialTheme.shapes.extraLarge,
-        border = BorderStroke(1.dp, LabPalette.Violet.copy(alpha = 0.18f)),
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(9.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Surface(
-                    modifier = Modifier.size(38.dp),
-                    color = LabPalette.VioletPanel,
-                    contentColor = LabPalette.Violet,
-                    shape = CircleShape,
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.AutoMirrored.Rounded.MenuBook, contentDescription = null, modifier = Modifier.size(20.dp))
-                    }
-                }
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                    Text("本集说明", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Black)
-                    Text(
-                        sectionTitle,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = LabPalette.Muted,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                OutlinedButton(
-                    onClick = { expanded = !expanded },
-                    border = BorderStroke(1.dp, LabPalette.Violet.copy(alpha = 0.28f)),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = LabPalette.VioletDark),
-                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
-                ) {
-                    Icon(
-                        if (expanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                    )
-                }
-            }
-            if (expanded) {
-                Text(guidebook, style = MaterialTheme.typography.bodyMedium, color = LabPalette.Muted)
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(7.dp),
-                    verticalArrangement = Arrangement.spacedBy(7.dp),
-                ) {
-                    TagChip("台词 $subtitleCount")
-                    TagChip("场景片段 $chunkCount")
-                    TagChip("跟读句 $shadowingCount")
-                    TagChip("语感题 $readAirCount")
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun WorkLibraryOverview(
-    work: WorkOption?,
-    episodes: List<EpisodeOption>,
-    readAirCount: Int,
-    modifier: Modifier = Modifier,
-) {
-    val importedEpisodes = episodes.size
-    val totalSentences = episodes.sumOf { it.usableJaLines }
-    val totalChunks = episodes.sumOf { it.chunkCount }
-    val totalCues = episodes.sumOf { it.totalCues }
-    var expanded by rememberSaveable(work?.slug ?: "work-overview") { mutableStateOf(false) }
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface,
-        contentColor = LabPalette.Ink,
-        shape = MaterialTheme.shapes.extraLarge,
-        border = BorderStroke(1.dp, LabPalette.Violet.copy(alpha = 0.18f)),
-        tonalElevation = 0.dp,
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(9.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(
-                        "作品资料 · ${work?.displayName ?: "当前作品"}",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Black,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(
-                        "$importedEpisodes 集 · $totalCues 行台词 · $readAirCount 道语感题",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = LabPalette.Muted,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                OutlinedButton(
-                    onClick = { expanded = !expanded },
-                    border = BorderStroke(1.dp, LabPalette.Violet.copy(alpha = 0.28f)),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = LabPalette.VioletDark),
-                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
-                ) {
-                    Icon(
-                        if (expanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                    )
-                }
-            }
-            if (expanded) {
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(7.dp),
-                    verticalArrangement = Arrangement.spacedBy(7.dp),
-                ) {
-                    TagChip("已导入 $importedEpisodes/${work?.episodeCount ?: importedEpisodes} 集")
-                    TagChip("台词 $totalCues")
-                    TagChip("场景片段 $totalChunks")
-                    TagChip("可学习台词 $totalSentences")
-                    TagChip("语感题 $readAirCount")
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun WorkOverviewMetric(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier,
-        color = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        shape = MaterialTheme.shapes.large,
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-        ) {
-            Text(label, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
-            Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
-        }
-    }
-}
-
-private fun libraryWorkMatches(exerciseWorkSlug: String, selectedWorkSlug: String): Boolean {
-    return normalizeLibraryWorkSlug(exerciseWorkSlug) == normalizeLibraryWorkSlug(selectedWorkSlug)
-}
-
 @Composable
 private fun CourseHeaderBar(
     onOpenSettings: () -> Unit,
@@ -1165,36 +942,6 @@ private fun CourseHeaderBar(
                 contentDescription = "打开设置",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-        }
-    }
-}
-
-private fun normalizeLibraryWorkSlug(workSlug: String): String {
-    return when (workSlug) {
-        "rezero" -> "re-zero"
-        else -> workSlug
-    }
-}
-
-@Composable
-private fun GuideMetric(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier,
-        color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.16f),
-        contentColor = MaterialTheme.colorScheme.onSecondary,
-        shape = MaterialTheme.shapes.large,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.25f)),
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-        ) {
-            Text(label, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
-            Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black)
         }
     }
 }
@@ -1276,14 +1023,28 @@ private fun VocabList(
     modifier: Modifier = Modifier,
 ) {
     var query by rememberSaveable(uiState.selection.workSlug, uiState.selection.episode) { mutableStateOf("") }
+    // 换作品 / 换集时 rememberSaveable 自动重建 → 等级筛选归「全部」。
+    var selectedLevel by rememberSaveable(uiState.selection.workSlug, uiState.selection.episode) {
+        mutableStateOf(VocabLevelAll)
+    }
+    val levelBuckets = remember(vocab) { buildVocabLevelBuckets(vocab) }
+    // 兜底：选中的等级若在当前集不存在（数据热更新等），按「全部」处理。
+    val activeLevel = remember(levelBuckets, selectedLevel) {
+        if (levelBuckets.any { it.key == selectedLevel }) selectedLevel else VocabLevelAll
+    }
+    val activeLevelLabel = remember(levelBuckets, activeLevel) {
+        levelBuckets.firstOrNull { it.key == activeLevel }?.label.orEmpty()
+    }
     var visibleCount by rememberSaveable(
         uiState.selection.workSlug,
         uiState.selection.episode,
         vocab.size,
+        activeLevel,
     ) {
         mutableIntStateOf(minOf(VocabPageSize, vocab.size))
     }
-    val filteredVocab = remember(vocab, query) {
+    // 先按搜索词过滤，再按 JLPT 等级过滤：两个条件叠加取交集。
+    val searchedVocab = remember(vocab, query) {
         val normalized = query.trim().lowercase()
         if (normalized.isBlank()) {
             vocab
@@ -1292,6 +1053,13 @@ private fun VocabList(
                 listOf(item.surface, item.reading, item.romanization, item.meaningZh)
                     .any { value -> value.lowercase().contains(normalized) }
             }
+        }
+    }
+    val filteredVocab = remember(searchedVocab, activeLevel) {
+        if (activeLevel == VocabLevelAll) {
+            searchedVocab
+        } else {
+            searchedVocab.filter { item -> normalizeJlptLevel(item.level) == activeLevel }
         }
     }
     val visibleVocab = remember(filteredVocab, visibleCount) { filteredVocab.take(visibleCount) }
@@ -1319,6 +1087,16 @@ private fun VocabList(
                 shape = MaterialTheme.shapes.medium,
             )
         }
+        // 「全部」之外至少有两个等级时才值得筛选，否则这行 chips 没有意义。
+        if (levelBuckets.size > 2) {
+            item(key = "vocab-level-filter") {
+                VocabLevelFilterRow(
+                    buckets = levelBuckets,
+                    selectedKey = activeLevel,
+                    onSelect = { key -> selectedLevel = key },
+                )
+            }
+        }
         if (playbackState.message.isNotBlank()) {
             item(key = "audio-status") {
                 AudioStatusBanner(playbackState = playbackState)
@@ -1327,18 +1105,40 @@ private fun VocabList(
         if (filteredVocab.isNotEmpty()) {
             item(key = "vocab-visible-count") {
                 Text(
-                    text = "${filteredVocab.size} 个词 · 点击条目开始练习",
+                    text = if (activeLevel == VocabLevelAll) {
+                        "${filteredVocab.size} 个词 · 点击条目开始练习"
+                    } else {
+                        "$activeLevelLabel · ${filteredVocab.size} 个词 · 点击条目开始练习"
+                    },
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         } else {
             item(key = "vocab-empty") {
-                LibraryEmptyState(
-                    icon = if (query.isBlank()) Icons.Rounded.AutoStories else Icons.Rounded.Search,
-                    title = if (query.isBlank()) "本集还没有词汇" else "没有找到匹配的词",
-                    subtitle = if (query.isBlank()) "换一集看看，或先从跟读句开始" else "试试换个假名或中文关键词",
-                )
+                when {
+                    query.isNotBlank() && searchedVocab.isEmpty() -> LibraryEmptyState(
+                        icon = Icons.Rounded.Search,
+                        title = "没有找到匹配的词",
+                        subtitle = "试试换个假名或中文关键词",
+                    )
+
+                    vocab.isEmpty() -> LibraryEmptyState(
+                        icon = Icons.Rounded.AutoStories,
+                        title = "本集还没有词汇",
+                        subtitle = "换一集看看，或先从跟读句开始",
+                    )
+
+                    else -> LibraryEmptyState(
+                        icon = Icons.Rounded.School,
+                        title = "该等级暂无词汇",
+                        subtitle = if (query.isBlank()) {
+                            "点「全部」看看本集其它等级的词"
+                        } else {
+                            "换个关键词，或点「全部」看所有等级"
+                        },
+                    )
+                }
             }
         }
         items(
@@ -1393,7 +1193,7 @@ private fun VocabList(
                                             TagChip(item.partOfSpeech)
                                         }
                                         if (item.level.isNotBlank()) {
-                                            TagChip(item.level)
+                                            VocabLevelTagChip(level = item.level)
                                         }
                                     }
                                 }
@@ -1841,6 +1641,97 @@ private fun LibraryFilterChip(
     }
 }
 
+/**
+ * 词汇区的 JLPT 等级筛选行：「全部」+ 本集实际出现的 N5..N1 +「其他」，
+ * 每个 chip 带当前集词数。单选，与搜索框叠加生效。
+ */
+@Composable
+private fun VocabLevelFilterRow(
+    buckets: List<VocabLevelBucket>,
+    selectedKey: String,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    LazyRow(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 2.dp),
+    ) {
+        items(buckets, key = { it.key }, contentType = { "vocab-level-chip" }) { bucket ->
+            VocabLevelChip(
+                label = bucket.label,
+                count = bucket.count,
+                selected = bucket.key == selectedKey,
+                onClick = { onSelect(bucket.key) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun VocabLevelChip(
+    label: String,
+    count: Int,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = animateLibrarySelectionColors(selected = selected)
+    Surface(
+        modifier = modifier
+            .minimumInteractiveComponentSize()
+            .semantics {
+                this.selected = selected
+                role = Role.Tab
+            },
+        color = colors.container,
+        contentColor = colors.content,
+        shape = CircleShape,
+        border = BorderStroke(if (selected) 1.5.dp else 1.dp, colors.border),
+        tonalElevation = 0.dp,
+        onClick = onClick,
+    ) {
+        Text(
+            text = "$label · $count",
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Black,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+/**
+ * 词汇卡上的等级标签：N5/N4 走 success 系、N3 走 info、N2 走 warning、N1 走 error 系浅容器色，
+ * 无法识别的杂值保持中性 TagChip。复用同文件的 LibraryAccentChip（与 TagChip 同尺寸/同形状），
+ * 因此不需要改 Common.kt。
+ */
+@Composable
+private fun VocabLevelTagChip(
+    level: String,
+    modifier: Modifier = Modifier,
+) {
+    val levelKey = remember(level) { normalizeJlptLevel(level) }
+    val accent: Pair<Color, Color>? = when (levelKey) {
+        "N5", "N4" -> LabTheme.colors.successContainer to LabTheme.colors.onSuccessContainer
+        "N3" -> LabTheme.colors.infoContainer to LabTheme.colors.onInfoContainer
+        "N2" -> LabTheme.colors.warningContainer to LabTheme.colors.onWarningContainer
+        "N1" -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
+        else -> null
+    }
+    if (accent == null) {
+        TagChip(level, modifier = modifier)
+    } else {
+        LibraryAccentChip(
+            text = level,
+            container = accent.first,
+            content = accent.second,
+            modifier = modifier,
+        )
+    }
+}
+
 @Composable
 private fun LibraryAccentChip(
     text: String,
@@ -2078,61 +1969,6 @@ private fun LibraryRowActions(
             }
         }
         Icon(Icons.Rounded.ChevronRight, contentDescription = "进入练习", tint = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun ShadowingActions(
-    audio: PromptAudio,
-    sentence: ShadowingSentence,
-    episodeLabel: String,
-    onPlay: (PromptAudio) -> Unit,
-    onTargetLesson: (LessonTarget) -> Unit,
-    onAskAi: (targetKey: String, kind: String, text: String, context: String) -> Unit,
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Button(
-            onClick = { onTargetLesson(LessonTarget.Sentence(sentence.id)) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 52.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = LabPalette.Violet, contentColor = Color.White),
-        ) {
-            Text("练这句", fontWeight = FontWeight.Black)
-        }
-        Button(
-            onClick = { onPlay(audio) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = LabPalette.VioletPanel,
-                contentColor = LabPalette.VioletDark,
-            ),
-        ) {
-            Icon(Icons.AutoMirrored.Rounded.VolumeUp, contentDescription = null)
-            Text("播放语音", modifier = Modifier.padding(start = 6.dp), fontWeight = FontWeight.Black)
-        }
-        OutlinedButton(
-            onClick = {
-                onAskAi(
-                    sentence.libraryAiKey("sentence"),
-                    "sentence",
-                    sentence.ja,
-                    sentence.aiContext(episodeLabel),
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 48.dp),
-        ) {
-            Icon(Icons.Rounded.AutoAwesome, contentDescription = null)
-            Text("精讲", modifier = Modifier.padding(start = 6.dp), fontWeight = FontWeight.Black)
-        }
     }
 }
 

@@ -452,8 +452,8 @@ class SampleLearningRepository {
                 "先抓台词声音和语气，再进入拼句、填空和自评跟读。可靠原声自动播放，其他内容使用系统语音辅助。"
             },
             dailyGoal = 8,
-            xp = if (isKon) 820 else 1260,
-            streakDays = 12,
+            xp = 0,
+            streakDays = 0,
             energy = 5,
         )
     }

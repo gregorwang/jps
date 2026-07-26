@@ -270,9 +270,10 @@ Do not print session cookies, passwords, authorization headers, release password
 
 Observed after the 2026-07-26 search/profile/SRS pass (RAG subtitle search `SearchScreen`, character language profiles, SRS-weighted review planning with due buckets, mistake→source-line jump — see `ANDROID_PRODUCT_ROADMAP.md` "已完成"; also same-day reading/explanation pass: furigana annotation, linguistic card payloads, sentence deep-dive, AI history screen; new `ui/reading/` package, `data/FuriganaCache.kt`, `ui/screens/AiHistoryScreen.kt`, `ui/screens/SearchScreen.kt`):
 
-- `testDebugUnitTest`: **BUILD SUCCESSFUL, all tests green** (26 test files; +20 tests in `ReadingLayerParsingTest`/`LinguisticCardPipingTest`, `SmartReviewPlannerTest` extended for the SRS priority formula).
+- Third same-day pass added: JLPT vocab filtering, episode plan card, change-password, online AI model list, real XP (`learningXp`), and a dead-code sweep (MineScreen.kt deleted; ~2,142 unreferenced lines removed from the four big screens).
+- `testDebugUnitTest`: **BUILD SUCCESSFUL, all tests green** (27 test files; +`LearningXpTest`, `ReadingLayerParsingTest`/`LinguisticCardPipingTest`, `SmartReviewPlannerTest` extended for the SRS priority formula).
 - `lintDebug`: **0 errors** (report at `app/build/reports/lint-results-debug.html`).
-- `assembleLocalSlim`: successful incl. R8, resource shrinking, Lint Vital. APK `app\build\outputs\apk\localSlim\app-localSlim.apk`, 23,424,277 bytes, SHA-256 `6BFB522C7067232D8D965C39BDFFFC77D00D383C49DA973F93695506D6708180`.
+- `assembleLocalSlim`: successful incl. R8, resource shrinking, Lint Vital. APK `app\build\outputs\apk\localSlim\app-localSlim.apk`, 23,440,661 bytes, SHA-256 `6BD3CDD0DB9B104722A6EC2DF90306878BECD2EB28C3DBFAA69749F3C9913F6F`.
 - Known pre-existing Kotlin deprecation warnings: `LocalClipboardManager` in LessonScreen/ReadAirScreen/SubtitleBrowserScreen.
 - Emulator smoke test not re-run in this pass (source-level + build verification only). Same for the earlier same-day UI/design-system overhaul (theme rework, per-screen refresh, `LabTheme.colors` semantic tokens).
 

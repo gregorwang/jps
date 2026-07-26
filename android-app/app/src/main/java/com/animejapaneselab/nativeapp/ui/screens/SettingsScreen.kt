@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -26,6 +27,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
@@ -39,6 +42,7 @@ import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.GraphicEq
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Key
+import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.Psychology
@@ -54,6 +58,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -63,6 +68,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -71,11 +77,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.animejapaneselab.nativeapp.data.AiModelOption
 import com.animejapaneselab.nativeapp.data.LabSettings
+import com.animejapaneselab.nativeapp.data.LocalLabStore
+import com.animejapaneselab.nativeapp.data.RemoteLabClient
 import com.animejapaneselab.nativeapp.data.SyncStatus
 import com.animejapaneselab.nativeapp.platform.DeviceCapabilitySnapshot
 import com.animejapaneselab.nativeapp.platform.formatRefreshRates
@@ -94,6 +107,10 @@ import com.animejapaneselab.nativeapp.ui.motion.MotionTokens
 import com.animejapaneselab.nativeapp.ui.motion.rememberReducedMotion
 import com.animejapaneselab.nativeapp.ui.theme.LabSpacing
 import com.animejapaneselab.nativeapp.ui.theme.LabTheme
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private val AiModels = listOf(
     "gemini-3.1-flash-lite",
@@ -283,11 +300,25 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val appContext = LocalContext.current.applicationContext
+    val store = remember(appContext) { LocalLabStore(appContext) }
+    val scope = rememberCoroutineScope()
     val feedbackEngine = LocalFeedbackEngine.current
+    val apiBaseUrl = uiState.settings.apiBaseUrl
     var audioController by remember { mutableStateOf<LessonAudioController?>(null) }
     var advancedOpen by rememberSaveable { mutableStateOf(false) }
     var loginEmail by rememberSaveable { mutableStateOf("") }
     var loginPassword by remember { mutableStateOf("") }
+    // 修改密码：三个字段只留在 Compose 内存里（remember），配置变更或离开设置屏即丢弃。
+    var passwordFormOpen by rememberSaveable { mutableStateOf(false) }
+    var oldPassword by remember { mutableStateOf("") }
+    var newPassword by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var passwordSubmitting by remember { mutableStateOf(false) }
+    var passwordFeedback by remember { mutableStateOf<PasswordChangeFeedback?>(null) }
+    // 讲解模型：进设置屏拉一次在线列表，失败或为空时回退到内置列表。
+    var remoteAiModels by remember { mutableStateOf<List<AiModelOption>>(emptyList()) }
+    var aiModelsLoading by remember { mutableStateOf(false) }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -299,6 +330,81 @@ fun SettingsScreen(
         if (uiState.auth.user != null) {
             loginEmail = ""
             loginPassword = ""
+        }
+        // 换账号或退出登录时收起改密表单，避免旧输入留在内存里。
+        passwordFormOpen = false
+        oldPassword = ""
+        newPassword = ""
+        confirmPassword = ""
+        passwordFeedback = null
+    }
+
+    LaunchedEffect(apiBaseUrl) {
+        aiModelsLoading = true
+        val outcome = runCatching {
+            withContext(Dispatchers.IO) {
+                RemoteLabClient(apiBaseUrl, store.readSessionCookie()).fetchAiModels()
+            }
+        }
+        val failure = outcome.exceptionOrNull()
+        if (failure is CancellationException) throw failure
+        remoteAiModels = outcome.getOrNull().orEmpty()
+        aiModelsLoading = false
+    }
+
+    val aiModelOptions = remember(remoteAiModels) {
+        remoteAiModels.ifEmpty {
+            AiModels.map { model -> AiModelOption(id = model, label = model.learningModelLabel()) }
+        }
+    }
+
+    val canSubmitPassword = oldPassword.isNotBlank() &&
+        newPassword.length >= 6 &&
+        newPassword == confirmPassword &&
+        !passwordSubmitting
+
+    // 改密只走 IO + runCatching；成功后服务端保留当前会话，所以不需要重新登录。
+    val submitPasswordChange: () -> Unit = {
+        if (canSubmitPassword) {
+            passwordSubmitting = true
+            passwordFeedback = null
+            scope.launch {
+                val outcome = runCatching {
+                    withContext(Dispatchers.IO) {
+                        RemoteLabClient(apiBaseUrl, store.readSessionCookie())
+                            .changePassword(oldPassword, newPassword)
+                    }
+                }
+                val failure = outcome.exceptionOrNull()
+                if (failure is CancellationException) throw failure
+                passwordSubmitting = false
+                when {
+                    failure != null -> {
+                        passwordFeedback = PasswordChangeFeedback(
+                            message = failure.changePasswordMessage(),
+                            isError = true,
+                        )
+                    }
+
+                    outcome.getOrNull() == true -> {
+                        oldPassword = ""
+                        newPassword = ""
+                        confirmPassword = ""
+                        passwordFormOpen = false
+                        passwordFeedback = PasswordChangeFeedback(
+                            message = "密码已更新，其他设备已退出登录。",
+                            isError = false,
+                        )
+                    }
+
+                    else -> {
+                        passwordFeedback = PasswordChangeFeedback(
+                            message = "网络异常，请稍后再试。",
+                            isError = true,
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -353,6 +459,36 @@ fun SettingsScreen(
                 onLogout = onLogout,
                 onRefreshAuth = onRefreshAuth,
             )
+        }
+        if (uiState.auth.user != null) {
+            item(key = "settings-password") {
+                SettingsSection(title = "账号安全") {
+                    SettingsDisclosureRow(
+                        icon = Icons.Rounded.Lock,
+                        title = "修改密码",
+                        subtitle = "改完这台设备保持登录，其他设备需要重新登录。",
+                        expanded = passwordFormOpen,
+                        onToggle = {
+                            passwordFormOpen = !passwordFormOpen
+                            if (passwordFormOpen) passwordFeedback = null
+                        },
+                    )
+                    passwordFeedback?.let { feedback -> PasswordChangeMessage(feedback) }
+                    ExpandableSettingsContent(expanded = passwordFormOpen) {
+                        ChangePasswordForm(
+                            oldPassword = oldPassword,
+                            newPassword = newPassword,
+                            confirmPassword = confirmPassword,
+                            submitting = passwordSubmitting,
+                            canSubmit = canSubmitPassword,
+                            onOldPasswordChange = { oldPassword = it },
+                            onNewPasswordChange = { newPassword = it },
+                            onConfirmPasswordChange = { confirmPassword = it },
+                            onSubmit = submitPasswordChange,
+                        )
+                    }
+                }
+            }
         }
         item(key = "settings-ai-history") {
             SettingsSection(title = "学习记录") {
@@ -454,37 +590,18 @@ fun SettingsScreen(
                         Text("默认讲解模型", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
                         Text("错题复习和纠错统一使用这里的模型。", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                     }
-                }
-                Column(verticalArrangement = Arrangement.spacedBy(LabSpacing.XSmall)) {
-                    AiModels.forEach { model ->
-                        val selected = model == uiState.settings.aiModel
-                        FilterChip(
-                            selected = selected,
-                            onClick = { onSettingsChange(uiState.settings.copy(aiModel = model)) },
-                            label = {
-                                Text(
-                                    text = model.learningModelLabel(),
-                                    modifier = Modifier.padding(vertical = 6.dp),
-                                    fontWeight = FontWeight.Bold,
-                                )
-                            },
-                            leadingIcon = if (selected) {
-                                {
-                                    Icon(
-                                        Icons.Rounded.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(FilterChipDefaults.IconSize),
-                                    )
-                                }
-                            } else {
-                                null
-                            },
-                            shape = MaterialTheme.shapes.small,
-                            colors = settingsChipColors(),
-                            border = settingsChipBorder(selected),
+                    if (aiModelsLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp,
                         )
                     }
                 }
+                AiModelChips(
+                    options = aiModelOptions,
+                    selectedId = uiState.settings.aiModel,
+                    onSelect = { modelId -> onSettingsChange(uiState.settings.copy(aiModel = modelId)) },
+                )
                 if (uiState.settings.aiModel == "grok-4.3") {
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text("Grok 推理强度", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Black)
@@ -906,6 +1023,235 @@ private fun AccountSection(
     }
 }
 
+/** 修改密码的结果提示，只在 Compose 内存里存在。 */
+private data class PasswordChangeFeedback(
+    val message: String,
+    val isError: Boolean,
+)
+
+/** 把 changePassword 抛出的 HTTP 异常翻译成用户能看懂的中文。 */
+private fun Throwable.changePasswordMessage(): String {
+    val raw = message.orEmpty()
+    return when {
+        raw.contains("401") -> "旧密码不正确"
+        raw.contains("400") -> "新密码至少 6 位"
+        else -> "网络异常，请稍后再试"
+    }
+}
+
+/**
+ * 修改密码表单。三个字段由调用方以 remember 持有，不落盘、不进 saveable；
+ * 提交中整表禁用，提交按钮内联转圈。
+ */
+@Composable
+private fun ChangePasswordForm(
+    oldPassword: String,
+    newPassword: String,
+    confirmPassword: String,
+    submitting: Boolean,
+    canSubmit: Boolean,
+    onOldPasswordChange: (String) -> Unit,
+    onNewPasswordChange: (String) -> Unit,
+    onConfirmPasswordChange: (String) -> Unit,
+    onSubmit: () -> Unit,
+) {
+    val focusManager = LocalFocusManager.current
+    val mismatch = confirmPassword.isNotEmpty() && confirmPassword != newPassword
+
+    PasswordField(
+        value = oldPassword,
+        onValueChange = onOldPasswordChange,
+        label = "当前密码",
+        enabled = !submitting,
+        imeAction = ImeAction.Next,
+    )
+    PasswordField(
+        value = newPassword,
+        onValueChange = onNewPasswordChange,
+        label = "新密码",
+        enabled = !submitting,
+        imeAction = ImeAction.Next,
+        supportingText = "至少 6 位。",
+    )
+    PasswordField(
+        value = confirmPassword,
+        onValueChange = onConfirmPasswordChange,
+        label = "确认新密码",
+        enabled = !submitting,
+        imeAction = ImeAction.Done,
+        isError = mismatch,
+        supportingText = if (mismatch) "两次输入的新密码不一致。" else null,
+        onDone = {
+            if (canSubmit) {
+                focusManager.clearFocus()
+                onSubmit()
+            }
+        },
+    )
+    Button(
+        onClick = {
+            focusManager.clearFocus()
+            onSubmit()
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp),
+        enabled = canSubmit,
+        shape = MaterialTheme.shapes.large,
+    ) {
+        if (submitting) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(18.dp),
+                strokeWidth = 2.dp,
+            )
+            Spacer(modifier = Modifier.size(LabSpacing.XSmall))
+        }
+        Text(if (submitting) "提交中…" else "确认修改", fontWeight = FontWeight.Black)
+    }
+}
+
+/** 密码输入框：统一锁图标、密码遮罩和 labFieldColors()。 */
+@Composable
+private fun PasswordField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    enabled: Boolean,
+    imeAction: ImeAction,
+    modifier: Modifier = Modifier,
+    isError: Boolean = false,
+    supportingText: String? = null,
+    onDone: () -> Unit = {},
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        enabled = enabled,
+        isError = isError,
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 62.dp),
+        label = { Text(label) },
+        supportingText = if (supportingText != null) {
+            { Text(supportingText) }
+        } else {
+            null
+        },
+        singleLine = true,
+        shape = MaterialTheme.shapes.small,
+        colors = labFieldColors(),
+        leadingIcon = {
+            Icon(Icons.Rounded.Lock, contentDescription = null)
+        },
+        visualTransformation = PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Password,
+            imeAction = imeAction,
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = { onDone() },
+        ),
+    )
+}
+
+/** 修改密码结果提示：成功走 success 容器色，失败走 errorContainer。 */
+@Composable
+private fun PasswordChangeMessage(
+    feedback: PasswordChangeFeedback,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = if (feedback.isError) {
+            MaterialTheme.colorScheme.errorContainer
+        } else {
+            LabTheme.colors.successContainer
+        },
+        contentColor = if (feedback.isError) {
+            MaterialTheme.colorScheme.onErrorContainer
+        } else {
+            LabTheme.colors.onSuccessContainer
+        },
+        shape = MaterialTheme.shapes.small,
+    ) {
+        Text(
+            text = feedback.message,
+            modifier = Modifier.padding(horizontal = LabSpacing.Small, vertical = 10.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+        )
+    }
+}
+
+/**
+ * 讲解模型 chips。[options] 优先来自 `GET /api/ai/models`，拉不到时是内置列表；
+ * 当前选中值不在列表里时补一个只读 chip，保证选中态可见。
+ */
+@Composable
+private fun AiModelChips(
+    options: List<AiModelOption>,
+    selectedId: String,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(LabSpacing.XSmall),
+    ) {
+        options.forEach { option ->
+            val selected = option.id == selectedId
+            FilterChip(
+                selected = selected,
+                onClick = { onSelect(option.id) },
+                label = {
+                    Text(
+                        text = option.label,
+                        modifier = Modifier.padding(vertical = 6.dp),
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
+                leadingIcon = if (selected) {
+                    {
+                        Icon(
+                            Icons.Rounded.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(FilterChipDefaults.IconSize),
+                        )
+                    }
+                } else {
+                    null
+                },
+                shape = MaterialTheme.shapes.small,
+                colors = settingsChipColors(),
+                border = settingsChipBorder(selected),
+            )
+        }
+        if (selectedId.isNotBlank() && options.none { it.id == selectedId }) {
+            FilterChip(
+                selected = true,
+                onClick = {},
+                label = {
+                    Text(
+                        text = "当前：$selectedId",
+                        modifier = Modifier.padding(vertical = 6.dp),
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        Icons.Rounded.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(FilterChipDefaults.IconSize),
+                    )
+                },
+                shape = MaterialTheme.shapes.small,
+                colors = settingsChipColors(),
+                border = settingsChipBorder(true),
+            )
+        }
+    }
+}
+
 private fun String.learningModelLabel(): String = AiModelLabels[this] ?: this
 
 private fun String.learningModelShortLabel(): String {
@@ -1201,6 +1547,42 @@ private fun SettingsNavigationRow(
         Icon(
             Icons.Rounded.ChevronRight,
             contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+        )
+    }
+}
+
+/** 分组内的展开行：沿用 SettingsNavigationRow 的排版，右侧箭头指示内联展开状态。 */
+@Composable
+private fun SettingsDisclosureRow(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.medium)
+            .clickable(role = Role.Button, onClick = onToggle)
+            .heightIn(min = 48.dp),
+        horizontalArrangement = Arrangement.spacedBy(LabSpacing.Small),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        SettingIcon(
+            icon,
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
+            Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
+        }
+        Icon(
+            if (expanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+            contentDescription = if (expanded) "收起" else "展开",
             tint = MaterialTheme.colorScheme.primary,
         )
     }

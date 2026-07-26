@@ -230,6 +230,15 @@ curl -s -X POST -H "Authorization: Bearer $env:SUPABASE_TOKEN" -H "Content-Type:
 
 ## 已完成
 
+2026-07-26 第三批(P1 收尾 + 真实数据 + 工程清理;`testDebugUnitTest` 全绿 + `lintDebug` 0 错误 + `assembleLocalSlim` 成功):
+
+- **P1-1(原 4.1)JLPT 难度贯穿**:资料库词汇区 N5→N1 筛选 chips(带当前集词数、rememberSaveable 记忆、与搜索叠加过滤),词汇卡等级标签按难度语义着色(N5/N4 绿、N3 蓝、N2 橙、N1 红容器色)。
+- **P1-9(原 4.9)每集计划展示**:课程中心新增「本集计划」卡——planSlot 期数 chip + 词汇/跟读/语法/练习四色数量胶囊(只显示 >0 项)+ 策展 notes 两行摘要。
+- **P1-10(原 4.10)修改密码**:`RemoteLabClient.changePassword` + 设置页「账号安全」内联表单(旧/新/确认三字段、内存态密码、401/400 错误映射);服务端保留当前会话并踢掉其他设备。
+- **P1-11(原 4.11)AI 模型在线下拉**:`fetchAiModels()` 拉取 `{id,label}` 列表,设置页模型 chips 改在线数据源(失败回退硬编码、未知当前值补显「当前」chip)。
+- **P2-真实连胜/XP(原 5.3,Android 侧)**:连胜此前已真实;本批把硬编码 XP(820/1260)替换为 `learningXp(progressItems)`(熟练10/可复习6/模糊4/答错2),与连胜同源同步于 7 个状态更新点,新增 `LearningXpTest`。
+- **工程清理(§6.2)**:删除无路由引用的 MineScreen.kt(229 行)+ 四大屏幕 44 个无引用顶层私有函数,合计约 **2,142 行死代码**;ReviewScreen 经审计零死代码(旧清单过时)。遗留第三轮候选 4 个(见清理报告),下次清理处理。
+
 2026-07-26 第二批(检索与身份 + SRS;`testDebugUnitTest` 全绿 + `lintDebug` 0 错误 + `assembleLocalSlim` 成功):
 
 - **P0-4(原 3.4)RAG 语义搜索**:`RemoteLabClient.searchSubtitles`(`re-zero↔rezero` slug 双向映射)+ `RagSearchResult/Source/Analysis` 模型;全新 `SearchScreen`(AI 解读卡 + 场景命中卡 + 逐行跳转);入口:资料库伪搜索框 + 字幕页顶栏图标;`SecondaryScreen.Search` 路由。

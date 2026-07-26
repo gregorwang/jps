@@ -405,6 +405,12 @@ enum class SyncStatus {
     Error,
 }
 
+/** One entry of `GET /api/ai/models`; [label] is the human-readable name. */
+data class AiModelOption(
+    val id: String,
+    val label: String,
+)
+
 data class AiCoachState(
     val question: String = "为什么我会选错？",
     val status: SyncStatus = SyncStatus.Idle,

@@ -116,6 +116,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.animejapaneselab.nativeapp.data.ClozeNode
 import com.animejapaneselab.nativeapp.data.EpisodeOption
+import com.animejapaneselab.nativeapp.data.EpisodePlan
 import com.animejapaneselab.nativeapp.data.FuriganaResult
 import com.animejapaneselab.nativeapp.data.LabSettings
 import com.animejapaneselab.nativeapp.data.LessonExerciseKind
@@ -301,6 +302,10 @@ fun LessonHubScreen(
                     onStartMix = onStartExerciseMix,
                 )
             }
+            val episodePlan = uiState.episodePlan
+            if (episodePlan != null && episodePlan.hasPlanSummary()) {
+                item { EpisodePlanSummaryCard(plan = episodePlan) }
+            }
             item { TrainingPathSectionHeader(plan = pathPlan) }
             item {
                 DuolingoPathMap(
@@ -398,214 +403,6 @@ private fun AnimeExerciseLabSection(
     }
 }
 
-@Composable
-private fun SpecialTrainingEntry(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-        shape = MaterialTheme.shapes.large,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Surface(
-                modifier = Modifier.size(38.dp),
-                color = LabPalette.VioletPanel,
-                contentColor = LabPalette.Violet,
-                shape = MaterialTheme.shapes.small,
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Rounded.Psychology, contentDescription = null, modifier = Modifier.size(21.dp))
-                }
-            }
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text("专项训练", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(
-                    "集中练语气、潜台词与语言学题库",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            Text("进入题库", style = MaterialTheme.typography.labelMedium, color = LabPalette.Violet, fontWeight = FontWeight.Bold)
-            Icon(Icons.AutoMirrored.Rounded.ArrowForward, contentDescription = null, tint = LabPalette.Violet)
-        }
-    }
-}
-
-@Composable
-private fun LearningContextHeader(
-    stageSummary: CourseStageSummary,
-    onCourseClick: () -> Unit,
-    onEpisodeClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text("学习", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
-            Text(stageSummary.eyebrow, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        OutlinedButton(onClick = onCourseClick, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)) {
-            Text("切换作品", fontWeight = FontWeight.Medium)
-        }
-        OutlinedButton(onClick = onEpisodeClick, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)) {
-            Text(stageSummary.courseStat, fontWeight = FontWeight.Bold)
-        }
-    }
-}
-
-@Composable
-private fun AnimeLearningHero(
-    summary: CourseStageSummary,
-    workSlug: String,
-    episode: Int,
-    motionEnabled: Boolean,
-    onStart: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = LabPalette.VioletPanel,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-        shape = MaterialTheme.shapes.extraLarge,
-        border = BorderStroke(1.dp, LabPalette.Violet.copy(alpha = 0.22f)),
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Text("继续学习", style = MaterialTheme.typography.labelLarge, color = LabPalette.Violet, fontWeight = FontWeight.Bold)
-                    Text(summary.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                    Text(
-                        summary.detail,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                CourseCharacterArtwork(
-                    workSlug = workSlug,
-                    role = CourseCharacterRole.Today,
-                    motionEnabled = motionEnabled,
-                    stableSeed = episode,
-                    modifier = Modifier.size(84.dp),
-                )
-            }
-            LinearProgressIndicator(
-                progress = { summary.progress },
-                modifier = Modifier.fillMaxWidth().clip(CircleShape),
-                color = LabPalette.Violet,
-                trackColor = MaterialTheme.colorScheme.surface,
-            )
-            Button(
-                onClick = onStart,
-                modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = LabPalette.Violet, contentColor = Color.White),
-                shape = MaterialTheme.shapes.large,
-            ) {
-                Icon(Icons.Rounded.PlayArrow, contentDescription = null)
-                Text("继续本集学习", modifier = Modifier.padding(start = 7.dp), fontWeight = FontWeight.Bold)
-            }
-        }
-    }
-}
-
-@Composable
-private fun LearningPlanList(
-    plan: TrainingPathPlan,
-    onNodeSelected: (TrainingPathNode) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val actionableNodes = remember(plan.nodes) {
-        plan.nodes.filter { node -> node.action != TrainingPathNodeAction.None }
-    }
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface,
-        shape = MaterialTheme.shapes.large,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-    ) {
-        Column {
-            actionableNodes.forEachIndexed { index, node ->
-                LearningPlanRow(node = node, onClick = { onNodeSelected(node) })
-                if (index != actionableNodes.lastIndex) HorizontalDivider(color = MaterialTheme.colorScheme.outline)
-            }
-        }
-    }
-}
-
-@Composable
-private fun LearningPlanRow(
-    node: TrainingPathNode,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val enabled = node.action != TrainingPathNodeAction.None
-    Surface(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = modifier.fillMaxWidth().heightIn(min = 70.dp),
-        color = Color.Transparent,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Surface(
-                modifier = Modifier.size(38.dp),
-                color = if (node.state == TrainingPathNodeState.Completed) {
-                    MaterialTheme.colorScheme.tertiary.copy(alpha = 0.14f)
-                } else {
-                    LabPalette.VioletPanel
-                },
-                contentColor = if (node.state == TrainingPathNodeState.Completed) MaterialTheme.colorScheme.tertiary else LabPalette.Violet,
-                shape = MaterialTheme.shapes.small,
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(node.pathIcon(), contentDescription = null, modifier = Modifier.size(21.dp))
-                }
-            }
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(node.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(
-                    node.subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            Column(horizontalAlignment = Alignment.End) {
-                Text(node.countLabel, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                Text(
-                    if (node.state == TrainingPathNodeState.Completed) "已完成" else if (enabled) "可练" else "奖励",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            if (enabled) Icon(Icons.AutoMirrored.Rounded.ArrowForward, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-    }
-}
-
 private data class ExerciseLabCardStyle(
     val icon: ImageVector,
 )
@@ -620,156 +417,6 @@ private data class ExerciseLabKindUiState(
     val coveredCount: Int,
     val totalCount: Int,
 )
-
-@Composable
-private fun ExerciseLabSection(
-    uiState: ExerciseLabUiState,
-    loading: Boolean,
-    coursePalette: FusionCoursePalette,
-    onStartExercise: (LessonExerciseKind) -> Unit,
-    onStartMix: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        Surface(
-            onClick = { expanded = !expanded },
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-            shape = MaterialTheme.shapes.large,
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Surface(
-                    modifier = Modifier.size(38.dp),
-                    color = coursePalette.accent.copy(alpha = 0.14f),
-                    contentColor = coursePalette.accent,
-                    shape = MaterialTheme.shapes.small,
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Rounded.Bolt, contentDescription = null, modifier = Modifier.size(21.dp))
-                    }
-                }
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text("自由练习", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text(
-                        "六类题型 · 素材进度 ${uiState.coveredCount}/${uiState.totalMaterialCount}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Text(
-                    if (expanded) "收起" else "选择题型",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = coursePalette.accent,
-                    fontWeight = FontWeight.Bold,
-                )
-                Icon(
-                    Icons.Rounded.KeyboardArrowDown,
-                    contentDescription = null,
-                    modifier = Modifier.graphicsLayer { rotationZ = if (expanded) 180f else 0f },
-                    tint = coursePalette.accent,
-                )
-            }
-        }
-        AnimatedVisibility(
-            visible = expanded,
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut(),
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(
-                    onClick = onStartMix,
-                    enabled = !loading && uiState.totalMaterialCount > 0,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                ) {
-                    Icon(Icons.Rounded.Stars, contentDescription = null)
-                    Text(
-                        text = when {
-                            loading -> "准备中…"
-                            uiState.coveredCount > 0 -> "继续六类混合练习"
-                            else -> "开始六类混合练习"
-                        },
-                        modifier = Modifier.padding(start = 7.dp),
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.surface,
-                    shape = MaterialTheme.shapes.large,
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                ) {
-                    Column {
-                        LessonExerciseKind.entries.forEachIndexed { index, kind ->
-                            ExerciseLabRow(
-                                kind = kind,
-                                stats = uiState.stats.getValue(kind),
-                                enabled = !loading && uiState.stats.getValue(kind).totalCount > 0,
-                                accent = coursePalette.accent,
-                                onClick = { onStartExercise(kind) },
-                            )
-                            if (index != LessonExerciseKind.entries.lastIndex) {
-                                HorizontalDivider(color = MaterialTheme.colorScheme.outline)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ExerciseLabRow(
-    kind: LessonExerciseKind,
-    stats: ExerciseLabKindUiState,
-    enabled: Boolean,
-    accent: Color,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val style = kind.exerciseLabStyle()
-    Surface(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = modifier.fillMaxWidth(),
-        color = Color.Transparent,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(style.icon, contentDescription = null, modifier = Modifier.size(22.dp), tint = accent)
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                Text(kind.label, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                Text(
-                    kind.shortDescription,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            Text(
-                if (stats.totalCount > 0) "${stats.coveredCount}/${stats.totalCount}" else "暂无",
-                style = MaterialTheme.typography.labelMedium,
-                color = if (enabled) accent else MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Bold,
-            )
-            Icon(Icons.AutoMirrored.Rounded.ArrowForward, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-    }
-}
 
 private fun LabUiState.exerciseLabUiState(): ExerciseLabUiState {
     val selectedWork = normalizeTrainingPathWorkSlug(selection.workSlug)
@@ -856,6 +503,140 @@ private fun TrainingPathSectionHeader(
                 color = MaterialTheme.colorScheme.primary,
                 trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                 strokeCap = StrokeCap.Round,
+            )
+        }
+    }
+}
+
+private fun EpisodePlan.hasPlanSummary(): Boolean {
+    return vocabCount > 0 || shadowingCount > 0 || grammarCount > 0 || exerciseCount > 0 || notes.isNotBlank()
+}
+
+private data class EpisodePlanTile(
+    val label: String,
+    val count: Int,
+    val icon: ImageVector,
+    val containerColor: Color,
+    val contentColor: Color,
+)
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun EpisodePlanSummaryCard(
+    plan: EpisodePlan,
+    modifier: Modifier = Modifier,
+) {
+    val labColors = LabTheme.colors
+    val tiles = listOf(
+        EpisodePlanTile(
+            label = "词汇",
+            count = plan.vocabCount,
+            icon = Icons.Rounded.AutoStories,
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        ),
+        EpisodePlanTile(
+            label = "跟读",
+            count = plan.shadowingCount,
+            icon = Icons.Rounded.Mic,
+            containerColor = labColors.infoContainer,
+            contentColor = labColors.onInfoContainer,
+        ),
+        EpisodePlanTile(
+            label = "语法",
+            count = plan.grammarCount,
+            icon = Icons.Rounded.Psychology,
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        ),
+        EpisodePlanTile(
+            label = "练习",
+            count = plan.exerciseCount,
+            icon = Icons.Rounded.Bolt,
+            containerColor = labColors.successContainer,
+            contentColor = labColors.onSuccessContainer,
+        ),
+    ).filter { it.count > 0 }
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        shape = MaterialTheme.shapes.extraLarge,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(width = 16.dp, height = 5.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary),
+                )
+                Text(
+                    text = "本集计划",
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Black,
+                )
+                plan.planSlot?.let { slot ->
+                    TagChip("第 $slot 期")
+                }
+            }
+            if (tiles.isNotEmpty()) {
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    tiles.forEach { tile -> EpisodePlanCountPill(tile = tile) }
+                }
+            }
+            if (plan.notes.isNotBlank()) {
+                Text(
+                    text = plan.notes,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun EpisodePlanCountPill(
+    tile: EpisodePlanTile,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier,
+        color = tile.containerColor,
+        contentColor = tile.contentColor,
+        shape = CircleShape,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 11.dp, vertical = 7.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(tile.icon, contentDescription = null, modifier = Modifier.size(15.dp))
+            Text(
+                text = tile.label,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                text = tile.count.toString(),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Black,
             )
         }
     }
@@ -1654,32 +1435,6 @@ private fun buildCourseDirectoryEpisodes(uiState: LabUiState): List<CourseDirect
     }
 }
 
-private fun courseRangesFor(workSlug: String, episodeCount: Int): List<CourseEpisodeRange> {
-    val count = episodeCount.coerceAtLeast(1)
-    if (normalizeTrainingPathWorkSlug(workSlug) == "re-zero" && count > 30) {
-        return listOf(
-            CourseEpisodeRange(1, 25.coerceAtMost(count)),
-            CourseEpisodeRange(26, 50.coerceAtMost(count)),
-            CourseEpisodeRange(51.coerceAtMost(count), count),
-        ).filter { it.start <= it.end }
-    }
-    val stageCount = when {
-        count <= 4 -> count
-        count <= 16 -> 4
-        count <= 30 -> 5
-        else -> 6
-    }
-    val size = ((count + stageCount - 1) / stageCount).coerceAtLeast(1)
-    return buildList {
-        var start = 1
-        while (start <= count) {
-            val end = (start + size - 1).coerceAtMost(count)
-            add(CourseEpisodeRange(start, end))
-            start = end + 1
-        }
-    }
-}
-
 private fun LabUiState.courseStageSummary(
     pathPlan: TrainingPathPlan = buildTrainingPathPlan(trainingPathInput()),
 ): CourseStageSummary {
@@ -1776,13 +1531,6 @@ private fun shortCourseTitle(title: String): String {
         title.length > 10 -> title.take(10)
         else -> title
     }
-}
-
-private fun courseRangeProgress(range: CourseEpisodeRange, currentEpisode: Int): Float {
-    if (currentEpisode < range.start) return 0f
-    if (currentEpisode > range.end) return 1f
-    val size = (range.end - range.start + 1).coerceAtLeast(1)
-    return ((currentEpisode - range.start + 1).toFloat() / size.toFloat()).coerceIn(0f, 1f)
 }
 
 private fun LabUiState.courseEpisodeProgress(workSlug: String, episode: Int): Float {
@@ -1963,45 +1711,6 @@ private fun DuolingoHudStat(
     ) {
         icon()
         Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black, color = color)
-    }
-}
-
-@Composable
-private fun DuolingoGemMark(modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier) {
-        val path = Path().apply {
-            moveTo(size.width * 0.50f, 0f)
-            lineTo(size.width * 0.90f, size.height * 0.22f)
-            lineTo(size.width * 0.90f, size.height * 0.72f)
-            lineTo(size.width * 0.50f, size.height)
-            lineTo(size.width * 0.10f, size.height * 0.72f)
-            lineTo(size.width * 0.10f, size.height * 0.22f)
-            close()
-        }
-        drawPath(path, Color(0xFF1CB0F6))
-    }
-}
-
-@Composable
-private fun DuolingoEnergyMark(modifier: Modifier = Modifier) {
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
-        Surface(
-            modifier = Modifier
-                .width(38.dp)
-                .height(24.dp),
-            color = Color(0xFFFF75C8),
-            shape = MaterialTheme.shapes.small,
-        ) {}
-        Box(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .offset(x = (-3).dp)
-                .width(4.dp)
-                .height(12.dp)
-                .clip(MaterialTheme.shapes.small)
-                .background(Color.White.copy(alpha = 0.38f)),
-        )
-        Icon(Icons.Rounded.Bolt, contentDescription = null, tint = Color.White, modifier = Modifier.size(17.dp))
     }
 }
 
@@ -2498,200 +2207,6 @@ private fun Modifier.minimumPathTouchTarget(
 }
 
 @Composable
-private fun TrainingPathHero(
-    plan: TrainingPathPlan,
-    modifier: Modifier = Modifier,
-) {
-    val mascot = LocalRiveMascotController.current
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimary,
-        shape = MaterialTheme.shapes.extraLarge,
-        tonalElevation = 6.dp,
-    ) {
-        Column(
-            modifier = Modifier.padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                TrainingPathStatChip(label = "能量", value = plan.energyLabel, modifier = Modifier.weight(1f))
-                TrainingPathStatChip(label = "连胜", value = plan.streakLabel, modifier = Modifier.weight(1f))
-                TrainingPathStatChip(label = "XP", value = plan.xpLabel, modifier = Modifier.weight(1f))
-            }
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(
-                        text = "今天从这里开始",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.86f),
-                    )
-                    Text(
-                        text = plan.title,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Black,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(
-                        text = plan.subtitle,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.84f),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                if (mascot != null) {
-                    Surface(
-                        modifier = Modifier.size(72.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        contentColor = MaterialTheme.colorScheme.primary,
-                        shape = CircleShape,
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            RiveAnimationHost(
-                                controller = mascot,
-                                modifier = Modifier.size(64.dp),
-                            )
-                        }
-                    }
-                } else {
-                    Surface(
-                        modifier = Modifier.size(58.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        contentColor = MaterialTheme.colorScheme.primary,
-                        shape = CircleShape,
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(Icons.Rounded.Stars, contentDescription = null, modifier = Modifier.size(32.dp))
-                        }
-                    }
-                }
-            }
-            LinearProgressIndicator(
-                progress = { plan.progress },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(CircleShape),
-                color = MaterialTheme.colorScheme.onPrimary,
-                trackColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.22f),
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                TrainingPathStatChip(label = "已答", value = plan.answeredLabel, modifier = Modifier.weight(1f))
-                TrainingPathStatChip(label = "正确", value = plan.correctLabel, modifier = Modifier.weight(1f))
-            }
-        }
-    }
-}
-
-@Composable
-private fun TrainingPathStatChip(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier,
-        color = Color.White.copy(alpha = 0.15f),
-        contentColor = Color.White,
-        shape = MaterialTheme.shapes.large,
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.18f)),
-    ) {
-        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp)) {
-            Text(label, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
-            Text(
-                value,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Black,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-    }
-}
-
-@Composable
-private fun TrainingPathMap(
-    plan: TrainingPathPlan,
-    onNodeSelected: (TrainingPathNode) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-        shape = MaterialTheme.shapes.extraLarge,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        tonalElevation = 2.dp,
-    ) {
-        Column(
-            modifier = Modifier.padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                SectionTitle(eyebrow = "训练地图", title = "当前学习路径")
-                TagChip("本集", selected = true)
-            }
-            Text(
-                text = plan.planNote,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Bold,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-            plan.nodes.forEachIndexed { index, node ->
-                TrainingPathNodeRow(
-                    node = node,
-                    alignRight = index % 2 == 1,
-                    onClick = { onNodeSelected(node) },
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun TrainingPathNodeRow(
-    node: TrainingPathNode,
-    alignRight: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (alignRight) Spacer(modifier = Modifier.weight(0.20f))
-        if (alignRight) {
-            TrainingPathNodeBubble(
-                node = node,
-                onClick = onClick,
-                modifier = Modifier.weight(1f),
-            )
-            TrainingPathOrb(node = node)
-        } else {
-            TrainingPathOrb(node = node)
-            TrainingPathNodeBubble(
-                node = node,
-                onClick = onClick,
-                modifier = Modifier.weight(1f),
-            )
-        }
-        if (!alignRight) Spacer(modifier = Modifier.weight(0.20f))
-    }
-}
-
-@Composable
 private fun TrainingPathOrb(
     node: TrainingPathNode,
     modifier: Modifier = Modifier,
@@ -2774,268 +2289,6 @@ private fun TrainingPathNodeBubbleContent(node: TrainingPathNode) {
 }
 
 @Composable
-private fun LessonHubHero(
-    uiState: LabUiState,
-    modifier: Modifier = Modifier,
-) {
-    val currentNode = uiState.lesson.currentNode
-    val feedback = uiState.lesson.feedback
-    val currentPrompt = when {
-        feedback?.correct == true -> "已答对，回来继续下一步"
-        feedback?.correct == false -> "已作答，回来查看反馈"
-        else -> currentNode?.prompt ?: "选择一个训练重点后开始"
-    }
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimary,
-        shape = MaterialTheme.shapes.extraLarge,
-        tonalElevation = 6.dp,
-    ) {
-        Column(
-            modifier = Modifier.padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Text(
-                        "今日训练",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.86f),
-                    )
-                    Text(
-                        text = uiState.focus.lessonTitle,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Black,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(
-                        text = currentPrompt,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.88f),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                Surface(
-                    modifier = Modifier.size(50.dp),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    contentColor = MaterialTheme.colorScheme.primary,
-                    shape = CircleShape,
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Rounded.Stars, contentDescription = null, modifier = Modifier.size(28.dp))
-                    }
-                }
-            }
-            LinearProgressIndicator(
-                progress = { uiState.lesson.progress },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(CircleShape),
-                color = MaterialTheme.colorScheme.onPrimary,
-                trackColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.22f),
-            )
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                LessonHubStat(label = "题目", value = "${uiState.lesson.nodes.size}", modifier = Modifier.weight(1f))
-                LessonHubStat(label = "已答", value = "${uiState.lesson.answered}", modifier = Modifier.weight(1f))
-                LessonHubStat(label = "正确", value = "${uiState.lesson.correct}", modifier = Modifier.weight(1f))
-            }
-        }
-    }
-}
-
-@Composable
-private fun LessonHubStat(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier,
-        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.14f),
-        contentColor = MaterialTheme.colorScheme.onPrimary,
-        shape = CircleShape,
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.78f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = value,
-                modifier = Modifier.padding(start = 5.dp),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Black,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-    }
-}
-
-@Composable
-private fun LessonPreviewNode(
-    index: Int,
-    node: LessonNode,
-    done: Boolean,
-    current: Boolean,
-    pendingFeedback: Boolean,
-    onStartLesson: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val locked = !done && !current
-    val state = when {
-        done -> LessonNodeVisualState.Completed
-        current -> LessonNodeVisualState.Active
-        locked -> LessonNodeVisualState.Locked
-        else -> LessonNodeVisualState.Available
-    }
-    AnimatedLessonNode(
-        title = "${index + 1}. ${node.title}",
-        subtitle = if (pendingFeedback) "已作答，回到反馈页继续" else node.prompt,
-        state = state,
-        unlockReason = pathStatusLabel(done = done, current = current, pendingFeedback = pendingFeedback),
-        icon = node.pathIcon(),
-        onClick = { if (!locked) onStartLesson() },
-        modifier = modifier.fillMaxWidth(),
-    )
-}
-
-@Composable
-private fun LessonPreviewNodeRow(
-    index: Int,
-    node: LessonNode,
-    alignRight: Boolean,
-    current: Boolean,
-    done: Boolean,
-    locked: Boolean,
-    pendingFeedback: Boolean,
-    statusLabel: String,
-    onStartLesson: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (alignRight) Spacer(modifier = Modifier.weight(0.16f))
-        if (alignRight && current) {
-            CurrentLessonBubble(
-                index = index,
-                node = node,
-                pendingFeedback = pendingFeedback,
-                onStartLesson = onStartLesson,
-                modifier = Modifier.weight(1f),
-            )
-        }
-        LessonPathOrb(
-            current = current,
-            done = done,
-            locked = locked,
-            pendingFeedback = pendingFeedback,
-            node = node,
-            onStartLesson = onStartLesson,
-        )
-        if (!alignRight && current) {
-            CurrentLessonBubble(
-                index = index,
-                node = node,
-                pendingFeedback = pendingFeedback,
-                onStartLesson = onStartLesson,
-                modifier = Modifier.weight(1f),
-            )
-        }
-        if (!current) {
-            PathNodeCaption(
-                index = index,
-                title = node.title,
-                statusLabel = statusLabel,
-                highlighted = done,
-                alignRight = alignRight,
-                modifier = Modifier.weight(1f),
-            )
-        }
-        if (!alignRight) Spacer(modifier = Modifier.weight(0.16f))
-    }
-}
-
-@Composable
-private fun LessonPathOrb(
-    current: Boolean,
-    done: Boolean,
-    locked: Boolean,
-    pendingFeedback: Boolean,
-    node: LessonNode,
-    onStartLesson: () -> Unit,
-) {
-    val modifier = Modifier.size(if (current) 72.dp else 58.dp)
-    val color = when {
-        done -> MaterialTheme.colorScheme.primary
-        current -> LabPalette.Yellow
-        else -> MaterialTheme.colorScheme.surfaceVariant
-    }
-    val contentColor = when {
-        done -> MaterialTheme.colorScheme.onPrimary
-        current -> MaterialTheme.colorScheme.onTertiary
-        else -> MaterialTheme.colorScheme.onSurfaceVariant
-    }
-
-    if (current) {
-        Surface(
-            onClick = onStartLesson,
-            modifier = modifier,
-            color = color,
-            contentColor = contentColor,
-            shape = CircleShape,
-            tonalElevation = 6.dp,
-        ) {
-            LessonPathOrbContent(
-                done = done,
-                current = current,
-                locked = locked,
-                pendingFeedback = pendingFeedback,
-                node = node,
-            )
-        }
-    } else {
-        Surface(
-            modifier = modifier,
-            color = color,
-            contentColor = contentColor,
-            shape = CircleShape,
-            tonalElevation = 0.dp,
-        ) {
-            LessonPathOrbContent(
-                done = done,
-                current = current,
-                locked = locked,
-                pendingFeedback = pendingFeedback,
-                node = node,
-            )
-        }
-    }
-}
-
-@Composable
 private fun LessonPathOrbContent(
     done: Boolean,
     current: Boolean,
@@ -3057,94 +2310,11 @@ private fun LessonPathOrbContent(
     }
 }
 
-@Composable
-private fun CurrentLessonBubble(
-    index: Int,
-    node: LessonNode,
-    pendingFeedback: Boolean,
-    onStartLesson: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        onClick = onStartLesson,
-        modifier = modifier,
-        color = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        shape = MaterialTheme.shapes.large,
-        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
-        shadowElevation = 3.dp,
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "${index + 1}. ${node.title}",
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Black,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                TagChip(if (pendingFeedback) "下一步" else "继续", selected = true)
-            }
-            Text(
-                text = if (pendingFeedback) "已作答，回到反馈页继续" else node.prompt,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-    }
-}
-
-@Composable
-private fun PathNodeCaption(
-    index: Int,
-    title: String,
-    statusLabel: String,
-    highlighted: Boolean,
-    alignRight: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier.padding(vertical = 6.dp),
-        horizontalAlignment = if (alignRight) Alignment.End else Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-    ) {
-        Text(
-            text = "${index + 1}. $title",
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Black,
-            textAlign = if (alignRight) TextAlign.End else TextAlign.Start,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-        Text(
-            text = statusLabel,
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Bold,
-            color = if (highlighted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
-
 private fun LessonNode.pathIcon() = when (typeLabel) {
     "语言学题" -> Icons.Rounded.Psychology
     "读空气" -> Icons.Rounded.Psychology
     "学习卡" -> Icons.Rounded.AutoStories
     else -> Icons.Rounded.Bolt
-}
-
-private fun pathStatusLabel(done: Boolean, current: Boolean, pendingFeedback: Boolean): String {
-    return when {
-        done -> "已完成"
-        pendingFeedback -> "待继续"
-        current -> "继续"
-        else -> "完成上一题后解锁"
-    }
 }
 
 private val TrainingPathNodeState.label: String
@@ -3602,46 +2772,6 @@ private fun LessonNodeHero(
         stableSeed = episode,
         modifier = modifier,
     )
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun TargetLessonBar(
-    modifier: Modifier = Modifier,
-) {
-    FlowRow(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        TagChip("单点训练", selected = true)
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun LessonModeBar(
-    selectedMode: LessonMode,
-    onModeSelected: (LessonMode) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    FlowRow(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        LessonMode.entries.forEach { mode ->
-            FilterChip(
-                selected = selectedMode == mode,
-                onClick = { onModeSelected(mode) },
-                label = { Text(mode.label, fontWeight = FontWeight.Bold) },
-            )
-        }
-    }
 }
 
 @Composable
@@ -5402,22 +4532,6 @@ private fun ChoiceButton(
             }
         },
     )
-}
-
-private fun answerOptionState(
-    selected: Boolean,
-    correct: Boolean,
-    wrong: Boolean,
-    enabled: Boolean,
-): AnswerOptionState {
-    return when {
-        wrong -> AnswerOptionState.Wrong
-        correct && selected -> AnswerOptionState.Correct
-        correct -> AnswerOptionState.RevealedCorrect
-        selected -> AnswerOptionState.Selected
-        !enabled -> AnswerOptionState.Disabled
-        else -> AnswerOptionState.Idle
-    }
 }
 
 @Composable

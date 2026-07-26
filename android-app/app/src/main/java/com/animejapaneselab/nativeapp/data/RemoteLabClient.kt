@@ -57,6 +57,22 @@ class RemoteLabClient(
         post("/api/auth/logout", JSONObject())
     }
 
+    /**
+     * Changes the account password; the server keeps the current session valid and
+     * revokes all others. Throws on wrong old password (HTTP 401) or weak new one.
+     */
+    fun changePassword(oldPassword: String, newPassword: String): Boolean {
+        val body = JSONObject()
+            .put("oldPassword", oldPassword)
+            .put("newPassword", newPassword)
+        val response = JSONObject(post("/api/auth/change-password", body))
+        return response.optBoolean("ok", false)
+    }
+
+    fun fetchAiModels(): List<AiModelOption> {
+        return parseAiModelsJson(get("/api/ai/models"))
+    }
+
     fun createPronunciationTicket(sentenceId: String): String {
         val body = JSONObject().put("sentenceId", sentenceId)
         val response = JSONObject(post("/api/pronunciation/ticket", body))
@@ -842,6 +858,16 @@ internal fun parseCharacterProfileJson(json: String): CharacterProfile {
         sourceCount = response.optJSONArray("sources")?.length() ?: 0,
         cacheWarning = response.string("cacheWarning", response.string("cache_warning")),
     )
+}
+
+internal fun parseAiModelsJson(json: String): List<AiModelOption> {
+    val array = runCatching { JSONArray(json) }.getOrElse { return emptyList() }
+    return array.mapObjects { item ->
+        AiModelOption(
+            id = item.string("id", item.string("model")),
+            label = item.string("label", item.string("name", item.string("id"))),
+        )
+    }.filter { it.id.isNotBlank() }
 }
 
 internal fun parseLinguisticExercisesJson(json: String): List<LinguisticExercise> {

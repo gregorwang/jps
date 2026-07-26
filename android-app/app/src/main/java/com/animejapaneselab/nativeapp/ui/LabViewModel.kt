@@ -136,7 +136,10 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
             _uiState.update { state ->
                 if (state.selection != selection) return@update state
                 state.copy(
-                    focus = snapshot.content.focus.copy(streakDays = learningStreakDays(state.progressItems)),
+                    focus = snapshot.content.focus.copy(
+                        streakDays = learningStreakDays(state.progressItems),
+                        xp = learningXp(state.progressItems),
+                    ),
                     vocab = snapshot.content.vocab,
                     grammar = snapshot.content.grammar,
                     shadowing = snapshot.content.shadowing,
@@ -1603,7 +1606,10 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                         current.copy(
                             works = remote.works,
                             episodes = remote.episodes,
-                            focus = remote.content.focus.copy(streakDays = learningStreakDays(current.progressItems)),
+                            focus = remote.content.focus.copy(
+                                streakDays = learningStreakDays(current.progressItems),
+                                xp = learningXp(current.progressItems),
+                            ),
                             vocab = remote.content.vocab,
                             grammar = remote.content.grammar,
                             shadowing = remote.content.shadowing,
@@ -1901,7 +1907,10 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                     state.copy(
                         selection = selection,
                         episodes = normalizeEpisodes(selection.workSlug, loaded.episodes, state.works),
-                        focus = loaded.content.focus.copy(streakDays = learningStreakDays(state.progressItems)),
+                        focus = loaded.content.focus.copy(
+                            streakDays = learningStreakDays(state.progressItems),
+                            xp = learningXp(state.progressItems),
+                        ),
                         vocab = loaded.content.vocab,
                         grammar = loaded.content.grammar,
                         shadowing = loaded.content.shadowing,
@@ -2028,6 +2037,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 focus = content.focus.copy(
                     lessonTitle = "复习训练 · ${task.label.ifBlank { target.labelFromContent(content) }}",
                     streakDays = learningStreakDays(state.progressItems),
+                    xp = learningXp(state.progressItems),
                 ),
                 vocab = content.vocab,
                 grammar = content.grammar,
@@ -2206,7 +2216,10 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
             state.copy(
                 selection = selection,
                 episodes = repository.episodes(selection.workSlug),
-                focus = content.focus.copy(streakDays = learningStreakDays(state.progressItems)),
+                focus = content.focus.copy(
+                    streakDays = learningStreakDays(state.progressItems),
+                    xp = learningXp(state.progressItems),
+                ),
                 vocab = content.vocab,
                 grammar = content.grammar,
                 shadowing = content.shadowing,
@@ -2307,7 +2320,10 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                     } ?: state.auth
                     val nextState = state.copy(
                         progressItems = nextProgressItems,
-                        focus = state.focus.copy(streakDays = learningStreakDays(nextProgressItems)),
+                        focus = state.focus.copy(
+                            streakDays = learningStreakDays(nextProgressItems),
+                            xp = learningXp(nextProgressItems),
+                        ),
                         auth = nextAuth,
                         sync = state.sync.copy(
                             status = SyncStatus.Success,
@@ -2924,7 +2940,10 @@ private fun LabUiState.withRemoteProgressSnapshot(snapshot: RemoteProgressSnapsh
     return copy(
         progressItems = snapshot.progress,
         reviewTasks = snapshot.review,
-        focus = focus.copy(streakDays = learningStreakDays(snapshot.progress)),
+        focus = focus.copy(
+            streakDays = learningStreakDays(snapshot.progress),
+            xp = learningXp(snapshot.progress),
+        ),
         readAir = readAir.copy(
             selectedAnswers = persistedReadAirAnswers,
             pinnedExerciseId = readAir.pinnedExerciseId?.takeIf { id ->
@@ -2932,6 +2951,23 @@ private fun LabUiState.withRemoteProgressSnapshot(snapshot: RemoteProgressSnapsh
             },
         ),
     )
+}
+
+/**
+ * Total XP derived from every recorded answer: mastered items earn the most,
+ * struggling ones still credit the attempt. Applied wherever streak is (see
+ * the focus.copy call sites) so the HUD numbers stay honest instead of the
+ * repository's placeholder.
+ */
+internal fun learningXp(progressItems: List<ProgressItem>): Int {
+    return progressItems.sumOf { item ->
+        when (item.state) {
+            ReviewState.Good, ReviewState.Known -> 10
+            ReviewState.Ok -> 6
+            ReviewState.Fuzzy -> 4
+            ReviewState.Bad, ReviewState.Unknown -> 2
+        }.toInt()
+    }
 }
 
 private fun learningStreakDays(
