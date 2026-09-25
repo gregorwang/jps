@@ -146,9 +146,14 @@ export function HomePage() {
           <strong>AI 生成读空气题</strong>
           <span>自动找字幕片段，预览后写入数据库题库。</span>
         </Link>
+        <Link className="task-card" to="/linguistic-training" search={{ track: 'foundation' }}>
+          <BookOpen size={22} />
+          <strong>基础语言学课程</strong>
+          <span>从语音、形态和句法学到语用、社会变异与语言变化。</span>
+        </Link>
         <Link className="task-card" to="/linguistic-training">
           <PlayCircle size={22} />
-          <strong>高阶语言学训练</strong>
+          <strong>动漫语料分析</strong>
           <span>读空气、语境判断和语言现象专项。</span>
         </Link>
         <Link className="task-card" to="/works/$workSlug/episodes/$episode/writing" params={episodeParams}>

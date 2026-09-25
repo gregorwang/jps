@@ -1,0 +1,1950 @@
+{
+  "catalog_key": "japanese_linguistics_foundation_v1",
+  "catalog_name_zh": "日语基础语言学主题目录 V1",
+  "content_language": "zh-CN",
+  "target_language": "ja",
+  "topic_count": 60,
+  "level_model": {
+    "F1": "识别",
+    "F2": "解析",
+    "F3": "对比诊断",
+    "F4": "迁移应用"
+  },
+  "topics": [
+    {
+      "topic_key": "phw_mora_syllable",
+      "domain": "phonology_writing",
+      "module_key": "sound_units",
+      "name_ja": "モーラと音節",
+      "name_zh": "拍与音节",
+      "short_definition_zh": "区分日语节奏计数单位「拍」与围绕元音组织的音节单位。",
+      "beginner_explanation_zh": "日语的节奏通常按拍推进。一个假名常对应一拍，但小写「ゃ・ゅ・ょ」会与前一假名合成一拍；音节的边界和拍数并不总是相同。",
+      "deep_explanation_zh": "拍是韵律层级上的时长与节奏单位，音节则由音节核及其周边成分构成。同一音节可能包含两拍，例如带长音或鼻音尾的形式。拍数会制约俳句节律、促音位置以及音高重音的标注。",
+      "caution_zh": "不能把假名数、拍数和音节数机械地视为同一个数；拗音、长音、促音和拨音都需要分别判断。",
+      "prerequisite_topic_keys": [],
+      "tags": [
+        "mora",
+        "syllable",
+        "rhythm",
+        "kana"
+      ],
+      "objectives": {
+        "F1_zh": "能在假名串中逐拍切分，并识别拗音只占一拍。",
+        "F2_zh": "能分别计算一个词的拍数与音节数，说明两种结果为何不同。",
+        "F3_zh": "能比较仅改变拍结构的两种形式，诊断节奏或词形判断中的错误。",
+        "F4_zh": "能为新的中性词形设计正确的拍切分，并据此安排朗读节奏。"
+      },
+      "original_example_spec": {
+        "form_zh": "使用二至五拍的原创无剧情词组，覆盖普通拍、拗音以及一个特殊拍。",
+        "contrast_zh": "至少成对呈现拍数相同但音节数不同，或假名数相近但拍数不同的形式。",
+        "constraints_zh": "不借用角色名、名台词或歌曲；不以罗马字字符数代替音系分析。"
+      }
+    },
+    {
+      "topic_key": "phw_special_morae",
+      "domain": "phonology_writing",
+      "module_key": "sound_units",
+      "name_ja": "特殊モーラ",
+      "name_zh": "特殊拍：拨音、促音与长音",
+      "short_definition_zh": "掌握「ん」「っ」和长音各自占一拍但具有不同语音实现的规律。",
+      "beginner_explanation_zh": "「ん」、小写「っ」以及长音部分都会增加一拍。「っ」使后续辅音的闭塞、摩擦等发音区间延长，「ん」会受后续音影响，长音则延长前面的元音。",
+      "deep_explanation_zh": "特殊拍通常不能像普通拍那样独立构成完整的辅音加元音序列，却参与拍计数和音高配置。拨音存在受后续音制约的同化变体；促音的具体实现取决于后续辅音是闭塞音、摩擦音等哪一类别；长音的正字法还会因文字体系和词源而异。",
+      "caution_zh": "「ん」并非永远读作同一个鼻音；「っ」也不是可任意插入的静默停顿，不能一律说成闭塞。片假名长音符与平假名中的元音书写也不能简单互换。",
+      "prerequisite_topic_keys": [
+        "phw_mora_syllable"
+      ],
+      "tags": [
+        "special_mora",
+        "nasal",
+        "geminate",
+        "long_vowel"
+      ],
+      "objectives": {
+        "F1_zh": "能识别拨音、促音和长音在词形中的位置并正确计拍。",
+        "F2_zh": "能结合后续音类别说明拨音、促音的基本语音实现及三类特殊拍的正字法表现。",
+        "F3_zh": "能用最小或近最小对立判断漏写、误写特殊拍所造成的词形差异。",
+        "F4_zh": "能为新见词形给出拍结构准确的切分、朗读提示或假名标注，并说明受环境制约的实现。"
+      },
+      "original_example_spec": {
+        "form_zh": "分别构造含拨音、促音和长音的短词形；促音后的辅音至少覆盖常见闭塞音与摩擦音环境。",
+        "contrast_zh": "设置去掉特殊拍后会改变词形或造成非词的对照，不依赖汉字猜答案。",
+        "constraints_zh": "避免用拟声词堆砌所有现象；不得把所有促音实现都说成闭塞或把概率性语音实现写成绝对规则。"
+      }
+    },
+    {
+      "topic_key": "phw_pitch_accent",
+      "domain": "phonology_writing",
+      "module_key": "prosody_processes",
+      "name_ja": "ピッチアクセント",
+      "name_zh": "音高重音",
+      "short_definition_zh": "理解日语主要以音高下降位置组织词汇重音，而非以强弱重读为核心。",
+      "beginner_explanation_zh": "东京式日语中，词里的高低变化可能帮助区别词形。重要线索不是某一拍读得更响，而是高音之后在哪里发生下降。",
+      "deep_explanation_zh": "音高重音可用重音核和后接助词的音高表现来描述，常见类型包括平板型与不同位置的起伏型。复合、活用和方言都可能改变具体型态，因此词典标注属于某一体系而非全体日语的唯一发音。",
+      "caution_zh": "不能把音高重音等同于汉语声调或英语重音；不同地区存在系统差异，学习时应明确采用的描述方言。",
+      "prerequisite_topic_keys": [
+        "phw_mora_syllable"
+      ],
+      "tags": [
+        "pitch_accent",
+        "prosody",
+        "tokyo_japanese",
+        "accent_nucleus"
+      ],
+      "objectives": {
+        "F1_zh": "能从简化音高图中找出下降位置并区分有核与无核形式。",
+        "F2_zh": "能按拍解释词与后接助词组成的音高轮廓。",
+        "F3_zh": "能比较强弱重音式误读与日语音高配置，指出诊断依据。",
+        "F4_zh": "能为给定拍结构绘制一种指定方言下自洽的音高模式。"
+      },
+      "original_example_spec": {
+        "form_zh": "使用三至四拍的虚构或低联想度词形，加一个中性格助词展示下降。",
+        "contrast_zh": "同一拍串提供平板型与有核型两幅标注图，要求差异只在音高配置。",
+        "constraints_zh": "明确限定东京式描述；不声称某个型在所有方言都正确。"
+      }
+    },
+    {
+      "topic_key": "phw_vowel_devoicing",
+      "domain": "phonology_writing",
+      "module_key": "prosody_processes",
+      "name_ja": "母音の無声化",
+      "name_zh": "元音清化",
+      "short_definition_zh": "认识高元音在特定清辅音环境中可能弱化为无声实现的现象。",
+      "beginner_explanation_zh": "标准语中，较弱位置的「い」「う」夹在清辅音之间或位于某些词末时，可能听起来很轻，甚至像没有元音，但说话人并没有删掉那一拍。",
+      "deep_explanation_zh": "清化受到辅音环境、重音、语速、语体和地区差异共同制约，是连续语音中的实现规则。音系表征通常仍保留元音和拍位，因此不能仅凭听感把它分析成辅音连缀或音节删除。",
+      "caution_zh": "清化不是必须发生的机械规则，也不等于拼写省略；重音核附近、慢速强调或不同方言中实现会变化。",
+      "prerequisite_topic_keys": [
+        "phw_mora_syllable"
+      ],
+      "tags": [
+        "devoicing",
+        "high_vowel",
+        "phonetics",
+        "allophony"
+      ],
+      "objectives": {
+        "F1_zh": "能识别可能触发高元音清化的典型辅音环境。",
+        "F2_zh": "能区分底层元音仍在与表层听感弱化两个分析层次。",
+        "F3_zh": "能比较同一词的慢速强调读法和自然读法，诊断差异来自清化而非词形变化。",
+        "F4_zh": "能预测原创词串中较可能清化的位置，并说明预测的限制条件。"
+      },
+      "original_example_spec": {
+        "form_zh": "构造含高元音且左右为清辅音的中性短词，并提供慢速与自然语速两种语境。",
+        "contrast_zh": "另设重音或浊辅音环境，展示清化倾向减弱而拼写不变。",
+        "constraints_zh": "不用删除假名表示清化；答案不得把概率倾向说成绝对规则。"
+      }
+    },
+    {
+      "topic_key": "phw_rendaku",
+      "domain": "phonology_writing",
+      "module_key": "prosody_processes",
+      "name_ja": "連濁",
+      "name_zh": "连浊",
+      "short_definition_zh": "理解复合词后部词素词首清辅音可能浊化及其受限条件。",
+      "beginner_explanation_zh": "两个词组成复合词时，后一个词开头有时会从清音变成浊音。这个变化叫连浊，但不是所有复合词都会发生。",
+      "deep_explanation_zh": "连浊处在形态与音系接口，受到复合结构、词汇化程度、后部词素内部浊音以及词源等因素影响。所谓莱曼定律能解释部分阻断，却不能覆盖全部词汇差异。",
+      "caution_zh": "不能看到复合就自动加浊点，也不能用单一规则消除所有例外；专名和固定词尤其需要词汇知识。",
+      "prerequisite_topic_keys": [
+        "phw_mora_syllable"
+      ],
+      "tags": [
+        "rendaku",
+        "compound",
+        "morphophonology",
+        "voicing"
+      ],
+      "objectives": {
+        "F1_zh": "能在已给复合词结构中识别连浊发生的位置。",
+        "F2_zh": "能从后部词素的原形说明清浊交替及可能的结构动因。",
+        "F3_zh": "能比较发生与未发生连浊的复合，判断可用规则解释还是需标记词汇例外。",
+        "F4_zh": "能对新的规则化复合提出有根据但带不确定性标记的连浊预测。"
+      },
+      "original_example_spec": {
+        "form_zh": "使用透明的双词素复合结构，清楚给出两个组成词的独立形式。",
+        "contrast_zh": "设计一个适合连浊的形式与一个含已知阻断环境的形式。",
+        "constraints_zh": "不把虚构预测冒充词典事实；专名只可用作说明不确定性的反例类型。"
+      }
+    },
+    {
+      "topic_key": "phw_kana_orthography",
+      "domain": "phonology_writing",
+      "module_key": "script_system",
+      "name_ja": "仮名と現代仮名遣い",
+      "name_zh": "假名与现代假名用法",
+      "short_definition_zh": "理解平假名、片假名的基本分工，以及现代假名拼写与实际语音并非逐音机械对应。",
+      "beginner_explanation_zh": "两套假名大体对应同一套以拍为基础的音形清单，但常承担不同书写功能。助词「は」「へ」「を」等还保留了不同于其通常发音的固定拼写。",
+      "deep_explanation_zh": "现代假名遣在语素稳定、历史继承和读音对应之间折中。片假名可标外来语、拟声、术语或强调，平假名则常用于活用成分和功能词；具体选择也具有语体和版面意义。",
+      "caution_zh": "片假名不只表示外来语，平假名也不等于纯粹表音；假名不是“一个字符必等于一个音节”的简单音节表，也不能按听到的音任意改写固定助词。",
+      "prerequisite_topic_keys": [
+        "phw_mora_syllable",
+        "phw_special_morae"
+      ],
+      "tags": [
+        "kana",
+        "orthography",
+        "hiragana",
+        "katakana"
+      ],
+      "objectives": {
+        "F1_zh": "能识别两套假名及现代假名遣中的常见固定拼写。",
+        "F2_zh": "能从拍结构、语法功能和语体说明一个形式为何采用特定假名。",
+        "F3_zh": "能诊断按语音机械拼写导致的助词、长音或外来语错误。",
+        "F4_zh": "能把原创短语或短句按指定的中性书面语体写成符合现代假名遣的形式。"
+      },
+      "original_example_spec": {
+        "form_zh": "构造包含一个格助词、一个活用尾和一个中性外来概念的短语。",
+        "contrast_zh": "对比读音相同但书写功能不同的假名选择，并说明语法边界。",
+        "constraints_zh": "不使用品牌、作品名或流行语；片假名强调必须由明确语境支持，不以“音节数”等同字符数。"
+      }
+    },
+    {
+      "topic_key": "phw_script_choice",
+      "domain": "phonology_writing",
+      "module_key": "script_system",
+      "name_ja": "文字種の選択",
+      "name_zh": "汉字、平假名与片假名的选择",
+      "short_definition_zh": "分析日语混合书写中不同文字种如何共同标示词汇、语法和语体信息。",
+      "beginner_explanation_zh": "普通日语常混合使用汉字和平假名，必要时加入片假名。汉字帮助辨认词义和词界，假名显示读法、活用与功能词。",
+      "deep_explanation_zh": "文字种选择并非纯正字法问题，也能索引正式度、可读性、专业性、儿童向表达或视觉强调。同一词可有多个合法写法，但语料频率、搭配习惯和目标读者会影响自然度。",
+      "caution_zh": "不能断言一个概念只能写成某一种文字；假名化可能是风格选择，不必然是不会汉字。",
+      "prerequisite_topic_keys": [
+        "phw_kana_orthography"
+      ],
+      "tags": [
+        "mixed_script",
+        "kanji",
+        "readability",
+        "style"
+      ],
+      "objectives": {
+        "F1_zh": "能标出短句中汉字承担的词汇部分与假名承担的语法部分。",
+        "F2_zh": "能说明一种文字种选择对词界、读者和语体的作用。",
+        "F3_zh": "能比较同一表达的汉字版、假名版和片假名版，诊断哪些差异涉及风格而非语法。",
+        "F4_zh": "能按儿童向、一般说明或视觉强调等条件选择合适的混合书写方案。"
+      },
+      "original_example_spec": {
+        "form_zh": "选择有常用汉字写法也可假名化的中性词，嵌入结构简单的说明句。",
+        "contrast_zh": "同一词形以两种合法文字组合呈现，语义保持稳定而目标读者或强调方式改变。",
+        "constraints_zh": "不得把罕见汉字当作高水平的唯一标准；不以作者个性拼写冒充通行规范。"
+      }
+    },
+    {
+      "topic_key": "phw_kanji_reading_okurigana",
+      "domain": "phonology_writing",
+      "module_key": "script_system",
+      "name_ja": "漢字の読みと送り仮名",
+      "name_zh": "汉字读法与送假名",
+      "short_definition_zh": "理解音读、训读、熟字读及送假名在词素识别和活用显示中的作用。",
+      "beginner_explanation_zh": "同一个汉字可能有多种读法，具体读法由词决定。动词、形容词常用汉字写词干，用送假名标出可变化的部分。",
+      "deep_explanation_zh": "汉字读法不能由单字孤立预测，复合结构、词源和词汇化都会介入。送假名提高活用边界和派生关系的可见度，但固定写法中也存在省略或异体选择。",
+      "caution_zh": "音读加音读、训读加训读只是倾向，不是无例外规则；不能根据汉字字面自行创造不存在的读法。",
+      "prerequisite_topic_keys": [
+        "phw_script_choice"
+      ],
+      "tags": [
+        "kanji_reading",
+        "onyomi",
+        "kunyomi",
+        "okurigana"
+      ],
+      "objectives": {
+        "F1_zh": "能识别给定词中的汉字读法类型及送假名边界。",
+        "F2_zh": "能结合整个词而非单字解释读法和活用信息。",
+        "F3_zh": "能比较两种候选读法或送假名，诊断哪一种符合目标词形。",
+        "F4_zh": "能为新的规则活用词填写恰当送假名并说明其词素切分。"
+      },
+      "original_example_spec": {
+        "form_zh": "选取通用概念的规则活用词与透明复合词，提供词典形和一个变化形。",
+        "contrast_zh": "设置同一汉字在两个不同词中的不同读法，或同一词干的两个活用尾。",
+        "constraints_zh": "不考生僻专名读法；读法必须以完整词项为依据，不做猜字谜。"
+      }
+    },
+    {
+      "topic_key": "morph_word_morpheme_classes",
+      "domain": "morphology",
+      "module_key": "morpheme_word_classes",
+      "name_ja": "語・形態素・品詞",
+      "name_zh": "词、语素与词类",
+      "short_definition_zh": "区分词、最小的形式—意义单位语素，以及按形态和句法行为划分的词类。",
+      "beginner_explanation_zh": "一个词内部还可能分成词干、活用尾或接辞。动词、形容词、名词、助词等类别，不只看中文意思，更要看它们在日语中怎样变化、怎样连接；能否单独成句只是判断词边界的证据之一。",
+      "deep_explanation_zh": "词与语素的边界可从独立性、替换、重音、黏着性和句法分布等多种证据判断，没有一项测试能覆盖所有实词和功能形式。日语所谓形容动词、助动词等术语在不同语法传统中分析可能不同，关键是明确采用的诊断标准。",
+      "caution_zh": "不能按翻译直接判定词类，也不能把每个假名都当作一个语素，或把“不能独立发话”误当成“不是词”的充分条件；术语体系不同时应先对齐定义。",
+      "prerequisite_topic_keys": [
+        "phw_kana_orthography"
+      ],
+      "tags": [
+        "word",
+        "morpheme",
+        "word_class",
+        "segmentation"
+      ],
+      "objectives": {
+        "F1_zh": "能在规则词形中识别词干、活用成分和独立或黏着的功能形式。",
+        "F2_zh": "能用形态变化、黏着性与句法分布说明一个单位的词类或边界判断。",
+        "F3_zh": "能比较中文翻译相近但日语词类不同的形式，诊断误分类。",
+        "F4_zh": "能对新的短句提出可检验的词与语素切分，并列出多项证据和可能的分析体系。"
+      },
+      "original_example_spec": {
+        "form_zh": "使用常规动词、い形容词、名词和一个助词组成无人物背景的短句。",
+        "contrast_zh": "设置意义相近但活用能力或黏着性不同的两个谓语或功能形式候选，突出形式诊断。",
+        "constraints_zh": "不以中文词性或能否单独发话作为唯一依据；避免采用学派间高度争议的边界作为唯一答案。"
+      }
+    },
+    {
+      "topic_key": "morph_verb_conjugation",
+      "domain": "morphology",
+      "module_key": "inflection",
+      "name_ja": "動詞の活用",
+      "name_zh": "动词活用与词干交替",
+      "short_definition_zh": "掌握五段、一段及主要不规则动词的词形构成与连接规律。",
+      "beginner_explanation_zh": "日语动词会根据否定、礼貌、过去和连接形式改变结尾。一段动词多在同一词干后加成分，五段动词则会让词尾辅音对应的假名行发生变化。",
+      "deep_explanation_zh": "活用可分析为词干异形与后续形态成分的组合。传统的未然形、连用形等名称强调连接分布；现代形态分析还会区分音便、同形异功能与历史残留。",
+      "caution_zh": "以「る」结尾不等于一定是一段动词；て形和た形中的音便必须按词类处理，不能逐假名硬拼。",
+      "prerequisite_topic_keys": [
+        "morph_word_morpheme_classes"
+      ],
+      "tags": [
+        "verb",
+        "conjugation",
+        "godan",
+        "ichidan"
+      ],
+      "objectives": {
+        "F1_zh": "能识别规则动词的类别及给定活用形。",
+        "F2_zh": "能把变化后的动词还原为词典形并说明词干或音便变化。",
+        "F3_zh": "能比较五段与一段动词在同一语法环境中的形成方式并诊断误接。",
+        "F4_zh": "能为未见过的规则动词生成指定的否定、连接或过去形。"
+      },
+      "original_example_spec": {
+        "form_zh": "选择不同结尾的规则五段动词、一段动词及一个主要不规则动词，语义保持日常中性。",
+        "contrast_zh": "包含一个外形以「る」结尾但类别不同的成对诊断。",
+        "constraints_zh": "不混入方言缩约；若考音便，须给足动词词典形而非靠词汇记忆。"
+      }
+    },
+    {
+      "topic_key": "morph_adjective_inflection",
+      "domain": "morphology",
+      "module_key": "inflection",
+      "name_ja": "形容詞と形容動詞の活用",
+      "name_zh": "い形容词与な形容词的形态行为",
+      "short_definition_zh": "区分两类性质谓语在定语、谓语、否定和过去环境中的连接形式。",
+      "beginner_explanation_zh": "い形容词本身能活用，修饰名词时一般直接连接；な形容词修饰名词时用「な」，作句子谓语时常与「だ／です」等结合。",
+      "deep_explanation_zh": "两类形式在否定、过去、连用修饰和名词化上采用不同结构。な形容词也可分析为名词性词干加系词成分，教学分类和理论分析应区分层次。",
+      "caution_zh": "词尾看似有「い」不保证属于い形容词；礼貌形式不能掩盖其内部否定和时态结构。",
+      "prerequisite_topic_keys": [
+        "morph_word_morpheme_classes"
+      ],
+      "tags": [
+        "i_adjective",
+        "na_adjective",
+        "inflection",
+        "predicate"
+      ],
+      "objectives": {
+        "F1_zh": "能根据连接和活用识别两类性质谓语。",
+        "F2_zh": "能分解其定语、否定与过去形式中的词干和连接成分。",
+        "F3_zh": "能比较两类形容表达在同一位置的形式要求并纠正交叉套用。",
+        "F4_zh": "能将新的性质词正确置入定语与谓语环境并完成相应变化。"
+      },
+      "original_example_spec": {
+        "form_zh": "选用可自然描述物品状态的常用性质词，各构造定语和谓语框架。",
+        "contrast_zh": "呈现词尾表面相似但词类不同的两个词，靠连接形式判别。",
+        "constraints_zh": "避免只背末尾字符；不把「きれい」类形式误判为规则い形容词。"
+      }
+    },
+    {
+      "topic_key": "morph_copula",
+      "domain": "morphology",
+      "module_key": "inflection",
+      "name_ja": "コピュラ",
+      "name_zh": "系词及其形态系列",
+      "short_definition_zh": "理解「だ／です／である」等连接名词性谓语并表达时态、否定和语体的方式。",
+      "beginner_explanation_zh": "名词或な形容词作谓语时，常需要系词来表示判断。口语「だ」、礼貌「です」和书面「である」属于不同语体系列。",
+      "deep_explanation_zh": "系词系列内部并非所有形式都能靠简单替换得到，否定和连接形式涉及「ではない」「で」「だった」等组合。部分形式同时承担断定、连接或礼貌功能，需要结合句法位置分析。",
+      "caution_zh": "不能把「です」普遍附在所有已经礼貌化或已完整活用的谓语之后；「だ」的省略也不总是语法错误。",
+      "prerequisite_topic_keys": [
+        "morph_word_morpheme_classes",
+        "morph_adjective_inflection"
+      ],
+      "tags": [
+        "copula",
+        "da",
+        "desu",
+        "register"
+      ],
+      "objectives": {
+        "F1_zh": "能识别名词性谓语中的系词及其时态、否定或语体形式。",
+        "F2_zh": "能分解系词系列的连接关系并说明其句法位置。",
+        "F3_zh": "能比较「だ」「です」「である」在同一命题中的自然语体与形态限制。",
+        "F4_zh": "能按指定正式度把新的名词性判断转换为自洽的肯定、否定和过去表达。"
+      },
+      "original_example_spec": {
+        "form_zh": "用职业、类别或状态名词组成无人物身份负担的判断句框架。",
+        "contrast_zh": "同一命题提供口语、中性礼貌和说明文三种系词系列。",
+        "constraints_zh": "不把风格差异误判成命题意义差异；避免混搭不同系列的残片。"
+      }
+    },
+    {
+      "topic_key": "morph_auxiliary_chain",
+      "domain": "morphology",
+      "module_key": "inflection",
+      "name_ja": "助動詞の連鎖",
+      "name_zh": "助动成分的连接顺序",
+      "short_definition_zh": "分析谓语后多个否定、时态、语态、礼貌等成分的形态顺序和作用域。",
+      "beginner_explanation_zh": "日语谓语后可以接不止一个成分，例如先改变语态，再加否定，最后加过去或礼貌。顺序变化通常会影响可接受性或意义。",
+      "deep_explanation_zh": "助动链体现形态选择与语义作用域的对应。内层成分更接近词汇谓语，外层成分常对整个复合谓语取作用域；但传统助动词分类与现代辅助构式分析未必一一对应。",
+      "caution_zh": "不能把每段中文意义按任意顺序翻译后串接；表面同形的「ない」「られる」等须结合词类和连接环境判断。",
+      "prerequisite_topic_keys": [
+        "morph_verb_conjugation",
+        "morph_copula"
+      ],
+      "tags": [
+        "auxiliary",
+        "morphotactics",
+        "scope",
+        "predicate_chain"
+      ],
+      "objectives": {
+        "F1_zh": "能在复合谓语中逐层识别词干与助动成分。",
+        "F2_zh": "能用括号或层级图说明连接顺序和各成分的作用范围。",
+        "F3_zh": "能比较两个次序不同的候选，诊断不合形态规则或意义改变之处。",
+        "F4_zh": "能按给定语义要求组合一个顺序合法、作用域清楚的新谓语链。"
+      },
+      "original_example_spec": {
+        "form_zh": "以规则动词为核心，只叠加两至三个明确成分，避免词汇歧义。",
+        "contrast_zh": "制作一个顺序合法与一个内外层颠倒的对照，并要求画出作用域。",
+        "constraints_zh": "不一次堆叠超过四层；答案必须说明结构而非只凭自然度。"
+      }
+    },
+    {
+      "topic_key": "morph_negation_forms",
+      "domain": "morphology",
+      "module_key": "inflection",
+      "name_ja": "否定形",
+      "name_zh": "否定形态系列",
+      "short_definition_zh": "掌握动词、形容词、名词性谓语的基本否定构成及语体变体。",
+      "beginner_explanation_zh": "不同谓语类型不能都用同一种方式否定。动词常接「ない」，い形容词变为「くない」，名词和な形容词常用「ではない／じゃない」。",
+      "deep_explanation_zh": "否定形式包括普通、礼貌、书面和缩约变体，其形态宿主与外层时态位置不同。「ぬ」「ず」等也显示历史与构式化差异，但基础分析应先固定现代中性系列。",
+      "caution_zh": "形态否定与语义否定作用域不是同一问题；「じゃない」既可能是否定形式，也可能在语用上构成确认表达。",
+      "prerequisite_topic_keys": [
+        "morph_verb_conjugation",
+        "morph_adjective_inflection",
+        "morph_copula"
+      ],
+      "tags": [
+        "negation",
+        "nai",
+        "predicate_type",
+        "polarity"
+      ],
+      "objectives": {
+        "F1_zh": "能为三类谓语识别对应的现代基本否定形式。",
+        "F2_zh": "能把否定谓语分解为词干、否定成分和外层时态或礼貌成分。",
+        "F3_zh": "能诊断把一种谓语的否定规则误套到另一种谓语的错误。",
+        "F4_zh": "能将新的肯定句按指定语体和时态转换为形式正确的否定句。"
+      },
+      "original_example_spec": {
+        "form_zh": "分别使用动作、性质和类别判断三种中性谓语，保持时态条件一致。",
+        "contrast_zh": "每组含一个正确否定与一个跨词类误接形式。",
+        "constraints_zh": "基础层不把反问语调混入形态题；缩约形式须标明口语语体。"
+      }
+    },
+    {
+      "topic_key": "morph_tense_forms",
+      "domain": "morphology",
+      "module_key": "inflection",
+      "name_ja": "非過去形と過去形",
+      "name_zh": "非过去形与过去形",
+      "short_definition_zh": "识别日语谓语的形态时态对立，并把形式与具体时间解释分开。",
+      "beginner_explanation_zh": "日语谓语常在非过去形和过去形之间对立。非过去形可谈现在习惯或未来，过去形也可在某些构式中表达完成或发现。",
+      "deep_explanation_zh": "形态上的非过去／过去对立不能直接等同于固定时间点，时间解释还由谓语类型、时间副词、从句结构和话语视点决定。过去形的音便属于形态实现，语义解释则另行分析。",
+      "caution_zh": "不能把非过去形一律翻成中文现在时，也不能仅凭「た」断定事件发生在叙述时间之前。",
+      "prerequisite_topic_keys": [
+        "morph_verb_conjugation",
+        "morph_auxiliary_chain"
+      ],
+      "tags": [
+        "tense",
+        "nonpast",
+        "past",
+        "ta_form"
+      ],
+      "objectives": {
+        "F1_zh": "能识别不同谓语类型的非过去与过去形态。",
+        "F2_zh": "能区分形态标签和句中时间解释，并指出提供解释的语境线索。",
+        "F3_zh": "能比较同一形态在习惯、预定和叙事环境中的不同时间读法。",
+        "F4_zh": "能为给定时间关系选择合适形态，并避免把形态名称当作全部解释。"
+      },
+      "original_example_spec": {
+        "form_zh": "使用明确时间副词搭配活动、状态两类谓语，句子不涉及剧情。",
+        "contrast_zh": "让相同非过去形分别出现在习惯与未来计划框架中，或相同过去形出现在叙事与发现框架中。",
+        "constraints_zh": "不靠中文时态标签直接作答；时间副词必须与预期读法相容。"
+      }
+    },
+    {
+      "topic_key": "morph_derivation_nominalization",
+      "domain": "morphology",
+      "module_key": "word_formation",
+      "name_ja": "派生と名詞化",
+      "name_zh": "派生与词汇性名词化",
+      "short_definition_zh": "理解接辞或词干变化如何建立相关新词，并区分词汇派生与句法名词化。",
+      "beginner_explanation_zh": "词干前后加入成分可以形成意义相关的新词，例如表示人、性质或程度。有些动词连用形也会成为名词，但不是所有临时的「の／こと」结构都已经变成词汇。",
+      "deep_explanation_zh": "派生会改变词类、论元结构或可组合意义，词汇化程度可通过重音、可预测性和句法行为判断。词汇性名词与从句名词化处在不同层级，边界可能呈渐变。",
+      "caution_zh": "能翻译成名词不等于已经发生形态派生；接辞意义也会受词基和惯用限制。",
+      "prerequisite_topic_keys": [
+        "morph_word_morpheme_classes",
+        "morph_verb_conjugation"
+      ],
+      "tags": [
+        "derivation",
+        "nominalization",
+        "affix",
+        "lexicalization"
+      ],
+      "objectives": {
+        "F1_zh": "能识别透明派生词中的词基与接辞。",
+        "F2_zh": "能说明派生前后词类、核心意义或论元结构的变化。",
+        "F3_zh": "能区分词汇化名词与临时从句名词化，并列举形态句法证据。",
+        "F4_zh": "能对给定规则接辞构造合适的新词候选并判断其可预测范围。"
+      },
+      "original_example_spec": {
+        "form_zh": "使用语义透明、现代仍可分析的词基加常见派生成分。",
+        "contrast_zh": "同一动词分别放入词汇名词框架和「の／こと」从句框架。",
+        "constraints_zh": "不得把仅理论上可拼接但日语不通行的组合写成既有词；避免依赖动漫造词。"
+      }
+    },
+    {
+      "topic_key": "morph_compounding",
+      "domain": "morphology",
+      "module_key": "word_formation",
+      "name_ja": "複合語",
+      "name_zh": "复合词与内部结构",
+      "short_definition_zh": "分析多个词基组合成一个词时的中心语、语义关系和形态音系变化。",
+      "beginner_explanation_zh": "复合词把两个或更多词基组成一个整体。后部常决定整个词的基本类别，前部则限制材料、用途、对象或方式等关系。",
+      "deep_explanation_zh": "复合的内部层级决定解释，三词素形式可能有不同括号结构。复合还可触发连浊、重音重组和词干变体；语义关系既可能透明，也可能随词汇化而不可完全预测。",
+      "caution_zh": "汉字连续出现不保证就是一个复合词；不能只按中文词序推断日语内部结构。",
+      "prerequisite_topic_keys": [
+        "morph_word_morpheme_classes",
+        "phw_rendaku"
+      ],
+      "tags": [
+        "compound",
+        "headedness",
+        "word_formation",
+        "bracketing"
+      ],
+      "objectives": {
+        "F1_zh": "能识别透明复合词的组成词基和整体词类。",
+        "F2_zh": "能用括号表示复合内部层级并说明中心语与修饰关系。",
+        "F3_zh": "能比较两种括号结构的意义预测，诊断哪一种与给定解释相符。",
+        "F4_zh": "能按指定语义关系设计结构透明的新复合候选并标注其不确定性。"
+      },
+      "original_example_spec": {
+        "form_zh": "采用常见实体与用途关系的双词素形式，进阶项可加入第三个词素。",
+        "contrast_zh": "为三词素串提供两个括号方案，让意义差异来自结构而非词汇替换。",
+        "constraints_zh": "虚构复合只能作为结构候选，不声称是词典词；须避免品牌式命名。"
+      }
+    },
+    {
+      "topic_key": "morph_transitivity_pairs",
+      "domain": "morphology",
+      "module_key": "word_formation",
+      "name_ja": "自他対応",
+      "name_zh": "自动词与他动词的形态对应",
+      "short_definition_zh": "理解日语中部分状态变化与致使动作动词形成词汇性自他配对的方式。",
+      "beginner_explanation_zh": "一些动词成对出现：一个描述事物发生变化，另一个描述某人使它变化。两者常有相近词干，但格助词和参与者结构不同。",
+      "deep_explanation_zh": "自他配对有多种派生方向和音形模式，并非单一后缀规则。某些动词没有配对或意义已分化，因此形态对应必须与论元结构和词汇语义一起分析。",
+      "caution_zh": "不能仅凭「を」就判定他动词，因为移动路径等自动词也可带「を」；也不能看到相似词干就假定意义完全对称。",
+      "prerequisite_topic_keys": [
+        "morph_verb_conjugation",
+        "morph_derivation_nominalization"
+      ],
+      "tags": [
+        "transitivity_pair",
+        "intransitive",
+        "transitive",
+        "valency"
+      ],
+      "objectives": {
+        "F1_zh": "能识别常规自他对应中的两个词项及其形态差异。",
+        "F2_zh": "能把动词形式与参与者角色、格标记和事件结构联系起来。",
+        "F3_zh": "能比较词汇性自他配对与句法使役，诊断二者不可简单互换之处。",
+        "F4_zh": "能在新的状态变化场景中选择合适的自动词或他动词并配置论元。"
+      },
+      "original_example_spec": {
+        "form_zh": "以开关、移动、状态变化等非人物化场景呈现一个真实的规则自他词对。",
+        "contrast_zh": "保持结果状态相近，让两个句框只在致使者是否显式参与及格框架上不同。",
+        "constraints_zh": "不根据表面助词单独分类；避免使用意义已经明显分化的边缘词对。"
+      }
+    },
+    {
+      "topic_key": "syn_constituent_order",
+      "domain": "syntax",
+      "module_key": "clause_core",
+      "name_ja": "語順と構成素",
+      "name_zh": "语序与句法成分",
+      "short_definition_zh": "理解日语以谓语居后为基本倾向，并用成分单位而非逐词顺序分析句子。",
+      "beginner_explanation_zh": "日语基本句子常把谓语放在末尾，带助词的名词短语可以在谓语前较灵活地排列。移动的通常是一个完整成分，不是随意打乱单词。",
+      "deep_explanation_zh": "日语常被概括为 SOV 和中心语后置语言，但论元省略、信息结构驱动的语序变换以及从句嵌套会使表面序列多样。构成素可通过替换、协调、整体移动和作用域解释等证据诊断。",
+      "caution_zh": "语序较自由不等于任何排列都同样自然；助词、韵律和话语条件共同限制成分顺序。",
+      "prerequisite_topic_keys": [
+        "morph_word_morpheme_classes"
+      ],
+      "tags": [
+        "word_order",
+        "constituency",
+        "SOV",
+        "head_final"
+      ],
+      "objectives": {
+        "F1_zh": "能在简单句中标出谓语及其前置的完整名词短语成分。",
+        "F2_zh": "能用括号结构说明修饰语、名词短语和谓语之间的层级关系。",
+        "F3_zh": "能比较两种合法语序的中性度，诊断差异来自信息结构还是句法破裂。",
+        "F4_zh": "能将新的成分组合成谓语居后且边界清楚的中性句框。"
+      },
+      "original_example_spec": {
+        "form_zh": "使用两个带明确助词的短名词短语和一个无歧义动作谓语。",
+        "contrast_zh": "保持助词不变调换完整成分，再与拆散名词短语的错误序列对照。",
+        "constraints_zh": "不依赖剧情推断施受关系；语序变换须保持成分完整。"
+      }
+    },
+    {
+      "topic_key": "syn_case_particles",
+      "domain": "syntax",
+      "module_key": "clause_core",
+      "name_ja": "格助詞",
+      "name_zh": "格助词与语法关系",
+      "short_definition_zh": "分析「が・を・に・へ・で・から」等格助词如何标示论元或附加成分的句法语义关系。",
+      "beginner_explanation_zh": "助词帮助判断名词短语在句中扮演什么角色。「が」常标主语，「を」常标直接对象，「に」「へ」「で」等会依谓语和意义标示目标、方向、地点或手段等。",
+      "deep_explanation_zh": "格标记由谓语配价与构式共同许可，一个格助词可以对应多个语义角色，同一角色也可能因构式而使用不同助词。核心论元与时间、地点等附加语需要用必要性和选择限制区分；「まで」等可与格成分组合的副助词不应在传统学校语法分类中直接列作格助词。",
+      "caution_zh": "格助词不能按一个中文介词固定翻译；尤其「に」「へ」「で」「を」都存在超出入门标签的系统用法，分析时还要区分格助词与叠加其上的副助词。",
+      "prerequisite_topic_keys": [
+        "syn_constituent_order"
+      ],
+      "tags": [
+        "case",
+        "particles",
+        "ga",
+        "wo",
+        "ni",
+        "de"
+      ],
+      "objectives": {
+        "F1_zh": "能识别简单句中各格助词及其所附着的完整名词短语。",
+        "F2_zh": "能结合谓语配价给每个格成分指派语法与语义角色。",
+        "F3_zh": "能比较一处格助词替换前后的结构和意义，诊断是否仍由该谓语或构式许可。",
+        "F4_zh": "能按给定事件参与者为新句选择有依据的格框架，并区分格标记与附加副助词。"
+      },
+      "original_example_spec": {
+        "form_zh": "以搬运、放置、移动等角色清楚的事件构造二至三价句框。",
+        "contrast_zh": "一次只替换一个格助词，确保由此改变的是角色、方向、场所类型或可接受性。",
+        "constraints_zh": "不把每个「に」都叫间接宾语；必须引用目标谓语的配价，不把「まで」直接当作基础格标记。"
+      }
+    },
+    {
+      "topic_key": "syn_topic_subject",
+      "domain": "syntax",
+      "module_key": "clause_core",
+      "name_ja": "主題と主語",
+      "name_zh": "主题「は」与主语「が」",
+      "short_definition_zh": "区分话语主题标记与句法格标记，并分析二者在同句中的关系。",
+      "beginner_explanation_zh": "「は」告诉听者接下来谈论什么，「が」常标示谓语所要求的主语。主题可能恰好也是主语，也可能对应宾语、地点或更大的情境。",
+      "deep_explanation_zh": "主题化可覆盖或并存于格关系，形成主题链、对比主题和主题内主语等结构。「は」还与已知性、对比和否定作用域互动，因此「は＝主语」无法解释全部分布。",
+      "caution_zh": "不能把「は」和「が」归结为固定的旧信息与新信息二分；具体解释依赖谓语类型、语境和韵律。",
+      "prerequisite_topic_keys": [
+        "syn_case_particles"
+      ],
+      "tags": [
+        "topic",
+        "subject",
+        "wa",
+        "ga",
+        "information_structure"
+      ],
+      "objectives": {
+        "F1_zh": "能在短句中分别标出主题成分和带主格的成分。",
+        "F2_zh": "能还原被主题化成分与谓语之间可能的格关系。",
+        "F3_zh": "能比较「は／が」最小对照，诊断中性陈述、穷尽或对比解读的条件。",
+        "F4_zh": "能根据前文问题为新命题选择主题或主格表达，并说明话语效果。"
+      },
+      "original_example_spec": {
+        "form_zh": "用天气、物品状态或一般活动构造无角色依赖的问答对。",
+        "contrast_zh": "同一命题分别置于回答整体事件和确认特定参与者的语境。",
+        "constraints_zh": "不把所有差异写成绝对规则；必须把语境与助词判断一起给出。"
+      }
+    },
+    {
+      "topic_key": "syn_zero_arguments",
+      "domain": "syntax",
+      "module_key": "clause_core",
+      "name_ja": "ゼロ項",
+      "name_zh": "零论元与成分省略",
+      "short_definition_zh": "理解可从语境恢复的主语、宾语等论元在日语中常不发音但仍参与解释。",
+      "beginner_explanation_zh": "日语经常省略已经清楚的人或事物。句面上没有名词，不代表事件没有参与者；听者会从前文、场景和谓语意义中补足。",
+      "deep_explanation_zh": "零论元可与话语中心、视点、选择限制和句法约束互动。恢复对象不一定是最近出现的名词，也可能泛指或不定指，因此需比较多个候选并检验语义语用一致性。",
+      "caution_zh": "不能自动把省略成分补成说话人「我」；跨句指代必须核对人物可及性、语态和敬语方向。",
+      "prerequisite_topic_keys": [
+        "syn_case_particles",
+        "syn_topic_subject"
+      ],
+      "tags": [
+        "zero_argument",
+        "ellipsis",
+        "anaphora",
+        "pro_drop"
+      ],
+      "objectives": {
+        "F1_zh": "能根据谓语配价发现句面未出现但语义上需要的论元。",
+        "F2_zh": "能用前文、选择限制和视点证据为零论元排序候选指称。",
+        "F3_zh": "能比较两个可能补足，诊断哪一个造成角色、敬语或事件连续性冲突。",
+        "F4_zh": "能创作一个省略仍可唯一恢复的中性两轮对话并标注恢复链。"
+      },
+      "original_example_spec": {
+        "form_zh": "原创两至三轮短对话，前轮明确引入两个实体，后轮省略一个必要论元。",
+        "contrast_zh": "提供一个线索足够的版本与一个会产生真实歧义的版本。",
+        "constraints_zh": "不用作品人物和世界知识；答案必须列出排除候选的语言证据。"
+      }
+    },
+    {
+      "topic_key": "syn_valency_argument_structure",
+      "domain": "syntax",
+      "module_key": "clause_core",
+      "name_ja": "結合価と項構造",
+      "name_zh": "配价与论元结构",
+      "short_definition_zh": "分析谓语要求多少核心参与者、这些参与者承担何种语义角色以及如何实现为格成分。",
+      "beginner_explanation_zh": "有的谓语只需要一个参与者，有的还需要对象、目标或内容。谓语能接受的核心成分组合叫它的配价。",
+      "deep_explanation_zh": "论元结构连接词汇事件结构与句法实现；同一词形在不同义项下可有不同配价。论元与附加语的边界可从必要性、选择限制、迭代和构式许可等角度检验。",
+      "caution_zh": "省略了的论元仍可能属于配价；句中出现的每个带格短语也不一定都是核心论元。",
+      "prerequisite_topic_keys": [
+        "syn_case_particles",
+        "morph_transitivity_pairs"
+      ],
+      "tags": [
+        "valency",
+        "argument_structure",
+        "semantic_roles",
+        "adjunct"
+      ],
+      "objectives": {
+        "F1_zh": "能识别一价、二价和三价谓语的基本参与者框架。",
+        "F2_zh": "能区分核心论元与可选附加语，并说明所用诊断。",
+        "F3_zh": "能比较同形谓语的两个义项，诊断配价变化如何影响格框架。",
+        "F4_zh": "能从新谓语的事件定义推导一个最小完整句框。"
+      },
+      "original_example_spec": {
+        "form_zh": "选取语义明确的一价状态、二价动作和三价传递谓语。",
+        "contrast_zh": "为一个多义谓语提供两个限制清楚的语境，避免只靠翻译区分。",
+        "constraints_zh": "不以表面成分数量直接等同配价；允许说明被语境省略的核心论元。"
+      }
+    },
+    {
+      "topic_key": "syn_existential_constructions",
+      "domain": "syntax",
+      "module_key": "clause_core",
+      "name_ja": "存在構文",
+      "name_zh": "存在句、所在句与所有表达",
+      "short_definition_zh": "区分「ある／いる」构成的存在、所在和所有关系，以及日语语法中的有生性选择。",
+      "beginner_explanation_zh": "「いる」典型用于人、动物等被概念化为有生主体的对象；「ある」典型用于物品、植物、事件等。地点和存在物可通过「に」「が」等组合形成存在句，但这里的有生性分类不等同于生物学上是否有生命。",
+      "deep_explanation_zh": "存在句的中性信息结构与所在句、主题化所有表达相互关联。动词选择体现说话人对实体有生性、主体性或可动性的语法概念化；拟人化、交通工具或组织等边界用法必须由具体构式和语境支持。",
+      "caution_zh": "不能只查对象在生物学上是否有生命来选「ある／いる」；植物通常用「ある」。此外，「持つ」式占有和存在式所有在控制性、可让渡性上不同。",
+      "prerequisite_topic_keys": [
+        "syn_case_particles",
+        "syn_topic_subject"
+      ],
+      "tags": [
+        "existential",
+        "aru",
+        "iru",
+        "location",
+        "possession"
+      ],
+      "objectives": {
+        "F1_zh": "能识别存在物、地点以及「ある／いる」的典型选择。",
+        "F2_zh": "能区分引入新存在物、说明已知对象所在和表达所有的结构。",
+        "F3_zh": "能比较格配置或动词选择变化，诊断信息结构及语法有生性概念化差异。",
+        "F4_zh": "能为新的实体和交际目的构造自然的存在或所在表达，并说明边界例的语境条件。"
+      },
+      "original_example_spec": {
+        "form_zh": "使用植物、工具、动物与设施等中性实体，分别设置地点引入和主题所在框架。",
+        "contrast_zh": "先对比植物与动物等典型项；进阶项再让同一非典型实体在字面与明确拟人化语境下比较动词选择。",
+        "constraints_zh": "不靠超自然剧情制造例外；不能把生物学“有生命”直接等同「いる」条件，所有关系需区分存在式与主动持有。"
+      }
+    },
+    {
+      "topic_key": "syn_relative_clauses",
+      "domain": "syntax",
+      "module_key": "clause_expansion",
+      "name_ja": "連体修飾節",
+      "name_zh": "关系从句与连体修饰",
+      "short_definition_zh": "理解日语从句直接置于中心名词之前，并区分中心名词可在从句中恢复格关系的内关系与不可如此恢复的外关系。",
+      "beginner_explanation_zh": "日语可以把普通体小句放在名词前面修饰它，通常不使用相当于英语关系代词的单独词。内关系中，中心名词在从句事件里的角色要靠谓语和语境判断；外关系中，从句则可能表示中心名词的内容、理由或伴随情形，而没有可直接补回的格空位。",
+      "deep_explanation_zh": "连体修饰包括内关系和外关系等类型。内关系的中心名词可对应从句中的主语、宾语、地点等语义位置；外关系则可通过内容补充、因果或相对时空关系连接。不同理论对空位和结构的分析并不完全一致，基础题应先以可否恢复格关系作为可操作诊断，而不把所有类型强行统一为移动分析。",
+      "caution_zh": "从句边界必须在中心名词前闭合；不能因为中文翻译带「的」就假定内部存在固定格空位，也不能把外关系中心名词说成从句论元。",
+      "prerequisite_topic_keys": [
+        "syn_constituent_order",
+        "syn_valency_argument_structure"
+      ],
+      "tags": [
+        "relative_clause",
+        "adnominal",
+        "head_noun",
+        "gap"
+      ],
+      "objectives": {
+        "F1_zh": "能在复杂名词短语中划出修饰从句和中心名词。",
+        "F2_zh": "能在内关系中根据从句谓语配价恢复中心名词的语义关系，并在外关系中说明内容等连接方式。",
+        "F3_zh": "能比较内关系和外关系修饰，诊断为何只有前者通常能补回相应格成分。",
+        "F4_zh": "能把两个简单命题合并为边界清楚的原创内关系结构，并能按给定名词设计一例不伪造格空位的外关系结构。"
+      },
+      "original_example_spec": {
+        "form_zh": "以内关系的物品制作、地点使用，以及外关系的消息内容或事实名词为材料，中心名词紧随普通体从句。",
+        "contrast_zh": "一例让中心名词填补明确论元位，另一例通过内容补充等外关系连接。",
+        "constraints_zh": "不使用角色专名；内关系恢复必须与谓语配价相容，外关系不得虚构从句内部格空位。"
+      }
+    },
+    {
+      "topic_key": "syn_nominalized_clauses",
+      "domain": "syntax",
+      "module_key": "clause_expansion",
+      "name_ja": "節の名詞化",
+      "name_zh": "从句名词化「の／こと」",
+      "short_definition_zh": "分析「の」「こと」等如何使从句进入名词性位置及其选择和语义差异。",
+      "beginner_explanation_zh": "完整的小句加「の」或「こと」后，可以作喜欢、知道、决定等谓语的对象，也可放进主语或说明结构。",
+      "deep_explanation_zh": "名词化形式的选择受到感知直接性、事实性、事件类型和控制关系影响。部分谓语固定选择某一形式，部分环境可交替但带视点或具体性差异。",
+      "caution_zh": "「の」并不总是名词化标记，也可能是属格、代词或句末说明形式；「こと」也可保留词汇名词意义。",
+      "prerequisite_topic_keys": [
+        "syn_relative_clauses",
+        "morph_derivation_nominalization"
+      ],
+      "tags": [
+        "nominalization",
+        "no",
+        "koto",
+        "embedded_clause"
+      ],
+      "objectives": {
+        "F1_zh": "能识别作为论元的「の／こと」名词化从句及其边界。",
+        "F2_zh": "能结合主句谓语说明名词化形式的选择限制。",
+        "F3_zh": "能比较可交替与不可交替环境，诊断词汇选择和语义差异。",
+        "F4_zh": "能把新命题嵌入感知、评价或决定框架并选择自洽的名词化形式。"
+      },
+      "original_example_spec": {
+        "form_zh": "用中性活动小句分别嵌入直接感知谓语、抽象评价谓语和固定决定构式。",
+        "contrast_zh": "提供一个允许微妙交替的框架与一个有明确选择限制的框架。",
+        "constraints_zh": "不把所有「の」统一分析；需先确认其后主句谓语和句法位置。"
+      }
+    },
+    {
+      "topic_key": "syn_complement_quotation",
+      "domain": "syntax",
+      "module_key": "clause_expansion",
+      "name_ja": "補文と引用",
+      "name_zh": "补语从句与引用「と」",
+      "short_definition_zh": "理解命题、话语或拟声内容如何通过「と」等形式嵌入认知、发言和感知谓语。",
+      "beginner_explanation_zh": "想法、话语或判断可以放在「と」前，再接「思う」「言う」等谓语。间接引用和命题补语通常采用普通体；带引号的直接引用则可保留原发话的礼貌体、句末形式和说话风格。",
+      "deep_explanation_zh": "直接引用、间接引用和命题补语在指示中心、语体保留与忠实度上不同。直接引用把内部话语作为被展示的原发话，间接引用则更受当前转述者的指示中心和句法整合制约。「と」还可标拟态内容或结果状态，需结合选择它的谓语和内部形式判断。",
+      "caution_zh": "引号不自动等于可靠的逐字直接引用；也不能要求直接引用一律用普通体。间接引用中的人称、时间、指示词和敬语可能随当前说话视点调整。",
+      "prerequisite_topic_keys": [
+        "syn_constituent_order",
+        "syn_nominalized_clauses"
+      ],
+      "tags": [
+        "complement",
+        "quotation",
+        "to",
+        "reported_speech"
+      ],
+      "objectives": {
+        "F1_zh": "能划出直接引用、间接引用或命题补语的内部边界及外部主句谓语。",
+        "F2_zh": "能根据引号、内部语体和指示中心判断直接、间接或拟态内容读法。",
+        "F3_zh": "能比较直接与间接转述，诊断人称、时间、指示词或语体调整是否一致。",
+        "F4_zh": "能把原创短发言转换成结构和指示关系正确的间接转述，同时说明哪些原发话形式不再保留。"
+      },
+      "original_example_spec": {
+        "form_zh": "设计一条含明确语体的中性原发话及其后续转述，发言者、转述者和时间点明确。",
+        "contrast_zh": "同一内容分别作保留原语体的带引号直接引用与采用普通体、调整指示中心的间接补语。",
+        "constraints_zh": "不用知名台词；跨说话人转换必须核对代词、指示词、时间副词和礼貌层级，不把“普通体”误设为直接引用的强制条件。"
+      }
+    },
+    {
+      "topic_key": "syn_te_clause_linking",
+      "domain": "syntax",
+      "module_key": "complex_sentences",
+      "name_ja": "テ形による節連結",
+      "name_zh": "て形的分句连接",
+      "short_definition_zh": "分析て形连接事件时可表达顺序、并列、方式、原因或伴随状态的结构条件。",
+      "beginner_explanation_zh": "动词或形容表达的て形可以把两个分句接起来。具体是「做完再做」、同时发生，还是原因关系，要由谓语意义和语境决定。",
+      "deep_explanation_zh": "て形本身语义较欠指定，时间次序、主语连续性、可控性和因果解释由事件结构与话语推导。与辅助动词组合时，表面「て」还可能位于一个更紧密的谓语构式内部。",
+      "caution_zh": "不能把所有て形都翻成「然后」；也不能忽略前后分句主语是否切换及由此产生的自然度限制。",
+      "prerequisite_topic_keys": [
+        "morph_verb_conjugation",
+        "syn_zero_arguments"
+      ],
+      "tags": [
+        "te_form",
+        "clause_linking",
+        "event_sequence",
+        "subject_continuity"
+      ],
+      "objectives": {
+        "F1_zh": "能区分分句连接的て形与紧密辅助谓语内部的て形。",
+        "F2_zh": "能结合事件类型判断顺序、并列、原因或方式读法。",
+        "F3_zh": "能比较主语连续和主语切换的版本，诊断指代或时间关系冲突。",
+        "F4_zh": "能用て形连接两个新事件，并通过语境使目标关系清楚。"
+      },
+      "original_example_spec": {
+        "form_zh": "用可控动作与自然状态各构造一组双分句序列，省略成分必须可恢复。",
+        "contrast_zh": "保持形式不变改变事件搭配，使顺序读法与原因读法形成对照。",
+        "constraints_zh": "不靠角色剧情补因果；若主语切换，须显式给出足够线索。"
+      }
+    },
+    {
+      "topic_key": "syn_conditionals",
+      "domain": "syntax",
+      "module_key": "complex_sentences",
+      "name_ja": "条件表現",
+      "name_zh": "条件构式「と・ば・たら・なら」",
+      "short_definition_zh": "区分四类常用条件形式在时间关系、假设性、话语前提和主句类型上的倾向。",
+      "beginner_explanation_zh": "日语有多种「如果」形式。「と」常见于规律或自动结果，「ば」突出条件关系，「たら」可接具体先后与假设，「なら」常承接对方提出的前提。",
+      "deep_explanation_zh": "条件选择受到前后件时间顺序、可控性、事实性、主句意志性和前提来源制约。各形式存在重叠区，分析应说出为何某语境更偏好某形式，而不是给出绝对一词一义。",
+      "caution_zh": "不能只按中文「如果／一……就……」机械替换；尤其带请求、命令和说话人意志的主句会限制部分形式。",
+      "prerequisite_topic_keys": [
+        "morph_tense_forms",
+        "syn_te_clause_linking"
+      ],
+      "tags": [
+        "conditional",
+        "to",
+        "ba",
+        "tara",
+        "nara"
+      ],
+      "objectives": {
+        "F1_zh": "能识别四种条件构式及前件的形态构成。",
+        "F2_zh": "能从时间、可控性和前提来源解释某形式的自然度。",
+        "F3_zh": "能比较同一前后件更换条件形式后的意义或语用差异。",
+        "F4_zh": "能为规律、具体先后、建议回应和开放假设各选择合适条件式。"
+      },
+      "original_example_spec": {
+        "form_zh": "分别设计自然规律、操作步骤、回应建议和未定计划四类中性语境。",
+        "contrast_zh": "每次只替换条件标记，检查主句是否含意志、请求或自动结果。",
+        "constraints_zh": "不宣称只有一个形式在所有语境都可能；答案须说明偏好强度。"
+      }
+    },
+    {
+      "topic_key": "syn_passive",
+      "domain": "syntax",
+      "module_key": "voice_constructions",
+      "name_ja": "受身文",
+      "name_zh": "被动句与受影响被动",
+      "short_definition_zh": "理解直接被动和间接受影响被动如何重组论元、格标记与事件视点。",
+      "beginner_explanation_zh": "被动形把原动作对象或受影响者放到主语位置，动作实施者常用「に」标示。日语还有一种受影响被动，主语未必是原动词的直接对象。",
+      "deep_explanation_zh": "直接被动与对应主动句共享核心事件但改变句法实现和视点；间接被动引入受影响者并常带不利含意，不过不利性可以由语境调节。所有者被动还涉及身体部位或所属物的不可分离关系。",
+      "caution_zh": "被动形「られる」与可能、尊敬等形式可能同形；不能见到「に」就一律标施事者，也不能把所有被动翻成中文「被」。",
+      "prerequisite_topic_keys": [
+        "morph_auxiliary_chain",
+        "syn_valency_argument_structure"
+      ],
+      "tags": [
+        "passive",
+        "voice",
+        "direct_passive",
+        "adversative_passive"
+      ],
+      "objectives": {
+        "F1_zh": "能识别被动谓语并标出主语、施事者和直接受事。",
+        "F2_zh": "能区分直接、所有者和间接受影响被动的论元映射。",
+        "F3_zh": "能比较主动与被动版本，诊断视点、格框架和潜在受影响含意。",
+        "F4_zh": "能把新事件转换为目标类型的被动句并保留正确参与者关系。"
+      },
+      "original_example_spec": {
+        "form_zh": "使用修理物品等可形成直接被动的事件，再用天气或他人行为构造非暴力受影响场景。",
+        "contrast_zh": "同一词形设置被动与可能的判别环境，或主动与直接被动成对。",
+        "constraints_zh": "不依赖负面剧情暗示受影响；答案须用句法格框和语境共同排除同形分析。"
+      }
+    },
+    {
+      "topic_key": "syn_causative",
+      "domain": "syntax",
+      "module_key": "voice_constructions",
+      "name_ja": "使役文",
+      "name_zh": "使役与使役被动",
+      "short_definition_zh": "分析使役构式新增致使者、重排原论元并表达命令、许可或促成的方式。",
+      "beginner_explanation_zh": "使役形表示某人让另一方做事，既可能是强制，也可能是允许。原动词的自动性和格框架会影响被使役者用「に」还是「を」。",
+      "deep_explanation_zh": "句法使役将致使事件与基础事件组合，致使者成为外层论元，被使役者的格实现受基础谓语及控制程度制约。使役被动再把被使役者提升为主语，常表达非自愿经历。",
+      "caution_zh": "使役形式本身不保证强迫意义；词汇性自他配对、使役和他动化不能只凭中文译法混为一谈。",
+      "prerequisite_topic_keys": [
+        "morph_transitivity_pairs",
+        "syn_valency_argument_structure",
+        "syn_passive"
+      ],
+      "tags": [
+        "causative",
+        "causative_passive",
+        "voice",
+        "causee"
+      ],
+      "objectives": {
+        "F1_zh": "能识别使役和使役被动谓语，并找出基础动词。",
+        "F2_zh": "能画出致使者、被使役者及基础事件其他论元的两层结构。",
+        "F3_zh": "能比较命令、许可与促成语境，诊断哪些意义来自语境而非词形本身。",
+        "F4_zh": "能为新的自动词或他动词事件构造格关系完整的使役表达。"
+      },
+      "original_example_spec": {
+        "form_zh": "以学习、休息、搬动物品等低风险活动构造自动词和他动词基础句。",
+        "contrast_zh": "同一使役句分别放入上级命令与提供许可的前文，词形保持不变。",
+        "constraints_zh": "不借人物身份默认强迫；使役被动须核对每层主语和格标记。"
+      }
+    },
+    {
+      "topic_key": "sem_compositionality_polysemy",
+      "domain": "semantics",
+      "module_key": "meaning_composition",
+      "name_ja": "意味の合成と多義性",
+      "name_zh": "意义合成、多义与语境选义",
+      "short_definition_zh": "理解句义由词义与结构共同组成，并区分一个词的相关多义项与偶然同音形式。",
+      "beginner_explanation_zh": "不能只把每个词翻译后相加。助词、修饰范围和句法结构会改变整体意义；同一个词在不同搭配中也可能选择不同但相关的意义。",
+      "deep_explanation_zh": "组合原则要求解释结构如何限制词义，但惯用化、强制转义和语用充实会让结果超出简单函数应用。多义分析应寻找义项间的系统联系，并与无关联同音词区分。",
+      "caution_zh": "中文译词不同不必然证明日语有两个独立义项；反之，同一中文译词也可能掩盖日语中的结构差异。",
+      "prerequisite_topic_keys": [
+        "syn_constituent_order",
+        "morph_word_morpheme_classes"
+      ],
+      "tags": [
+        "compositionality",
+        "polysemy",
+        "word_sense",
+        "context"
+      ],
+      "objectives": {
+        "F1_zh": "能指出短语意义中由词汇和由结构分别贡献的部分。",
+        "F2_zh": "能根据搭配和选择限制判断多义词在句中的目标义项。",
+        "F3_zh": "能比较两种结构或语境，诊断歧义来自多义、同音还是句法附着。",
+        "F4_zh": "能把新词项放入两个清楚语境，展示相关义项而不改变核心形式。"
+      },
+      "original_example_spec": {
+        "form_zh": "选择有通行相关义项的日常动词或名词，放入选择限制清楚的短句。",
+        "contrast_zh": "保持目标词相同，只替换其搭配成分，使两个义项都有充分线索。",
+        "constraints_zh": "不依赖冷僻辞书义；答案须说明结构和搭配证据，不能只列中文翻译。"
+      }
+    },
+    {
+      "topic_key": "sem_tense_reference_time",
+      "domain": "semantics",
+      "module_key": "time_event",
+      "name_ja": "時制と基準時",
+      "name_zh": "时制、说话时与基准时",
+      "short_definition_zh": "用事件时、说话时和基准时的关系解释主句与从句中的时间读法。",
+      "beginner_explanation_zh": "判断过去或非过去不能只看现实日历。除了事情发生的时间，还要看说话时间，以及叙述或从句采用的观察基准。",
+      "deep_explanation_zh": "主句时制常相对说话时定位，从属结构可出现相对时制，使事件相对主句基准而非直接相对当前时刻解释。叙事推进、状态谓语和连体修饰都会影响三种时间点的关系。",
+      "caution_zh": "从句过去形不必早于现实中的说话时，非过去形也不必与说话时重合；必须先确定基准时。",
+      "prerequisite_topic_keys": [
+        "morph_tense_forms",
+        "syn_relative_clauses"
+      ],
+      "tags": [
+        "tense",
+        "event_time",
+        "speech_time",
+        "reference_time"
+      ],
+      "objectives": {
+        "F1_zh": "能在时间线中标出事件时、说话时和显式基准时。",
+        "F2_zh": "能解释主从句时制如何相对不同基准定位。",
+        "F3_zh": "能比较相同形态在主句和连体从句中的时间读法，诊断绝对时制误判。",
+        "F4_zh": "能按给定三点时间关系选择自洽的主从句时制组合。"
+      },
+      "original_example_spec": {
+        "form_zh": "设置三个明确日期或相对时间点，以计划、记录或回顾为中性事件。",
+        "contrast_zh": "同一从句分别嵌入过去主句和非过去主句，要求重画时间线。",
+        "constraints_zh": "时间线信息必须足以唯一比较先后；不靠剧情闪回隐含基准。"
+      }
+    },
+    {
+      "topic_key": "sem_lexical_aspect",
+      "domain": "semantics",
+      "module_key": "time_event",
+      "name_ja": "語彙的アスペクト",
+      "name_zh": "词汇体与事件类型",
+      "short_definition_zh": "区分状态、活动、完成和瞬时达成等谓语内在的时间结构。",
+      "beginner_explanation_zh": "有的谓语描述持续状态，有的描述可持续活动，有的自带终点，还有的表示瞬间变化。这个差异会影响它们与时间表达和「ている」等形式的组合。",
+      "deep_explanation_zh": "词汇体可用动态性、持续性和终结性等特征描述。论元的数量和性质也会改变事件是否有界，因此事件类型属于谓语短语层面的组合结果，不只是动词词典标签。",
+      "caution_zh": "不能给一个动词永久贴上单一事件类型；对象的量化、方向短语和语境都可能改变终结性。",
+      "prerequisite_topic_keys": [
+        "syn_valency_argument_structure",
+        "sem_compositionality_polysemy"
+      ],
+      "tags": [
+        "lexical_aspect",
+        "state",
+        "activity",
+        "telicity"
+      ],
+      "objectives": {
+        "F1_zh": "能按动态性、持续性和终结性初步分类谓语短语。",
+        "F2_zh": "能通过时间长度、完成表达等诊断说明分类依据。",
+        "F3_zh": "能比较同一动词搭配不同对象时事件边界如何改变。",
+        "F4_zh": "能按指定事件类型补充合适论元，形成结构语义一致的新谓语短语。"
+      },
+      "original_example_spec": {
+        "form_zh": "使用静态存在、无固定终点活动和有明确结果的制作事件。",
+        "contrast_zh": "同一动作动词分别搭配有界数量对象与非有界对象。",
+        "constraints_zh": "不以中文完成体标记代替日语诊断；时间短语必须和目标事件类型相容。"
+      }
+    },
+    {
+      "topic_key": "sem_teiru_readings",
+      "domain": "semantics",
+      "module_key": "time_event",
+      "name_ja": "「ている」の諸解釈",
+      "name_zh": "「ている」的进行、结果状态、习惯与经验／记录读法",
+      "short_definition_zh": "依据谓语事件类型、基准时和语境区分「ている」的进行、结果状态、习惯以及经验／记录等解释。",
+      "beginner_explanation_zh": "「ている」不只表示正在做。它也可表示变化后持续的结果状态、反复习惯，或在传记和记录等语境中说明某事件在基准时以前已经发生。",
+      "deep_explanation_zh": "活动谓语通常产生进行读法，瞬间变化谓语常产生结果状态读法；频率副词和概括性时间框架可触发反复或习惯。经验／记录用法把既往事件作为当前知识或记录中的相关事实呈现，并不等同于任意过去事件都可换成「ている」。词汇语义、主体视角和语境都能改变默认读法。",
+      "caution_zh": "不能见到「ている」就翻成中文「正在」；也不能把结果状态误当被动，或把一次普通过去事件无条件改写成经验／记录用法。",
+      "prerequisite_topic_keys": [
+        "syn_te_clause_linking",
+        "sem_lexical_aspect"
+      ],
+      "tags": [
+        "teiru",
+        "progressive",
+        "resultative",
+        "habitual",
+        "experiential_record"
+      ],
+      "objectives": {
+        "F1_zh": "能识别语境中的进行、结果状态、习惯或经验／记录读法。",
+        "F2_zh": "能从基础谓语事件类型和基准时推导默认解释，并说明语境如何修正。",
+        "F3_zh": "能比较活动谓语、瞬时变化谓语与有明确既往时间的记录语境，诊断误译或误换形。",
+        "F4_zh": "能选择合适谓语、时间线索和主体视角，原创展示指定的一种「ている」读法。"
+      },
+      "original_example_spec": {
+        "form_zh": "分别选一个可持续活动、一个瞬时状态变化和一个可由公开记录核实的既往事件，明确基准时。",
+        "contrast_zh": "保持「ている」不变，用基础动词类别、频率副词或记录语境触发不同读法。",
+        "constraints_zh": "不用需要剧情知识才能判定的状态；必须说明事件是否仍在展开、结果是否持续，以及经验／记录读法为何与当前基准相关。"
+      }
+    },
+    {
+      "topic_key": "sem_modality",
+      "domain": "semantics",
+      "module_key": "modality_evidence",
+      "name_ja": "モダリティ",
+      "name_zh": "可能、义务与认识情态",
+      "short_definition_zh": "区分能力、许可、义务、推测等对命题可能性或必要性的评估。",
+      "beginner_explanation_zh": "日语可以表达「能做」「可以做」「必须做」或「大概是」。这些形式并不都描述事件本身，而是说话人对可能性、规则或知识的判断。",
+      "deep_explanation_zh": "情态可按可能世界来源区分动力、道义和认识类型，并有不同作用域和主语限制。同一形式可能在语境中跨类型解释，否定位置还会区分「不可能」与「可能不」。",
+      "caution_zh": "「能」的中文译法会混合能力与许可；概率副词、句末形式和否定必须按作用域整体分析。",
+      "prerequisite_topic_keys": [
+        "morph_auxiliary_chain",
+        "syn_conditionals"
+      ],
+      "tags": [
+        "modality",
+        "ability",
+        "permission",
+        "obligation",
+        "epistemic"
+      ],
+      "objectives": {
+        "F1_zh": "能识别句中情态表达并分类其可能性或必要性来源。",
+        "F2_zh": "能说明情态算子作用于哪个命题及依据谁的知识或规范。",
+        "F3_zh": "能比较同形情态在能力、许可或推测语境中的诊断线索。",
+        "F4_zh": "能为同一核心命题分别构造能力、规范和认识情态的中性表达。"
+      },
+      "original_example_spec": {
+        "form_zh": "以进入设施、完成操作或天气判断为核心命题，明确规则来源或证据信息。",
+        "contrast_zh": "保持情态形式或核心命题不变，只改变规范、能力或证据语境。",
+        "constraints_zh": "不借角色权力关系自行推断许可；题面须显式给出情态基础。"
+      }
+    },
+    {
+      "topic_key": "sem_evidentiality",
+      "domain": "semantics",
+      "module_key": "modality_evidence",
+      "name_ja": "証拠性と伝聞",
+      "name_zh": "证据性、传闻与推断",
+      "short_definition_zh": "分析说话人如何用「そうだ・らしい・ようだ」等提示信息来源、可感知迹象和推断方式。",
+      "beginner_explanation_zh": "有些表达说明说话人根据外观、声音等可感知迹象作判断，有些说明消息来自他人，还有些表示基于多项情况作推断。它们的形式和连接方式不同。",
+      "deep_explanation_zh": "日语相关形式处在证据性与认识情态交界：传闻「そうだ」报告来源，样态「そうだ」依据当下可感知的外观或征兆，推定「らしい／ようだ」则可依间接证据、类比或典型性作判断。各形式的接续、证据可及性和说话人承诺程度是消除同形歧义的重要证据。",
+      "caution_zh": "不能仅把所有形式翻成「好像」，也不能把样态「そうだ」限定为视觉证据；必须同时核对接续、证据渠道以及说话人是否承担命题判断。",
+      "prerequisite_topic_keys": [
+        "morph_auxiliary_chain",
+        "sem_modality"
+      ],
+      "tags": [
+        "evidentiality",
+        "hearsay",
+        "inference",
+        "souda",
+        "rashii"
+      ],
+      "objectives": {
+        "F1_zh": "能根据连接形式识别传闻、可感知样态或推断表达。",
+        "F2_zh": "能指出信息来源、感知渠道及说话人对命题的承诺程度。",
+        "F3_zh": "能比较共享核心命题的不同证据性形式，诊断接续或证据渠道不匹配。",
+        "F4_zh": "能按当下可感知迹象、转述消息和间接推理三种条件选择自洽形式。"
+      },
+      "original_example_spec": {
+        "form_zh": "用天气、设备状态或公共通知提供当下可感知迹象、第三方消息和综合推断三类证据。",
+        "contrast_zh": "核心命题相同，显式改变信息来源并保留足以判断接续的谓语形。",
+        "constraints_zh": "不得依靠角色声望判真；传闻来源、当下感知和间接推理必须分栏呈现，不能把样态证据写成只可能来自视觉。"
+      }
+    },
+    {
+      "topic_key": "sem_negation_scope",
+      "domain": "semantics",
+      "module_key": "scope",
+      "name_ja": "否定の作用域",
+      "name_zh": "否定作用域与部分否定",
+      "short_definition_zh": "判断否定作用于谓语、情态、量词或焦点成分的范围，并区分全否定与部分否定。",
+      "beginner_explanation_zh": "句子里有「ない」时，要问到底否定了什么。「大家都没来」和「不是大家都来了」范围不同，情态和条件中也会出现类似差别。",
+      "deep_explanation_zh": "表面否定位置与语义作用域并非一一对应，量词、主题、焦点助词和情态会产生宽窄域歧义。韵律、词序和上下文问题可偏向某一解释。",
+      "caution_zh": "不能看到句末否定就把整句所有成分都逐一否定；中文译序也不能替代日语中的作用域证据。",
+      "prerequisite_topic_keys": [
+        "morph_negation_forms",
+        "sem_modality"
+      ],
+      "tags": [
+        "negation",
+        "scope",
+        "partial_negation",
+        "focus"
+      ],
+      "objectives": {
+        "F1_zh": "能圈出否定形式并列出可能受其作用的成分。",
+        "F2_zh": "能用逻辑释义或范围括号表示宽域与窄域读法。",
+        "F3_zh": "能比较全否定和部分否定语境，诊断哪种释义与事实条件相容。",
+        "F4_zh": "能调整助词、语序或上下文，使新句的目标否定范围清晰。"
+      },
+      "original_example_spec": {
+        "form_zh": "使用三项集合、一个情态形式或一个焦点助词，给出可枚举的事实背景。",
+        "contrast_zh": "让事实分别满足全无、部分有和并非必须三种情况。",
+        "constraints_zh": "不以模糊常识作背景；每个范围释义必须可由给定事实判真伪。"
+      }
+    },
+    {
+      "topic_key": "sem_quantifier_scope",
+      "domain": "semantics",
+      "module_key": "scope",
+      "name_ja": "数量表現と作用域",
+      "name_zh": "量化表达、浮游量词与作用域",
+      "short_definition_zh": "理解数量词、全称和不定表达如何与名词、格成分及其他算子建立范围关系。",
+      "beginner_explanation_zh": "日语数量表达既可紧挨名词，也可在句中与对应名词短语分开出现。位置会影响自然度和焦点，但需要靠格关系确认它在数什么。",
+      "deep_explanation_zh": "浮游量词与宿主名词之间存在语义和句法限制，个体量词、事件次数和程度数量必须区分。与否定、情态或另一量词共现时，可能产生不同作用域读法。",
+      "caution_zh": "离谓语最近的数量表达不一定修饰谓语；量词类别必须与被计数实体匹配，也不能忽略集合的确定性。",
+      "prerequisite_topic_keys": [
+        "syn_case_particles",
+        "sem_negation_scope"
+      ],
+      "tags": [
+        "quantifier",
+        "floating_quantifier",
+        "scope",
+        "numeral_classifier"
+      ],
+      "objectives": {
+        "F1_zh": "能识别数量表达的宿主、量词类别和基本范围。",
+        "F2_zh": "能说明浮游位置与格成分的对应，并区分个体数和事件次数。",
+        "F3_zh": "能比较量词与否定的两种范围释义，诊断哪种受语境支持。",
+        "F4_zh": "能为新实体选择匹配量词并安排无歧义的句中位置。"
+      },
+      "original_example_spec": {
+        "form_zh": "使用书本、机器或小组成员等可明确计数的实体，数量不超过五。",
+        "contrast_zh": "同一数量短语分别紧邻名词和浮游至谓语前，再加入一个事件次数表达。",
+        "constraints_zh": "不考冷僻量词；事实背景须足以区分个体数量和动作次数。"
+      }
+    },
+    {
+      "topic_key": "prag_context_implicature",
+      "domain": "pragmatics_discourse",
+      "module_key": "context_inference",
+      "name_ja": "文脈と会話の含意",
+      "name_zh": "语境与会话含意",
+      "short_definition_zh": "区分句子字面内容与听者基于合作、相关性和背景推导出的可撤销含意。",
+      "beginner_explanation_zh": "说话人常不把意思全部说完。听者会根据当前问题、双方已知信息和回答是否相关，推断出字面之外的意思。",
+      "deep_explanation_zh": "会话含意通常具有可撤销性、可计算性和非约定性。数量、质量、关系和方式等期待可触发推理，但实际对话中的礼貌、体裁和共同知识会调整这些期待。",
+      "caution_zh": "含意不是隐藏在词里的固定第二义；若追加说明可以自然取消该推断，就不应把它写成必然语义。",
+      "prerequisite_topic_keys": [
+        "sem_compositionality_polysemy"
+      ],
+      "tags": [
+        "context",
+        "implicature",
+        "inference",
+        "common_ground"
+      ],
+      "objectives": {
+        "F1_zh": "能分别陈述一轮回答的字面内容和最自然的语境推断。",
+        "F2_zh": "能说明该推断依赖的问题、共同知识或合作期待。",
+        "F3_zh": "能用追加句测试推断是否可撤销，并诊断语义蕴涵与含意的区别。",
+        "F4_zh": "能创作一个仅靠普通相关性产生而不依赖角色梗的可撤销含意。"
+      },
+      "original_example_spec": {
+        "form_zh": "采用是否完成任务、是否参加活动等中性问答，背景事实明确且不涉及隐私。",
+        "contrast_zh": "同一回答后分别加入取消推断与强化推断的追加句。",
+        "constraints_zh": "不可把讽刺当作唯一机制；含意必须可由题面共同知识推出。"
+      }
+    },
+    {
+      "topic_key": "prag_speech_acts",
+      "domain": "pragmatics_discourse",
+      "module_key": "context_inference",
+      "name_ja": "発話行為と間接性",
+      "name_zh": "言语行为与间接表达",
+      "short_definition_zh": "分析陈述、提问、请求、建议、承诺等行为及其与表面句式不一致的间接实现。",
+      "beginner_explanation_zh": "疑问句不一定只是在问事实。例如询问对方是否能做某事，常是在礼貌地请求。要判断行为，必须看情境和双方接下来该如何回应。",
+      "deep_explanation_zh": "言语行为涉及命题内容、行为力量和预期回应。间接行为可借能力、意愿、条件或理由表达请求，社会成本与礼貌管理影响选择，但形式本身仍保留字面问题。",
+      "caution_zh": "不能因为一句话产生某种效果就把它当作说话人的唯一意图；同一表面形式在服务、教学或真实询问中可能执行不同功能。",
+      "prerequisite_topic_keys": [
+        "sem_modality",
+        "prag_context_implicature"
+      ],
+      "tags": [
+        "speech_act",
+        "indirect_request",
+        "illocution",
+        "response"
+      ],
+      "objectives": {
+        "F1_zh": "能识别发话的表面句式和语境中的主要行为类型。",
+        "F2_zh": "能从前提条件、社会成本和预期回应说明间接行为如何成立。",
+        "F3_zh": "能比较字面提问与间接请求语境，诊断误把能力答案当作完整回应的问题。",
+        "F4_zh": "能按低负担与高负担两种场景设计恰当直接度的原创请求。"
+      },
+      "original_example_spec": {
+        "form_zh": "以借用公共物品、调整座位或确认操作为场景，权力关系明确而低风险。",
+        "contrast_zh": "同一句能力疑问分别置于真实能力调查与当场请托语境。",
+        "constraints_zh": "不得通过动漫角色性格代替语用线索；需给出可观察的后续行动。"
+      }
+    },
+    {
+      "topic_key": "prag_deixis",
+      "domain": "pragmatics_discourse",
+      "module_key": "reference_context",
+      "name_ja": "直示",
+      "name_zh": "人称、时空与话语指示",
+      "short_definition_zh": "理解指示表达的解释依赖说话人、听话人、地点、时间和话语位置构成的指示中心。",
+      "beginner_explanation_zh": "「ここ」「今」「私」之类词必须知道谁在何时何地说才能解释。转述或换说话人后，同一个形式的指向可能改变。",
+      "deep_explanation_zh": "日语的こ・そ・あ系统涉及说话人和听话人的空间、心理或话语领域。指示中心可在叙事和引用中发生投射，时间指示也需相对发话时或叙事基准解释。",
+      "caution_zh": "不能把「こ＝近说话人、そ＝近听话人、あ＝远双方」当成所有话语用法的充分解释；共同记忆和前文指称也会介入。",
+      "prerequisite_topic_keys": [
+        "syn_complement_quotation",
+        "sem_tense_reference_time"
+      ],
+      "tags": [
+        "deixis",
+        "demonstratives",
+        "person",
+        "space",
+        "time"
+      ],
+      "objectives": {
+        "F1_zh": "能标出人称、空间、时间和话语指示表达。",
+        "F2_zh": "能根据发话事件确定每个指示词的中心和指称。",
+        "F3_zh": "能比较直接发话与转述，诊断指示词是否应随中心转换。",
+        "F4_zh": "能在两个地点或两个说话人之间改写信息而保持指称正确。"
+      },
+      "original_example_spec": {
+        "form_zh": "画出说话人、听话人、两个地点和两个时间点，再配原创短发话。",
+        "contrast_zh": "同一内容由原说话人直接说与第三者在另一地点转述。",
+        "constraints_zh": "所有指示对象须在图中唯一；不借助角色熟悉度填补省略信息。"
+      }
+    },
+    {
+      "topic_key": "prag_reference_anaphora",
+      "domain": "pragmatics_discourse",
+      "module_key": "reference_context",
+      "name_ja": "指示対象と照応",
+      "name_zh": "指称、照应与话语实体",
+      "short_definition_zh": "跟踪名词短语、指示词、零形式与先行语之间随话语更新建立的指称链。",
+      "beginner_explanation_zh": "对话先介绍一个对象，后面可以用「それ」、重复名词或直接省略来继续谈它。正确理解要看对象是否仍是当前话题和是否有竞争候选。",
+      "deep_explanation_zh": "照应解析受显著性、语法角色、距离、语义相容性和话语关系共同制约。桥接照应还能通过部分整体、所有或脚本关系引入未直接提过但可推知的实体。",
+      "caution_zh": "最近的名词不一定就是先行语；人称、数、有生性、视点和事件连续性出现冲突时必须降低其候选优先级。",
+      "prerequisite_topic_keys": [
+        "syn_zero_arguments",
+        "prag_deixis"
+      ],
+      "tags": [
+        "reference",
+        "anaphora",
+        "discourse_entity",
+        "bridging"
+      ],
+      "objectives": {
+        "F1_zh": "能把重复名词、指示词和零形式连成候选指称链。",
+        "F2_zh": "能按显著性、语义和句法线索为多个先行语候选排序。",
+        "F3_zh": "能比较直接照应与桥接照应，诊断是否需要额外关系推理。",
+        "F4_zh": "能改写一段新短文，消除一个真实指称歧义而不造成过度重复。"
+      },
+      "original_example_spec": {
+        "form_zh": "三句微型说明文引入两个同类实体，后句以指示词或零论元回指。",
+        "contrast_zh": "一版加入区别性修饰使指称唯一，另一版保留两个同等候选。",
+        "constraints_zh": "不得用性别刻板印象排除候选；桥接关系必须是题面可支持的常规关系。"
+      }
+    },
+    {
+      "topic_key": "prag_information_focus",
+      "domain": "pragmatics_discourse",
+      "module_key": "information_structure",
+      "name_ja": "情報構造と焦点",
+      "name_zh": "信息结构、焦点与对比",
+      "short_definition_zh": "分析已建立背景与被断言焦点如何通过助词、语序、韵律和问答关系组织。",
+      "beginner_explanation_zh": "一句话通常有听者已经知道的部分，也有说话人要补充或纠正的重点。前一个问题会决定回答中哪个成分是焦点。",
+      "deep_explanation_zh": "焦点可为信息焦点、对比焦点或更正焦点，与主题并非互斥的同一概念。日语利用「が」「は」「も」「だけ」等助词、成分前置和韵律实现焦点，具体形式受句型制约。",
+      "caution_zh": "新信息不总是由「が」标记，已知信息也不总是「は」；必须先写出当前问题和替代集合。",
+      "prerequisite_topic_keys": [
+        "syn_topic_subject",
+        "sem_negation_scope"
+      ],
+      "tags": [
+        "information_structure",
+        "focus",
+        "contrast",
+        "question_under_discussion"
+      ],
+      "objectives": {
+        "F1_zh": "能从问答对中识别背景与焦点成分。",
+        "F2_zh": "能说明助词、语序或韵律如何建立目标替代集合。",
+        "F3_zh": "能比较回答不同问题时同一命题的焦点配置，诊断不自然之处。",
+        "F4_zh": "能按给定当前问题重组新句，使更正或对比落在指定成分上。"
+      },
+      "original_example_spec": {
+        "form_zh": "以谁、何时、何物三个不同问题询问同一个中性事件。",
+        "contrast_zh": "命题真值保持相同，仅改变前置问题和焦点助词或韵律标记。",
+        "constraints_zh": "不把大写或感叹号当作唯一焦点证据；书面材料需显式标示语境。"
+      }
+    },
+    {
+      "topic_key": "prag_ellipsis_fragments",
+      "domain": "pragmatics_discourse",
+      "module_key": "information_structure",
+      "name_ja": "省略と断片発話",
+      "name_zh": "省略与片段回答",
+      "short_definition_zh": "理解短答、残句和未完结表达如何借当前问题与共享结构恢复完整命题。",
+      "beginner_explanation_zh": "日语回答常只说最重要的一小部分，例如只说时间、对象或「ちょっと……」。这些片段要和前一个问题合起来才能得到完整意思。",
+      "deep_explanation_zh": "片段可由句法省略、话语替代或构式化公式产生，恢复内容受平行结构和当前问题限制。「ちょっと」等未完表达还利用社会惯例引出拒绝或保留，但并非在任何环境都固定如此。",
+      "caution_zh": "不能自由补出题面没有支持的主语、否定或态度；沉默和截断的含意尤其要区分可推断与确定内容。",
+      "prerequisite_topic_keys": [
+        "syn_zero_arguments",
+        "prag_context_implicature",
+        "prag_information_focus"
+      ],
+      "tags": [
+        "ellipsis",
+        "fragment",
+        "short_answer",
+        "incomplete_utterance"
+      ],
+      "objectives": {
+        "F1_zh": "能识别片段回答所对应的当前问题和缺省结构。",
+        "F2_zh": "能恢复最小完整命题，并标记仅属语用推断的部分。",
+        "F3_zh": "能比较两个前置问题，诊断相同片段为何得到不同恢复。",
+        "F4_zh": "能为新问答设计自然短答，使关键信息保留且指代唯一。"
+      },
+      "original_example_spec": {
+        "form_zh": "用时间、地点或对象疑问形成明确替换槽，回答只保留一个成分。",
+        "contrast_zh": "把同一片段放到两个问题之后，展示恢复结构随当前问题改变。",
+        "constraints_zh": "不把礼貌性拒绝写成逻辑蕴涵；答案须区分恢复内容与含意。"
+      }
+    },
+    {
+      "topic_key": "prag_sentence_final_particles",
+      "domain": "pragmatics_discourse",
+      "module_key": "interaction",
+      "name_ja": "終助詞",
+      "name_zh": "句末助词与互动立场",
+      "short_definition_zh": "分析「ね・よ・よね・な」等如何管理信息状态、确认需求与说话人立场。",
+      "beginner_explanation_zh": "句末助词不改变事件本身，却会改变说话人怎样把信息交给听者。「ね」常邀请共享或确认，「よ」常提示信息由说话人提供。",
+      "deep_explanation_zh": "句末助词编码认识权限、共同立场和回应预期，其解释受语调、性别年龄索引、语体和前文知识分布影响。组合形式并非单纯把两个词义相加。",
+      "caution_zh": "不能把「ね」固定翻成「对吧」、把「よ」固定翻成「哦」；同一助词在提醒、坚持、缓和等行为中效果不同。",
+      "prerequisite_topic_keys": [
+        "prag_context_implicature",
+        "prag_speech_acts"
+      ],
+      "tags": [
+        "sentence_final_particle",
+        "ne",
+        "yo",
+        "stance",
+        "common_ground"
+      ],
+      "objectives": {
+        "F1_zh": "能识别常见句末助词及其基本互动方向。",
+        "F2_zh": "能根据双方知识状态说明助词为何适合或突兀。",
+        "F3_zh": "能比较无助词、「ね」「よ」版本，诊断认识权限和回应期待变化。",
+        "F4_zh": "能为提醒、共同确认和首次告知三种新情境选择恰当句末形式。"
+      },
+      "original_example_spec": {
+        "form_zh": "核心命题采用可共同观察或仅一方知道的公共信息。",
+        "contrast_zh": "命题文字保持不变，仅改变知识分布与句末助词。",
+        "constraints_zh": "不用角色口癖；性别化或方言化形式不得作为基础层唯一答案。"
+      }
+    },
+    {
+      "topic_key": "prag_politeness_honorifics",
+      "domain": "pragmatics_discourse",
+      "module_key": "social_pragmatics",
+      "name_ja": "ポライトネスと敬語",
+      "name_zh": "礼貌、尊敬语与谦让语",
+      "short_definition_zh": "区分面向听话人的礼貌体、抬高行为主体的尊敬语，以及通过己方行为抬高行为指向者或郑重面向听话人的两类谦让表达。",
+      "beginner_explanation_zh": "「です／ます」主要让对听话人的表达保持礼貌；尊敬语把句中值得尊敬的人作为行为主体来抬高。谦让语Ⅰ多用于己方朝向应尊敬对象的行为，借此抬高该对象；谦让语Ⅱ（郑重语）则把己方行为郑重地说给听话人。它们可以组合，但敬意方向不同。",
+      "deep_explanation_zh": "敬语选择要同时追踪说话人、听话人、行为主体、行为指向者与内外群体关系。固定敬语词、规则构式、谦让语Ⅰ、谦让语Ⅱ（丁重语）、礼貌语和美化语的功能不同；服务场景还会出现机构化表达，但不能因此抹去事件角色和敬意方向。",
+      "caution_zh": "不能把谦让语笼统解释成“把自己变低”，也不能只按年龄或职位机械计算礼貌程度。错误的敬语方向会抬错人物；所谓双重敬语也应依据通行规范和具体结构判断。",
+      "prerequisite_topic_keys": [
+        "syn_valency_argument_structure",
+        "prag_speech_acts"
+      ],
+      "tags": [
+        "politeness",
+        "honorific",
+        "humble",
+        "addressee",
+        "beneficiary"
+      ],
+      "objectives": {
+        "F1_zh": "能识别礼貌体、尊敬语、谦让语Ⅰ、谦让语Ⅱ及其敬意目标。",
+        "F2_zh": "能画出发话参与者、行为主体与行为指向者之间的敬意方向。",
+        "F3_zh": "能比较两个形式，诊断敬意目标、内外关系或格角色错位。",
+        "F4_zh": "能按给定服务或一般职场场景生成敬意方向一致且不过度的表达。"
+      },
+      "original_example_spec": {
+        "form_zh": "明示说话人、听话人、行为主体和行为指向者四个角色，并至少包含一组可区分谦让语Ⅰ与谦让语Ⅱ的环境。",
+        "contrast_zh": "同一事件分别由己方说给外部对象和外部对象说给己方，要求调整尊敬或谦让方向；另设只面向听话人郑重陈述的对照。",
+        "constraints_zh": "不以性别决定敬语；所有社会关系须写在题面而非依靠刻板印象，不把“降低自己”作为谦让语唯一判据。"
+      }
+    },
+    {
+      "topic_key": "prag_register_style",
+      "domain": "pragmatics_discourse",
+      "module_key": "social_pragmatics",
+      "name_ja": "レジスターと文体",
+      "name_zh": "语域、普通体与书面文体",
+      "short_definition_zh": "理解场合、媒介和参与者关系如何制约普通体、礼貌体及书面体的整体一致性。",
+      "beginner_explanation_zh": "跟朋友聊天、写操作说明和向陌生人说明时，常选不同句尾和词汇。自然的语体不是只换最后一个词，而是整个表达保持协调。",
+      "deep_explanation_zh": "语域由互动目的、媒介、制度角色和受众共同构成，形态礼貌、缩约、词汇选择与篇章组织会协同变化。局部语体切换也可用来引用、拉近距离或突出立场。",
+      "caution_zh": "普通体不等于无礼，礼貌体也不等于正式公文；语体混合有时是有动机的切换，不能全部视作错误。",
+      "prerequisite_topic_keys": [
+        "morph_copula",
+        "prag_politeness_honorifics"
+      ],
+      "tags": [
+        "register",
+        "style",
+        "plain_form",
+        "formal_writing"
+      ],
+      "objectives": {
+        "F1_zh": "能从句尾、缩约和词汇识别一段话的主要语域。",
+        "F2_zh": "能说明媒介、受众和任务目的如何共同支持该语体。",
+        "F3_zh": "能比较两版相同内容，诊断无动机混搭与有意风格切换。",
+        "F4_zh": "能把新通知在聊天消息和正式说明两种媒介间完整改写。"
+      },
+      "original_example_spec": {
+        "form_zh": "采用设施开放时间或操作步骤等中性信息，分别指定朋友消息与公开说明。",
+        "contrast_zh": "命题内容相同，同时调整句尾、缩约和一处词汇，而非只换「だ／です」。",
+        "constraints_zh": "不把正式度与人格高低绑定；混合版本须明确是否存在引用等动机。"
+      }
+    },
+    {
+      "topic_key": "prag_turn_taking_backchannels",
+      "domain": "pragmatics_discourse",
+      "module_key": "interaction",
+      "name_ja": "ターン交替とあいづち",
+      "name_zh": "话轮转换与附和反馈",
+      "short_definition_zh": "分析停顿、句尾、视线和「うん・はい・そうですか」等反馈如何协调发言权与理解状态。",
+      "beginner_explanation_zh": "听者在对方说话途中发出短反馈，常表示正在听或理解，不一定表示同意。句子可能结束的位置则帮助双方决定何时换人说。",
+      "deep_explanation_zh": "话轮由可预测完成点、重叠、修复和序列组织管理。附和语可标持续倾听、信息接收、惊讶或评价，其位置和韵律比词形本身更能区分功能。",
+      "caution_zh": "「はい」不总是同意命题，也可能只是确认听到；书面转写缺少语调时不应过度推断态度。",
+      "prerequisite_topic_keys": [
+        "prag_speech_acts",
+        "prag_sentence_final_particles"
+      ],
+      "tags": [
+        "turn_taking",
+        "backchannel",
+        "aizuchi",
+        "conversation_analysis"
+      ],
+      "objectives": {
+        "F1_zh": "能在简短转写中识别话轮边界、重叠与附和位置。",
+        "F2_zh": "能区分持续倾听、接收新信息和明确同意等反馈功能。",
+        "F3_zh": "能比较反馈出现于话中与话末的版本，诊断对话序列如何改变。",
+        "F4_zh": "能补写一个不抢话且能显示理解状态的自然反馈序列。"
+      },
+      "original_example_spec": {
+        "form_zh": "两人就路线或操作流程交流，标出停顿和话轮但不需要音频角色表演。",
+        "contrast_zh": "同一反馈分别插在未完成分句后与完整提问后。",
+        "constraints_zh": "不把任何附和自动判为赞成；缺少韵律时须保留合理不确定性。"
+      }
+    },
+    {
+      "topic_key": "prag_connectives_coherence",
+      "domain": "pragmatics_discourse",
+      "module_key": "discourse_organization",
+      "name_ja": "接続表現と談話の一貫性",
+      "name_zh": "连接表达与篇章连贯",
+      "short_definition_zh": "理解「だから・しかし・それで・ところで」等如何标示因果、转折、续接和话题转换。",
+      "beginner_explanation_zh": "连接词告诉读者前后两句是什么关系：结果、相反、补充，还是转到新话题。选错连接词会让两个都正确的句子组合得不自然。",
+      "deep_explanation_zh": "篇章关系可连接事实、推论、言语行为或话题单元。同类连接词在说话人立场、因果方向和书面度上仍有差异，零连接也可由事件顺序和常识建立连贯。",
+      "caution_zh": "不能只按中文「所以／但是」一对一替换；因果连接必须核对哪一句是理由、结果或说话人的推断。",
+      "prerequisite_topic_keys": [
+        "syn_te_clause_linking",
+        "prag_context_implicature"
+      ],
+      "tags": [
+        "discourse_connective",
+        "coherence",
+        "causality",
+        "contrast"
+      ],
+      "objectives": {
+        "F1_zh": "能识别相邻句间的因果、转折、并列或话题转换关系。",
+        "F2_zh": "能说明连接词作用于事实关系还是说话人的推论行为。",
+        "F3_zh": "能比较两个连接词，诊断因果方向、立场或语体不匹配。",
+        "F4_zh": "能为新的三句短文安排连接表达，使关系明确而不过度重复。"
+      },
+      "original_example_spec": {
+        "form_zh": "采用天气与设施安排、操作结果等逻辑关系可验证的三句短文。",
+        "contrast_zh": "保持两命题不变，对调因果方向或替换为转折连接，观察连贯性。",
+        "constraints_zh": "不依赖戏剧反转；每个连接关系须由明示事实支持。"
+      }
+    },
+    {
+      "topic_key": "prag_viewpoint_empathy",
+      "domain": "pragmatics_discourse",
+      "module_key": "discourse_organization",
+      "name_ja": "視点と共感度",
+      "name_zh": "叙述视点与共感度",
+      "short_definition_zh": "分析授受、移动、被动和敬语等形式如何选择叙述中心并排列参与者的心理接近度。",
+      "beginner_explanation_zh": "同一件事可以从给的人或收到的人一边来讲。「くれる／もらう」、来去动词和部分被动会显示说话人把谁放在叙述中心。",
+      "deep_explanation_zh": "共感度约束影响授受辅助、反身形式、主语选择和视点一致性。视点可以沿篇章转移，但单一小句内部若把多个形式锚定到不相容中心，会产生显著不自然。",
+      "caution_zh": "共感度不是现实中的喜欢程度，也不能仅凭第一人称自动决定；内外群体、受益方向和叙述者身份都要核对。",
+      "prerequisite_topic_keys": [
+        "syn_zero_arguments",
+        "syn_passive",
+        "prag_politeness_honorifics"
+      ],
+      "tags": [
+        "viewpoint",
+        "empathy",
+        "benefactive",
+        "perspective"
+      ],
+      "objectives": {
+        "F1_zh": "能识别授受、移动或语态形式所指向的视点中心。",
+        "F2_zh": "能把说话人、受益者和事件参与者画成共感关系图。",
+        "F3_zh": "能比较两个叙述版本，诊断助动词方向与零论元恢复是否一致。",
+        "F4_zh": "能从指定参与者视点重新叙述新事件，并同步调整授受和指代。"
+      },
+      "original_example_spec": {
+        "form_zh": "使用传递资料、协助操作等中性受益事件，明确说话人属于哪一方。",
+        "contrast_zh": "同一事件分别从给予方和接受方叙述，必要时显式保留格成分。",
+        "constraints_zh": "不用人物好恶解释形式；所有受益方向、说话人身份和省略指称必须自洽。"
+      }
+    },
+    {
+      "topic_key": "soc_standard_regional_variation",
+      "domain": "sociolinguistics",
+      "module_key": "variation",
+      "name_ja": "共通語・標準語と地域変種",
+      "name_zh": "共同语、标准语与地域变体",
+      "short_definition_zh": "区分制度性规范化的标准语、跨地域交流使用的共同语与多样地域变体，理解三者在特定历史社会条件下形成并共存。",
+      "beginner_explanation_zh": "现代教材通常以共同语或标准语为主要参照；其历史规范化与东京山手地区的语言基础关系密切，但不能把今天的共同语简单等同于所有东京人的地方话。日本各地的地域变体都有系统规律，差异可出现在发音、词汇、助词和活用等层面。",
+      "deep_explanation_zh": "标准化涉及教育、媒体和国家制度，共同语则强调跨地域交际功能；二者在实际使用中常重叠，但概念焦点不同，也不代表这些变体在语言学上更有逻辑。地域连续体、方言接触和新方言会使边界动态变化，说话人也常在共同语和地方形式间切换。",
+      "caution_zh": "不能把方言叫作错误日语或只当搞笑口音；也不能把“东京方言”“标准语”“共同语”当作完全同义，或凭一两个句末词准确断定说话人出生地。",
+      "prerequisite_topic_keys": [
+        "phw_pitch_accent",
+        "prag_register_style"
+      ],
+      "tags": [
+        "standard_language",
+        "dialect",
+        "regional_variation",
+        "common_language"
+      ],
+      "objectives": {
+        "F1_zh": "能识别一组材料中发音、词汇或语法的地域变体线索。",
+        "F2_zh": "能区分标准化、共同语的交际功能与语言结构优劣判断。",
+        "F3_zh": "能比较共同语和某一明确地域变体的系统对应，诊断刻板化模仿或概念混同。",
+        "F4_zh": "能将新材料改写为中性共同语，同时保留原地域变体的社会价值说明。"
+      },
+      "original_example_spec": {
+        "form_zh": "仅选有明确资料支持的单一地域对应，给出发音或语法环境而非人物表演。",
+        "contrast_zh": "共同语形式和地域形式表达同一命题，不附智力、性格或阶层评价，并单独说明标准化标签。",
+        "constraints_zh": "基础题不混合多个地区特征；不得由方言形式反推个人本质，也不得把东京地方变体与共同语无条件画等号。"
+      }
+    },
+    {
+      "topic_key": "soc_gender_age_indexing",
+      "domain": "sociolinguistics",
+      "module_key": "identity_style",
+      "name_ja": "ジェンダー・世代とことば",
+      "name_zh": "性别、年龄与语言索引",
+      "short_definition_zh": "分析人称、句末形式和词汇如何概率性地索引性别、年龄或角色形象，而非决定说话人身份。",
+      "beginner_explanation_zh": "有些说法在统计上更常与某个年龄群或性别形象一起出现，但真实说话人会根据场合、关系和自我风格灵活选择。",
+      "deep_explanation_zh": "语言形式通过社会索引建立身份意义，媒体角色语会强化少数特征的联结。索引意义可被引用、戏仿、重新占用或跨群体使用，因此分析需要群体分布和具体互动证据。",
+      "caution_zh": "不能从「私／僕／俺」或一个句末助词断定生理性别、性别认同、年龄或性格；描述应使用倾向而非本质化规则。",
+      "prerequisite_topic_keys": [
+        "prag_sentence_final_particles",
+        "prag_register_style"
+      ],
+      "tags": [
+        "gender",
+        "age",
+        "indexicality",
+        "role_language",
+        "identity"
+      ],
+      "objectives": {
+        "F1_zh": "能识别可能带有代际或性别索引的语言形式。",
+        "F2_zh": "能区分形式的字面功能与其概率性社会联想。",
+        "F3_zh": "能比较自然会话证据与角色语夸张，诊断本质化推断。",
+        "F4_zh": "能把带强烈角色索引的短句改为身份中性的表达而保留命题。"
+      },
+      "original_example_spec": {
+        "form_zh": "以人称和句末形式为变量，给出场合与关系但不指定必须对应某种身份。",
+        "contrast_zh": "同一说话人在正式与熟人场合采用不同风格，展示个体内变化。",
+        "constraints_zh": "不得把任何形式标为某性别专属；不使用动漫角色作为规范样本。"
+      }
+    },
+    {
+      "topic_key": "soc_style_shifting_community",
+      "domain": "sociolinguistics",
+      "module_key": "identity_style",
+      "name_ja": "スタイルシフトと実践共同体",
+      "name_zh": "风格切换与实践共同体",
+      "short_definition_zh": "理解说话人如何随受众、任务和群体实践改变语言资源以建立关系与身份。",
+      "beginner_explanation_zh": "同一个人和老师、同事、家人说话时可能选不同词和句尾。这不表示哪一种是假话，而是语言会配合当时的关系和活动。",
+      "deep_explanation_zh": "风格切换可回应受众，也可主动设计身份。专业团队、兴趣社群和工作场所通过长期共同实践形成内部术语、互动节奏和礼貌规范，不能只由人口类别预测。",
+      "caution_zh": "语体变化不必然说明关系突然亲密或疏远；话题、引用、任务阶段和媒介变化都可能触发局部切换。",
+      "prerequisite_topic_keys": [
+        "prag_register_style",
+        "soc_gender_age_indexing"
+      ],
+      "tags": [
+        "style_shifting",
+        "audience_design",
+        "community_of_practice",
+        "identity"
+      ],
+      "objectives": {
+        "F1_zh": "能在同一说话人的两段材料中找出系统性风格差异。",
+        "F2_zh": "能从受众、任务和共同体规范提出有证据的切换解释。",
+        "F3_zh": "能比较人口类别解释与实践共同体解释，诊断过度概括。",
+        "F4_zh": "能为新场景设计同一说话人的两种合适风格而保持身份连续。"
+      },
+      "original_example_spec": {
+        "form_zh": "设置同一人先参与公开说明、后与熟悉团队协调操作的两个场合。",
+        "contrast_zh": "命题目标相近，但调整称呼、缩约、术语密度和句尾。",
+        "constraints_zh": "不把切换归因于人格分裂；共同体特征必须由题面活动历史支持。"
+      }
+    },
+    {
+      "topic_key": "soc_uchi_soto_power",
+      "domain": "sociolinguistics",
+      "module_key": "social_relations",
+      "name_ja": "ウチ・ソトと力関係",
+      "name_zh": "内外关系、权力与亲疏距离",
+      "short_definition_zh": "分析群体边界、制度权力与互动亲疏如何共同影响称呼、敬语和信息表达。",
+      "beginner_explanation_zh": "说话人会根据对方是否属于己方群体、谁代表哪个组织、关系是否熟悉来调整表达。内外关系会随当前场合改变，并非永久身份。",
+      "deep_explanation_zh": "日语社会指示同时涉及权力、距离、内外归属和角色责任。对外谈论己方上级时可能采用与内部对话不同的敬语策略，显示群体关系可以重排个人地位。",
+      "caution_zh": "不能用「日本文化重上下级」解释所有形式；年龄、职位、客户关系和现场任务有时给出相互竞争的线索。",
+      "prerequisite_topic_keys": [
+        "prag_politeness_honorifics",
+        "soc_style_shifting_community"
+      ],
+      "tags": [
+        "uchi_soto",
+        "power",
+        "distance",
+        "institution",
+        "address_terms"
+      ],
+      "objectives": {
+        "F1_zh": "能从题面关系图识别当前互动中的己方、外部方及制度角色。",
+        "F2_zh": "能解释称呼或敬语选择如何同时响应权力与内外边界。",
+        "F3_zh": "能比较内部交谈和对外代表场景，诊断敬语方向为何重排。",
+        "F4_zh": "能在新的三方机构场景中选择不矛盾的称呼与敬语策略。"
+      },
+      "original_example_spec": {
+        "form_zh": "明确列出说话人、己方负责人、外部联络人和发话场合。",
+        "contrast_zh": "同一负责人先被内部成员直接称呼，再由该成员向外部人士提及。",
+        "constraints_zh": "不靠姓名或年龄猜地位；所有权力与群体信息都必须明示。"
+      }
+    },
+    {
+      "topic_key": "soc_contact_borrowing",
+      "domain": "sociolinguistics",
+      "module_key": "language_contact",
+      "name_ja": "言語接触と借用",
+      "name_zh": "语言接触、借词与本土化",
+      "short_definition_zh": "理解外来词如何进入日语并在音系、形态、意义和社会风格上发生本土化。",
+      "beginner_explanation_zh": "外来词进入日语后会按日语的拍和假名体系调整读音，还可能缩短、组合或改变意义。片假名常见，但不代表原语言形式原封不动。",
+      "deep_explanation_zh": "借用包含音系适配、词类整合、语义窄化扩展和伪外来语形成。不同来源时期与专业社群造成多个层次，借词选择也可索引现代感、专业性或群体认同。",
+      "caution_zh": "不能假定片假名词的意义与英语或其他来源词完全相同，也不能把所有新概念的片假名写法都视为正式借词。",
+      "prerequisite_topic_keys": [
+        "phw_special_morae",
+        "phw_kana_orthography",
+        "morph_compounding"
+      ],
+      "tags": [
+        "language_contact",
+        "loanword",
+        "adaptation",
+        "wasei_eigo"
+      ],
+      "objectives": {
+        "F1_zh": "能识别借词中的拍结构适配、元音插入或缩略。",
+        "F2_zh": "能说明借入后词类、意义和构词行为的本土化。",
+        "F3_zh": "能比较来源词和日语借词，诊断错误的意义回推。",
+        "F4_zh": "能按日语音系约束提出一个新术语的临时转写，并明确其非既定词地位。"
+      },
+      "original_example_spec": {
+        "form_zh": "使用通用技术或公共设施概念，给出来源形式和已确认日语形式。",
+        "contrast_zh": "一例展示规则音系适配，一例展示日语中的语义窄化或缩略。",
+        "constraints_zh": "不得捏造词源；临时转写与既有借词必须清楚区分。"
+      }
+    },
+    {
+      "topic_key": "hist_classical_modern_grammar",
+      "domain": "historical_grammaticalization",
+      "module_key": "historical_system",
+      "name_ja": "古典語から現代語へ",
+      "name_zh": "古典语到现代语的语法变化",
+      "short_definition_zh": "认识现代日语的活用、助词和固定表达中保留的古典语层次及主要系统差异。",
+      "beginner_explanation_zh": "现代日语由更早的语言阶段逐步变化而来。书面语、谚语和固定说法中仍能看到现代口语少用的活用或助动形式。",
+      "deep_explanation_zh": "历史阶段之间存在活用范式重组、系词系列变化、终止形与连体形合流等系统过程。古典形式在现代语中可能作为生产性语法、固定构式或风格资源以不同程度存活。",
+      "caution_zh": "古典语不是现代语加几个旧词，也不能把跨时代材料视为同一套规则；引用历史形式须注明时代和语体。",
+      "prerequisite_topic_keys": [
+        "morph_verb_conjugation",
+        "morph_copula",
+        "phw_kanji_reading_okurigana"
+      ],
+      "tags": [
+        "classical_japanese",
+        "modern_japanese",
+        "paradigm_change",
+        "residue"
+      ],
+      "objectives": {
+        "F1_zh": "能识别现代材料中明确标注的古典残留形式。",
+        "F2_zh": "能把一个历史形式与对应现代范式进行结构比较。",
+        "F3_zh": "能区分现代仍可产的形式与只在固定表达中保存的形式。",
+        "F4_zh": "能将简短、已注释的古典结构转换为命题相近的现代中性表达。"
+      },
+      "original_example_spec": {
+        "form_zh": "只用教科书级、时代标注明确的活用或固定结构，附词素切分。",
+        "contrast_zh": "历史形式与现代功能对应形式表达相近命题，同时标出不能逐字替换之处。",
+        "constraints_zh": "不从动漫古风角色语反推真实古典语；不混合不同时代的范式。"
+      }
+    },
+    {
+      "topic_key": "hist_sound_change_orthography",
+      "domain": "historical_grammaticalization",
+      "module_key": "historical_system",
+      "name_ja": "音変化と表記の歴史",
+      "name_zh": "历史音变与书写保留",
+      "short_definition_zh": "理解历史音变与正字法改革如何共同造成现代读音、假名遣和汉字读法之间的非透明对应。",
+      "beginner_explanation_zh": "词的读音会随世代改变，拼写规范有时随之改革，有时保留词源或语素线索。因此现代写法不一定逐音反映今天的发音，旧文献的拼写也不能直接按现代音值读取。",
+      "deep_explanation_zh": "历史假名遣记录了较早阶段的音韵和语素对应；音便、合拗音在共同语中的合流以及长音形成等变化，把早期音系与现代读音连接起来。后来的书写标准化会选择性保留形态边界或历史来源，使同一类音变在不同词层表现不一。",
+      "caution_zh": "相似读音不自动证明同源，现代拼写差异也不必然表示现代发音不同；历史解释需要按时代列出有记录支持的变化链，并注意部分历史对立可能在地域变体中保留。",
+      "prerequisite_topic_keys": [
+        "phw_special_morae",
+        "phw_kana_orthography",
+        "hist_classical_modern_grammar"
+      ],
+      "tags": [
+        "sound_change",
+        "historical_kana",
+        "orthography",
+        "phonological_history"
+      ],
+      "objectives": {
+        "F1_zh": "能识别一个已注释形式中的现代音形与历史拼写差异。",
+        "F2_zh": "能按给定且注明时代的变化链解释现代长音、音便或读法的形成。",
+        "F3_zh": "能比较有记录支持的历史对应与仅凭相似音猜同源的错误论证。",
+        "F4_zh": "能沿已提供的单步音变规则推导一个新形式，并说明时代、地域和规则适用环境。"
+      },
+      "original_example_spec": {
+        "form_zh": "采用教材常见且变化链、时代与地域范围已明确给出的词形，不要求学习者自行考证词源。",
+        "contrast_zh": "一组满足音变环境，一组只表面相似但缺少历史对应。",
+        "constraints_zh": "不创造伪词源；所有历史事实须由后续内容审核查证，不把共同语中的合流写成所有地域均已消失。"
+      }
+    },
+    {
+      "topic_key": "hist_grammaticalization_auxiliaries",
+      "domain": "historical_grammaticalization",
+      "module_key": "language_change",
+      "name_ja": "文法化と補助表現",
+      "name_zh": "语法化与辅助表达",
+      "short_definition_zh": "理解实义词或构式如何逐渐获得体貌、情态、礼貌等更抽象语法功能。",
+      "beginner_explanation_zh": "一些今天常见的辅助表达，原来和具体动作或名词有关。长期高频使用后，它们可能弱化原义、固定连接方式并承担语法功能。",
+      "deep_explanation_zh": "语法化常伴随语义漂白、主观化、语音缩减、黏着增强和范式扩展，但这些变化不必同步或单向无例外。词汇义和辅助义可长期共存，形成同形但结构不同的用法。",
+      "caution_zh": "不能只因形式较短就断定完成语法化，也不能把现代使用者的同步分析等同于真实历史来源。",
+      "prerequisite_topic_keys": [
+        "morph_auxiliary_chain",
+        "sem_teiru_readings",
+        "hist_classical_modern_grammar"
+      ],
+      "tags": [
+        "grammaticalization",
+        "auxiliary",
+        "semantic_bleaching",
+        "construction"
+      ],
+      "objectives": {
+        "F1_zh": "能在成对材料中区分实义用法与辅助语法用法。",
+        "F2_zh": "能从意义、连接和独立性证据描述语法化程度。",
+        "F3_zh": "能比较共存的词汇义与语法义，诊断把两者一律处理的错误。",
+        "F4_zh": "能对一组按年代排列的材料提出有证据的变化路径而不过度断言。"
+      },
+      "original_example_spec": {
+        "form_zh": "选用有可靠历史描述的常见辅助构式，分别展示实义结构与紧密谓语结构。",
+        "contrast_zh": "保持表面词形相近，通过论元独立性、重音或插入可能性显示结构差异。",
+        "constraints_zh": "不凭直觉编造年代；变化顺序须在审核阶段由权威语法史资料核对。"
+      }
+    },
+    {
+      "topic_key": "hist_lexicalization_construction_change",
+      "domain": "historical_grammaticalization",
+      "module_key": "language_change",
+      "name_ja": "語彙化と構文変化",
+      "name_zh": "词汇化、重新分析与构式变化",
+      "short_definition_zh": "理解高频组合如何固化为新词或新构式，并通过重新分析改变边界和可产性。",
+      "beginner_explanation_zh": "原本可以逐部分理解的组合，长期使用后可能变成固定说法，甚至让使用者不再感到原来的词界。新的模式还可能推广到别的词。",
+      "deep_explanation_zh": "词汇化提高整体存储与意义特殊化，构式变化则可能通过重新分段、类推和能产性扩展建立新语法模式。同步语法中的歧义阶段为历史重新分析提供入口，但频率本身不是充分因果。",
+      "caution_zh": "固定搭配不等于已完全失去内部结构；看到现代同形也不能反向保证历史上发生过某种重新分析。",
+      "prerequisite_topic_keys": [
+        "morph_derivation_nominalization",
+        "morph_compounding",
+        "hist_grammaticalization_auxiliaries"
+      ],
+      "tags": [
+        "lexicalization",
+        "reanalysis",
+        "construction_change",
+        "productivity"
+      ],
+      "objectives": {
+        "F1_zh": "能识别透明组合、固定搭配和高度词汇化形式的不同证据。",
+        "F2_zh": "能用边界、意义可预测性和能产性描述一个可能的重新分析。",
+        "F3_zh": "能比较词汇化与语法化路径，诊断二者目标和证据的差别。",
+        "F4_zh": "能依据分期材料构建最小变化假说，并列出仍需验证的替代解释。"
+      },
+      "original_example_spec": {
+        "form_zh": "提供三个时期或三种同步层级的已核实短组合，标注是否允许内部替换。",
+        "contrast_zh": "一组显示意义特殊化但未扩展，一组显示结构模式向新词项推广。",
+        "constraints_zh": "不把原创教学短语伪装成历史事实；真实实例和推测路径必须分栏呈现。"
+      }
+    }
+  ],
+  "review_audit": {
+    "generator_agent": "/root/foundation_topics_generator",
+    "reviewer_agent": "/root/foundation_topics_reviewer",
+    "quality_score": 96,
+    "reviewed_count": 60,
+    "generation_sha256": "4557208fad1ef1b3e024fd24b852c054c68007f66d64d01cc4bcb0de1bec7d1a",
+    "review_overlay_sha256": "c5260d00e2039fb5e8e01fc247d3ef537d52c974397216bfaa38ccba14f91e85",
+    "replacements_applied": 13
+  }
+}

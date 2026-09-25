@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
@@ -89,10 +90,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -102,10 +100,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.animejapaneselab.nativeapp.data.ClozeNode
 import com.animejapaneselab.nativeapp.data.EpisodePlan
@@ -152,9 +152,7 @@ import com.animejapaneselab.nativeapp.ui.components.TagChip
 import com.animejapaneselab.nativeapp.ui.feedback.FeedbackEvent
 import com.animejapaneselab.nativeapp.ui.feedback.LearningAssetRegistry
 import com.animejapaneselab.nativeapp.ui.feedback.LocalFeedbackEngine
-import com.animejapaneselab.nativeapp.ui.feedback.VisualAsset
 import com.animejapaneselab.nativeapp.ui.fusion.AnimeLabFusionDrawableResolver
-import com.animejapaneselab.nativeapp.ui.fusion.AnimeLabFusionRollout
 import com.animejapaneselab.nativeapp.ui.fusion.FusionDrawableHost
 import com.animejapaneselab.nativeapp.ui.fusion.FusionVisualKey
 import com.animejapaneselab.nativeapp.ui.motion.LessonPageTransition
@@ -162,9 +160,9 @@ import com.animejapaneselab.nativeapp.ui.motion.MotionTokens
 import com.animejapaneselab.nativeapp.ui.motion.rememberReducedMotion
 import com.animejapaneselab.nativeapp.ui.reading.RubyText
 import com.animejapaneselab.nativeapp.ui.reading.rememberFuriganaAnnotator
-import com.animejapaneselab.nativeapp.ui.rive.DuolingoLikeVisualHost
 import com.animejapaneselab.nativeapp.ui.rive.FusionCtaLightningRive
 import com.animejapaneselab.nativeapp.ui.rive.FusionMidLessonStreakRive
+import com.animejapaneselab.nativeapp.ui.theme.AnimeJapaneseLabTheme
 import com.animejapaneselab.nativeapp.ui.theme.LabPalette
 import com.animejapaneselab.nativeapp.ui.theme.LabTheme
 import androidx.core.content.ContextCompat
@@ -182,18 +180,16 @@ fun LessonHubScreen(
     onStartExercise: (LessonExerciseKind) -> Unit,
     onStartExerciseMix: () -> Unit,
     onStartReadAir: (Int) -> Unit,
-    onOpenReadAir: () -> Unit,
     onStartReview: () -> Unit,
     onWorkSelected: (String) -> Unit,
     onEpisodeSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val pathPlan = remember(uiState) { buildTrainingPathPlan(uiState.trainingPathInput()) }
+    val pathRows = remember(pathPlan.nodes) { pathPlan.nodes.map { it.toPathRowUi() } }
     val stageSummary = remember(uiState, pathPlan) { uiState.courseStageSummary(pathPlan) }
     val exerciseLabUi = remember(uiState) { uiState.exerciseLabUiState() }
     val feedbackEngine = LocalFeedbackEngine.current
-    val reducedMotion = rememberReducedMotion()
-    val motionEnabled = uiState.settings.richAnimationsEnabled && !reducedMotion
     val courseArtworkRes = LearningAssetRegistry.courseBannerArtworkFor(
         uiState.selection.workSlug,
         uiState.selection.episode,
@@ -208,7 +204,7 @@ fun LessonHubScreen(
             showCourseSwitcher = false
         }
     }
-    val handleNodeSelected: (TrainingPathNode) -> Unit = { node ->
+    val handleNodeSelected: (TrainingPathRowUi) -> Unit = { node ->
         val action = node.action
         feedbackEngine?.emit(action.trainingPathFeedbackEvent())
         when (action) {
@@ -246,9 +242,9 @@ fun LessonHubScreen(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = 20.dp, top = 16.dp, end = 20.dp, bottom = 28.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            item {
+            item(key = "course-hud", contentType = "course-hud") {
                 DuolingoPathTopStats(
                     plan = pathPlan,
                     stageSummary = stageSummary,
@@ -258,13 +254,14 @@ fun LessonHubScreen(
                     },
                 )
             }
-            item {
+            item(key = "course-banner", contentType = "course-banner") {
                 DuolingoStageBanner(
                     summary = stageSummary,
                     onDirectoryClick = {
                         feedbackEngine?.emit(FeedbackEvent.OptionSelect)
                         showCourseDirectory = true
                     },
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     CourseStageArtwork(
                         artworkRes = courseArtworkRes,
@@ -272,28 +269,45 @@ fun LessonHubScreen(
                     )
                 }
             }
-            item {
+            item(key = "exercise-lab", contentType = "exercise-lab") {
                 AnimeExerciseLabSection(
                     uiState = exerciseLabUi,
-                    workSlug = uiState.selection.workSlug,
-                    motionEnabled = motionEnabled,
                     loading = uiState.exerciseLabLoading,
                     coursePalette = lessonCoursePalette(uiState.selection.workSlug),
                     onStartExercise = onStartExercise,
                     onStartMix = onStartExerciseMix,
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
             val episodePlan = uiState.episodePlan
             if (episodePlan != null && episodePlan.hasPlanSummary()) {
-                item { EpisodePlanSummaryCard(plan = episodePlan) }
+                item(key = "episode-plan", contentType = "episode-plan") {
+                    EpisodePlanSummaryCard(
+                        plan = episodePlan,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
-            item { TrainingPathSectionHeader(plan = pathPlan) }
-            item {
-                DuolingoPathMap(
-                    plan = pathPlan,
-                    workSlug = uiState.selection.workSlug,
-                    motionEnabled = motionEnabled,
-                    onNodeSelected = handleNodeSelected,
+            item(key = "training-path-header", contentType = "training-path-header") {
+                TrainingPathSectionHeader(
+                    fullVocabCount = pathPlan.fullVocabCount,
+                    coreVocabCount = pathPlan.coreVocabCount,
+                    completedNodeCount = pathPlan.completedPathNodeCount,
+                    totalNodeCount = pathPlan.totalPathNodeCount,
+                    progress = pathPlan.progress,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+            itemsIndexed(
+                items = pathRows,
+                key = { _, node -> "training-path-${node.key}" },
+                contentType = { _, _ -> "training-path-row" },
+            ) { index, node ->
+                TrainingPathRow(
+                    node = node,
+                    stepNumber = index + 1,
+                    onClick = { handleNodeSelected(node) },
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
@@ -325,62 +339,79 @@ fun LessonHubScreen(
 @Composable
 private fun AnimeExerciseLabSection(
     uiState: ExerciseLabUiState,
-    workSlug: String,
-    motionEnabled: Boolean,
     loading: Boolean,
     coursePalette: FusionCoursePalette,
     onStartExercise: (LessonExerciseKind) -> Unit,
     onStartMix: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val exerciseRows = remember { LessonExerciseKind.entries.chunked(2) }
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
+            verticalArrangement = Arrangement.spacedBy(3.dp),
         ) {
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text("题型实验室", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Black)
-                Text(
-                    "六种自由训练 · 完成后可继续下一组",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            Surface(
-                onClick = onStartMix,
-                enabled = !loading && uiState.totalMaterialCount > 0,
-                color = coursePalette.accent,
+            Text(
+                text = "专项训练",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = "选择题型单独练习，或直接开始一轮综合训练",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Button(
+            onClick = onStartMix,
+            enabled = !loading && uiState.totalMaterialCount > 0,
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 50.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = coursePalette.accent,
                 contentColor = Color.White,
-                shape = CircleShape,
-            ) {
-                Text(
-                    if (loading) "准备中…" else "六类快练",
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Black,
-                )
-            }
-        }
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(end = 8.dp),
+            ),
+            shape = MaterialTheme.shapes.large,
         ) {
-            items(LessonExerciseKind.entries, key = { it.name }) { kind ->
-                ExerciseLabCard(
-                    kind = kind,
-                    stats = uiState.stats.getValue(kind),
-                    workSlug = workSlug,
-                    motionEnabled = motionEnabled,
-                    enabled = !loading && uiState.stats.getValue(kind).totalCount > 0,
-                    coursePalette = coursePalette,
-                    onClick = { onStartExercise(kind) },
-                )
+            Icon(Icons.Rounded.Stars, contentDescription = null, modifier = Modifier.size(20.dp))
+            Text(
+                text = if (loading) "正在准备训练…" else "开始六类综合训练",
+                modifier = Modifier.padding(start = 8.dp),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Black,
+            )
+        }
+        exerciseRows.forEach { rowKinds ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.Top,
+            ) {
+                rowKinds.forEach { kind ->
+                    val stats = uiState.stats.getValue(kind)
+                    ExerciseLabCard(
+                        kind = kind,
+                        stats = stats,
+                        enabled = !loading && stats.totalCount > 0,
+                        coursePalette = coursePalette,
+                        onClick = { onStartExercise(kind) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                if (rowKinds.size == 1) {
+                    Box(modifier = Modifier.weight(1f))
+                }
             }
         }
+        Text(
+            text = "已覆盖 ${uiState.coveredCount}/${uiState.totalMaterialCount} 份本集素材",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.Bold,
+        )
     }
 }
 
@@ -445,18 +476,21 @@ private fun LabUiState.exerciseLabUiState(): ExerciseLabUiState {
 
 @Composable
 private fun TrainingPathSectionHeader(
-    plan: TrainingPathPlan,
+    fullVocabCount: Int,
+    coreVocabCount: Int,
+    completedNodeCount: Int,
+    totalNodeCount: Int,
+    progress: Float,
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface,
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
         contentColor = MaterialTheme.colorScheme.onSurface,
-        shape = MaterialTheme.shapes.extraLarge,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        shape = MaterialTheme.shapes.large,
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 15.dp),
+            modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Row(
@@ -465,18 +499,22 @@ private fun TrainingPathSectionHeader(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text("本集学习路径", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black)
+                    Text("学习路径", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black)
                     Text(
-                        "覆盖完整词库 ${plan.fullVocabCount} · 核心 ${plan.coreVocabCount} 优先",
-                        style = MaterialTheme.typography.labelLarge,
+                        "完整词库 $fullVocabCount · 核心 $coreVocabCount 优先",
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Bold,
                     )
                 }
-                TagChip("${plan.completedPathNodeCount}/${plan.totalPathNodeCount} 节点", selected = true)
+                Text(
+                    text = "$completedNodeCount/$totalNodeCount",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Black,
+                )
             }
             LinearProgressIndicator(
-                progress = { plan.progress },
+                progress = { progress },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(6.dp)
@@ -539,15 +577,14 @@ private fun EpisodePlanSummaryCard(
         ),
     ).filter { it.count > 0 }
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         contentColor = MaterialTheme.colorScheme.onSurface,
-        shape = MaterialTheme.shapes.extraLarge,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        shape = MaterialTheme.shapes.large,
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -571,12 +608,16 @@ private fun EpisodePlanSummaryCard(
                 }
             }
             if (tiles.isNotEmpty()) {
-                FlowRow(
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    tiles.forEach { tile -> EpisodePlanCountPill(tile = tile) }
+                    tiles.forEach { tile ->
+                        EpisodePlanMetric(
+                            tile = tile,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
                 }
             }
             if (plan.notes.isNotBlank()) {
@@ -584,7 +625,7 @@ private fun EpisodePlanSummaryCard(
                     text = plan.notes,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
+                    maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
@@ -593,33 +634,35 @@ private fun EpisodePlanSummaryCard(
 }
 
 @Composable
-private fun EpisodePlanCountPill(
+private fun EpisodePlanMetric(
     tile: EpisodePlanTile,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
+    Column(
         modifier = modifier,
-        color = tile.containerColor,
-        contentColor = tile.contentColor,
-        shape = CircleShape,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(3.dp),
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 11.dp, vertical = 7.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        Surface(
+            modifier = Modifier.size(34.dp),
+            color = tile.containerColor,
+            contentColor = tile.contentColor,
+            shape = MaterialTheme.shapes.medium,
         ) {
-            Icon(tile.icon, contentDescription = null, modifier = Modifier.size(15.dp))
-            Text(
-                text = tile.label,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = tile.count.toString(),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Black,
-            )
+            Box(contentAlignment = Alignment.Center) {
+                Icon(tile.icon, contentDescription = null, modifier = Modifier.size(18.dp))
+            }
         }
+        Text(
+            text = tile.count.toString(),
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Black,
+        )
+        Text(
+            text = tile.label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
@@ -627,127 +670,95 @@ private fun EpisodePlanCountPill(
 private fun ExerciseLabCard(
     kind: LessonExerciseKind,
     stats: ExerciseLabKindUiState,
-    workSlug: String,
-    motionEnabled: Boolean,
     enabled: Boolean,
     coursePalette: FusionCoursePalette,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val style = kind.exerciseLabStyle()
+    val progress = if (stats.totalCount <= 0) {
+        0f
+    } else {
+        (stats.coveredCount.toFloat() / stats.totalCount.toFloat()).coerceIn(0f, 1f)
+    }
     Surface(
         modifier = modifier
-            .width(206.dp)
-            .height(192.dp),
-        color = coursePalette.softContainer,
-        contentColor = LabPalette.Ink,
-        shape = MaterialTheme.shapes.extraLarge,
-        border = BorderStroke(2.dp, coursePalette.accent.copy(alpha = 0.42f)),
-        shadowElevation = 3.dp,
+            .heightIn(min = 128.dp)
+            .semantics(mergeDescendants = true) {
+                stateDescription = if (enabled) {
+                    "素材进度 ${stats.coveredCount}/${stats.totalCount}"
+                } else {
+                    "本集暂无可练材料"
+                }
+            },
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        shape = MaterialTheme.shapes.large,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         onClick = onClick,
         enabled = enabled,
     ) {
-        Box(
+        Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(14.dp),
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(7.dp),
         ) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .size(width = 80.dp, height = 74.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                ExerciseLabArtwork(
-                    kind = kind,
-                    workSlug = workSlug,
-                    motionEnabled = motionEnabled,
-                    fallbackIcon = style.icon,
-                )
-            }
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(5.dp),
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Surface(
-                    color = coursePalette.accent,
-                    contentColor = Color.White,
-                    shape = CircleShape,
+                    modifier = Modifier.size(36.dp),
+                    color = coursePalette.accent.copy(alpha = 0.12f),
+                    contentColor = coursePalette.accent,
+                    shape = MaterialTheme.shapes.medium,
                 ) {
-                    Icon(
-                        imageVector = style.icon,
-                        contentDescription = null,
-                        modifier = Modifier.padding(7.dp).size(18.dp),
-                    )
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = style.icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
                 }
                 Text(
-                    text = kind.label,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Black,
-                )
-                Text(
-                    text = kind.shortDescription,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = LabPalette.Muted,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
                     text = if (stats.totalCount > 0) {
-                        "素材进度 ${stats.coveredCount}/${stats.totalCount} · 本轮最多 6 题"
+                        "${stats.coveredCount}/${stats.totalCount}"
                     } else {
-                        "本集暂无可练材料"
+                        "—"
                     },
-                    style = MaterialTheme.typography.labelSmall,
-                    color = coursePalette.accent,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = if (enabled) coursePalette.accent else MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Black,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
                 )
             }
+            Text(
+                text = kind.label,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Black,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = kind.shortDescription,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            LinearProgressIndicator(
+                progress = { progress },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(5.dp)
+                    .clip(CircleShape),
+                color = coursePalette.accent,
+                trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                strokeCap = StrokeCap.Round,
+            )
         }
-    }
-}
-
-@Composable
-private fun ExerciseLabArtwork(
-    kind: LessonExerciseKind,
-    workSlug: String,
-    motionEnabled: Boolean,
-    fallbackIcon: ImageVector,
-) {
-    val fallback: @Composable () -> Unit = {
-        Icon(fallbackIcon, contentDescription = null, modifier = Modifier.size(34.dp))
-    }
-    when (kind) {
-        LessonExerciseKind.AudioOrder -> DuolingoLikeVisualHost(
-            asset = VisualAsset.Lottie("listening_waveform_speaker", iterations = Int.MAX_VALUE),
-            motionEnabled = motionEnabled,
-            modifier = Modifier.fillMaxSize(),
-            fallback = fallback,
-        )
-
-        else -> CourseCharacterArtwork(
-            workSlug = workSlug,
-            role = kind.courseCharacterRole(),
-            motionEnabled = motionEnabled,
-            modifier = Modifier.fillMaxSize(),
-            stableSeed = kind.ordinal,
-        )
-    }
-}
-
-private fun LessonExerciseKind.courseCharacterRole(): CourseCharacterRole {
-    return when (this) {
-        LessonExerciseKind.TranslationOrder -> CourseCharacterRole.Translation
-        LessonExerciseKind.PairMatch -> CourseCharacterRole.Listening
-        LessonExerciseKind.SingleChoice -> CourseCharacterRole.Linguistics
-        LessonExerciseKind.Cloze -> CourseCharacterRole.Grammar
-        LessonExerciseKind.AudioOrder -> CourseCharacterRole.Listening
-        LessonExerciseKind.Shadowing -> CourseCharacterRole.Shadowing
     }
 }
 
@@ -1653,11 +1664,16 @@ private fun DuolingoStatPill(
     icon: String,
     value: String,
     color: Color,
-    onClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
 ) {
+    val interactiveModifier = if (onClick == null) {
+        modifier
+    } else {
+        modifier.clickable(role = Role.Button, onClick = onClick)
+    }
     Row(
-        modifier = if (onClick == null) modifier else modifier.clickable(role = Role.Button, onClick = onClick),
+        modifier = interactiveModifier.heightIn(min = 48.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -1702,14 +1718,15 @@ private fun DuolingoStageBanner(
     modifier: Modifier = Modifier,
     trailingContent: @Composable BoxScope.() -> Unit,
 ) {
+    val compactDetail = remember(summary.detail) {
+        summary.detail.lineSequence().firstOrNull().orEmpty()
+    }
     Surface(
         modifier = modifier
-            .fillMaxWidth()
-            .height(146.dp)
-            .shadow(5.dp, MaterialTheme.shapes.extraLarge),
+            .heightIn(min = 132.dp),
         color = LabTheme.colors.heroGradientStart,
         contentColor = LabTheme.colors.onHero,
-        shape = MaterialTheme.shapes.extraLarge,
+        shape = MaterialTheme.shapes.large,
     ) {
         Row(
             modifier = Modifier
@@ -1725,7 +1742,7 @@ private fun DuolingoStageBanner(
                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text(
                         text = summary.eyebrow,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Black,
                         color = LabTheme.colors.onHero.copy(alpha = 0.72f),
                         maxLines = 1,
@@ -1733,17 +1750,17 @@ private fun DuolingoStageBanner(
                     )
                     Text(
                         text = summary.title,
-                        style = MaterialTheme.typography.headlineSmall,
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Black,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
-                        text = summary.detail,
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Black,
+                        text = compactDetail,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Bold,
                         color = LabTheme.colors.onHero.copy(alpha = 0.76f),
-                        maxLines = 2,
+                        maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
@@ -1775,8 +1792,11 @@ private fun DuolingoStageBanner(
             }
             Surface(
                 modifier = Modifier
-                    .width(104.dp)
-                    .fillMaxSize(),
+                    .width(100.dp)
+                    .fillMaxHeight()
+                    .semantics {
+                        contentDescription = "打开课程目录"
+                    },
                 color = LabTheme.colors.heroGradientEnd,
                 contentColor = LabTheme.colors.onHero,
                 onClick = onDirectoryClick,
@@ -1842,387 +1862,267 @@ private fun CourseStageArtwork(
     }
 }
 
-@Composable
-private fun DuolingoPathMap(
-    plan: TrainingPathPlan,
-    workSlug: String,
-    motionEnabled: Boolean,
-    onNodeSelected: (TrainingPathNode) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val useFusionVisuals = AnimeLabFusionRollout.current.useFusionTrainingPathVisuals
-    val mapHeight = (plan.nodes.size * 154).coerceAtLeast(760).dp
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(mapHeight),
-    ) {
-        DuolingoPathRoute(
-            nodeCount = plan.nodes.size,
-            modifier = Modifier.fillMaxSize(),
-        )
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            plan.nodes.forEachIndexed { index, node ->
-                DuolingoPathNodeSlot(
-                    node = node,
-                    index = index,
-                    motionEnabled = motionEnabled,
-                    useFusionVisuals = useFusionVisuals,
-                    workSlug = workSlug,
-                    onClick = { onNodeSelected(node) },
-                )
-            }
-        }
-    }
-}
+private data class TrainingPathRowUi(
+    val key: String,
+    val title: String,
+    val detail: String,
+    val state: TrainingPathNodeState,
+    val stateLabel: String,
+    val action: TrainingPathNodeAction,
+    val batch: Int,
+    val totalCount: Int,
+    val progress: Float,
+    val enabled: Boolean,
+)
 
-@Composable
-private fun DuolingoPathRoute(
-    nodeCount: Int,
-    modifier: Modifier = Modifier,
-) {
-    val routeColor = MaterialTheme.colorScheme.outlineVariant
-    Canvas(modifier = modifier) {
-        if (nodeCount < 2) return@Canvas
-        val route = Path()
-        val verticalStep = 154.dp.toPx()
-        val firstCenterY = 45.dp.toPx()
-        repeat(nodeCount) { index ->
-            val x = size.width / 2f + pathNodeXOffset(index).toPx()
-            val y = firstCenterY + verticalStep * index
-            if (index == 0) route.moveTo(x, y) else route.lineTo(x, y)
-        }
-        drawPath(
-            path = route,
-            color = routeColor,
-            style = Stroke(
-                width = 9.dp.toPx(),
-                cap = StrokeCap.Round,
-                pathEffect = PathEffect.dashPathEffect(
-                    intervals = floatArrayOf(4.dp.toPx(), 13.dp.toPx()),
-                ),
-            ),
-        )
-    }
-}
-
-@Composable
-private fun DuolingoPathNodeSlot(
-    node: TrainingPathNode,
-    index: Int,
-    motionEnabled: Boolean,
-    useFusionVisuals: Boolean,
-    workSlug: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val xOffset = pathNodeXOffset(index)
-    val visual = node.pathNodeVisual()
-    val companionAlignment = if (xOffset <= 0.dp) Alignment.CenterEnd else Alignment.CenterStart
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(144.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        when {
-            node.state == TrainingPathNodeState.Current || node.state == TrainingPathNodeState.ReviewDue -> {
-                CourseCharacterArtwork(
-                    workSlug = workSlug,
-                    role = CourseCharacterRole.PathActive,
-                    motionEnabled = motionEnabled,
-                    stableSeed = index,
-                    modifier = Modifier
-                        .align(companionAlignment)
-                        .offset(y = (-4).dp)
-                        .size(112.dp),
-                )
-            }
-
-            node.state == TrainingPathNodeState.Locked &&
-                (index % 8 == 3 || index % 8 == 6) -> {
-                CourseCharacterArtwork(
-                    workSlug = workSlug,
-                    role = CourseCharacterRole.PathLocked,
-                    motionEnabled = false,
-                    stableSeed = index,
-                    modifier = Modifier
-                        .align(companionAlignment)
-                        .offset(y = (-2).dp)
-                        .size(104.dp)
-                        .graphicsLayer(alpha = 0.74f),
-                )
-            }
-        }
-        Column(
-            modifier = Modifier.offset(x = xOffset),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            DuolingoPathNodeButton(
-                node = node,
-                visual = visual,
-                onClick = onClick,
-                visualContent = {
-                    if (node.state == TrainingPathNodeState.Reward) {
-                        if (useFusionVisuals) {
-                            FusionDrawableHost(
-                                resolution = AnimeLabFusionDrawableResolver.resolveDrawable(
-                                    FusionVisualKey.TrainingPathLockedRewardChest,
-                                ),
-                                modifier = Modifier
-                                    .align(Alignment.Center)
-                                    .size(52.dp),
-                                fallback = {
-                                    Icon(
-                                        Icons.Rounded.Lock,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .align(Alignment.Center)
-                                            .size(30.dp),
-                                    )
-                                },
-                            )
-                        } else {
-                            DuolingoLikeVisualHost(
-                                asset = LearningAssetRegistry.rewardChest,
-                                motionEnabled = motionEnabled,
-                                modifier = Modifier
-                                    .align(Alignment.Center)
-                                    .size(48.dp),
-                                fallback = {
-                                    Icon(
-                                        Icons.Rounded.EmojiEvents,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .align(Alignment.Center)
-                                            .size(34.dp),
-                                    )
-                                },
-                            )
-                        }
-                    } else {
-                        Icon(
-                            node.pathIcon(),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .size(34.dp),
-                        )
-                    }
-                },
-            )
-            DuolingoPathNodeLabel(node = node, visual = visual)
-        }
-    }
-}
-
-private fun pathNodeXOffset(index: Int) = when (index % 5) {
-    0 -> 0.dp
-    1 -> (-52).dp
-    2 -> 74.dp
-    3 -> (-18).dp
-    else -> 86.dp
-}
-
-@Composable
-private fun DuolingoPathNodeLabel(
-    node: TrainingPathNode,
-    visual: PathNodeVisual,
-    modifier: Modifier = Modifier,
-) {
-    val active = node.state == TrainingPathNodeState.Current ||
-        node.state == TrainingPathNodeState.Available ||
-        node.state == TrainingPathNodeState.ReviewDue
+private fun TrainingPathNode.toPathRowUi(): TrainingPathRowUi {
     val detail = when {
-        node.scopeLabel.isNotBlank() && node.state == TrainingPathNodeState.Completed -> "${node.scopeLabel} · 已完成"
-        node.scopeLabel.isNotBlank() -> "${node.scopeLabel} · ${node.countLabel}"
-        else -> node.countLabel
+        scopeLabel.isNotBlank() && state == TrainingPathNodeState.Completed -> "$scopeLabel · 已完成"
+        scopeLabel.isNotBlank() && countLabel.isNotBlank() -> "$scopeLabel · $countLabel"
+        scopeLabel.isNotBlank() -> scopeLabel
+        countLabel.isNotBlank() -> countLabel
+        else -> subtitle
     }
-    Surface(
-        modifier = modifier.width(190.dp),
-        color = if (active) visual.face else MaterialTheme.colorScheme.surface.copy(alpha = 0.86f),
-        contentColor = if (active) visual.content else MaterialTheme.colorScheme.onSurfaceVariant,
-        shape = MaterialTheme.shapes.large,
-        border = if (active) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        shadowElevation = if (active) 3.dp else 0.dp,
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(1.dp),
-        ) {
-            Text(
-                text = node.title,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Black,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-            )
-            Text(
-                text = detail,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-            )
-        }
-    }
+    return TrainingPathRowUi(
+        key = key,
+        title = title,
+        detail = detail,
+        state = state,
+        stateLabel = state.label,
+        action = action,
+        batch = batch,
+        totalCount = totalCount,
+        progress = progress,
+        enabled = action != TrainingPathNodeAction.None && state != TrainingPathNodeState.Locked,
+    )
 }
 
-@Composable
-private fun DuolingoPathNodeButton(
-    node: TrainingPathNode,
-    visual: PathNodeVisual,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    visualContent: @Composable BoxScope.() -> Unit,
-) {
-    val enabled = node.action != TrainingPathNodeAction.None && node.state != TrainingPathNodeState.Locked
-    val highlighted = node.state == TrainingPathNodeState.Current || node.state == TrainingPathNodeState.ReviewDue
-    val nodeSize = if (highlighted) 86.dp else 76.dp
-    val faceSize = if (highlighted) 78.dp else 68.dp
-    Box(
-        modifier = modifier
-            .size(nodeSize)
-            .semantics(mergeDescendants = true) {
-                contentDescription = "${node.title}，${node.scopeLabel}，${node.state.label}，${node.completedCount}/${node.totalCount}"
-            }
-            .minimumPathTouchTarget(enabled, onClick),
-        contentAlignment = Alignment.Center,
-    ) {
-        if (highlighted) {
-            Surface(
-                modifier = Modifier.size(86.dp),
-                color = visual.face.copy(alpha = 0.13f),
-                shape = CircleShape,
-            ) {}
-        }
-        Surface(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .offset(y = 7.dp)
-                .size(faceSize),
-            color = visual.lip,
-            shape = CircleShape,
-        ) {}
-        Surface(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .size(faceSize),
-            color = visual.face,
-            contentColor = visual.content,
-            shape = CircleShape,
-            shadowElevation = if (highlighted) 5.dp else 1.dp,
-            border = if (highlighted) BorderStroke(7.dp, MaterialTheme.colorScheme.surface) else null,
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                visualContent()
-            }
-        }
-    }
-}
-
-private data class PathNodeVisual(
-    val face: Color,
-    val lip: Color,
+private data class TrainingPathRowColors(
+    val container: Color,
     val content: Color,
+    val iconContainer: Color,
+    val iconContent: Color,
+    val border: Color,
 )
 
 @Composable
-private fun TrainingPathNode.pathNodeVisual(): PathNodeVisual {
-    return when (state) {
-        TrainingPathNodeState.Current -> PathNodeVisual(
-            face = LabPalette.Violet,
-            lip = LabPalette.VioletDark,
-            content = Color.White,
+private fun TrainingPathNodeState.pathRowColors(): TrainingPathRowColors {
+    val labColors = LabTheme.colors
+    return when (this) {
+        TrainingPathNodeState.Current -> TrainingPathRowColors(
+            container = MaterialTheme.colorScheme.primaryContainer,
+            content = MaterialTheme.colorScheme.onPrimaryContainer,
+            iconContainer = MaterialTheme.colorScheme.primary,
+            iconContent = MaterialTheme.colorScheme.onPrimary,
+            border = MaterialTheme.colorScheme.primary,
         )
 
-        TrainingPathNodeState.Completed -> PathNodeVisual(
-            face = LabPalette.Green,
-            lip = LabPalette.GreenDark,
-            content = Color.White,
+        TrainingPathNodeState.ReviewDue -> TrainingPathRowColors(
+            container = MaterialTheme.colorScheme.secondaryContainer,
+            content = MaterialTheme.colorScheme.onSecondaryContainer,
+            iconContainer = MaterialTheme.colorScheme.secondary,
+            iconContent = MaterialTheme.colorScheme.onSecondary,
+            border = MaterialTheme.colorScheme.secondary,
         )
 
-        TrainingPathNodeState.Available -> PathNodeVisual(
-            face = LabPalette.Violet,
-            lip = LabPalette.VioletDark,
-            content = Color.White,
+        TrainingPathNodeState.Completed -> TrainingPathRowColors(
+            container = MaterialTheme.colorScheme.surfaceContainerLow,
+            content = MaterialTheme.colorScheme.onSurface,
+            iconContainer = labColors.successContainer,
+            iconContent = labColors.onSuccessContainer,
+            border = MaterialTheme.colorScheme.outlineVariant,
         )
 
-        TrainingPathNodeState.ReviewDue -> PathNodeVisual(
-            face = LabPalette.Violet,
-            lip = LabPalette.VioletDark,
-            content = Color.White,
+        TrainingPathNodeState.Available -> TrainingPathRowColors(
+            container = MaterialTheme.colorScheme.surfaceContainerLow,
+            content = MaterialTheme.colorScheme.onSurface,
+            iconContainer = MaterialTheme.colorScheme.primaryContainer,
+            iconContent = MaterialTheme.colorScheme.onPrimaryContainer,
+            border = MaterialTheme.colorScheme.outlineVariant,
         )
 
-        TrainingPathNodeState.Reward -> PathNodeVisual(
-            face = LabPalette.Gold,
-            lip = LabPalette.Yellow,
-            content = LabPalette.Ink,
+        TrainingPathNodeState.Reward -> TrainingPathRowColors(
+            container = MaterialTheme.colorScheme.surfaceContainerLow,
+            content = MaterialTheme.colorScheme.onSurface,
+            iconContainer = labColors.warningContainer,
+            iconContent = labColors.onWarningContainer,
+            border = MaterialTheme.colorScheme.outlineVariant,
         )
 
-        TrainingPathNodeState.Locked -> PathNodeVisual(
-            face = MaterialTheme.colorScheme.surfaceContainerHighest,
-            lip = MaterialTheme.colorScheme.outlineVariant,
-            content = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f),
+        TrainingPathNodeState.Locked -> TrainingPathRowColors(
+            container = MaterialTheme.colorScheme.surfaceContainerLowest,
+            content = MaterialTheme.colorScheme.onSurfaceVariant,
+            iconContainer = MaterialTheme.colorScheme.surfaceContainerHighest,
+            iconContent = MaterialTheme.colorScheme.onSurfaceVariant,
+            border = MaterialTheme.colorScheme.outlineVariant,
         )
     }
 }
 
-private fun Modifier.minimumPathTouchTarget(
-    enabled: Boolean,
-    onClick: () -> Unit,
-): Modifier {
-    return if (!enabled) {
-        this
-    } else {
-        clickable(role = Role.Button, onClick = onClick)
+private fun TrainingPathRowUi.rowIcon(): ImageVector {
+    return when {
+        state == TrainingPathNodeState.Completed -> Icons.Rounded.Check
+        state == TrainingPathNodeState.Locked -> Icons.Rounded.Lock
+        state == TrainingPathNodeState.Reward -> Icons.Rounded.EmojiEvents
+        action == TrainingPathNodeAction.Mixed -> Icons.Rounded.Stars
+        action == TrainingPathNodeAction.Vocab -> Icons.Rounded.AutoStories
+        action == TrainingPathNodeAction.Grammar -> Icons.Rounded.Bolt
+        action == TrainingPathNodeAction.Shadowing -> Icons.AutoMirrored.Rounded.VolumeUp
+        action == TrainingPathNodeAction.ReadAir -> Icons.Rounded.Psychology
+        action == TrainingPathNodeAction.Review -> Icons.Rounded.Replay
+        action == TrainingPathNodeAction.NextEpisode -> Icons.AutoMirrored.Rounded.ArrowForward
+        else -> Icons.Rounded.Lock
     }
 }
 
 @Composable
-private fun TrainingPathNodeBubbleContent(node: TrainingPathNode) {
-    Column(
-        modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(5.dp),
+private fun TrainingPathRow(
+    node: TrainingPathRowUi,
+    stepNumber: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = node.state.pathRowColors()
+    Surface(
+        onClick = onClick,
+        enabled = node.enabled,
+        modifier = modifier
+            .heightIn(min = 88.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = "第 $stepNumber 节，${node.title}，${node.detail}"
+                stateDescription = node.stateLabel
+            },
+        color = colors.container,
+        contentColor = colors.content,
+        shape = MaterialTheme.shapes.large,
+        border = BorderStroke(1.dp, colors.border),
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = node.title,
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Surface(
+                modifier = Modifier.size(44.dp),
+                color = colors.iconContainer,
+                contentColor = colors.iconContent,
+                shape = MaterialTheme.shapes.medium,
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = node.rowIcon(),
+                        contentDescription = null,
+                        modifier = Modifier.size(23.dp),
+                    )
+                }
+            }
+            Column(
                 modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Black,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            TagChip(node.countLabel, selected = node.state != TrainingPathNodeState.Locked)
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = node.title,
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Black,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        text = "$stepNumber · ${node.stateLabel}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = colors.content,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                    )
+                }
+                Text(
+                    text = node.detail,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.content,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                if (node.totalCount > 0) {
+                    LinearProgressIndicator(
+                        progress = { node.progress },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(4.dp)
+                            .clip(CircleShape),
+                        color = colors.iconContainer,
+                        trackColor = colors.border.copy(alpha = 0.42f),
+                        strokeCap = StrokeCap.Round,
+                    )
+                }
+            }
+            if (node.enabled) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                    contentDescription = null,
+                    tint = colors.content.copy(alpha = 0.64f),
+                    modifier = Modifier.size(20.dp),
+                )
+            }
         }
-        Text(
-            text = node.subtitle,
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-        )
-        Text(
-            text = node.state.label,
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Black,
-        )
     }
 }
 
-private fun LessonNode.pathIcon() = when (typeLabel) {
-    "语言学题" -> Icons.Rounded.Psychology
-    "读空气" -> Icons.Rounded.Psychology
-    "学习卡" -> Icons.Rounded.AutoStories
-    else -> Icons.Rounded.Bolt
+@Preview(name = "Training hub components", showBackground = true, widthDp = 392)
+@Composable
+private fun TrainingHubComponentsPreview() {
+    AnimeJapaneseLabTheme(darkTheme = false) {
+        Column(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                ExerciseLabCard(
+                    kind = LessonExerciseKind.TranslationOrder,
+                    stats = ExerciseLabKindUiState(coveredCount = 3, totalCount = 25),
+                    enabled = true,
+                    coursePalette = lessonCoursePalette("re-zero"),
+                    onClick = {},
+                    modifier = Modifier.weight(1f),
+                )
+                ExerciseLabCard(
+                    kind = LessonExerciseKind.PairMatch,
+                    stats = ExerciseLabKindUiState(coveredCount = 20, totalCount = 120),
+                    enabled = true,
+                    coursePalette = lessonCoursePalette("re-zero"),
+                    onClick = {},
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            TrainingPathRow(
+                node = TrainingPathRowUi(
+                    key = "mixed-1",
+                    title = "综合练习 1",
+                    detail = "第 1 组 · 3/4",
+                    state = TrainingPathNodeState.Current,
+                    stateLabel = "当前关卡",
+                    action = TrainingPathNodeAction.Mixed,
+                    batch = 1,
+                    totalCount = 4,
+                    progress = 0.75f,
+                    enabled = true,
+                ),
+                stepNumber = 2,
+                onClick = {},
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
 }
 
 private val TrainingPathNodeState.label: String
@@ -2234,73 +2134,6 @@ private val TrainingPathNodeState.label: String
         TrainingPathNodeState.Locked -> "暂未解锁"
         TrainingPathNodeState.Reward -> "奖励宝箱"
     }
-
-private fun TrainingPathNode.pathIcon(): ImageVector {
-    return when (action) {
-        TrainingPathNodeAction.Mixed -> Icons.Rounded.Stars
-        TrainingPathNodeAction.Vocab -> Icons.Rounded.AutoStories
-        TrainingPathNodeAction.Grammar -> Icons.Rounded.Bolt
-        TrainingPathNodeAction.Shadowing -> Icons.AutoMirrored.Rounded.VolumeUp
-        TrainingPathNodeAction.ReadAir -> Icons.Rounded.Psychology
-        TrainingPathNodeAction.Review -> Icons.Rounded.Replay
-        TrainingPathNodeAction.NextEpisode -> Icons.AutoMirrored.Rounded.ArrowForward
-        TrainingPathNodeAction.None -> if (key.startsWith("reward-")) Icons.Rounded.EmojiEvents else Icons.Rounded.Lock
-    }
-}
-
-private data class TrainingPathNodeColors(
-    val container: Color,
-    val content: Color,
-    val softContainer: Color,
-    val softContent: Color,
-)
-
-@Composable
-private fun TrainingPathNode.trainingPathColors(): TrainingPathNodeColors {
-    return when (state) {
-        TrainingPathNodeState.Completed -> TrainingPathNodeColors(
-            container = LabPalette.Green,
-            content = Color.White,
-            softContainer = LabPalette.Green.copy(alpha = 0.14f),
-            softContent = LabPalette.GreenDark,
-        )
-
-        TrainingPathNodeState.Current -> TrainingPathNodeColors(
-            container = LabPalette.Violet,
-            content = Color.White,
-            softContainer = LabPalette.VioletPanel,
-            softContent = LabPalette.VioletDark,
-        )
-
-        TrainingPathNodeState.Available -> TrainingPathNodeColors(
-            container = LabPalette.Violet,
-            content = Color.White,
-            softContainer = LabPalette.VioletPanel,
-            softContent = LabPalette.VioletDark,
-        )
-
-        TrainingPathNodeState.ReviewDue -> TrainingPathNodeColors(
-            container = LabPalette.Violet,
-            content = Color.White,
-            softContainer = LabPalette.VioletPanel,
-            softContent = LabPalette.VioletDark,
-        )
-
-        TrainingPathNodeState.Locked -> TrainingPathNodeColors(
-            container = MaterialTheme.colorScheme.surfaceVariant,
-            content = MaterialTheme.colorScheme.onSurfaceVariant,
-            softContainer = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.62f),
-            softContent = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-
-        TrainingPathNodeState.Reward -> TrainingPathNodeColors(
-            container = LabPalette.Yellow,
-            content = LabPalette.Ink,
-            softContainer = LabPalette.Yellow.copy(alpha = 0.22f),
-            softContent = LabPalette.Ink,
-        )
-    }
-}
 
 private fun LabUiState.trainingPathInput(): TrainingPathInput {
     val selectionWork = normalizeTrainingPathWorkSlug(selection.workSlug)

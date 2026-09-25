@@ -6,8 +6,10 @@ import { TtsButton } from '../components/TtsButton'
 import { usePreferredGatewayModel } from '../lib/aiPreferences'
 import { getDeviceId, saveReviewState, useProgressItemsStore, useProgressStore } from '../lib/progress'
 import { usePreferredReasoningEffort } from '../lib/reasoningPreferences'
-import type { LinguisticExerciseDraft, StructuredAiResult } from '../lib/types'
+import { foundationStages } from '../lib/types'
+import type { FoundationStage, LinguisticExerciseDraft, StructuredAiResult } from '../lib/types'
 import { animeRepository } from '../server/repositories/animeRepository'
+import { FoundationLinguisticTraining } from './FoundationLinguisticTraining'
 
 const domainLabels: Record<string, string> = {
   phonology: '音系学',
@@ -45,6 +47,84 @@ type FilterState = {
 type Mode = 'train' | 'browse'
 
 export function LinguisticTrainingPage() {
+  const [track, setTrack] = useState<'corpus' | 'foundation'>(() => readTrainingTrack())
+  const initialFoundationSearch = useMemo(() => {
+    if (typeof window === 'undefined') return {}
+    const search = new URLSearchParams(window.location.search)
+    return {
+      initialPackId: search.get('packId') ?? undefined,
+      initialTopicId: search.get('topicId') ?? undefined,
+      initialStage: foundationStages.includes(search.get('stage') as FoundationStage)
+        ? search.get('stage') as FoundationStage
+        : undefined,
+      initialQuestionId: search.get('questionId') ?? undefined,
+    }
+  }, [])
+
+  useEffect(() => {
+    function handlePopState() {
+      setTrack(readTrainingTrack())
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
+  function selectTrack(nextTrack: 'corpus' | 'foundation') {
+    setTrack(nextTrack)
+    const url = new URL(window.location.href)
+    if (nextTrack === 'foundation') {
+      url.searchParams.set('track', 'foundation')
+    } else {
+      url.searchParams.delete('track')
+      url.searchParams.delete('packId')
+      url.searchParams.delete('topicId')
+      url.searchParams.delete('stage')
+      url.searchParams.delete('questionType')
+      url.searchParams.delete('questionId')
+    }
+    window.history.replaceState(window.history.state, '', url)
+  }
+
+  return (
+    <section className="page-stack">
+      <section className="training-control-bar">
+        <div className="segmented-control" aria-label="语言学训练轨道">
+          <button
+            className={track === 'foundation' ? 'selected' : ''}
+            type="button"
+            onClick={() => selectTrack('foundation')}
+          >
+            基础语言学
+          </button>
+          <button
+            className={track === 'corpus' ? 'selected' : ''}
+            type="button"
+            onClick={() => selectTrack('corpus')}
+          >
+            动漫语料分析
+          </button>
+        </div>
+        <div className="training-queue-summary">
+          <span>训练轨道</span>
+          <strong>{track === 'foundation' ? '独立课程体系' : '作品台词中的语言现象'}</strong>
+        </div>
+      </section>
+
+      {track === 'foundation'
+        ? <FoundationLinguisticTraining {...initialFoundationSearch} />
+        : <CorpusLinguisticTraining />}
+    </section>
+  )
+}
+
+function readTrainingTrack(): 'corpus' | 'foundation' {
+  if (typeof window === 'undefined') return 'corpus'
+  return new URLSearchParams(window.location.search).get('track') === 'foundation'
+    ? 'foundation'
+    : 'corpus'
+}
+
+function CorpusLinguisticTraining() {
   const [mode, setMode] = useState<Mode>('train')
   const [filters, setFilters] = useState<FilterState>({
     workSlug: 'all',

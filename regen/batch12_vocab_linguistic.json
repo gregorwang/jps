@@ -1,0 +1,1642 @@
+[
+  {
+    "id": "vocab-card-v1:vocab-re-zero-shitto-no-majo",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-shitto-no-majo",
+    "linguistic_payload": {
+      "headlineZh": "「嫉妬の魔女」是“嫉妒魔女”这一禁忌称号；艾米莉雅是在抗议昴用其名「サテラ」称呼自己，并非承认自己就是魔女。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "属格型称号",
+          "takeawayZh": "「嫉妬＋の＋魔女」以「の」把所司概念接到人物称号上。",
+          "explanationZh": "读作「しっとのまじょ」；整体是专名式称号，句中又被引号标出，不能按普通描述语随意拆译。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "名字与指称对象分开",
+          "takeawayZh": "台词谈的是“用嫉妒魔女的名字称呼别人”，不是说眼前人具有嫉妒属性。",
+          "explanationZh": "艾米莉雅先追问昴为何叫她「サテラ」，随后说明那是禁忌象征，所否定的是称呼行为及其联想。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "禁忌名造成强烈冒犯",
+          "takeawayZh": "「どういうつもりなの」把不当称呼升级为对动机的质问。",
+          "explanationZh": "昴沿用上一轮听到的假名却不知道社会含义；信息差让他的亲昵称呼在艾米莉雅听来近似恶意侮辱。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "专名式称号",
+          "plainZh": "形式像普通名词短语，却在作品世界中指向唯一角色或身份的表达。"
+        },
+        {
+          "termZh": "语言禁忌",
+          "plainZh": "某个名称因文化记忆而具有危险或冒犯性，字面中性也不能随便使用。"
+        }
+      ],
+      "historicalNoteZh": "日语称号常用「XのY」构造，如「炎の王」；这里的关键不是古典语法，而是作品内已经社会化的禁名。",
+      "cautionZh": "不要把艾米莉雅的质问改写成身份自白，也不要把「嫉妬」理解为她当场对昴吃醋。"
+    },
+    "review_note": "核对当前字幕 EP1 lines 981–987，目标 line 987；旧词条行号 1030 已漂移。说话人是艾米莉雅，她针对昴以「サテラ」称呼她而抗议。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-趣味",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-趣味",
+    "linguistic_payload": {
+      "headlineZh": "「趣味が悪い」里的「趣味」不是“业余爱好”，而是人的品味与选择；艾米莉雅认为拿禁忌之名叫人实在恶劣。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "从爱好到品味",
+          "takeawayZh": "「趣味」既可指 hobby，也可评价审美或行为趣味。",
+          "explanationZh": "和「悪い」搭配时，焦点通常是“品味差、趣味恶劣”；前文没有询问昴平时从事什么活动。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "主格评价框架",
+          "takeawayZh": "「趣味が悪すぎる」以「趣味」为评价对象，并用「すぎる」表示超过容忍限度。",
+          "explanationZh": "完整结构是名词「趣味」＋主格「が」＋形容词「悪い」＋过量表达「すぎる」。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "行为批评而非兴趣调查",
+          "takeawayZh": "艾米莉雅借固定搭配斥责称呼方式，同时保留“我不知道是谁教你的”这一信息缺口。",
+          "explanationZh": "她没有把昴直接断定为魔女同党，却明确表示这种玩笑或挑衅极其不得体。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "多义词",
+          "plainZh": "同一词形依搭配和场景产生相关但不同的意义。"
+        },
+        {
+          "termZh": "程度过量",
+          "plainZh": "「〜すぎる」表示某性质超过说话人认为合适的界限。"
+        }
+      ],
+      "historicalNoteZh": "「趣味」原可指旨趣、风致，现代又广泛表示个人爱好；「趣味が悪い」仍保存“品味不佳”的评价义。",
+      "cautionZh": "此处不能译成“你的爱好太坏”；批评对象是昴用禁忌名叫人的做法。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 3–8，目标 line 6；艾米莉雅重复追问禁忌称呼的来由，语境锁定「品味恶劣」义。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-暇",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-暇",
+    "linguistic_payload": {
+      "headlineZh": "「私も暇じゃないから」表示“我也不是闲着没事”，是艾米莉雅结束无效交谈并准备离开的理由。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词式形容表达",
+          "takeawayZh": "「暇」可作名词或ナ形容词词干，否定谓语为「暇じゃない」。",
+          "explanationZh": "口语「じゃない」对应较正式的「ではない」；这里没有过去或假设标记，是当前状态的否定。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "可支配时间",
+          "takeawayZh": "它说的是没有空闲余裕，不是失业，也不是生活无聊。",
+          "explanationZh": "上一句「用がないなら行くわ」已经把会话是否有事作为继续停留的条件。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "以理由收束会话",
+          "takeawayZh": "句末「から」给离开提供理由，后件“所以我走了”由现场动作补足。",
+          "explanationZh": "「も」还可理解为“我这边也一样有事”，带出对昴拖延她时间的轻微压力。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "零后件",
+          "plainZh": "原因句只说到「から」，结论由上下文和动作让听者自行恢复。"
+        },
+        {
+          "termZh": "状态否定",
+          "plainZh": "否定当前是否处于“有空”状态，而不是否认某次具体行为。"
+        }
+      ],
+      "historicalNoteZh": "「暇」在现代日语既表示空闲，也可指工作间歇；礼貌场合常改说「時間がありません」以减少生硬感。",
+      "cautionZh": "不要从「じゃない」误推出“以前很闲”；本句只断言眼下没有时间继续耗着。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 10–11，目标 line 11；说话人艾米莉雅以「用がないなら」为前提结束交谈。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-能力",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-能力",
+    "linguistic_payload": {
+      "headlineZh": "「タイムリープ能力」把外来语事件类型与「能力」组成复合名词；昴虽把回溯视为特殊能力，却抱怨它必须以死亡触发。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "复合名词的右端中心",
+          "takeawayZh": "「タイムリープ」限定能力种类，整个短语的中心仍是「能力」。",
+          "explanationZh": "日语可直接把外来语名词放在汉语名词前，不必添加「の」；读作「のうりょく」。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「せっかくのNなのに」",
+          "takeawayZh": "「せっかくの」先赋予稀有价值，「なのに」再引出与期待相反的限制。",
+          "explanationZh": "真正的逆预期内容在下一行「死ななきゃ発動しない」，因此目标词不能脱离跨字幕后件理解。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "能力不等于自由控制",
+          "takeawayZh": "昴是在给现象命名，并未证明他能随意发动或选择回溯点。",
+          "explanationZh": "「発動しない」和死亡条件表明这项能力具有被动、代价高且规则未知的性质。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "右端中心",
+          "plainZh": "复合词最后的成分决定整体属于哪一类事物。"
+        },
+        {
+          "termZh": "逆预期",
+          "plainZh": "先建立“难得的能力应当有利”这一期待，再用后句推翻。"
+        }
+      ],
+      "historicalNoteZh": "「能力」是汉语系抽象名词，现代作品常与外来语自由复合，如「コピー能力」「治癒能力」。",
+      "cautionZh": "不可把「能力」自动解读成主动技能；本场景明确说触发条件是死亡。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 85–88，目标 line 87；旧 occurrence 行号晚一行，下一行补足「死ななきゃ発動しない」。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-恩義",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-恩義",
+    "linguistic_payload": {
+      "headlineZh": "「返すべき恩義」是“理应回报的恩情”；昴在第四轮中以艾米莉雅尚未救过自己为由，暂时宣称这笔人情已经消失。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "恩惠形成的道义债",
+          "takeawayZh": "「恩義」不只是感谢之情，还包含应当报答对方的义务感。",
+          "explanationZh": "常见搭配有「恩義を感じる」「恩義に報いる」；本句选择口语直观的「返す」。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「べき」修饰名词",
+          "takeawayZh": "「返すべき」直接限定「恩義」，表示按道理该偿还的对象。",
+          "explanationZh": "跨到下一行的谓语是「なくなっちまった」；「も」把恩义列入被重置抹去的成果。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "循环记忆造成单向关系",
+          "takeawayZh": "昴记得被救，当前世界的艾米莉雅却尚未实施该行为。",
+          "explanationZh": "他的“恩义消失”是给离开找的自我辩解，不等于作品确认过往情感价值真的归零。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "道义债",
+          "plainZh": "因受恩而产生、不能用单纯金钱关系概括的回报责任。"
+        },
+        {
+          "termZh": "跨行谓语",
+          "plainZh": "名词短语在一条字幕出现，其否定或结论要到下一条才完成。"
+        }
+      ],
+      "historicalNoteZh": "「恩義」带有较郑重、旧式的人情伦理色彩；日常轻微帮助更常说「恩」或直接用感谢表达。",
+      "cautionZh": "不要只读「返すべき恩義も」便误判句子未否定；下一行明确说它“彻底没有了”。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 89–93，目标内容跨 lines 91–92；说话人是昴，论据是本轮艾米莉雅尚未救他。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-無関係",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-無関係",
+    "linguistic_payload": {
+      "headlineZh": "「無関係の役立たず」是昴对自己的自嘲：艾米莉雅帮助了一个本与她无关、又派不上用场的人。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「無＋関係」的否定复合",
+          "takeawayZh": "前缀性语素「無」否定关系的存在，整体可作名词或ナ形容表达。",
+          "explanationZh": "这里用「無関係のN」表达“N在关系上是局外人”；另有「事件と無関係だ」「無関係な人物」等构式。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "无关的是人物关系",
+          "takeawayZh": "它不是说昴和当前事件毫无关联，而是说他原本不是艾米莉雅必须救助的人。",
+          "explanationZh": "后接「助けて、治療までしてやって」列出她对陌生人的额外照顾。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "第三人称式自我贬低",
+          "takeawayZh": "昴把自己包装成「役立たず」，用刻薄措辞强调艾米莉雅的善意。",
+          "explanationZh": "该短语由昴独白发出，并非艾米莉雅骂他；说话人归属改变会完全扭转人物态度。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "名词连接",
+          "plainZh": "「無関係の人物」用「の」把关系身份作为后一名词的限定。"
+        },
+        {
+          "termZh": "自我贬抑",
+          "plainZh": "说话人故意降低自己的价值，以凸显他人的付出或自己的内疚。"
+        }
+      ],
+      "historicalNoteZh": "「無〜」能产出许多书面复合词，如「無関心」「無責任」；进入口语后仍保留较明确的分类感。",
+      "cautionZh": "此处「無関係」修饰昴，而不是说艾米莉雅与徽章事件无关。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 106–109，目标 line 108；昴连续以「役立たず」指自己，下一行再称自己的行动为「自己満足」。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-自己満足",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-自己満足",
+    "linguistic_payload": {
+      "headlineZh": "「自己満足」指行动主要满足自己的心愿；昴把想回去救人的冲动说成自己的自我满足，而非指责艾米莉雅。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "施益对象写进复合词",
+          "takeawayZh": "「自己」限定「満足」，表示满足落在行动者本人身上。",
+          "explanationZh": "读作「じこまんぞく」，可说「自己満足にすぎない」「自己満足につきあう」。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "动机评价而非结果否定",
+          "takeawayZh": "称为自我满足，不等于行动一定无益；它质疑的是“究竟为谁而做”。",
+          "explanationZh": "昴知道自己想救菲鲁特等人，也承认这种坚持包含让自己心安的私人成分。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "用贬义标签逼自己表态",
+          "takeawayZh": "「その役立たずの自己満足」延续自嘲，使回去冒险显得不那么英雄化。",
+          "explanationZh": "「つきあって」的主体是艾米莉雅：她曾陪着昴完成这份执念，而不是她追求自我满足。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "动机归因",
+          "plainZh": "判断行为由利他、利己或多种目的中的哪一项推动。"
+        },
+        {
+          "termZh": "受益视角",
+          "plainZh": "区分谁从行动中得到实际帮助，谁从中得到心理满足。"
+        }
+      ],
+      "historicalNoteZh": "现代日语常用「自己〜」构造抽象概念；「自己満足」在批评语境里常接近“自我感动”，但也可中性描述。",
+      "cautionZh": "不要把该词安到艾米莉雅头上；所有格「役立たずの」及昴的独白都指向昴本人。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 107–110，目标 line 109；指代链为昴＝「無関係の役立たず」＝「その役立たず」，艾米莉雅只是陪同者。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-繰り返す",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-繰り返す",
+    "linguistic_payload": {
+      "headlineZh": "「何度繰り返しても変わらない」表示无论循环多少次，菲鲁特偷徽章、艾尔莎介入等关键事件仍不改变。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "复合动词「繰り＋返す」",
+          "takeawayZh": "词源意象是反复卷回，现代基本义为重复进行。",
+          "explanationZh": "这里用他动词形而省略宾语，可从循环语境恢复为“重复经历这段时间或这些事件”。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「疑问数量＋ても」让步",
+          "takeawayZh": "「何度Vても」不是询问次数，而是表示“无论V多少次”。",
+          "explanationZh": "主句「変わらない」为非过去否定，概括昴目前观察到的稳定规律。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "从多轮经验归纳规则",
+          "takeawayZh": "昴把连续世界中重复出现的节点称作近似“历史强制力”。",
+          "explanationZh": "这只是角色依据有限轮次作出的推测，不保证所有细节都不可改变。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "无条件让步",
+          "plainZh": "不论次数取什么值，主句结论都成立。"
+        },
+        {
+          "termZh": "宾语省略",
+          "plainZh": "及物动词未明说重复什么，由共同经历补出对象。"
+        }
+      ],
+      "historicalNoteZh": "「繰る」原与卷线、翻动等反复动作有关；与「返す」结合后词汇化为通用的“重复”。",
+      "cautionZh": "「何度」在此不需要回答具体数字，也不能把「変わらない」扩大成整个世界绝对不变。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 116–119，目标 line 118；前两行列出菲鲁特与艾尔莎，后一句才提出「歴史の強制力」猜想。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-misugosu",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-misugosu",
+    "linguistic_payload": {
+      "headlineZh": "「見過ごすのは無理だ」表示昴无法明知众人会死却坐视不管；它比单纯“没看见”多出有意放过的责任判断。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "视觉动词形成的复合",
+          "takeawayZh": "「見る＋過ごす」词汇化为“看到了却放过去、不加处理”。",
+          "explanationZh": "读作「みすごす」；与无意漏看的「見落とす」相比，更容易带出知情后的不作为。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "动词辞书形名词化",
+          "takeawayZh": "「見過ごすの」把整项行为变成「無理だ」的评价对象。",
+          "explanationZh": "主语“对我而言”没有明说；「は」把是否坐视作为当前抉择的核心话题。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "道德不能而非物理不能",
+          "takeawayZh": "「無理」表达心理上无法接受，不是身体没有观看能力。",
+          "explanationZh": "前文明确说已遇见的人都会被杀，感叹号把这句变成昴决定重返危险现场的自我宣言。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "意志性不作为",
+          "plainZh": "知道事件存在，却选择不介入或让它继续发生。"
+        },
+        {
+          "termZh": "名词化",
+          "plainZh": "用「の」把一个动作包装成可被评价、对比的对象。"
+        }
+      ],
+      "historicalNoteZh": "「見過ごす」既可指疏忽漏过，也可指知情而宽纵；具体责任强弱必须由上下文判断。",
+      "cautionZh": "本场景不是昴“看漏了”某个细节，而是他拒绝放任已知的死亡重演。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 121–123，目标 line 123；前句给出“遇见的人会被杀”的已知后果，确定为坐视义。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-質問",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-質問",
+    "linguistic_payload": {
+      "headlineZh": "店主说「何も買わずに質問とか」时，「質問」是询问信息；搭配「とか」后带出“居然只问不买”这一不满。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "汉语名词兼サ变用法",
+          "takeawayZh": "「質問」可单独作名词，也可接「する」成为“提问”。",
+          "explanationZh": "本句没有「する」，因为「とか」直接引用、概括昴正在做的行为类别。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「Vずに＋Nとか」",
+          "takeawayZh": "「何も買わずに」给出未履行的交易前提，「質問とか」提出遭嫌弃的替代行为。",
+          "explanationZh": "否定呼应「何も」，表示什么都没买；「とか」在此不是平等列举多个问题。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "商店规矩下的讥讽",
+          "takeawayZh": "后续「いい度胸してんな」表面称赞胆量，实际责备昴脸皮厚。",
+          "explanationZh": "店主并非称赞问题质量，也没有正式拒绝所有询问；他在强调顾客应先形成交易。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "サ变名词",
+          "plainZh": "既能作名词，又能通过接「する」构成动词的词。"
+        },
+        {
+          "termZh": "贬抑性举例",
+          "plainZh": "「とか」把某行为拎出来，表达“居然做这种事”的距离感。"
+        }
+      ],
+      "historicalNoteZh": "「質問」是书面汉语词，现代会话十分普通；较随便的“问一下”也常说「聞く」。",
+      "cautionZh": "不能把「とか」机械译成“等等”；这里唯一明确行为就是不买东西而问话。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 128–131，目标 line 130；下一句继续说明扒窃常见，店主是在交易场景中挖苦昴。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-阻止",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-阻止",
+    "linguistic_payload": {
+      "headlineZh": "「徽章が盗まれるのを阻止すれば」表示昴原想阻止徽章遭窃；条件形说的是设想，前一句「出遅れた」已表明他没有赶上。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "サ变名词表示制止",
+          "takeawayZh": "「阻止」接「する」成为及物动作，意为让计划或事件不能继续。",
+          "explanationZh": "常见宾语是「計画を阻止する」「侵入を阻止する」；这里宾语由整段从句充当。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "被动事件先名词化",
+          "takeawayZh": "「徽章が盗まれる」用「の」名词化后，再以「を」标成阻止对象。",
+          "explanationZh": "徽章是「盗まれる」的受事，偷窃者未说；外层「阻止する」的预定行动者则是昴。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "未实现的条件方案",
+          "takeawayZh": "「すれば、ひょっとしてと思ったけど」回顾的是失败计划，不是成功报告。",
+          "explanationZh": "「けど」和前面的迟到共同取消了乐观推论；此时徽章已经被菲鲁特拿走。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "受事",
+          "plainZh": "在事件中承受动作影响的对象；本句是遭窃的徽章。"
+        },
+        {
+          "termZh": "反事实计划",
+          "plainZh": "说话人描述本想满足的条件，同时由语境表明它未实现。"
+        }
+      ],
+      "historicalNoteZh": "「阻止」较「止める」正式，常用于计划、进程、危害等抽象事件；会话中也能带出作战式口吻。",
+      "cautionZh": "不要因看到「すれば」就写成“昴阻止成功”；实际台词明确先说他来晚了。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 138–140，目标 line 139；「出遅れた」和句末「けど」确认偷窃阻止并未实现。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-困る",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-困る",
+    "linguistic_payload": {
+      "headlineZh": "「何か困ったことがあるなら」里的「困った」构成“麻烦事”这一常用名词短语，不要求麻烦已经发生并结束。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "五段动词的タ形",
+          "takeawayZh": "「困る」变为「困った」后置于「こと」前，形式像过去，整体却可指当前难题。",
+          "explanationZh": "类似「困った問題」「困った人」常把结果状态或评价固化为修饰语。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "不定量与条件",
+          "takeawayZh": "「何か」指某件未具体说明的事，「あるなら」以它的存在为提供帮助的条件。",
+          "explanationZh": "下一句「僕でよければ手伝う」补出主句，行动者是莱因哈鲁特。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "降低受助门槛的提议",
+          "takeawayZh": "说话人没有逼昴交代问题，而是先留出“若有需要”的选择空间。",
+          "explanationZh": "「僕でよければ」进一步自谦，构成对陌生人的礼貌主动援助。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "结果状态修饰",
+          "plainZh": "タ形可突出进入某状态后的性质，不一定把整件事放进过去。"
+        },
+        {
+          "termZh": "条件式提议",
+          "plainZh": "先假设对方有需要，再提出自己可以采取的行动。"
+        }
+      ],
+      "historicalNoteZh": "「困ったこと」已成为高频搭配，可指困难、棘手情况，也可在感叹中表示“这可难办了”。",
+      "cautionZh": "不要把「困った」一律翻成过去时“曾经为难”；莱因哈鲁特询问的是昴眼下是否遇到麻烦。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 231–232，目标 line 231；旧 occurrence 记为 234，当前后句明确是莱因哈鲁特主动提出帮忙。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-届ける",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-届ける",
+    "linguistic_payload": {
+      "headlineZh": "昴说「見つけて届ける」时，「届ける」是把找到的徽章送到艾米莉雅手中；受事与收件人都可由前后文省略。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "一段及物动词",
+          "takeawayZh": "「届ける」表示让物品到达预定对象，与自动词「届く」相对。",
+          "explanationZh": "本句为非过去形，接「から」构成昴要求转达的承诺内容。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「見つけて」连接后续动作",
+          "takeawayZh": "テ形排列先后步骤：先找到徽章，再将其送还。",
+          "explanationZh": "宾语沿用「捜し物」，到达对象沿用先前提到的艾米莉雅，日语无需重复。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "第三方转述中的保证",
+          "takeawayZh": "昴请莱因哈鲁特转告，自己“一定会”完成寻找和送达。",
+          "explanationZh": "「必ず」「この俺が」增强承担责任的语气；下一行由莱因哈鲁特接受传话。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "他动对应",
+          "plainZh": "「届く」说东西到达，「届ける」说某人使东西到达。"
+        },
+        {
+          "termZh": "篇章省略",
+          "plainZh": "宾语和终点已在相邻台词激活，因此后句不再重复。"
+        }
+      ],
+      "historicalNoteZh": "「届ける」除送物外，也用于「知らせを届ける」；向机关提交则常见名词「届け」或「届け出」。",
+      "cautionZh": "不是莱因哈鲁特负责寻找徽章；他只答应把昴的保证传给艾米莉雅。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 247–250，目标 line 248；说话人昴把寻找和送还作为引语，请莱因哈鲁特代为转达。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-怒る",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-怒る",
+    "linguistic_payload": {
+      "headlineZh": "艾尔莎评价菲鲁特「怒ってもいる」时，「怒る」表示对她怀有愤怒；「ている」描写持续情绪，不是正在训斥别人。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "情绪动词的持续形",
+          "takeawayZh": "「怒っている」可表示已经动怒后仍处于愤怒状态。",
+          "explanationZh": "口语台词保留「いる」，并由「も」把愤怒加入艾尔莎先前观察到的其他反应。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "目标由「に対して」标记",
+          "takeawayZh": "「私に対して」指出菲鲁特愤怒所针对的人是艾尔莎。",
+          "explanationZh": "省略主语可从艾尔莎对菲鲁特的连续评估恢复；「私」则是说话人艾尔莎。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "冷静命名对手情绪",
+          "takeawayZh": "艾尔莎不是道歉，而是以观察者口吻点破菲鲁特的敌意和愤怒。",
+          "explanationZh": "这种从容分析与危险对峙形成反差，也为后面“别引起骚动”的威压铺垫。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "情绪状态",
+          "plainZh": "动怒这一变化发生后，愤怒作为状态继续存在。"
+        },
+        {
+          "termZh": "指向对象",
+          "plainZh": "「Nに対して」可标出态度、行为朝向谁或什么。"
+        }
+      ],
+      "historicalNoteZh": "「怒る」既能表示生气，也能表示训斥；是否有被训斥者，要看格标记与场景动作。",
+      "cautionZh": "本句没有说菲鲁特正在出声骂艾尔莎；艾尔莎识别的是她持续的愤怒状态。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 274–277，目标 line 275；说话人艾尔莎，省略主语为菲鲁特，「私に対して」指向艾尔莎本人。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-隠す",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-隠す",
+    "linguistic_payload": {
+      "headlineZh": "「敵意を隠せば」表示若菲鲁特能把敌意藏起来，艾尔莎会给出更高评价；这是看穿之后的嘲弄，不是实际教学。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "五段他动词",
+          "takeawayZh": "「隠す」要求隐藏者主动遮蔽对象；自动词「隠れる」则说对象自行处于看不见状态。",
+          "explanationZh": "本句变为假定形「隠せば」，宾语由「敵意を」明确标出。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "条件与评价结果",
+          "takeawayZh": "「隠せば、もっと上出来よ」建立假设：若隐藏得住，表现才会更漂亮。",
+          "explanationZh": "非过去条件并不说明菲鲁特已经隐藏；相反，艾尔莎能说出这话就证明敌意已经暴露。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "优势者的讽刺建议",
+          "takeawayZh": "表面像改善建议，实际展示艾尔莎能读懂对手。",
+          "explanationZh": "「もっと上出来」把生死对峙当作可评分的表现，强化她的从容与威胁感。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "他动性",
+          "plainZh": "行动者有意识地使某个对象不被他人察觉。"
+        },
+        {
+          "termZh": "反向证据",
+          "plainZh": "说“若能隐藏就更好”本身证明眼下并没有隐藏成功。"
+        }
+      ],
+      "historicalNoteZh": "「隠す」可用于物体、事实、情绪等；对内在态度常见「本心を隠す」「敵意を隠す」。",
+      "cautionZh": "条件句不是艾尔莎确认菲鲁特已收起敌意，也不是让她隐藏某件实体物品。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 283–285，目标 line 284；艾尔莎对菲鲁特说话，后件「もっと上出来よ」是讥评。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-jiman",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-jiman",
+    "linguistic_payload": {
+      "headlineZh": "「手癖の悪さが自慢か」把偷窃习惯讽刺成菲鲁特引以为傲的本事；昴是在责备，并非认真请她介绍优点。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "可自豪之物",
+          "takeawayZh": "「自慢」可指骄傲的对象，也可指夸耀行为。",
+          "explanationZh": "「Nが自慢だ」表示N是当事人拿得出手之处；这里N偏偏是「手癖の悪さ」，形成负面反差。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "名词谓语的疑问省略",
+          "takeawayZh": "「自慢か」省略断定「だ」，粗短问句直接把评价压给对方。",
+          "explanationZh": "主格「が」连接“手脚不干净这一点”和“值得炫耀的东西”两个名词概念。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "反问式道德责备",
+          "takeawayZh": "昴不期待“是”的答案，而是谴责菲鲁特把偷盗说成生计本领。",
+          "explanationZh": "菲鲁特随后以「生きるため」辩护，确认争点是偷窃行为的正当性。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "名词谓语",
+          "plainZh": "由名词承担“是……”的判断，口语里断定成分常省略。"
+        },
+        {
+          "termZh": "讽刺反问",
+          "plainZh": "形式上询问，交际功能却是表达否定评价。"
+        }
+      ],
+      "historicalNoteZh": "「自慢」可中性说「料理が自慢の店」，也可负面指爱炫耀；语气由对象和句式共同决定。",
+      "cautionZh": "本句不能译成真诚的“你的特长是偷东西吗”；昴用反问指责她。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 327–330，目标 line 328；菲鲁特下一句以谋生为由反驳，确认是价值冲突中的讽刺。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-用意",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-用意",
+    "linguistic_payload": {
+      "headlineZh": "「価値のある物を用意してる」表示昴一方已经备好可交换的手机；「ている」突出可供交易的现成状态。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "サ变名词与动词化",
+          "takeawayZh": "「用意」可作名词，也可组成「用意する」表示准备齐全。",
+          "explanationZh": "口语「用意してる」缩自「用意している」，对象由「物を」标记。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "准备完成后的可用状态",
+          "takeawayZh": "昴不是现场制作物品，而是声称自己手上已有高价值交换物。",
+          "explanationZh": "手机的估价「聖金貨で20枚以上」是谈判主张，不能当作第三方已鉴定的客观价。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「こっちは」建立竞价阵营",
+          "takeawayZh": "说话人把自己一方与艾尔莎的出价相对照，争取菲鲁特选择他的条件。",
+          "explanationZh": "下一句把“用这件东西买徽章”说成交易方案，准备状态因此服务于说服。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "结果状态",
+          "plainZh": "准备动作已发生，其结果是物品现在可立即拿来使用。"
+        },
+        {
+          "termZh": "阵营话题",
+          "plainZh": "「こっちは」把说话人一方作为与竞争方对照的话题。"
+        }
+      ],
+      "historicalNoteZh": "「用意」比「準備」更容易强调具体物品已经备妥，但两者在很多日常场合可以重叠。",
+      "cautionZh": "不要把「用意してる」只译成“正在准备”；现场谈判要求的是已经拿得出来。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 342–345，目标 line 343；昴用手机与艾尔莎的报价竞争，价值是他的谈判陈述。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-貴重品",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-貴重品",
+    "linguistic_payload": {
+      "headlineZh": "昴称手机为「世界で１つだけの貴重品」，把稀有性包装成交易价值；这是推销话术，不是旁白完成的估价。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「貴重＋品」复合名词",
+          "takeawayZh": "ナ形容词词干「貴重」与“物品”之意的「品」结合，读作「きちょうひん」。",
+          "explanationZh": "整体指需要珍惜、保管的重要物品，常见于公告「貴重品を預ける」。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "范围与唯一数量",
+          "takeawayZh": "「世界で」限定比较范围，「１つだけ」宣称在该范围内仅此一件。",
+          "explanationZh": "「の」将完整的唯一性描述连接到「貴重品」，形成名词短语。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "稀缺性作为议价证据",
+          "takeawayZh": "昴强调异世界里没有第二部手机，以提高菲鲁特的接受意愿。",
+          "explanationZh": "物品确实罕见，但“贵重到什么程度”仍待罗姆爷鉴定，不能把角色话术视为成交价。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "稀缺性主张",
+          "plainZh": "用数量少或独一无二来证明物品应有较高价值。"
+        },
+        {
+          "termZh": "说话人承诺",
+          "plainZh": "信息由角色为达成交涉目的提出，可信度需结合后续验证。"
+        }
+      ],
+      "historicalNoteZh": "「品」作为后缀可按用途分类物品，如「必需品」「展示品」；「貴重品」则常用于财物安全语境。",
+      "cautionZh": "“世界唯一”是昴对当地市场的推销表述，不代表经过权威客观认证，也不等于罗姆爷已经同意估价。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 349–352，目标 line 350；上下文是昴展示手机并说明其定格画面的功能。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-鑑定",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-鑑定",
+    "linguistic_payload": {
+      "headlineZh": "「ロム爺に鑑定してもらう」表示让罗姆爷替双方评估物品价值；「てもらう」把委托与受益视角都写进句子。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "判断价值的サ变名词",
+          "takeawayZh": "「鑑定する」指凭专业眼光辨真伪、品质或价值。",
+          "explanationZh": "这里待鉴定物是昴的手机，虽未再次明说，可由交易话题恢复。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「人にVてもらう」委托框架",
+          "takeawayZh": "「ロム爺に」标出执行鉴定者，菲鲁特一方是获得该行为的一方。",
+          "explanationZh": "授受形式不等于强制服从；它把请第三方完成评估表达为对说话人有利的安排。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "第三方建立交易公平",
+          "takeawayZh": "菲鲁特认为由在场且懂行的罗姆爷评估，比双方自行吹价更公正。",
+          "explanationZh": "「公平だぜ」说明选择鉴定者的理由，随后众人才赶往赃物库。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "鉴定者",
+          "plainZh": "实际观察并判断物品真伪、品质或价格的人。"
+        },
+        {
+          "termZh": "授受补助",
+          "plainZh": "「てもらう」把他人的动作从受益者或委托者立场组织起来。"
+        }
+      ],
+      "historicalNoteZh": "「鑑定」常见于古董、宝石、艺术品等专业评估；普通粗略看看可说「見てもらう」。",
+      "cautionZh": "执行鉴定的是罗姆爷，不是菲鲁特；「に」在此标人而非鉴定对象。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 361–364，目标 line 362；菲鲁特提出由罗姆爷作第三方评估，并称这才公平。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-焦る",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-焦る",
+    "linguistic_payload": {
+      "headlineZh": "菲鲁特问「何でそんなに焦ってんだよ」时，「焦る」指昴显得异常急切；缩约「焦ってん」把持续状态和说明语气压进粗口语。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「ているのだ」的口语缩约",
+          "takeawayZh": "「焦ってんだ」可还原为「焦っているんだ」，描述当前持续的焦躁。",
+          "explanationZh": "音形省略了「い」并把「の」缩为「ん」；疑问词「何で」要求解释原因。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "心理急迫而非灼热",
+          "takeawayZh": "此处是担心来不及而慌张、急于推进交易。",
+          "explanationZh": "菲鲁特从昴的催促和出汗推断状态；汉字写作「焦る」虽含焦字，并不表示身体烧焦。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "观察迹象后的追问",
+          "takeawayZh": "「そんなに」表示程度已明显到需要说明，菲鲁特开始怀疑昴另有内情。",
+          "explanationZh": "昴知道艾尔莎将到场的循环信息却不能直说，因而他的急迫在菲鲁特看来缺乏可见理由。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "说明语气",
+          "plainZh": "「んだ」把问题包装成要求对方说明背景或原因。"
+        },
+        {
+          "termZh": "证据推断",
+          "plainZh": "听者根据催促、出汗等可观察迹象判断说话人焦躁。"
+        }
+      ],
+      "historicalNoteZh": "「焦る」从“焦灼”发展出内心急迫义；现代会话中非常常见，也可用于催促他人「焦らないで」。",
+      "cautionZh": "问题是菲鲁特向昴提出的，不是昴自问；所问也不是他为何发热。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 368–371，目标 line 369；菲鲁特观察昴急于推进且出汗，要求解释异常焦躁。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-目標",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-目標",
+    "linguistic_payload": {
+      "headlineZh": "菲鲁特说「目標にでっかく近づく」时，「目標」是她想改善未来处境的方向；本段并没有把目标内容完整说破。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "行动所朝向的终点",
+          "takeawayZh": "「目標」可指具体指标，也可指尚未细化的人生目标。",
+          "explanationZh": "她只说手机的价值能让自己大幅接近目标，后文仍以勉强糊口作对照，具体方案保持隐含。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「Nに近づく」的终点格",
+          "takeawayZh": "助词「に」把目标标成接近动作的方向或终点。",
+          "explanationZh": "名词化主语「近づくの」接「は間違いねえ」，整体表示她确信这种进展会发生。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "夸张副词强化诱因",
+          "takeawayZh": "口语「でっかく」相当于“大大地”，体现菲鲁特对高价物的兴奋判断。",
+          "explanationZh": "她是在评估交易机会，不是在宣布已达成目标；价值与未来收益仍存在不确定性。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "趋向格",
+          "plainZh": "「に」把抽象目标当作运动或变化靠近的终点。"
+        },
+        {
+          "termZh": "内容留白",
+          "plainZh": "说话人提到“目标”却不说明全部细节，听者只能从生活处境推知大方向。"
+        }
+      ],
+      "historicalNoteZh": "「目標」原带有瞄准标记的具体感，现代广用于学习、工作和人生规划等抽象终点。",
+      "cautionZh": "不要自行补成某个剧情未明说的精确金额或职业；这里只能确定她想显著改善处境。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 384–389，目标 line 385；菲鲁特随后以“一个人也只能勉强过活”对照未来目标。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-注意",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-注意",
+    "linguistic_payload": {
+      "headlineZh": "「扱いには注意」是“操作时要小心”的省略式警告；昴担心罗姆爷弄坏手机，并未只是在介绍一个名词。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "注意名词与サ变潜能",
+          "takeawayZh": "「注意」可作名词谓语，也能说「注意する」。",
+          "explanationZh": "该台词省去「が必要だ／してくれ」等成分，以告示般短句直接传达要求。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「には」限定注意领域",
+          "takeawayZh": "「扱いに」表示注意所涉及的方面，「は」再把它突出为话题。",
+          "explanationZh": "宾语手机已在前文交给罗姆爷，无需在警告中重复；听话人也由现场动作确定。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "高风险下的简短命令",
+          "takeawayZh": "名词短句弱化了直接命令形，却因后果严重而仍有强烈约束。",
+          "explanationZh": "下一句昴想到若手机损坏可能必须再次死亡，说明警告背后是他的生存压力。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "省略式指令",
+          "plainZh": "省去完整谓语，但听者仍能恢复“请注意、务必小心”。"
+        },
+        {
+          "termZh": "领域话题",
+          "plainZh": "「Nには」指出在N这一方面需要采取特别态度。"
+        }
+      ],
+      "historicalNoteZh": "公共告示常用「取扱注意」「足元に注意」等名词化表达，简洁且不必明说命令者。",
+      "cautionZh": "「注意」在此是操作警告，不是“留意到某个线索”；对象是正在被检查的手机。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 409–413，目标 line 412；罗姆爷正在查看手机，昴紧接着设想损坏后的严重代价。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-危うい",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-危うい",
+    "linguistic_payload": {
+      "headlineZh": "昴说「その考え、マジに危ういぞ」是在警告菲鲁特的推断会把她引向危险，不是形容某处地形摇摇欲坠。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "イ形容词的基本形",
+          "takeawayZh": "「危うい」直接作谓语，表示处于容易出事、接近失控的状态。",
+          "explanationZh": "口语常与「危ない」近义；「危うい」有时更突出界线很薄或判断不稳。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "对想法的风险评价",
+          "takeawayZh": "被评价项由「その考え」明说，是菲鲁特从徽章高价推导出的贪念与行动方案。",
+          "explanationZh": "危险不只来自物品本身，还来自艾尔莎以及交易背后的未知意图。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "粗口语中的紧急制止",
+          "takeawayZh": "「待て」「マジに」「ぞ」共同提高警告力度。",
+          "explanationZh": "昴掌握上一轮死亡信息，菲鲁特却不知道；双方知识不对称使他的断言显得突兀但并非无依据。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "评价主语",
+          "plainZh": "形容词所判断的是前面的话题「その考え」，而非某个人的体质。"
+        },
+        {
+          "termZh": "知识不对称",
+          "plainZh": "说话人知道危险后果，听话人却缺少同样经历。"
+        }
+      ],
+      "historicalNoteZh": "「危うい」可用于生命、立场、成功概率和判断等；固定表达「危うく〜ところだった」表示险些发生。",
+      "cautionZh": "不要把昴的警告写成对菲鲁特人格的永久判决；他针对的是她当下这项危险想法。"
+    },
+    "review_note": "核对当前字幕 EP2 lines 435–439，目标 line 438；菲鲁特刚因徽章价值提高而改变态度，昴凭循环记忆急忙制止。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-明るい",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-明るい",
+    "linguistic_payload": {
+      "headlineZh": "「まだ明るい時間」中的「明るい」指天色尚亮；昴惊讶艾尔莎比之前循环更早抵达赃物库。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "光照义而非性格义",
+          "takeawayZh": "「明るい」可说环境有光，也可说人开朗；「時間」与现场天色选择前者。",
+          "explanationZh": "副词「まだ」表示白昼状态仍持续，不能理解成“气氛仍然愉快”。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "形容词直接修饰时间名词",
+          "takeawayZh": "「明るい」连体修饰「時間」，整体再接说明性「なのに」。",
+          "explanationZh": "「のに」标出与昴预期相反：按前几轮经验，艾尔莎不该在这么早的时段出现。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "循环差异触发惊讶",
+          "takeawayZh": "时间描述本身成为判断事件路线已变化的证据。",
+          "explanationZh": "昴拥有前轮时间感，其他角色没有；这句是他的内部比较，而非向现场众人提供时刻表。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "词义选择",
+          "plainZh": "同一形容词的多个意义由它所修饰的名词和场景筛选。"
+        },
+        {
+          "termZh": "逆接证据",
+          "plainZh": "「のに」表明眼前事实与说话人的时间预期冲突。"
+        }
+      ],
+      "historicalNoteZh": "「明るい」从光亮义扩展到开朗、熟悉某领域等，如「歴史に明るい」；不能脱离搭配取义。",
+      "cautionZh": "此处既不是评价艾尔莎性格开朗，也不是说具体钟点；只说明天还亮着。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 2–6，目标 line 4；艾尔莎已在赃物库，昴用前轮较晚到场的经验形成反预期。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-負ける",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-負ける",
+    "linguistic_payload": {
+      "headlineZh": "菲鲁特说「負け認めんのか」时，「負け」是动词「負ける」的连用形名词化用法，相当于省略「を」的「負けを認める」。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "连用形转作事件名词",
+          "takeawayZh": "「負ける」去掉词尾形成「負け」，可指败局或失败这一事实。",
+          "explanationZh": "它在这里不是句子的终止谓语；真正谓语是「認めん」，即口语否定的“承认”。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "宾格助词的口语省略",
+          "takeawayZh": "可恢复为「負けを認めるのか」，省去「を」使质问更紧促。",
+          "explanationZh": "前置「ケンカやる前から」标出时间：战斗尚未开始，就谈承认败局。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "激将而非赛果播报",
+          "takeawayZh": "菲鲁特用反问批评罗姆爷未战先降。",
+          "explanationZh": "「認めんのか」要求对方说明立场，也把退让塑造成怯懦；此刻并无正式胜负结果。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "连用形名词化",
+          "plainZh": "动词词干式形式转而指一次动作或结果，如「負け」「勝ち」。"
+        },
+        {
+          "termZh": "零助词",
+          "plainZh": "口语省去可恢复的格助词，语义关系仍由搭配确定。"
+        }
+      ],
+      "historicalNoteZh": "「勝ち／負け」是常见成对名词，源自动词连用形；体育、争论和人生比喻中都能使用。",
+      "cautionZh": "不要把目标片段断成「負ける」的命令或陈述；它是「認める」的宾语。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 17–20，目标 line 19；菲鲁特对罗姆爷发问，战斗尚未开始，故为“承认败局”结构。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-急に",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-急に",
+    "linguistic_payload": {
+      "headlineZh": "艾米莉雅问「何で急に親身になってくれてるの」时，「急に」标出昴态度在她看来毫无铺垫地突然改变。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "ナ形容词的副词形",
+          "takeawayZh": "词干「急」接「に」后修饰变化表达「親身になる」。",
+          "explanationZh": "它描述变化发生得突然，并不等于动作速度一定很快；读作「きゅうに」。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "副词覆盖态度变化",
+          "takeawayZh": "「急に」主要修饰「親身になっている」，不是单独修饰感谢成分「くれる」。",
+          "explanationZh": "疑问词「何で」要求解释转变原因，句末「の」强化说明请求。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "不同时间线造成突变感",
+          "takeawayZh": "昴经历过多轮相处，当前艾米莉雅却只见到他突然热心。",
+          "explanationZh": "这份记忆差解释了他主观上并不突然、她客观上却觉得突兀的双重视角。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "副词辖域",
+          "plainZh": "副词实际影响的是后面哪一段状态或动作。"
+        },
+        {
+          "termZh": "时间线视角",
+          "plainZh": "同一变化因角色拥有不同经历而显得连续或突然。"
+        }
+      ],
+      "historicalNoteZh": "「急に」在口语中可说天气、态度或计划突然变化；若强调行动匆忙则还可用「急いで」。",
+      "cautionZh": "不要把「急に」误译成“赶紧”；艾米莉雅问的是态度为何忽然变亲切。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 42–45，目标 line 44；发问者艾米莉雅没有昴的循环记忆，因此把他的热心视为突然变化。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-親身",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-親身",
+    "linguistic_payload": {
+      "headlineZh": "「親身になってくれてる」表示昴像把别人的事当自己的事那样热心帮助；受益视角来自发问的艾米莉雅。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "把他人困境当切身之事",
+          "takeawayZh": "「親身」不等于血亲身份，而是体贴、真心投入的态度。",
+          "explanationZh": "固定搭配多为「親身になる」「親身に相談に乗る」，这里指昴积极介入徽章危机。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「Nになる＋てくれる」",
+          "takeawayZh": "「親身になる」先表示进入关切状态，「くれる」再从受益方看待该行为。",
+          "explanationZh": "「なってくれてる」缩自「なってくれている」，说明这种态度正在持续。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "感激中夹着疑惑",
+          "takeawayZh": "艾米莉雅承认昴的帮助对自己有利，却不明白陌生人为何投入到这种程度。",
+          "explanationZh": "因此整句不是纯感谢；「何で急に」要求他解释动机，下一句继续说自己无法释然。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "态度变化",
+          "plainZh": "「になる」把名词性品质表达为进入某种处事状态。"
+        },
+        {
+          "termZh": "受益表达",
+          "plainZh": "「てくれる」从说话人或其一方得到好处的角度组织事件。"
+        }
+      ],
+      "historicalNoteZh": "「親身」字面与亲近之身相关，现代多作态度评价；正式服务场景也常用「親身な対応」。",
+      "cautionZh": "不要把「親身」译成“亲属”；也不要遗漏「くれる」所显示的艾米莉雅受益立场。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 42–45，目标 line 44；说话人艾米莉雅、行动者昴，授受方向不能倒置。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-釈然",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-釈然",
+    "linguistic_payload": {
+      "headlineZh": "「釈然としない」是“心里仍说不通、不释怀”的固定否定表达；艾米莉雅对昴突然热心的理由非常困惑。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "汉语词干配「とする」",
+          "takeawayZh": "「釈然」通常以「釈然とする／しない」出现，本句采用否定形。",
+          "explanationZh": "现代会话中肯定形很少单独使用，固定负面搭配的熟练度比逐字拆汉字更重要。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "解释无法在心中落定",
+          "takeawayZh": "它不是单纯“不知道”，而是已有事实仍无法形成令人信服的理解。",
+          "explanationZh": "昴的帮助对她有利，但原因与关系基础不清楚，所以善意本身也没有消除疑问。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「けど」留下回应位置",
+          "takeawayZh": "「すごく釈然としないんだけど」既陈述不满，也邀请昴补充说明。",
+          "explanationZh": "语气没有直接指控他恶意；拉长的「すご～く」让困惑带一点人物化的强调。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "否定偏向",
+          "plainZh": "某个词在实际语言中显著更常出现在否定构式里。"
+        },
+        {
+          "termZh": "悬置接续",
+          "plainZh": "句末「けど」不明说后件，用来留出对方解释或回应的空间。"
+        }
+      ],
+      "historicalNoteZh": "「釈然」源于汉文式词汇，书面感较强；日常更直白可说「納得できない」「腑に落ちない」。",
+      "cautionZh": "绝不能把「釈然としない」按正面词感译为“如释重负”；它明确是否定的“不释然”。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 44–46，目标 line 45；前句正是艾米莉雅追问昴为何突然亲身相助。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-防ぐ",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-防ぐ",
+    "linguistic_payload": {
+      "headlineZh": "艾米莉雅喊「パック！ 防げ！」是在袭击瞬间命令帕克挡住攻击；宾语虽没说出，却由突发动作直接补全。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "五段动词的命令形",
+          "takeawayZh": "「防ぐ」将词尾变为「防げ」，构成直接而紧急的命令。",
+          "explanationZh": "读作「ふせげ」；这不是可能形“能防”，也不是假定形“如果防”。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "呼语加零宾语",
+          "takeawayZh": "「パック」是被呼叫的执行者，防御对象则省略。",
+          "explanationZh": "战斗现场的攻击已进入共同注意，重复说「攻撃を」反而会拖慢指令。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "危急场景压缩语言",
+          "takeawayZh": "短促命令显示艾米莉雅判断必须立即由帕克应对。",
+          "explanationZh": "这句话不是对攻击者的请求，也不是事后描述；其时间点与随后的防御动作相连。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "直接命令形",
+          "plainZh": "动词通过专门词形要求听者立刻执行动作。"
+        },
+        {
+          "termZh": "共同注意",
+          "plainZh": "双方都看见眼前威胁，因此无需把宾语说完整。"
+        }
+      ],
+      "historicalNoteZh": "「防ぐ」可防攻击、事故、疾病或信息泄露；命令形语气强，平常礼貌请求会改用「防いでください」。",
+      "cautionZh": "「防げ」的主语是帕克，不是艾米莉雅亲自防御；省略对象是眼前攻击而非某个抽象观点。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 46–50，目标 line 48；袭击已经发动，艾米莉雅点名帕克并下达即时防御命令。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-紙一重",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-紙一重",
+    "linguistic_payload": {
+      "headlineZh": "帕克说「紙一重のタイミングだった」是指介入只差薄如一张纸的时间余量，因而众人才侥幸得救。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "极小差距的隐喻",
+          "takeawayZh": "「紙一重」用纸张厚度比喻成败之间只有极细微距离。",
+          "explanationZh": "它可修饰胜负、危险和差异；本句明确落在「タイミング」上，表示时间差极小。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「NのN」属性限定",
+          "takeawayZh": "「紙一重の」把“仅一线之隔”的性质赋给时机。",
+          "explanationZh": "过去断定「だった」回顾刚发生的防御瞬间，下一句「助かったよ」给出结果。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "事后评估侥幸程度",
+          "takeawayZh": "帕克并非夸耀完美掌控，而是承认出手差一点就来不及。",
+          "explanationZh": "这句话将紧张从命令阶段转为结果确认，同时提醒局势仍然危险。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "尺度隐喻",
+          "plainZh": "用实体厚度描写抽象时间或成败差距。"
+        },
+        {
+          "termZh": "结果回顾",
+          "plainZh": "过去形从事件之后评价刚才的时机与后果。"
+        }
+      ],
+      "historicalNoteZh": "固定语「紙一重」常见于「天才と狂気は紙一重」等表达，强调两端极近，却不等于完全相同。",
+      "cautionZh": "不要直译为“纸的时机”，也不要说帕克提前很久准备；他的判断正是“险些迟到”。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 48–52，目标 line 51；帕克刚完成防御，随后以「助かったよ」确认只是勉强赶上。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-達者",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-達者",
+    "linguistic_payload": {
+      "headlineZh": "「口ばかり達者」表示只会嘴上逞能；艾尔莎以此贬低菲鲁特，和表示身体健康的「お達者で」不是同一具体词义。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "熟练义落在言辞",
+          "takeawayZh": "「達者」可指健康，也可指技艺熟练；「口」把它限定为能说会道。",
+          "explanationZh": "这里不是中性夸奖口才，而是配合「ばかり」指出能力只停留在嘴上。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「Nばかり＋评价」的限制",
+          "takeawayZh": "「口ばかり」把优势限制为言语一项，排除实际工作表现。",
+          "explanationZh": "后接「なだけで」再缩小评价，随后「お粗末な仕事ぶり」给出负面对照。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "敌手的轻蔑打压",
+          "takeawayZh": "艾尔莎用“只会说”削弱菲鲁特的威胁感与自信。",
+          "explanationZh": "这是对峙中的人身评价，不是客观职业考核；说话人的敌意决定语气。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "搭配消歧",
+          "plainZh": "由「口」选择“口才熟练”，排除“身体健康”等其他义项。"
+        },
+        {
+          "termZh": "限制焦点",
+          "plainZh": "「ばかり」突出只有这一方面，暗示其他方面不足。"
+        }
+      ],
+      "historicalNoteZh": "「達者」可追溯到佛教、汉语词汇的通达义，现代保留“健康”和“熟练”两大常见方向。",
+      "cautionZh": "不要把「達者」孤立译成“健康”；完整搭配「口ばかり達者」固定指光说得漂亮。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 62–64，目标 line 63；艾尔莎下一半句直接评价菲鲁特的工作表现「お粗末」。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-hinmingai",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-hinmingai",
+    "linguistic_payload": {
+      "headlineZh": "艾尔莎说「しょせんは貧民街の人間」时，「貧民街」指贫困者聚居的城区；她借出身标签贬低菲鲁特。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「貧民＋街」的地点复合",
+          "takeawayZh": "前项指贫困居民，后项「街」构成其聚居区域，读作「ひんみんがい」。",
+          "explanationZh": "整体是社会空间名词，不等于单独的一户贫穷家庭。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「場所の人間」表示归属",
+          "takeawayZh": "「貧民街の人間」把菲鲁特按生活地域和群体归类。",
+          "explanationZh": "「の」不是所有权，而是来源、所属关系；「しょせんは」提前设置“终究不过如此”的框架。"
+        },
+        {
+          "domain": "sociolinguistics",
+          "titleZh": "带阶层偏见的命名",
+          "takeawayZh": "艾尔莎把一次表现不足归因于整个地区与阶层。",
+          "explanationZh": "因此该词在此不是中性地理介绍，而是阶级化侮辱；分析必须保留说话人的轻蔑立场。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "地域归属",
+          "plainZh": "用居住区域把人物归入一个社会群体。"
+        },
+        {
+          "termZh": "阶层化称呼",
+          "plainZh": "地点词被用来推断并贬低一个人的能力或价值。"
+        }
+      ],
+      "historicalNoteZh": "现代公共表达更常采用具体、少污名化的贫困地区描述；「貧民街」容易携带外部凝视和阶层标签。",
+      "cautionZh": "不要把艾尔莎的偏见当成叙事者认可的客观结论，也不要只译成无感情色彩的“街区居民”。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 63–65，目标 line 64；说话人艾尔莎以「しょせん」承接对菲鲁特工作表现的贬低。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-正義感",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-正義感",
+    "linguistic_payload": {
+      "headlineZh": "昴说自己「自分の中の思わぬ正義感」に任せ行事，是把意外冒出的正义冲动戏剧化；语气带自嘲，并非冷静的道德宣言。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「正義＋感」的心理名词",
+          "takeawayZh": "后缀「感」把正义观念转成主体内在的感受或倾向。",
+          "explanationZh": "读作「せいぎかん」，常与「強い」「正義感に駆られる」搭配。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "双重所有与并列",
+          "takeawayZh": "「自分の中の」定位其内心，「思わぬ」表示连本人也没预料到。",
+          "explanationZh": "它与「義きょう心」由「と」并列，并共同受「に任せて」支配。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "英雄腔的自我包装",
+          "takeawayZh": "「この世の理不尽を弾劾中」刻意说得宏大，缓和他贸然插手的尴尬。",
+          "explanationZh": "昴确有救人意图，但夸张措辞显示他也在拿自己的冲动开玩笑。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "心理后缀",
+          "plainZh": "「感」把一个价值概念表达为人的感受、意识或倾向。"
+        },
+        {
+          "termZh": "自我戏剧化",
+          "plainZh": "用夸张英雄式语言描述自己的普通或冲动行为。"
+        }
+      ],
+      "historicalNoteZh": "「正義感」是近现代常用抽象词；比「正義」更聚焦个人主观上维护正当事物的冲动。",
+      "cautionZh": "不要把「思わぬ」漏掉：昴强调的是连自己也意外的正义心，而非一贯自诩圣人。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 75–78，目标跨 lines 76–77；说话人昴把「正義感」与「義きょう心」并列后作夸张自述。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-自己紹介",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-自己紹介",
+    "linguistic_payload": {
+      "headlineZh": "帕克说「まだ自己紹介もしてなかった」后报上名字，却接着让艾尔莎“记住名字再去死”，形成危险场景中的黑色幽默。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「自己＋紹介」的サ变名词",
+          "takeawayZh": "「自己紹介する」表示向对方说明自己的名字、身份等。",
+          "explanationZh": "本句用「してなかった」这一「していなかった」缩约，回顾此前一直未完成介绍。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「まだ＋否定」与「も」",
+          "takeawayZh": "「まだ〜ていない」表示截至此刻尚未做，「も」把介绍标成最低限度事项。",
+          "explanationZh": "主语帕克省略，听话对象由呼语「お嬢さん」和对峙场面确定为艾尔莎。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "礼貌脚本被杀意反转",
+          "takeawayZh": "正常自我介绍建立关系，这里却成为攻击前的从容宣告。",
+          "explanationZh": "后句「名前だけでも覚えて…逝ってね」把社交礼节改造成威胁，不能只按友好会面解释。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "社交脚本",
+          "plainZh": "会面时通常先报姓名、建立关系的一套可预期行为。"
+        },
+        {
+          "termZh": "语用反转",
+          "plainZh": "沿用友好形式，却由后续内容把功能翻转成威胁或讽刺。"
+        }
+      ],
+      "historicalNoteZh": "「自己紹介」是现代常用复合词；礼貌场合常以「〜と申します」等敬语完成。",
+      "cautionZh": "不要把这段处理成普通友善介绍；帕克的最后一句明确处于准备击杀艾尔莎的战斗语境。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 83–87，目标 line 84；帕克随后自报名并用「逝ってね」收束，黑色幽默语境明确。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-慣れる",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-慣れる",
+    "linguistic_payload": {
+      "headlineZh": "「戦い慣れしてる」表示艾尔莎长期实战后已习惯战斗；这是复合惯用表达，不是单独的“逐渐适应”叙述。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词＋慣れ构成经验状态",
+          "takeawayZh": "「戦い慣れ」把战斗与「慣れる」的连用形结合，表示身经战阵。",
+          "explanationZh": "后接「してる」使整体成为持续状态；也常见「旅慣れする」「場慣れする」。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "经验积累后的熟练",
+          "takeawayZh": "此处不只是不害怕，还包括动作和判断显得老练。",
+          "explanationZh": "昴从艾尔莎与帕克交战的表现作出推断，并非知道她具体训练年数。"
+        },
+        {
+          "domain": "sociolinguistics",
+          "titleZh": "「女の子なのに」暴露预设",
+          "takeawayZh": "让步后项反映昴对年轻女性不应善战的性别期待。",
+          "explanationZh": "这是角色的惊讶框架，不应被改写成普遍事实或教学者认可的规范。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "经验复合",
+          "plainZh": "把活动名词与「慣れ」结合，表示对此类场景已有充分经验。"
+        },
+        {
+          "termZh": "说话人预设",
+          "plainZh": "让步表达透露角色原先相信什么，而不保证该信念客观正确。"
+        }
+      ],
+      "historicalNoteZh": "「〜慣れ」构词能产出多种经验表达；与「慣れる」的普通补语结构「環境に慣れる」应区分。",
+      "cautionZh": "不要把「女の子なのに」推广为关于女性能力的事实；它只记录昴当时的刻板预期。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 90–92，目标 line 91；昴观察艾尔莎的实战表现后评价，并以「女の子なのに」表达个人惊讶。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-消耗戦",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-消耗戦",
+    "linguistic_payload": {
+      "headlineZh": "罗姆爷提出「消耗戦に持ち込めば」是想把战斗拖入比拼体力与资源的阶段；这只是试探性战术方案，并非已经获胜。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「消耗＋戦」的战术名词",
+          "takeawayZh": "前项描述不断耗费力量，后项表示战斗类型，读作「しょうもうせん」。",
+          "explanationZh": "它可以指军事长期消耗，也能比喻谈判、比赛中谁先撑不住。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「Nに持ち込む」使局面转入",
+          "takeawayZh": "「に」标出要把当前战斗导向的状态，「持ち込めば」提出条件。",
+          "explanationZh": "主句「なんとか勝てんじゃねえか」含可能否定式外形和推量，实际是“或许能设法赢”。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "资源信息随即推翻计划",
+          "takeawayZh": "罗姆爷以为拖长有利，帕克随后说明自己只能维持到固定时间。",
+          "explanationZh": "跨字幕反驳使这条建议显得不可行；不能孤立条件句写成确定战术优势。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "战局转换",
+          "plainZh": "「持ち込む」表示主动让事件进入某种比赛或对抗模式。"
+        },
+        {
+          "termZh": "资源约束",
+          "plainZh": "战术是否成立取决于体力、魔力和可持续时间等有限条件。"
+        }
+      ],
+      "historicalNoteZh": "「消耗戦」最初具有军事色彩，现代常比喻耗时耗力、缺乏速决手段的长期竞争。",
+      "cautionZh": "不要写成罗姆爷已成功拖垮艾尔莎；「ば」「じゃねえか」都表明这只是带不确定性的提案。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 96–100，目标 lines 97–99；罗姆爷提出条件方案，帕克紧接着说明自身维持时间限制。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-無目的",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-無目的",
+    "linguistic_payload": {
+      "headlineZh": "帕克说冰块并非「無目的に」撒出，是否定“毫无目的”这一解释，并暗示散布的冰另有战术用途。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「無目的」的副词化",
+          "takeawayZh": "名词／ナ形容词词干接「に」后修饰「ばらまく」，表示行动方式。",
+          "explanationZh": "「無」否定目的存在；读作「むもくてき」，与「目的もなく」意义相近。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「わけじゃない」否定解释",
+          "takeawayZh": "整句不是断言“没有目的”，而是说“并非出于无目的才撒”。",
+          "explanationZh": "否定范围覆盖「無目的にばらまいていた」这一整项解释，猫口吻「にゃい」不改变极性。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "战术意图延后揭示",
+          "takeawayZh": "先前看似散乱的攻击在这句中被重新解释为有计划的布置。",
+          "explanationZh": "说话人是帕克，他在回应敌手对冰块用途的理解；具体效果要结合后续战斗展开。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "否定范围",
+          "plainZh": "判断否定词究竟推翻一个词，还是推翻整段原因解释。"
+        },
+        {
+          "termZh": "回溯重释",
+          "plainZh": "新台词让观众重新理解此前已经看到的动作。"
+        }
+      ],
+      "historicalNoteZh": "「無目的」较书面，口语常说「目的もなく」；加「に」即可把属性变成行动方式。",
+      "cautionZh": "务必保留「わけじゃない」的否定：帕克正是在说冰块有目的，不能写成他承认乱撒。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 106–109，目标 line 108；说话人帕克，真实句尾为角色化的「にゃいんだよ」。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-感心",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-感心",
+    "linguistic_payload": {
+      "headlineZh": "帕克说「そういうのは僕、感心しないな」是在表示不赞成艾尔莎的残酷做法，而非单纯说她的技术没让自己惊叹。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "否定形转为道德不认可",
+          "takeawayZh": "肯定「感心する」可表示佩服；「感心しない」常委婉表示不赞成。",
+          "explanationZh": "「そういうの」回指艾尔莎的暴力行为与态度，不只是对战技巧。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "话题与评价者并置",
+          "takeawayZh": "「そういうのは」提出评价对象，「僕」标出评价主体。",
+          "explanationZh": "「な」带自言式、劝诫式语气，句法上没有要求对方回答的问题形式。"
+        },
+        {
+          "domain": "sociolinguistics",
+          "titleZh": "带性别预设的训诫口吻",
+          "takeawayZh": "前置「女の子なんだから」以性别角色约束对方行为。",
+          "explanationZh": "这是帕克的人物口吻，不应转写成普遍规范；核心交际功能仍是对残酷行为表达否定。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "语用弱化",
+          "plainZh": "用“不太令人佩服”这种表面较缓的形式表达强烈不赞成。"
+        },
+        {
+          "termZh": "回指表达",
+          "plainZh": "「そういうの」指回前面可见或刚提到的一类行为。"
+        }
+      ],
+      "historicalNoteZh": "「感心しない」在较克制的批评中很常见，不能总按字面对称地译成“没有佩服”。",
+      "cautionZh": "不要把帕克的话理解为仅评技术水平；语境是对艾尔莎行为的规范性否定。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 112–115，目标 line 114；前项「女の子なんだから」和回指「そういうの」共同构成训诫。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-眠い",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-眠い",
+    "linguistic_payload": {
+      "headlineZh": "帕克说「すごい眠い」表面是非常困倦，跨行才说明这是魔力耗尽、即将消失的征兆，不只是到了睡觉时间。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "身体感觉类イ形容词",
+          "takeawayZh": "「眠い」直接作谓语，描述说话人此刻感到想睡。",
+          "explanationZh": "会话中「すごい」可副词性修饰形容词，相当于「すごく眠い」。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "困倦映射魔力枯竭",
+          "takeawayZh": "角色以日常身体感觉表达超自然能量不足。",
+          "explanationZh": "后续「マナ切れで消えちゃう」明确原因和结果，不能只把它当普通疲劳抱怨。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "先轻描淡写再揭示严重性",
+          "takeawayZh": "帕克先道歉说困，随后承认低估敌人并说明自己将无法维持实体。",
+          "explanationZh": "这种递进使「眠い」既保留人物的轻松说法，又承担战局恶化信号。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "感受谓语",
+          "plainZh": "直接报告主体当下身体或心理感受的形容表达。"
+        },
+        {
+          "termZh": "跨句因果",
+          "plainZh": "当前句说症状，后面的字幕才给出魔力耗尽这一原因。"
+        }
+      ],
+      "historicalNoteZh": "感觉形容词通常以体验者为中心；第三人称若无证据，常需「眠そうだ」等外观表达。",
+      "cautionZh": "体验者是帕克，不是艾米莉雅；严重性也必须连同后文的魔力耗尽一起理解。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 115–119，目标 line 116；帕克下一句承认轻敌，再以「マナ切れで消えちゃう」解释困倦。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-確率",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-確率",
+    "linguistic_payload": {
+      "headlineZh": "罗姆爷说要选「お前が生きる確率が一番高いとこ」，是在危机中选择菲鲁特存活机会最大的方案，并非给出精确统计数字。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "概率概念的汉语名词",
+          "takeawayZh": "「確率」读作「かくりつ」，表示某结果发生的可能程度。",
+          "explanationZh": "前面的从句「お前が生きる」限定是哪一项结果的概率：菲鲁特活下来。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "关系从句与最高级",
+          "takeawayZh": "「生きる確率」后接「が一番高い」，再由口语「とこ」概括成可选择的方案。",
+          "explanationZh": "「選ぶのが当たり前だ」把选择动作名词化并评价为理所当然。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "保护决定的理性化",
+          "takeawayZh": "罗姆爷用年龄与生存概率解释自己为何优先保住菲鲁特。",
+          "explanationZh": "这不是冷漠算术，而是家人般角色在紧急取舍中给出的理由；具体概率没有测量。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "事件概率",
+          "plainZh": "关注某一结果发生的机会，这里的结果是菲鲁特存活。"
+        },
+        {
+          "termZh": "口语概括词",
+          "plainZh": "「とこ」可把复杂条件压缩成“那种方案、那个选择点”。"
+        }
+      ],
+      "historicalNoteZh": "「確率」在数学中可精确定义，日常会话也常泛指机会大小，不一定有数值依据。",
+      "cautionZh": "不要虚构百分比；罗姆爷只作相对比较，并以此说明保护菲鲁特的选择。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 173–178，目标 lines 175–177；说话人罗姆爷先比较年龄，再说明应选菲鲁特生存概率最高的方案。"
+  }
+]

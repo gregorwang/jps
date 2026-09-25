@@ -1,0 +1,1642 @@
+[
+  {
+    "id": "vocab-card-v1:re-zero-vocab-割に合う",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-割に合う",
+    "linguistic_payload": {
+      "headlineZh": "「割に合う」按付出与回报是否相称来判断“划不划算”；昴经历重伤，只换来名字和一个笑容，因此叹作「割に合わねえ」。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词「割」接格助词和动词",
+          "takeawayZh": "固定形为「割に合う／合わない」，口语否定「合わねえ」来自「合わない」。",
+          "explanationZh": "此处的「割」不是分割动作，而是比例、合算程度；整组作为惯用表达记忆更可靠。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "成本回报的相称判断",
+          "takeawayZh": "可评价金钱、时间、风险或辛劳与所得是否匹配。",
+          "explanationZh": "报酬并非毫无价值，但与昴承受的生命危险相比明显过低，所以用否定。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "抱怨里藏着自愿接受",
+          "takeawayZh": "他说“不划算”是在自嘲，并未真的否定救人的选择。",
+          "explanationZh": "前文列出伤痛与拼命，后文把名字和笑容称作报酬，夸张落差制造喜剧余韵。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "合算性",
+          "plainZh": "比较投入与所得，判断一件事值不值得。"
+        },
+        {
+          "termZh": "惯用否定",
+          "plainZh": "该表达在实际会话中常以「割に合わない」出现。"
+        }
+      ],
+      "historicalNoteZh": "「割」长期用于比例、比率义，因而发展出「割に合う」这种以比例是否吻合来谈得失的说法。",
+      "cautionZh": "不要按字面译成“符合分割”；若只想说价格便宜，也不一定适合用本词。"
+    },
+    "review_note": "核对 occurrence EP3；当前字幕 line 398「まったく 割に合わねえ」，连读 lines 395–398 的伤痛、拼命与报酬对比。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-加減",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-加減",
+    "linguistic_payload": {
+      "headlineZh": "「加減」既可指控制力度的分寸，也可指身体状况；EP3 的「加減は心得ております」是“我懂得掌握轻重”。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "从增减调节到状态",
+          "takeawayZh": "核心是把某量调到适当程度，由此延伸出火候、手下留情和健康状态。",
+          "explanationZh": "莱因哈鲁特回应自己会掌握处置菲鲁特的力度，并不是谈身体不舒服。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "搭配决定具体义项",
+          "takeawayZh": "常见组合有「手加減する」「火加減」「お加減はいかがですか」。",
+          "explanationZh": "单说「加減を知る／心得る」时，多指懂得分寸；加敬语前缀的「お加減」常问身体。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "克制能力的正式保证",
+          "takeawayZh": "「心得ております」以谦恭敬体向艾米莉雅保证不会下手过重。",
+          "explanationZh": "它回应“骑士大人也会用不像骑士的手段”这一评价，既承认强制又强调控制。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "多义扩展",
+          "plainZh": "一个“调节程度”的核心义，扩展到力度、温度和身体状况。"
+        },
+        {
+          "termZh": "搭配消歧",
+          "plainZh": "通过周围固定词组判断同一词在当前句中的意思。"
+        }
+      ],
+      "historicalNoteZh": "「加」「減」原本就是增加与减少，组合后自然形成调节、适度之义。",
+      "cautionZh": "不能见到「加減」就译成“健康”；「いい加減」还可表示适度或敷衍，需另看语境。"
+    },
+    "review_note": "核对 occurrence EP3 line 472「加減は心得ております」及 EP31 line 18「お加減は大丈夫ですか」；两处实证不同义项。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-kanben",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-kanben",
+    "linguistic_payload": {
+      "headlineZh": "「勘弁」本来是宽恕、免除，口语「勘弁して」常变成“饶了我吧／别这样”；「自爆は勘弁」省略谓语也能成立。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "汉语名词的サ变用法",
+          "takeawayZh": "可说「勘弁する」「勘弁してくれ」，也常只留下名词作拒绝。",
+          "explanationZh": "「自爆は勘弁」可补成「自爆は勘弁してくれ」，省略后更短促、更像即时吐槽。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "从免罪到不愿承受",
+          "takeawayZh": "请求对方免去某事，逐渐泛化为“这种事我受不了”。",
+          "explanationZh": "EP12 的「俺に免じて勘弁してくれ」仍保留宽恕他人的明确对象，EP3 则是拒绝自爆方案。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "轻口吻下的强烈反对",
+          "takeawayZh": "比正式说明风险更直接，常带无奈、求饶或吐槽色彩。",
+          "explanationZh": "昴面对“使用后除我之外无人幸存”的杀招，立刻以一句名词句划掉该选项。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "サ变名词",
+          "plainZh": "名词可接「する」成为动作，如「勘弁する」。"
+        },
+        {
+          "termZh": "语义泛化",
+          "plainZh": "从具体的宽恕发展成一般性的“请免了、别来这个”。"
+        }
+      ],
+      "historicalNoteZh": "「勘弁」原有查明情理后宽宥之意，现代会话中的求饶和拒绝义尤其活跃。",
+      "cautionZh": "对上级直接说「勘弁して」可能显得随便；正式场合宜具体说明无法接受的事项。"
+    },
+    "review_note": "核对 occurrence：EP3 line 200「自爆は勘弁」、EP12 line 204「俺に免じて勘弁してくれ」；EP15 记录行未见词面，未作为证据。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-勝負",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-勝負",
+    "linguistic_payload": {
+      "headlineZh": "「勝負」不只指比赛胜负；「精霊がいつまで顕現できるかが勝負」把“能维持多久”说成决定战局的关键。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "结果竞争与成败关键",
+          "takeawayZh": "既可表示一场较量，也可表示决定成功失败的要点或时机。",
+          "explanationZh": "罗姆不是邀请帕克比赛，而是在判断消耗战的胜负取决于精灵显现时间。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "疑问内容作焦点主语",
+          "takeawayZh": "「いつまで顕現できるか」整体由「が」标为“关键是什么”的答案。",
+          "explanationZh": "「Xが勝負だ」可译为“成败就在 X”，而非字面“X 是比赛”。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "战术判断压缩为一句",
+          "takeawayZh": "用「勝負」迅速指出资源限制，比展开完整因果更适合战斗现场。",
+          "explanationZh": "前句提议拖入消耗战，本句立即说明该计划最脆弱的变量。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "关键义",
+          "plainZh": "名词由“胜负”转指决定最终成败的因素。"
+        },
+        {
+          "termZh": "嵌入疑问",
+          "plainZh": "「いつまで…か」作为名词性内容进入更大的判断句。"
+        }
+      ],
+      "historicalNoteZh": "「勝負」由胜与负并列组成，现代常见「ここが勝負」「時間が勝負」等关键时点用法。",
+      "cautionZh": "遇到「Xが勝負」时先判断 X 是否是决定因素，不要一律译成“X 是比赛”。"
+    },
+    "review_note": "核对 occurrence EP3 line 99「精霊が いつまで顕現できるかが勝負じゃ」，并复查 EP22 line 105 的直接邀战义作对照。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-勤務時間",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-勤務時間",
+    "linguistic_payload": {
+      "headlineZh": "「勤務時間」是受雇或履行职务的工作时段；昴把帕克下午五点前能显现戏称为仍在“上班时间”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「勤務」与「時間」组成制度词",
+          "takeawayZh": "「勤務する」指任职、值勤，「勤務時間内／外」再划定制度边界。",
+          "explanationZh": "本句用「勤務時間内」而非单纯「時間がある」，强调像员工排班一样的可用时段。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "职务时间投射到精灵契约",
+          "takeawayZh": "帕克受显现时限制约，昴把这种规则类比为上班下班。",
+          "explanationZh": "「まだ５時前」提供具体截止点，说明为何此刻还能得到援助。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "现代职场词制造穿越式幽默",
+          "takeawayZh": "异世界精灵被说成按工时服务，使昴的现代人视角格外突出。",
+          "explanationZh": "他在脱险后用随便的「あんがとよ」致谢，进一步保持轻松口吻。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "制度词汇",
+          "plainZh": "依赖工作规范和组织安排才有明确边界的词。"
+        },
+        {
+          "termZh": "概念投射",
+          "plainZh": "用熟悉的上班制度理解另一个世界的能力限制。"
+        }
+      ],
+      "historicalNoteZh": "「勤務」是较正式的汉语词，常见于合同、排班和单位规章。",
+      "cautionZh": "日常问营业时间应用「営業時間」；「勤務時間」谈的是工作人员工作的时段。"
+    },
+    "review_note": "核对 occurrence EP3 line 53「まだ５時前 勤務時間内で助かった」；相邻台词确认帕克仍可显现并成功救援。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-juubun",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-juubun",
+    "linguistic_payload": {
+      "headlineZh": "读作「じゅうぶん」的「十分」表示达到所需程度；「嘲笑で十分」是“给你的笑容，有嘲笑就够了”。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "达到阈值的充足",
+          "takeawayZh": "它判断数量、程度或条件已经满足，不一定表示很多。",
+          "explanationZh": "贝阿特莉丝不是称赞嘲笑丰富，而是说对昴无需提供更友善的笑容。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「Nで十分だ」选择最低满足项",
+          "takeawayZh": "格助词「で」把 N 指定为足以满足当前目的的手段或内容。",
+          "explanationZh": "句中「笑顔なんて」先贬低话题，再由「嘲笑で十分」给出刻薄替代。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "满足判断也能用来拒绝亲近",
+          "takeawayZh": "“够了”在此不是安心，而是划低对方应得待遇。",
+          "explanationZh": "它回应昴要求微笑的调侃，延续贝阿特莉丝的毒舌人物关系。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "程度阈值",
+          "plainZh": "达到完成某目的所需的最低或适当程度。"
+        },
+        {
+          "termZh": "选择格「で」",
+          "plainZh": "指出采用什么内容就足够，如「これで十分」。"
+        }
+      ],
+      "historicalNoteZh": "表示充足时也写「充分」，现代常用字表通常以「十分」为常见写法。",
+      "cautionZh": "「十分」还可读「じっぷん／じゅっぷん」表示十分钟；读音和句法必须一起判断。"
+    },
+    "review_note": "核对 occurrence EP4 line 19「お前に見せる笑顔なんて 嘲笑で十分なのよ」；另读 EP10 line 153 的“伤一个人就够了”用法。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-半分",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-半分",
+    "linguistic_payload": {
+      "headlineZh": "「半分」表示整体二分之一；艾米莉雅说「エルフなのは半分だけ」是在限定血统身份成立的比例。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "数词与量名词组合",
+          "takeawayZh": "「半」表示一半，「分」在此构成比例名词，可直接接助词。",
+          "explanationZh": "常见形有「半分は」「半分だけ」「半分にする」，分别承担主题、限制和分割功能。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "比例限定身份类别",
+          "takeawayZh": "这里量化的是精灵血统，不是在描述身体空间的一半。",
+          "explanationZh": "上一句纠正“精灵”称呼，下一句对方立即确认「ハーフエルフ」，语境消除了物理分割读法。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "以精确比例修正标签",
+          "takeawayZh": "「だけ」让修正保持克制：并非完全否认，只说明完整精灵称呼不准确。",
+          "explanationZh": "她主动提供身份边界，也预告这一类别在世界观中具有社会意义。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "比例名词",
+          "plainZh": "把整体划分后，以名词形式指出所占份额。"
+        },
+        {
+          "termZh": "限制助词",
+          "plainZh": "「だけ」把成立范围压缩到所说部分。"
+        }
+      ],
+      "historicalNoteZh": "「半分」既可作具体数量，也常抽象表示责任、真伪或血统等非物质比例。",
+      "cautionZh": "翻译身份语境时要补出被量化的维度；只译“我有一半是精灵”可能让人误会为身体分区。"
+    },
+    "review_note": "核对 occurrence EP3 lines 23–24；完整台词「私がエルフなのは半分だけだから」后接「ハーフエルフ？」。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-危うく",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-危うく",
+    "linguistic_payload": {
+      "headlineZh": "副词「危うく」表示坏结果险些发生但最终避免；它与「君を失うところだった」共同构成强烈的近失表达。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "形容词连用形词汇化",
+          "takeawayZh": "来自「危うい」的连用形「危うく」，现代常独立作副词。",
+          "explanationZh": "虽然形态上与形容词变化有关，但「危うく～ところだった」已形成高频组合。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "现实未发生的近失事件",
+          "takeawayZh": "它把失去艾米莉雅定位为非常接近实现、却被阻止的反事实结果。",
+          "explanationZh": "后接「ところだった」再次标出临界点，两项叠加增强“就差一点”的程度。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "回顾危险并导出感谢",
+          "takeawayZh": "帕克先强调差点失去她，随后才说对昴感谢不尽。",
+          "explanationZh": "近失描述提供了感谢强度的理由，不是孤立的惊叹副词。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "近失",
+          "plainZh": "预期的坏事已经逼近，却在实际发生前被避免。"
+        },
+        {
+          "termZh": "反事实结果",
+          "plainZh": "谈论现实没有发生、但在当时极可能发生的结果。"
+        }
+      ],
+      "historicalNoteZh": "「危うく」除“险些”外，在较书面语中也可直接表示处境危险。",
+      "cautionZh": "它通常偏向险些发生坏事；若结果真的发生，就不能继续按“差点”解释。"
+    },
+    "review_note": "核对 occurrence EP4 line 124「昨日は 危うく 君を失うところだった」；EP10 记录窗口未见词面，未用于释义。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-危険人物",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-危険人物",
+    "linguistic_payload": {
+      "headlineZh": "「危険人物」是被共同体视为可能造成重大危害的人；艾尔莎因独特杀人方式，已作为危险人物在王都留名。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "评价名词修饰人物类别",
+          "takeawayZh": "「危険」作名词性修饰成分，与「人物」组成正式标签。",
+          "explanationZh": "它比口语「危ない人」更像治安、组织或情报系统中的分类。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「として」赋予登记身份",
+          "takeawayZh": "「危険人物として名前が挙がる」表示以该类别被提名、记录或知晓。",
+          "explanationZh": "不是她自称危险，而是外部社会已按风险给她归类。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "称号把传闻升级为公共威胁",
+          "takeawayZh": "莱因哈鲁特的说明让众人知道对手并非普通罪犯。",
+          "explanationZh": "前文解释“猎肠者”异名来源，本词进一步提供王都层面的危险认证。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "社会分类",
+          "plainZh": "群体或机构按风险把某人纳入特定类别。"
+        },
+        {
+          "termZh": "外部命名",
+          "plainZh": "标签由他人赋予，不等同于本人身份认同。"
+        }
+      ],
+      "historicalNoteZh": "「人物」在正式评价中常接特征词，如「重要人物」「要注意人物」。",
+      "cautionZh": "现实中给具体人贴「危険人物」标签很重，若无事实依据可能构成不当指控。"
+    },
+    "review_note": "核对 occurrence EP3 lines 249–253；line 251 明说「危険人物として 王都でも名前が挙がっている」。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-原っぱ",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-原っぱ",
+    "linguistic_payload": {
+      "headlineZh": "「原っぱ」是开阔的草地或空地，语感比「草原」随意；昴觉得宅邸庭院大得与其说是院子，不如说是片野地。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "口语化的场所名词",
+          "takeawayZh": "以「原」为词干形成熟悉、生活化的「原っぱ」。",
+          "explanationZh": "该词常让人联想到孩子玩耍的空地，不具有「草原」那样宏大的地理尺度。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「AよりB」在缩约比较中出现",
+          "takeawayZh": "台词「庭ってより 原っぱだ」是「庭というより」的口语缩约。",
+          "explanationZh": "比较不是否定它属于庭院，而是重新选择更贴近视觉印象的称呼。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "朴素词夸大宅邸尺度",
+          "takeawayZh": "用普通空地词形容贵族庭院，突出昴面对巨大空间的惊讶。",
+          "explanationZh": "紧接着他在这里做广播体操，场所也从景观变成可活动的宽阔平地。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "口语场所词",
+          "plainZh": "带日常生活感、比正式地理名称更亲近的空间称呼。"
+        },
+        {
+          "termZh": "重新分类",
+          "plainZh": "说话人用另一个类别名称修正对眼前对象的第一描述。"
+        }
+      ],
+      "historicalNoteZh": "「原っぱ」在儿童叙事和日常回忆中常见，容易唤起未经整修的开放空间意象。",
+      "cautionZh": "不要把它当成所有“平原”的正式译词；地图或地理文体通常不用这种说法。"
+    },
+    "review_note": "核对 occurrence EP4 lines 100–103；line 101「庭も庭ってより 原っぱだ」后接在庭中做准备运动。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-台なし",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-台なし",
+    "linguistic_payload": {
+      "headlineZh": "「台なし」表示原有价值、效果或安排被彻底糟蹋；「かわいい顔が台なし」是说带刺表情浪费了可爱外貌。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "固定名词「台無し」",
+          "takeawayZh": "常写作「台無し」，可接「だ／になる／にする」。",
+          "explanationZh": "本句采用「Nが台なしだ」框架，把被损害的价值「かわいい顔」置于主语位置。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "价值未消失但效果被毁",
+          "takeawayZh": "它不必表示物体物理损坏，而是原本优点无法发挥。",
+          "explanationZh": "脸仍然可爱，昴却认为冷淡神情让这种可爱不能产生应有效果。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "赞美包裹越界调侃",
+          "takeawayZh": "昴表面夸她可爱，实际要求她按自己的期待微笑。",
+          "explanationZh": "贝阿特莉丝随即以「嘲笑で十分」反击，说明这不是中立外貌评论。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "价值损毁",
+          "plainZh": "对象可能完好，但其优点、努力或计划失去作用。"
+        },
+        {
+          "termZh": "评价框架",
+          "plainZh": "「Nが台無し」把 N 标为遭到糟蹋的项目。"
+        }
+      ],
+      "historicalNoteZh": "词源说法并不统一；现代使用时整体已固化为“糟蹋、全毁”，无需按「台」逐字分析。",
+      "cautionZh": "对他人外貌说「台なし」可能带控制和冒犯感，本句正因人物冲突而显得尖锐。"
+    },
+    "review_note": "核对 occurrence EP4 line 17「かわいい顔が台なしだぜ」；另读 EP32 line 29 的「何もかも台なしになる」泛化用法。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-合図",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-合図",
+    "linguistic_payload": {
+      "headlineZh": "「合図」是约定或当场给出的行动信号；艾米莉雅说「合図したら」后，要求罗姆在信号出现时向昴搭话。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词兼サ变动作",
+          "takeawayZh": "既可说「合図を送る」，也可直接说「合図する」。",
+          "explanationZh": "「合図したら」由サ变动词的过去条件形构成，表示信号一发出就执行后项。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "让多人同步的触发点",
+          "takeawayZh": "信号本身不重要，关键是让另一人知道何时开始动作。",
+          "explanationZh": "治疗即将结束，艾米莉雅用信号协调罗姆叫醒或吸引昴注意。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "命令被拆成条件协作",
+          "takeawayZh": "她不要求立刻搭话，而是先设定可观察的启动时机。",
+          "explanationZh": "这种表达适合需要等待、配合和避免抢先行动的现场。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "触发信号",
+          "plainZh": "出现后让预先约定的行动开始的标记。"
+        },
+        {
+          "termZh": "条件协作",
+          "plainZh": "用“若／一旦发生 X”协调不同人的行动顺序。"
+        }
+      ],
+      "historicalNoteZh": "「合図」可由声音、动作、灯光等承担，并不天然等于秘密暗号。",
+      "cautionZh": "若强调只有内部人能解读的编码，应考虑「暗号」；一般点头示意仍是「合図」。"
+    },
+    "review_note": "核对 occurrence EP3 lines 309–313；line 311「合図したら 彼に声をかけて」明确给出条件与协同行动。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-味わう",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-味わう",
+    "linguistic_payload": {
+      "headlineZh": "「味わう」从细细品尝味道扩展到亲身体验感受；艾尔莎说想「味わってみたい」的是传说之剑的锋利。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "ワ行五段的及物动词",
+          "takeawayZh": "活用为「味わわない／味わいます／味わって／味わった」。",
+          "explanationZh": "「味わってみたい」再接「てみる」和愿望「たい」，表示想亲自试着体验。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "感官品尝到事件体验",
+          "takeawayZh": "宾语可从料理扩展为喜悦、痛苦、败北或此处的锋利威力。",
+          "explanationZh": "她并非用舌头尝剑，而是挑衅对方让自己亲身承受剑的切割效果。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "危险愿望塑造嗜战性格",
+          "takeawayZh": "把可能致命的攻击说成值得品味的体验，表现她对战斗的兴奋。",
+          "explanationZh": "问句形式看似好奇，实际是在刺激莱因哈鲁特拔剑。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "体验义",
+          "plainZh": "把某种事件或情绪当作可亲身感受、细细体会的对象。"
+        },
+        {
+          "termZh": "隐喻宾语",
+          "plainZh": "原本属于味觉的动词接受非食物对象。"
+        }
+      ],
+      "historicalNoteZh": "由味觉向人生体验扩展，在汉语“品味痛苦”等表达中也能看到相近的认知路径。",
+      "cautionZh": "普通地“吃到”不一定用「味わう」；该词往往带专注体会或特殊经历的意味。"
+    },
+    "review_note": "核对 occurrence EP3 lines 280–282；line 281「伝説の切れ味 味わってみたい」后接圣剑不能随意出鞘的说明。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-命知らず-vocab-card-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-命知らず",
+    "linguistic_payload": {
+      "headlineZh": "「命知らず」字面像“不知性命可贵”，实际指不顾生命危险的人或鲁莽行为；贝阿特莉丝评价冒充魔女之名十分不要命。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词复合中的「知らず」",
+          "takeawayZh": "「命＋知らず」整体可作名词，也可用「命知らずな行為」修饰。",
+          "explanationZh": "「知らず」不是单纯知识缺失，而把“不顾、不畏”凝固为人物特征。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "风险无视而非勇敢本身",
+          "takeawayZh": "可带赞叹，也常批评行为缺少自保判断。",
+          "explanationZh": "在人人畏惧嫉妒魔女的世界里冒用其名，会招来敌意，所以此处明显偏负面。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "世界常识下的严厉诊断",
+          "takeawayZh": "贝阿特莉丝借共同禁忌判断该行为近乎疯狂。",
+          "explanationZh": "下一句「頭がおかしいとしか言いようがない」把“鲁莽”进一步升级为失常评价。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "特征复合词",
+          "plainZh": "若干成分组合后，整体指具有某种稳定倾向的人。"
+        },
+        {
+          "termZh": "评价极性",
+          "plainZh": "同一大胆行为可被赞为勇敢，也可被批评为不要命。"
+        }
+      ],
+      "historicalNoteZh": "日语还有「世間知らず」「怖いもの知らず」等「N知らず」，都不只是字面“不知道”。",
+      "cautionZh": "不要把它当成正式的“无死亡知识者”；用于人时常含批评，需留意关系。"
+    },
+    "review_note": "核对 occurrence EP8 lines 218–220；真实字幕为「命知らずなことかしら／魔女の名前を騙るなんて」。其他部分 occurrence 行漂移未作主证据。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-商談",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-商談",
+    "linguistic_payload": {
+      "headlineZh": "「商談」是围绕交易条件展开的正式洽谈；艾尔莎把赃物买卖称作商谈，用商业语汇冷静包装犯罪。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "商业汉语词的サ变能力",
+          "takeawayZh": "可说「商談をする」「商談がまとまる」「商談中」。",
+          "explanationZh": "本句「商談なんて」由提示贬低的「なんて」把交易列为已经无法继续的事项。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "条件协商而非普通聊天",
+          "takeawayZh": "词义包含买卖、合作或价格等实质条件的谈判。",
+          "explanationZh": "徽章持有者本人到场，使原本以所有权不明为前提的买卖失去成立条件。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "职业腔掩盖暴力转向",
+          "takeawayZh": "她先礼貌宣布商谈不成，下一句才说改变计划并灭口。",
+          "explanationZh": "平静的商业词与杀戮方案并置，强化角色的冷酷和控制感。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "专业语域",
+          "plainZh": "在商业领域具有特定含义和正式感的词汇。"
+        },
+        {
+          "termZh": "语域反差",
+          "plainZh": "正式平静的用词与实际危险行为形成冲突。"
+        }
+      ],
+      "historicalNoteZh": "现代职场中「商談」常指销售、采购或合作谈判，比「相談」更明确指向商业交易。",
+      "cautionZh": "不能因汉字相近把它理解成一般“商量”；无交易事项时通常不用「商談」。"
+    },
+    "review_note": "核对 occurrence EP3 lines 59–61；「商談なんて とてもとても」之后立刻是「予定を変更した」和灭口宣告。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-嘆く",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-嘆く",
+    "linguistic_payload": {
+      "headlineZh": "「嘆く」表示因悲伤、遗憾或不满而哀叹；昴在内心独白中回顾自己曾经受伤、叹息并拼命战斗。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "カ行五段动词",
+          "takeawayZh": "活用为「嘆かない／嘆きます／嘆いて／嘆いた」。",
+          "explanationZh": "台词用「嘆いて」与多个て形并列，累积昴所经历的痛苦过程。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "可带原因宾语也可省略",
+          "takeawayZh": "既可说「不運を嘆く」，也可只说「嘆く」让语境恢复原因。",
+          "explanationZh": "本句没有明说叹什么，前后伤势和战斗已经提供足够内容。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "反复句式放大自己的付出",
+          "takeawayZh": "昴连续使用「あれだけ」，让后面的微薄报酬更显不相称。",
+          "explanationZh": "情绪词并非单独描写哭丧，而是他在内心盘点代价时列出的一项。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "原因宾语",
+          "plainZh": "以「Nを嘆く」指出令人悲叹的事情。"
+        },
+        {
+          "termZh": "累积并列",
+          "plainZh": "连续列出多个动作，使经历的重量逐步增加。"
+        }
+      ],
+      "historicalNoteZh": "「嘆く」可涵盖悲痛与对世事不满，书面感通常比简单的「悲しむ」更强。",
+      "cautionZh": "它不等于发出普通叹气声；仅描述呼气动作时应考虑「ため息をつく」。"
+    },
+    "review_note": "核对 occurrence EP3 lines 394–398；实际词面在 line 395「あれだけ嘆いて」，说话人为昴的内心独白，并与伤痛、命悬一线的战斗并列。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-回復",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-回復",
+    "linguistic_payload": {
+      "headlineZh": "「回復」表示从受损或不足状态返回较好水平；「回復魔法」是使伤势恢复的魔法类别。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "サ变名词也能作复合修饰",
+          "takeawayZh": "可说「体力が回復する」「傷を回復させる」，也可组成「回復魔法」。",
+          "explanationZh": "台词中名词直接修饰「魔法」，不需要格助词。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "返回基准而非首次获得",
+          "takeawayZh": "回到先前健康、充足或正常状态是核心。",
+          "explanationZh": "昴看到腹部伤口消失，推测艾米莉雅用魔法把身体恢复到受伤前状态。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "根据结果反推救治方式",
+          "takeawayZh": "句末「かな？」显示这是昴的推测，不是亲眼看到施法。",
+          "explanationZh": "回復这一类别词帮助他从身体证据重建昏迷期间发生的事。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "基准恢复",
+          "plainZh": "状态从低点返回被视为正常或较好的水平。"
+        },
+        {
+          "termZh": "名词复合",
+          "plainZh": "两个名词直接组合，使前项限定后项类别。"
+        }
+      ],
+      "historicalNoteZh": "「回復」可用于健康、景气、通信和数值等多种可升降状态。",
+      "cautionZh": "主动修好具体器物常用「修理する」；「回復」更关注状态回升，不一定描述操作手段。"
+    },
+    "review_note": "核对 occurrence EP4 lines 3–7；line 5「エミリアの回復魔法かな？」由伤口消失推断，另有后期记录但未作为本卡主语境。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-回避",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-回避",
+    "linguistic_payload": {
+      "headlineZh": "「回避」是绕开风险、责任或不利结果；昴发现自己没死，于是判断这次成功避开了「死に戻り」。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "动作名词「回避する」",
+          "takeawayZh": "常见宾语包括「危険」「衝突」「責任」「最悪の事態」。",
+          "explanationZh": "本句以「死に戻りは」设为主题，后接可能形「回避できた」判断结果。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "不进入预期坏路径",
+          "takeawayZh": "重点是某种后果没有发生，而不一定描述逃跑动作。",
+          "explanationZh": "伤口已治愈且环境变化，证明时间循环没有再次被死亡触发。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "暂时安心的推论标签",
+          "takeawayZh": "昴用游戏式术语总结证据，迅速给当前状态命名。",
+          "explanationZh": "「ってことだな」显示他是在确认自己的推断，而不是报告别人宣布的事实。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "风险路径",
+          "plainZh": "若不采取或发生其他条件，原本可能进入的不利结果。"
+        },
+        {
+          "termZh": "结果回避",
+          "plainZh": "关注坏结果未实现，不必包含物理上的躲闪。"
+        }
+      ],
+      "historicalNoteZh": "「回避」在行政、法律和游戏语境都常见，语体通常比「避ける」正式。",
+      "cautionZh": "「逃避」常含不愿面对责任的问题；「回避」本身可只是合理避险，两者不能机械互换。"
+    },
+    "review_note": "核对 occurrence EP4 line 7「今回は“死に戻り”は 回避できたってことだな」，并连读伤口与环境检查。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-因果関係",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-因果関係",
+    "linguistic_payload": {
+      "headlineZh": "「因果関係」是原因与结果之间的联系；昴听说艾米莉雅施展精灵术会让莱因哈鲁特无法全力，便追问两者究竟如何相连。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "两个抽象汉语词构成术语",
+          "takeawayZh": "「因果」指出原因和结果，「関係」强调二者之间的关联。",
+          "explanationZh": "常与「ある／ない」「明らかにする」「証明する」搭配。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「どういう」询问关系类型",
+          "takeawayZh": "「どういう因果関係？」不是只问有没有联系，而是要求解释机制。",
+          "explanationZh": "下一句说明莱因哈鲁特认真战斗会让大气玛那转向他，补出具体因果链。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "专业词表达即时困惑",
+          "takeawayZh": "短问句把复杂魔法规则当成需要说明的逻辑问题。",
+          "explanationZh": "昴用理性分析口吻打断战斗叙述，也强化他对世界机制的学习者位置。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "因果机制",
+          "plainZh": "说明为什么一个事件会导致另一个事件。"
+        },
+        {
+          "termZh": "关联区别",
+          "plainZh": "两个现象同时出现不自动证明其中一个造成另一个。"
+        }
+      ],
+      "historicalNoteZh": "「因果」源于汉语与佛教词汇，现代「因果関係」则广用于科学、法律和日常论证。",
+      "cautionZh": "不要把任何相关性都称为已证实的因果关系；本句正是在请求机制说明。"
+    },
+    "review_note": "核对 occurrence EP3 lines 305–309；line 307「どういう因果関係？」后续解释精灵术、莱因哈鲁特与大气玛那的联系。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-報酬",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-報酬",
+    "linguistic_payload": {
+      "headlineZh": "「報酬」是对劳动、任务或风险的回报；昴把艾米莉雅的名字与一个笑容戏称为自己拼命战斗所得的报酬。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "付出之后的对价",
+          "takeawayZh": "通常预设先完成工作或承担成本，再获得金钱、物品或其他回馈。",
+          "explanationZh": "这里没有正式委托关系，昴却用交易框架计算自己的付出和所得。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「その報酬がN」的识别句",
+          "takeawayZh": "后项「彼女の名前と笑顔が１つ」具体说明所谓报酬是什么。",
+          "explanationZh": "连续的「が」在口语中略显松散，却能把抽象回报迅速落到两个项目。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "严肃成本与浪漫回报的落差",
+          "takeawayZh": "把生命危险换算成名字和笑容，既揶揄昴，也承认他重视这些。",
+          "explanationZh": "同一段独白紧接「割に合わねえ」，沿用交易比喻完成自嘲。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "对价关系",
+          "plainZh": "一方的付出与另一方给出的回报被放在同一交换框架内。"
+        },
+        {
+          "termZh": "框架延续",
+          "plainZh": "相邻说话人沿用同一比喻，使对话衔接。"
+        }
+      ],
+      "historicalNoteZh": "「報酬」比「お礼」更强调任务与回报的交换关系，常见于工作、委托和悬赏。",
+      "cautionZh": "无偿帮助后的感谢不一定叫「報酬」；本场景正是故意把人情说成交易。"
+    },
+    "review_note": "核对 occurrence EP3 lines 395–398；line 397 明确列出「その報酬が 彼女の名前と笑顔が１つ」，说话人为昴的内心独白。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-声をかける",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-声をかける",
+    "linguistic_payload": {
+      "headlineZh": "「声をかける」是主动向某人搭话、招呼或邀请；昴幻想醒来时有看护他的美少女对他说“醒了吗”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "身体名词构成的惯用动词组",
+          "takeawayZh": "形式是「人に声をかける」，不能逐字理解为把声音挂上去。",
+          "explanationZh": "句中主语由「美少女が」承担，受话者昴从语境省略。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "主动开启互动",
+          "takeawayZh": "核心是向对方发出第一句或引起注意，可扩展到邀请加入。",
+          "explanationZh": "此处具体内容由前一行引用的「起きた？」提供，因此不是泛泛“发声”。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "动漫套路期待的具体化",
+          "takeawayZh": "昴把理想看护场景拆成床边、美女和主动搭话几个要素。",
+          "explanationZh": "现实只有陌生房间，他用这一惯用语抱怨召唤题材的服务不足。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "互动启动",
+          "plainZh": "一方主动发话，让原本没有进行的交谈开始。"
+        },
+        {
+          "termZh": "惯用动词组",
+          "plainZh": "多个普通词组合后形成不可逐字相加的固定意思。"
+        }
+      ],
+      "historicalNoteZh": "「声をかける」还可表示招募或邀请，如「メンバーに声をかける」。",
+      "cautionZh": "若只是远处喊叫，可能用「呼びかける」更贴切；是否开启交谈要看对象和场景。"
+    },
+    "review_note": "核对 occurrence EP4 lines 8–10；line 9 的主语是昴幻想中在枕边看护他的美少女。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-変更",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-変更",
+    "linguistic_payload": {
+      "headlineZh": "「変更」是把既定内容改成另一版本；艾尔莎在交易无法继续后说「予定を変更した」，却暂时不说新计划是杀人灭口。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "他动性サ变名词",
+          "takeawayZh": "常用「予定を変更する」「設定が変更される」。",
+          "explanationZh": "本句用过去形「変更した」宣告决定已经完成，不是在征求讨论。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "保留框架但替换内容",
+          "takeawayZh": "与完全取消不同，原行动框架继续，只是具体安排被改动。",
+          "explanationZh": "她没有撤退，而是从购买徽章切换为杀死所有关系人。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "中性行政词延迟揭露威胁",
+          "takeawayZh": "平淡的“改计划”先控制信息，下一句才释放恐怖内容。",
+          "explanationZh": "这种低情绪表达使角色显得把杀人视作普通业务调整。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "既定项改写",
+          "plainZh": "原先已有安排，后来替换其中内容。"
+        },
+        {
+          "termZh": "信息延迟",
+          "plainZh": "先宣布发生改变，稍后才交代改变后的具体结果。"
+        }
+      ],
+      "historicalNoteZh": "「変更」常见于日程、规则、配置等正式通知，语气本身中性。",
+      "cautionZh": "不要把它等同于「中止」；变更后的行动可能继续，甚至比原计划更激烈。"
+    },
+    "review_note": "核对 occurrence EP3 lines 59–62；line 60 宣布变更，line 61 才明确新计划是杀死现场关系人。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-大層",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-大層",
+    "linguistic_payload": {
+      "headlineZh": "「大層」可表示很了不起、规模很大，也能作程度副词；菲鲁特说自己没有「家名なんて大層なもん」，是在贬低贵族式姓氏的排场。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "形容动词与副词双重用法",
+          "takeawayZh": "可说「大層な話」也可说「大層喜ぶ」。",
+          "explanationZh": "本句为「大層なもの」的口语省略，修饰被称作「もん」的家名。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "规模评价带夸张感",
+          "takeawayZh": "既可能真心称赞宏大，也可能暗示过于郑重、与自己无关。",
+          "explanationZh": "菲鲁特出身贫民街，把家名视为上层社会才有的体面事物。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「なんて」共同完成自我降格",
+          "takeawayZh": "她不只说没有姓氏，还把这种东西说得过分隆重。",
+          "explanationZh": "回答拒绝进入骑士的正式身份询问框架，维持粗率、戒备的态度。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "语体评价",
+          "plainZh": "一个词同时评价对象的规模及其郑重、排场感。"
+        },
+        {
+          "termZh": "反向夸张",
+          "plainZh": "表面说对象了不起，实际强调它离自己很远或不必要。"
+        }
+      ],
+      "historicalNoteZh": "「大層」在现代日常口语中略带旧式感，但在人物台词和「大層な」搭配里仍常见。",
+      "cautionZh": "不能总译为“非常”；修饰名词时往往包含规模或排场评价。"
+    },
+    "review_note": "核对 occurrence EP3 lines 453–455；line 454「家名なんて大層なもんは 持っちゃいねえよ」。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-大抵",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-大抵",
+    "linguistic_payload": {
+      "headlineZh": "「大抵」表示大多数情况或通常如此；帕克说从自己看来，大部分对手都像婴儿。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "副词兼名词性数量表达",
+          "takeawayZh": "可说「大抵は」「大抵の人」「大抵うまくいく」。",
+          "explanationZh": "本句「大抵の相手」用「の」把范围判断直接修饰人群名词。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "高比例但非全称",
+          "takeawayZh": "它概括多数成员，仍允许少数例外存在。",
+          "explanationZh": "帕克并未说所有人都弱，只以漫长经历把普通对手归为幼小一类。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "温和外形下的资历展示",
+          "takeawayZh": "看似轻松的数量词实际抬高了帕克的年龄与实力视角。",
+          "explanationZh": "它回应艾尔莎被当作女孩的感受，又不直接否认她很强。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "近全称量化",
+          "plainZh": "覆盖绝大多数对象，但不像“全部”那样没有例外。"
+        },
+        {
+          "termZh": "范围修饰",
+          "plainZh": "「大抵のN」先限定群体范围，再谈该群体。"
+        }
+      ],
+      "historicalNoteZh": "「大抵」也可用于带克制的断言，如「大抵は大丈夫」，保留不确定余地。",
+      "cautionZh": "不要将它与「絶対」混同；若需要表达百分之百确定，不能用「大抵」。"
+    },
+    "review_note": "核对 occurrence EP3 lines 92–96；line 94「僕から見れば 大抵の相手は 赤ん坊みたいなもの」。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-学習",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-学習",
+    "linguistic_payload": {
+      "headlineZh": "「学習」既可指系统学习，也可指从重复经验中调整行为；昴在第四次遇到同一帮人时说自己已经学会应对。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "サ变动作与进行结果",
+          "takeawayZh": "「学習する」在口语缩为「学習してんだ」，这里强调经验已产生效果。",
+          "explanationZh": "「している」不是正在上课，而是已经学到并保持应对策略。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "从知识获得扩展到策略更新",
+          "takeawayZh": "主体根据过去失败改变下一次选择，也可以称为学习。",
+          "explanationZh": "他知道不再与三人缠斗，而是立刻呼叫卫兵。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "只有本人知道的循环经验",
+          "takeawayZh": "「４度目となりゃ」让学习建立在别人无法共享的重置记忆上。",
+          "explanationZh": "夸耀语气表面像小聪明，背后却是多次受害积累出的生存适应。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "经验学习",
+          "plainZh": "通过结果反馈修正之后的行为，而非只记忆书本知识。"
+        },
+        {
+          "termZh": "结果状态",
+          "plainZh": "「ている」可表示某动作完成后形成的能力仍然存在。"
+        }
+      ],
+      "historicalNoteZh": "「学習」在教育与心理学中都常用，机器从数据调整行为也称「機械学習」。",
+      "cautionZh": "日常说具体学科常用「勉強」；本句更像从失败模式中吸取教训。"
+    },
+    "review_note": "核对 occurrence EP2 lines 165–169；line 166「こっちも４度目となりゃ 学習してんだ」后立即呼叫卫兵。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-守り抜く",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-守り抜く",
+    "linguistic_payload": {
+      "headlineZh": "「守り抜く」是在困难或阻碍中坚持保护到底；昴把自己刚救下艾米莉雅夸成从凶刃下守护到底。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "动词词干加补助动词「抜く」",
+          "takeawayZh": "「守り＋抜く」为复合动词，后项添加贯彻到终点的意义。",
+          "explanationZh": "同类有「戦い抜く」「耐え抜く」，都强调过程艰难仍完成。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "持续保护与完成界线",
+          "takeawayZh": "比单说「守る」更强调没有中途放弃并成功保住对象。",
+          "explanationZh": "台词用过去形「守り抜いた」，把刚结束的战斗包装成完整英雄业绩。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "事实基础上的夸张自我介绍",
+          "takeawayZh": "昴确实参与救援，却用「まさに」「命の恩人」把功劳说到最大。",
+          "explanationZh": "他以此重新介绍自己，也试图快速建立艾米莉雅对他的亲近认识。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "完成性复合动词",
+          "plainZh": "后项「抜く」表示动作经受困难并贯彻到最后。"
+        },
+        {
+          "termZh": "自我英雄化",
+          "plainZh": "说话人用强化词重新包装自己的实际贡献。"
+        }
+      ],
+      "historicalNoteZh": "作为补助成分的「抜く」保留“穿透、到底”的空间意象，形成坚持完成的抽象义。",
+      "cautionZh": "不是所有动作都能自然接「抜く」；通常需要可持续、可克服阻力的过程。"
+    },
+    "review_note": "核对 occurrence EP3 lines 369–373；line 371「君を凶刃から守り抜いた命の恩人」处于昴夸张自我介绍。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-完了",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-完了",
+    "linguistic_payload": {
+      "headlineZh": "「完了」表示预定过程已全部结束；艾米莉雅以「治療は完了」简短宣布治疗操作完成。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "动作名词直接成句",
+          "takeawayZh": "可说「作業が完了する」，也可像本句省略系词说「治療は完了」。",
+          "explanationZh": "短句将治疗设为主题，以名词给出完成状态，听感利落。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "过程终点不等于完全康复",
+          "takeawayZh": "它只保证治疗步骤做完，不自动保证所有后果立即消失。",
+          "explanationZh": "下一句仍谨慎说「どうにか峠は越えたでしょう」，说明病情判断与操作结束分开。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "专业操作的阶段报告",
+          "takeawayZh": "治疗者通过一句状态通知，让周围人知道可以转入后续安排。",
+          "explanationZh": "紧接着对话开始询问昴与艾米莉雅的关系，显示现场任务阶段已经切换。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "终结状态",
+          "plainZh": "一个有预定步骤的过程到达其结束点。"
+        },
+        {
+          "termZh": "名词谓语",
+          "plainZh": "用名词承担句子结论，口语中可省略「だ／です」。"
+        }
+      ],
+      "historicalNoteZh": "「完了」常见于操作界面、工作报告和语法术语，带明确阶段边界。",
+      "cautionZh": "「治療完了」不必然等于「完全回復」；前者说程序，后者说身体状态。"
+    },
+    "review_note": "核对 occurrence EP3 lines 409–413；实际词面在 line 410「よし 治療は完了」，随后仅判断已越过危险期。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-実体験",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-実体験",
+    "linguistic_payload": {
+      "headlineZh": "「実体験」强调本人亲身经历过的经验；昴因曾被同一种双刀攻击杀死，才能预告“还有第二把”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "前缀式「実」强化真实性",
+          "takeawayZh": "「体験」本已指经历，「実」进一步排除传闻、想象和间接知识。",
+          "explanationZh": "常见搭配是「実体験に基づく」「実体験がある」。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "知识来源的亲历标记",
+          "takeawayZh": "它回答的不是知道什么，而是凭什么知道。",
+          "explanationZh": "对旁人而言昴像有惊人洞察；对他自己而言，依据是上一轮死亡时真正挨过攻击。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "真话因秘密而像玩笑",
+          "takeawayZh": "「あったんでな」语气随意，却不能解释死亡回归，只能含糊带过。",
+          "explanationZh": "这种信息不对称让同伴接受实用警告，却无法理解其沉重来源。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "证据来源",
+          "plainZh": "判断所依据的信息是亲历、观察、传闻还是推测。"
+        },
+        {
+          "termZh": "信息不对称",
+          "plainZh": "说话人掌握关键经历，而听者无法获得同样背景。"
+        }
+      ],
+      "historicalNoteZh": "宣传、访谈和纪实写作常用「実体験」突出内容并非虚构。",
+      "cautionZh": "个人亲历可以真实，却不一定能代表所有人的普遍情况。"
+    },
+    "review_note": "核对 occurrence EP3 lines 294–298；line 296「実体験があったんでな」解释他为何知道艾尔莎还有第二把刀。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-客人",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-客人",
+    "linguistic_payload": {
+      "headlineZh": "读作「きゃくじん」的「客人」是较正式、带待遇身份的宾客；「客人として扱う」表示把昴纳入宅邸保护与接待范围。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "汉语式复合名词的正式感",
+          "takeawayZh": "日常招呼顾客多说「お客さん／お客様」，「客人」更像叙述或制度身份。",
+          "explanationZh": "它不是中文读音直搬，日语读作「きゃくじん」。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「として扱う」设定待遇类别",
+          "takeawayZh": "前项不是说昴本来就是客人，而是提议按客人的方式处置。",
+          "explanationZh": "「扱う」包含安排住处、照料和管理其身柄等实际后果。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "礼貌名目提供临时保护",
+          "takeawayZh": "莱因哈鲁特询问昴的身柄，并提议由阿斯特雷亚家按宾客接收。",
+          "explanationZh": "艾米莉雅随后决定自己带走他，显示“客人”也是各方争取照管权的方案。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "待遇身份",
+          "plainZh": "一个称呼决定组织将如何接待、保护或管理某人。"
+        },
+        {
+          "termZh": "角色赋予",
+          "plainZh": "「Nとして扱う」按 N 的类别对待对象，不必声称其本质就是 N。"
+        }
+      ],
+      "historicalNoteZh": "「客人」在现代口语频率低于「客」「お客様」，作品中的宅邸语境使其显得庄重。",
+      "cautionZh": "在商店称顾客一般不用「客人」直接呼叫；学习时应连同语域记忆。"
+    },
+    "review_note": "核对 occurrence EP3 lines 421–424；询问身柄并在 line 422 提议「当家のほうで客人として扱いますが」的都是莱因哈鲁特，随后艾米莉雅决定自己带昴回去。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-寝室",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-寝室",
+    "linguistic_payload": {
+      "headlineZh": "「寝室」是专供睡眠的房间；贝阿特莉丝把禁书库介绍成同时兼任书库、卧室和私人房间的空间。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "用途名词加空间名词",
+          "takeawayZh": "「寝」限定用途，「室」表示房间，整体语体比「寝る部屋」凝练。",
+          "explanationZh": "可与「客室」「浴室」「会議室」对照，后项「室」稳定标记功能空间。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "连续「兼」叠加多重用途",
+          "takeawayZh": "「書庫兼 寝室兼用 私室」说明同一空间承担多个角色。",
+          "explanationZh": "「兼」连接并列身份，「兼用」进一步强调共用，而非存在三间不同房间。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "私人领域的边界宣告",
+          "takeawayZh": "她不只回答地点，也暗示昴闯入了自己的生活空间。",
+          "explanationZh": "随后的不耐烦与惩罚因此不仅是毒舌，也有维护私域的依据。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "功能空间",
+          "plainZh": "按主要用途命名的房间类别。"
+        },
+        {
+          "termZh": "兼用",
+          "plainZh": "同一物件或场所同时服务两个以上用途。"
+        }
+      ],
+      "historicalNoteZh": "现代住宅用语中「寝室」偏书面和分类说明，家庭会话也常说「寝る部屋」。",
+      "cautionZh": "「寝室」不是旅馆所有客房的通称；它强调睡眠用途，不自动表示私有。"
+    },
+    "review_note": "核对 occurrence EP4 lines 26–29；line 27「書庫兼 寝室兼用 私室」明确为同一房间的多重用途。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-対象",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-対象",
+    "linguistic_payload": {
+      "headlineZh": "「対象」把人或物标成某种行为、评价或作用所指向的对象；作品中可组成「愛玩対象」「呪いの対象」「乗り移る対象」。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "抽象名词形成领域复合词",
+          "takeawayZh": "前项说明哪一种作用，后项「対象」标记被作用的一方。",
+          "explanationZh": "同一个词进入宠爱、诅咒和附身语境，具体关系由前项与谓语决定。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "方向终点而非单一目标",
+          "takeawayZh": "它比「目標」更中性，可指被研究、被保护或被伤害者。",
+          "explanationZh": "EP4 的帕克是想摸和宠爱的对象；EP10 的昴则是诅咒夺取玛那的对象。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "物化效果取决于关系",
+          "takeawayZh": "称人为「対象」会突出功能位置，弱化其主体性。",
+          "explanationZh": "昴说「愛玩対象」时带宅文化玩笑，帕克随即能从读心判断他是真心。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "作用指向",
+          "plainZh": "某行为或状态最终落到谁或什么上。"
+        },
+        {
+          "termZh": "领域复合",
+          "plainZh": "前项改变「対象」所属的具体活动类型。"
+        }
+      ],
+      "historicalNoteZh": "「対象」广用于行政、科研和日常说明，常见「対象者」「対象外」。",
+      "cautionZh": "与人交谈时直接把对方称作某种「対象」可能冷淡或物化；正式分类语境则很自然。"
+    },
+    "review_note": "核对 occurrence EP4 line 131「触りたい愛玩対象」、EP10 line 106「対象からマナを奪う」、EP24 line 50 的附身对象。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-峠を越える",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-峠を越える",
+    "linguistic_payload": {
+      "headlineZh": "「峠を越える」本指翻过山口，医疗语境中比喻最危险的阶段已经过去；治疗完成后仍只能谨慎说昴大概渡过难关。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "空间路径映射病程",
+          "takeawayZh": "山路最高、最难的一段对应疾病或危机的临界期。",
+          "explanationZh": "越过山口意味着后续仍有路要走，但最险处暂时在身后。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "主题化与推量缓冲",
+          "takeawayZh": "实际说法「峠は越えたでしょう」以「は」标出阶段，再用「でしょう」保留判断余地。",
+          "explanationZh": "治疗者不宣称完全康复，只给出较乐观但审慎的阶段评价。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "专业安慰避免过度保证",
+          "takeawayZh": "「どうにか」还显示过程勉强成功，结论并不轻松。",
+          "explanationZh": "这让旁人可以暂时安心，同时继续把昴视为需要照料的伤者。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "路径隐喻",
+          "plainZh": "用跨越地形的过程理解病情或困难的发展阶段。"
+        },
+        {
+          "termZh": "审慎断言",
+          "plainZh": "给出判断时保留不确定性，避免把推测说成保证。"
+        }
+      ],
+      "historicalNoteZh": "山国生活使「峠」自然成为难关的比喻，现代也可用于谈判、项目或经济低谷。",
+      "cautionZh": "“过了峠”不等于事情全部结束；它只说峰值风险已经过去。"
+    },
+    "review_note": "核对 occurrence EP3 lines 410–412；line 411「どうにか峠は越えたでしょう」紧接治疗完了。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-幕引き",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-幕引き",
+    "linguistic_payload": {
+      "headlineZh": "「幕引き」由舞台落幕延伸为事件收场；帕克说「そろそろ幕引きといこうか」，宣告玩闹阶段结束、准备决胜。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "舞台动作名词化",
+          "takeawayZh": "「幕を引く」凝固成名词「幕引き」，可指结束行为或结局。",
+          "explanationZh": "与「幕開け」相对，一个关闭事件，一个开启新阶段。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "从表演终止到冲突收束",
+          "takeawayZh": "它强调给持续事件安排一个结尾，而不只是时间自然过去。",
+          "explanationZh": "帕克主动决定不再消耗，准备采取能结束战斗的行动。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "轻松提议包裹战斗升级",
+          "takeawayZh": "「といこうか」像邀请共同进入下一环节，语气从容。",
+          "explanationZh": "前面还在调侃熬夜伤皮肤，这句却成为发动大招前的转折信号。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "舞台隐喻",
+          "plainZh": "把现实事件理解成有开场、发展和落幕的表演。"
+        },
+        {
+          "termZh": "阶段切换",
+          "plainZh": "一句话宣布当前互动方式结束，下一种行动开始。"
+        }
+      ],
+      "historicalNoteZh": "新闻中也会用「事件の幕引き」谈争议或案件收场，有时暗含人为匆促结束。",
+      "cautionZh": "它不一定意味着圆满解决；有时只是某方强行让事情结束。"
+    },
+    "review_note": "核对 occurrence EP3 lines 104–108；line 106「そろそろ幕引きといこうか」处在帕克准备改变战法之前。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-引きが強い",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-引きが強い",
+    "linguistic_payload": {
+      "headlineZh": "游戏口语「引きが強い」表示抽取、选择时运气特别好；昴自夸一次就抽中正确房间。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "抽取动作转指随机运",
+          "takeawayZh": "「引き」可指抽签、抽卡或抓牌的结果倾向，「強い」评价好运稳定。",
+          "explanationZh": "不是手臂拉力强，而是常能在随机机制中抽到有利项目。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "所有者话题被省略",
+          "takeawayZh": "完整关系是「俺は引きが強い」，身体式双主语结构表达人的属性。",
+          "explanationZh": "「昔っから」把好运塑造成长期特征，而非本次偶然。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "把空间谜题游戏化",
+          "takeawayZh": "昴称贝阿特莉丝像游戏管理员，认为她希望玩家踩完全部事件。",
+          "explanationZh": "这套词汇把对方的愤怒解释为游戏设计者被跳关后的不满。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "游戏俚语",
+          "plainZh": "从抽签、卡牌等随机机制发展出的圈内表达。"
+        },
+        {
+          "termZh": "属性双主语",
+          "plainZh": "以「人は 部分が性质」说明某人的某一方面具有特征。"
+        }
+      ],
+      "historicalNoteZh": "在卡牌、抽奖和综艺语境中，「引き」常直接指抽到的手气与结果。",
+      "cautionZh": "离开随机抽取或机会语境时，它可能被误解；正式场合可说「運がいい」。"
+    },
+    "review_note": "核对 occurrence EP4 lines 20–24；line 22「俺 昔っから こういう引きが強くてさ」连着正解、游戏管理员与事件。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-徴収",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-徴収",
+    "linguistic_payload": {
+      "headlineZh": "「徴収」通常指有权一方依法或按规则收取税费；贝阿特莉丝却说从昴体内“征收”了一点玛那，故意把强取说得制度化。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "正式他动サ变词",
+          "takeawayZh": "结构为「主体が 人から／Nを 徴収する」。",
+          "explanationZh": "本句直接用「マナを徴収した」，来源“从昴体内”已由前置地点表达给出。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "带权力依据的收取",
+          "takeawayZh": "与普通「集める」相比，它容易联想到税金、费用和强制规则。",
+          "explanationZh": "实际没有双方同意的收费制度，词语因此淡化了她单方面吸取玛那的暴力。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "官僚措辞制造轻描淡写",
+          "takeawayZh": "「ちょっと」「だけ」再把刚造成的剧痛压成微不足道的操作。",
+          "explanationZh": "她用冷静术语宣示自己掌控局面，并拒绝为昴的不适负责。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "制度性收取",
+          "plainZh": "以某种权力或规则为背景，从他人处收取资源。"
+        },
+        {
+          "termZh": "官僚化",
+          "plainZh": "用中性正式词包装本来直接、强硬甚至伤害性的动作。"
+        }
+      ],
+      "historicalNoteZh": "现实高频搭配有「税金を徴収する」「料金を徴収する」，带明显行政色彩。",
+      "cautionZh": "朋友间随手收钱通常不用「徴収」；除非开玩笑强调强制或统一收取。"
+    },
+    "review_note": "核对 occurrence EP4 lines 40–44；line 42「体の中のマナを 徴収しただけ」发生在昴剧痛之后。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-心待ち",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-心待ち",
+    "linguistic_payload": {
+      "headlineZh": "「心待ち」是带喜悦地翘首等待；贝阿特莉丝说自己一直盼着帕克回来，显露与平时毒舌不同的亲昵。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "心理名词与等待构成复合语",
+          "takeawayZh": "常用框架是「Nを心待ちにする／している」。",
+          "explanationZh": "「心待ち」本身多作名词，借「にする」进入谓语结构。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "正向期待而非普通等待",
+          "takeawayZh": "不仅说明时间尚未到，还包含期待对象到来的愉快心情。",
+          "explanationZh": "她不是被迫等待，而是把帕克归来当成值得盼望的事件。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "亲昵称呼与期待共同变脸",
+          "takeawayZh": "「にーちゃ」和「心待ち」突然展现她对帕克的特殊亲密。",
+          "explanationZh": "与前面对昴的不耐烦形成鲜明角色对照，也解释她随后询问能否相伴。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "情感性等待",
+          "plainZh": "等待行为中明确包含对结果到来的正面期待。"
+        },
+        {
+          "termZh": "固定格框架",
+          "plainZh": "「对象を心待ちにする」是最典型的使用结构。"
+        }
+      ],
+      "historicalNoteZh": "「心待ちにしております」常见于礼貌书信，用来表达真诚期待见面或来访。",
+      "cautionZh": "如果只是中性地等车或排队，用「待つ」即可；「心待ち」会额外表达喜悦期待。"
+    },
+    "review_note": "核对 occurrence EP4 lines 154–160；line 157「にーちゃの帰りを 心待ちにしてたのよ」后接能否一起相处。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-心根",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-心根",
+    "linguistic_payload": {
+      "headlineZh": "「心根」指一个人深层、较稳定的性情或心地；昴确认菲鲁特即使经历世界重置，善良本性仍未改变。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「心」与「根」构成内在本质",
+          "takeawayZh": "根的意象让性格显得深入、稳定，而非一时情绪。",
+          "explanationZh": "常见评价有「心根が優しい」「心根が腐っている」，褒贬取决于修饰内容。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "行为背后的持续倾向",
+          "takeawayZh": "它关注促使人反复做出相似选择的内在品性。",
+          "explanationZh": "菲鲁特在不同循环里仍展现同样反应，昴因此把观察提升为对本性的判断。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "独白保存跨循环人格连续性",
+          "takeawayZh": "只有昴记得多次世界，他借此确认对方仍是“同一个人”。",
+          "explanationZh": "这句不是当面称赞，而是给自己继续相信和帮助她的理由。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "人格倾向",
+          "plainZh": "跨多个场合仍较稳定地影响行为的内在性情。"
+        },
+        {
+          "termZh": "根源隐喻",
+          "plainZh": "用植物的根理解不易看见、却支撑外在表现的本质。"
+        }
+      ],
+      "historicalNoteZh": "「心根」带一定文学色彩，日常也会用于较郑重地评价人的善恶心地。",
+      "cautionZh": "它是很深的人格判断；仅凭一次行为给别人下结论可能过度。"
+    },
+    "review_note": "核对 occurrence EP3 lines 36–38；「この子の心根は 世界を何度繰り返しても 変わってない」是昴的循环独白。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-心配無用",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-心配無用",
+    "linguistic_payload": {
+      "headlineZh": "「心配無用」是“无需担心”的定型表达；罗兹瓦尔用更客气的「心配ご無用」安抚昴不必警戒王位空缺这一消息。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词判断省略系词",
+          "takeawayZh": "「心配は無用だ」压缩为「心配無用」，也可在「無用」前加礼貌前缀「ご」。",
+          "explanationZh": "「無用」在此是“不需要”，不是评价某种东西没有用途。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "取消担忧的必要性",
+          "takeawayZh": "说话人断言现有信息不足以构成秘密泄露或危险。",
+          "explanationZh": "后一句说明这已经是市井皆知的事实，为“不用担心”提供理由。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "夸张语调下的权威安抚",
+          "takeawayZh": "罗兹瓦尔以从容措辞掌握解释权，让昴放下戒备。",
+          "explanationZh": "该定型句比详细说「心配しなくてもいい」更像直接作出结论。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "定型安抚语",
+          "plainZh": "用简短固定形式告诉听者没有担忧必要。"
+        },
+        {
+          "termZh": "必要性否定",
+          "plainZh": "否定的是担忧这一行为的需要，而非担忧内容不存在。"
+        }
+      ],
+      "historicalNoteZh": "「ご無用」还见于「ご心配無用」「お構い無用」，带旧式、爽快或戏剧化语感。",
+      "cautionZh": "未经解释就说「心配無用」可能像轻视对方焦虑；本句随后给出了事实依据。"
+    },
+    "review_note": "核对 occurrence EP4 lines 201–204；line 202「そんな警戒しなくても 心配ご無用」，line 203 说明消息早已公开。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-思い出す",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-思い出す",
+    "linguistic_payload": {
+      "headlineZh": "「思い出す」是让存于记忆中的内容重新进入意识；昴在插科打诨后终于想起自己为何来到现场。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「思い＋出す」的复合动词",
+          "takeawayZh": "后项「出す」保留把内容从内向外取出的意象。",
+          "explanationZh": "活用为五段动词「思い出さない／思い出して／思い出した」。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "间接疑问作回忆内容",
+          "takeawayZh": "「何で俺がここにいるのか」整体是「思い出した」的宾语。",
+          "explanationZh": "这不是向别人提问原因，而是说自己恢复了关于目的的记忆。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "从喜剧偏航回到任务",
+          "takeawayZh": "「やっと」承认注意力被刚才互动拖走，现在重新聚焦。",
+          "explanationZh": "下一句立刻宣告行动，说明想起的内容直接恢复了战斗决心。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "记忆提取",
+          "plainZh": "原有信息并未新学到，而是从记忆中重新被唤起。"
+        },
+        {
+          "termZh": "内容从句",
+          "plainZh": "一个带疑问词的从句整体充当认知动词的对象。"
+        }
+      ],
+      "historicalNoteZh": "「出す」在许多复合动词中表示显现或开始，如「言い出す」「泣き出す」。",
+      "cautionZh": "「覚える」偏向记住或学会，「思い出す」则要求内容以前已经在记忆中。"
+    },
+    "review_note": "核对 occurrence EP3 lines 206–210；line 208「何で俺がここにいるのか やっと思い出した」后重新宣战。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-怪しい",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-怪しい",
+    "linguistic_payload": {
+      "headlineZh": "「怪しい」可表示人或行为可疑，也可表示真实性、前景不可靠；菲鲁特因昴主张归还徽章，早已怀疑他的立场。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "イ形容词的判断用法",
+          "takeawayZh": "活用为「怪しくない／怪しかった」，可直接作谓语或修饰名词。",
+          "explanationZh": "「怪しいとは思ってた」以引用助词「と」把可疑判断作为「思う」的内容。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "证据不足下的不信任",
+          "takeawayZh": "说话人发现行为与预期不一致，因而怀疑动机或身份。",
+          "explanationZh": "昴本应是交易一方，却提出把赃物还给原主，这在菲鲁特看来不合常理。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "事后证据强化既有怀疑",
+          "takeawayZh": "「思ってたんだ」宣称自己不是刚刚才反应过来。",
+          "explanationZh": "菲鲁特借此维护自己的判断力，也把责任推向昴；下一话轮则由艾米莉雅追问两人是否为同伴。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "认识立场",
+          "plainZh": "在没有完全证实前，对人或命题持保留和怀疑态度。"
+        },
+        {
+          "termZh": "事后正当化",
+          "plainZh": "新线索出现后，强调自己此前就已有同样判断。"
+        }
+      ],
+      "historicalNoteZh": "「怪しい」还能说天气、记忆或成功概率“靠不住”，语义核心都是可信度不足。",
+      "cautionZh": "它不等于「怖い」；可疑的人未必让人恐惧，令人恐惧的人也未必可疑。"
+    },
+    "review_note": "核对 occurrence EP3 lines 27–32；line 30 的「怪しいとは思ってたんだ」由菲鲁特说出，lines 31–32 的追问改由艾米莉雅说出。"
+  }
+]

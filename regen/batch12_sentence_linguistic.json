@@ -1,0 +1,822 @@
+[
+  {
+    "id": "sentence-card-v1:re-zero-s01e03-sentence-035",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e03-sentence-035",
+    "linguistic_payload": {
+      "headlineZh": "莱因哈鲁特说「投降をお勧めしますが」以礼貌形式建议艾尔莎投降；句末留白缓和措辞，却没有消除武力对峙中的强制性。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「お＋连用形＋します」礼貌化",
+          "takeawayZh": "「勧める」变为「お勧めします」，由说话人郑重执行“建议”这一行为。",
+          "explanationZh": "宾语「投降を」明确建议内容；不是说莱因哈鲁特本人要投降。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "句末「が」悬置对立",
+          "takeawayZh": "后件可理解为“你意下如何／否则只能交战”，并未在本句说尽。",
+          "explanationZh": "上一句说明莱因哈鲁特有事要问，投降将使审问成为可能。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "礼貌与威胁可以共存",
+          "takeawayZh": "措辞给对手一个体面选择，但双方实力和战斗位置使其并非普通建议。",
+          "explanationZh": "艾尔莎立即用饥饿猛兽的比喻拒绝，表明她把这句话理解为开战前的最后劝降。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "施为表达",
+          "plainZh": "说出“我建议”本身就在现场完成劝降这一交际行动。"
+        },
+        {
+          "termZh": "权力语境",
+          "plainZh": "同样的礼貌句在持剑对峙中具有比日常建议更强的约束力。"
+        }
+      ],
+      "historicalNoteZh": "日语公共与正式交涉常用缓和建议替代裸命令；理解力度仍要看双方能否自由拒绝。",
+      "cautionZh": "不要因为「お勧めします」礼貌就把它写成无关痛痒的意见，也不要误认投降者是莱因哈鲁特。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 252–258，目标 line 256；说话人莱因哈鲁特、对象艾尔莎，前句说有问题要问，后句由艾尔莎拒绝投降。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e03-sentence-037",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e03-sentence-037",
+    "linguistic_payload": {
+      "headlineZh": "「この剣は抜くべきとき以外は抜けないようになっている」说明宝剑只在“应当出鞘的时刻”才能拔出，是既有机制，不是莱因哈鲁特临时不愿用。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "「べきとき以外は」划定例外",
+          "takeawayZh": "「抜くべきとき」是规范上应拔剑的时机，「以外は」把其他所有时机作为限制范围。",
+          "explanationZh": "后句「抜けない」为可能否定：在范围之外不能拔出。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "「ようになっている」表示设定状态",
+          "takeawayZh": "该形式描写制度、构造或规则已经如此安排。",
+          "explanationZh": "它不同于「抜かないようにしている」这种主体自我克制；限制被归给剑本身的机制。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "剑鞘状态充当判断证据",
+          "takeawayZh": "下一句说刀身未出鞘，就证明眼下不是那个时刻。",
+          "explanationZh": "艾尔莎把不能出鞘理解成受轻视，莱因哈鲁特则表示此判断也令自己困扰。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "规范时机",
+          "plainZh": "「べき」不是单纯未来，而是按规则被认为应当行动的时点。"
+        },
+        {
+          "termZh": "结构性可能否定",
+          "plainZh": "不能做来自物件规则或条件，而非行动者此刻拒绝。"
+        }
+      ],
+      "historicalNoteZh": "「ようになっている」常用于机器结构、制度安排和固定规则说明，具有“设计成如此”的客观口吻。",
+      "cautionZh": "不能改写成“莱因哈鲁特只是不想拔剑”；真实句子将可拔与否归为剑的既定判定。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 280–286，目标 line 282；lines 283–284 用剑未出鞘反推“不是时候”，艾尔莎随后认为自己被小看。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e03-sentence-039",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e03-sentence-039",
+    "linguistic_payload": {
+      "headlineZh": "昴把唯一愿望说成「君の名前を教えてほしい」：他希望艾米莉雅告诉自己真名，语气是直接而个人化的请求。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "「人にVてほしい」的对象省略",
+          "takeawayZh": "「教えてほしい」表示说话人希望听话人做“告诉”这一动作。",
+          "explanationZh": "「君の名前を」是要被告知的内容；动作执行者“君”由呼语与面对面场景恢复。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "「教える」在此是提供信息",
+          "takeawayZh": "它不是课堂上的教学，而是把名字这一未知信息告诉昴。",
+          "explanationZh": "前文艾米莉雅允诺在能力范围内给报酬，昴只选择知道她的名字。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "低物质要求承载关系愿望",
+          "takeawayZh": "经历重置后，昴要的是当前时间线中真实、可继续使用的称呼。",
+          "explanationZh": "艾米莉雅随后报出「エミリア」，与先前假名「サテラ」形成关系修复的关键节点。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "愿望型请求",
+          "plainZh": "「てほしい」从说话人的愿望出发，请对方实施动作。"
+        },
+        {
+          "termZh": "信息宾语",
+          "plainZh": "「名前を」是被传递的内容，不是被教授技能的人。"
+        }
+      ],
+      "historicalNoteZh": "「教える」在日语中兼有“教授技能”和“告知信息”，中文翻译需根据宾语选择“教”或“告诉”。",
+      "cautionZh": "施受方向不可倒置：昴不是要把自己的名字教给她，而是请她告诉他她的名字。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 382–393，目标 line 387；说话人昴、听话人艾米莉雅，她在 lines 389、392 回答真名并感谢他。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e03-sentence-041",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e03-sentence-041",
+    "linguistic_payload": {
+      "headlineZh": "「ありがとう、スバル、私を助けてくれて」由艾米莉雅感谢昴；后置「助けてくれて」说明感谢理由，动作施事是昴、受助者是她。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "感谢语后的理由后置",
+          "takeawayZh": "先说「ありがとう」，再用テ形授受表达补充“谢谢什么”。",
+          "explanationZh": "这不是未完成的「くれてください」请求；感谢行为已由句首完成。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "「てくれる」固定受益视角",
+          "takeawayZh": "昴实施「私を助ける」，艾米莉雅把该行动看作给予自己恩惠。",
+          "explanationZh": "宾语代词「私を」明确受救的是说话人艾米莉雅。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "直呼名字确认新关系",
+          "takeawayZh": "她刚告知真名，随即用「スバル」称呼并郑重道谢。",
+          "explanationZh": "这让昴此前跨越多轮的努力在当前时间线第一次得到对方明确承认。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "后置补充",
+          "plainZh": "先完成核心话语，再把原因或说明追加在后面。"
+        },
+        {
+          "termZh": "授受视点",
+          "plainZh": "「てくれる」从说话人获得对方帮助的方向描述事件。"
+        }
+      ],
+      "historicalNoteZh": "「Vてくれてありがとう」是常用感谢模板，成分也可像本句一样因情绪而倒装、停顿。",
+      "cautionZh": "不要把「くれて」误判成昴受助；格标记「私を」与说话人身份清楚表明艾米莉雅被救。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 387–394，目标 line 393；艾米莉雅刚报真名后向昴致谢，「私を」明确受助者。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e03-sentence-042",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e03-sentence-042",
+    "linguistic_payload": {
+      "headlineZh": "昴在列举重伤、痛苦与拼命战斗后说「まったく、割に合わねえ」：字面是付出与“名字加笑容”的回报不相称，语气却不等于后悔救她。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "固定搭配评价投入产出",
+          "takeawayZh": "「割に合う」表示回报配得上成本；否定后即“不划算、不相称”。",
+          "explanationZh": "「ねえ」是「ない」的粗口语形，评价对象由前两行付出与回报的对照组成。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "跨行账目先铺陈再结算",
+          "takeawayZh": "伤痛、叹息和拼命战斗是成本，真名与一个笑容被昴称作报酬。",
+          "explanationZh": "若只截取结句，就会丢失“究竟什么不划算”的比较项。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "抱怨外形中的满足",
+          "takeawayZh": "昴叹气作出夸张结算，却没有要求撤回帮助或索取更多。",
+          "explanationZh": "他此前坚持唯一愿望就是名字，因而这句更像自嘲式感叹，而非否认艾米莉雅的价值。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "成本收益比",
+          "plainZh": "比较行动付出与所获回报是否相称的评价框架。"
+        },
+        {
+          "termZh": "表层抱怨",
+          "plainZh": "字面说不划算，人物行动与前文却显示并非真正反悔。"
+        }
+      ],
+      "historicalNoteZh": "「割」可表示比例、份额；「割に合う」由此形成“按比例值得”的惯用判断。",
+      "cautionZh": "不要把这句扩成“昴认为救艾米莉雅毫无价值”；他是在用夸张账本语言调侃巨大付出。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 395–399，目标 line 398；lines 395–397 明列成本与报酬，且昴此前主动把名字选作唯一愿望。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e03-sentence-043",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e03-sentence-043",
+    "linguistic_payload": {
+      "headlineZh": "帕克说「よし、治療は完了」只宣布治疗操作完成；下一句仍是“总算越过危险期”，不能据此推成昴已经完全康复。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "名词谓语省略断定",
+          "takeawayZh": "「治療は完了」可补「だ」，以短句宣布流程节点。",
+          "explanationZh": "话题「治療は」限定完成的是治疗行为，而非患者所有身体状态。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "操作完成与恢复完成分离",
+          "takeawayZh": "医治结束不保证伤势瞬间消失，只表示当下能做的治疗已做完。",
+          "explanationZh": "「峠は越えた」比喻脱离最危险阶段，仍允许后续休养和观察。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "治疗者的阶段性宣告",
+          "takeawayZh": "说话人帕克用「よし」确认程序结果，并向在场者更新昴情况。",
+          "explanationZh": "谨慎句尾「でしょう」紧接其后，显示对预后仍保留判断余地。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "流程完结",
+          "plainZh": "某项操作已经做完，不自动等同于其目标状态百分之百实现。"
+        },
+        {
+          "termZh": "阶段性预后",
+          "plainZh": "确认已过最危险阶段，但仍不声称完全恢复。"
+        }
+      ],
+      "historicalNoteZh": "日语现场报告常以「準備完了」「処置完了」等名词短句宣布节点，简洁且行动导向明确。",
+      "cautionZh": "不能把「治療は完了」翻成“伤已经痊愈”；后一句只确认昴越过危险期。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 408–411，目标 line 410；说话人帕克，line 411 明确仅判断「どうにか峠は越えたでしょう」。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e03-sentence-044",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e03-sentence-044",
+    "linguistic_payload": {
+      "headlineZh": "艾米莉雅说「ここでついさっき会ったのが初めてのはずなんだけど」：按她当前记忆，两人理应刚刚才初见，但昴此前找她的行为无法解释。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "事件名词化后作焦点",
+          "takeawayZh": "「会ったの」把刚才相遇名词化，由「が」标为“第一次”的内容。",
+          "explanationZh": "「ここで」「ついさっき」同时限定地点和时间，建立她能确认的相遇记录。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "「はず」表达基于证据的预期",
+          "takeawayZh": "艾米莉雅不是宣告宇宙级事实，而是依据自己没有旧记忆作合理判断。",
+          "explanationZh": "昴经历过被重置的前轮，所以听者知道她的认知与他的记忆并不对称。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「んだけど」邀请解释矛盾",
+          "takeawayZh": "句末没有强硬否定莱因哈鲁特，而是把“应该初见”与“他在找我”并置。",
+          "explanationZh": "后续「だから不思議」明确她正在求解信息冲突，不是在指控昴撒谎。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "证据性预期",
+          "plainZh": "「はず」根据说话人掌握的事实推导应当成立的结论。"
+        },
+        {
+          "termZh": "记忆不对称",
+          "plainZh": "一方保留循环经历，另一方只拥有当前时间线记忆。"
+        }
+      ],
+      "historicalNoteZh": "「はず」原有弓筈等具体词源，语法化后广泛表示有根据的预期，强于随意猜测。",
+      "cautionZh": "不要把艾米莉雅的话当成证明昴从未见过她；它只忠实反映她被重置后的个人记忆。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 412–420，目标 line 417；source_line_no 418 偏后一行。莱因哈鲁特说昴曾找她，艾米莉雅因此明确称不思议。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e03-sentence-045",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e03-sentence-045",
+    "linguistic_payload": {
+      "headlineZh": "莱因哈鲁特提出「よろしければ当家のほうで客人として扱いますが」，是若艾米莉雅同意便由自己家接待昴的备选方案，并非已作决定。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "礼貌条件限制提议",
+          "takeawayZh": "「よろしければ」把艾米莉雅许可设为方案成立的条件。",
+          "explanationZh": "「当家のほうで」标出处理方为莱因哈鲁特一方；主语昴的身柄由前句延续。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "「Nとして扱う」赋予身份",
+          "takeawayZh": "「客人として」表示把昴归入客人身份并按该身份接待。",
+          "explanationZh": "这不等于承认他是家族成员，也不含拘留意义；是对昏迷者安置方式的提案。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "悬置「が」把决定权交给对方",
+          "takeawayZh": "句末留下“你看如何”，艾米莉雅随即选择自己带他回去。",
+          "explanationZh": "提议被拒后没有冲突，进一步证明这不是莱因哈鲁特单方面宣布的安排。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "身份赋值",
+          "plainZh": "「として扱う」说明按某种社会身份看待、接待一个人。"
+        },
+        {
+          "termZh": "选择型提案",
+          "plainZh": "提供一个可接受也可拒绝的方案，由听者作最终决定。"
+        }
+      ],
+      "historicalNoteZh": "「よろしければ」是「よい」的敬体条件形式，常用于服务、邀请和建议以降低强迫感。",
+      "cautionZh": "不要写成昴已经被莱因哈鲁特家收留；艾米莉雅下一句明确选择由自己带走。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 421–424，目标 line 422；source_line_no 423 偏后一行，line 423 由艾米莉雅拒绝该方案并说自己带回。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e03-sentence-046",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e03-sentence-046",
+    "linguistic_payload": {
+      "headlineZh": "「職務上、見逃すことはできない部類であると考えます」是莱因哈鲁特正式判断菲鲁特与罗姆爷的行为按职责属于不能放过的一类。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "动词名词化后进入可能否定",
+          "takeawayZh": "「見逃すこと」把“放过不管”作为能力／许可判断对象，「できない」否定其可行性。",
+          "explanationZh": "「部類である」再把案件归类，整段由「と」引入「考えます」这一审慎判断。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "职责上的不能",
+          "takeawayZh": "「職務上」限定不能来自骑士职责，而非眼睛没看见或身体做不到。",
+          "explanationZh": "被判断对象是偷徽章等行为；人物主语在问句中已由“那个女孩和老人”给出。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "正式原则与现场裁量并置",
+          "takeawayZh": "莱因哈鲁特先说原则上不能无视，随后却补充今天休班。",
+          "explanationZh": "这一转折让他实际上暂不追究，艾米莉雅因此称他是“坏骑士”，带善意调侃。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "规范性不能",
+          "plainZh": "基于职责或道德不允许做，而非缺少物理能力。"
+        },
+        {
+          "termZh": "类别判断",
+          "plainZh": "先把个案归入某种类型，再据该类型说明原则处理方式。"
+        }
+      ],
+      "historicalNoteZh": "官样说明常用「〜部類であると考えます」降低个人武断感，同时保留制度性判断。",
+      "cautionZh": "不要误译成莱因哈鲁特“没有看见”；「見逃す」是明知而放过，且后文显示他以休班作现场通融。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 425–430，目标 line 428；source_line_no 429 偏后一行。前问指菲鲁特与罗姆爷，后句「今日は非番」形成原则与通融。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e03-sentence-047",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e03-sentence-047",
+    "linguistic_payload": {
+      "headlineZh": "菲鲁特说「命を助けてもらったんだ、恩知らずなマネはできねえ」：她从受助者视角承认救命之恩，因此在道义上不能继续做忘恩负义的事。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "「Vてもらう」标受益者视角",
+          "takeawayZh": "菲鲁特是获救者，救助者由现场的艾米莉雅一方及前文救援恢复。",
+          "explanationZh": "「んだ」把受恩事实作为后句决定的理由，并非向对方询问。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "「できない」表示道德不可",
+          "takeawayZh": "她不是缺乏归还徽章的能力，而是不能接受自己成为忘恩者。",
+          "explanationZh": "「恩知らずなマネ」将不归还等行为归入忘恩负义的做法。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "理由立即导向归还",
+          "takeawayZh": "下一句「とったもんは返す」把道德判断落实成返还盗物的行动。",
+          "explanationZh": "此前艾米莉雅以家人话题与她共情，菲鲁特的态度由戒备转向坦率。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "受恩视角",
+          "plainZh": "「てもらう」从得到帮助的人一方回看他人的救助行动。"
+        },
+        {
+          "termZh": "道德能力",
+          "plainZh": "形式是“不能”，实际表达价值观使自己不愿跨过某条界线。"
+        }
+      ],
+      "historicalNoteZh": "「恩知らず」是强烈的人格与行为评价；「マネ」在此不是模仿，而是“那种做法”。",
+      "cautionZh": "不要把「てもらった」方向写反，也不要把「できねえ」当物理障碍；菲鲁特下一句主动决定归还。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 432–445，目标 line 441；说话人菲鲁特、当前主要听话人艾米莉雅，line 442 直接接归还盗物。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e03-sentence-049",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e03-sentence-049",
+    "linguistic_payload": {
+      "headlineZh": "莱因哈鲁特对菲鲁特说「ついてきてもらいたい」：形式上是希望获得她“跟自己走”的配合，实际因现场权力关系已接近拘押要求。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "「Vてもらいたい」表达希望受益",
+          "takeawayZh": "说话人希望对方实施「ついてくる」，并把这项配合视为自己一方所需。",
+          "explanationZh": "动作执行者菲鲁特省略；移动参照点是莱因哈鲁特，因此是跟他走。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "希望形不保证自愿",
+          "takeawayZh": "「たい」直接编码莱因哈鲁特的意愿，不自动赋予菲鲁特拒绝权。",
+          "explanationZh": "他此前已宣布要接管她，理由也超出普通徽章盗窃，目的显然是带走调查。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "礼貌请求外形下的强制",
+          "takeawayZh": "下一句「拒否権は与えられない」立即明确她不能拒绝。",
+          "explanationZh": "因此不能孤立授受形式写成友好邀请；礼貌只调节说法，不改变权力后果。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "合作请求",
+          "plainZh": "「てもらいたい」把对方行动包装成说话人希望得到的配合。"
+        },
+        {
+          "termZh": "语用强制",
+          "plainZh": "句法像请求，但制度权力和后续话语使拒绝并不真正可行。"
+        }
+      ],
+      "historicalNoteZh": "日语命令常通过愿望、请求形式间接表达；礼貌程度与实际选择自由必须分别判断。",
+      "cautionZh": "不能只译成“我想请你一起走”而抹掉拘押性质；下一行明确取消菲鲁特的拒绝权。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 458–470，目标 line 467；source_line_no 468 偏后一行。说话人莱因哈鲁特、对象菲鲁特，line 468 明示不得拒绝。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e03-sentence-050",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e03-sentence-050",
+    "linguistic_payload": {
+      "headlineZh": "「すまないが、拒否権は与えられない」是莱因哈鲁特先道歉再告知菲鲁特：这次不能给她拒绝的权利，决定具有即时强制力。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "权利作话题的可能／受身形",
+          "takeawayZh": "「拒否権は」突出能否授予的对象，「与えられない」在此表示无法／不予授予。",
+          "explanationZh": "授予者可恢复为莱因哈鲁特或其所代表的处置权，接受者菲鲁特也因面对面场景省略。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "非过去形执行当下决定",
+          "takeawayZh": "它不是叙述过去没给过权利，而是宣布眼下不允许拒绝。",
+          "explanationZh": "和上一句希望她跟来连读，否定对象正是拒绝该要求的选择。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "道歉不撤销强制",
+          "takeawayZh": "「すまないが」承认做法会侵犯对方意愿，却只起缓冲作用。",
+          "explanationZh": "菲鲁特随即抗议，莱因哈鲁特仍说自己会控制力度，显示处置继续执行。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "权利授予",
+          "plainZh": "是否让对方拥有拒绝这一制度性或现场选择。"
+        },
+        {
+          "termZh": "缓冲性道歉",
+          "plainZh": "先承认给对方造成不利，却不改变随后行动。"
+        }
+      ],
+      "historicalNoteZh": "「〜られない」可能表示被动、可能或尊敬；本句靠「権利を与える」搭配和处置场景选择“不能授予”。",
+      "cautionZh": "不要把菲鲁特误作「与えられない」的语法主语；被突出的是「拒否権」，实际受限者才是菲鲁特。"
+    },
+    "review_note": "核对当前字幕 EP3 lines 467–472，目标 line 468；source_line_no 469 偏后一行。前句要求跟来，后面菲鲁特抗议而莱因哈鲁特仍继续处置。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e04-sentence-018",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e04-sentence-018",
+    "linguistic_payload": {
+      "headlineZh": "艾米莉雅说「ケガの治療なんて当たり前なんだから」，把替昴治伤说成理所当然，以此反驳昴单方面道谢并强调真正该感谢的是自己。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "「Nなんて」压低举例项",
+          "takeawayZh": "「ケガの治療なんて」把治疗说成不值得昴特别谢的大不了事项。",
+          "explanationZh": "名词谓语「当たり前なんだ」加「から」，把该判断作为她回谢的理由。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "规范当然而非事实自动发生",
+          "takeawayZh": "「当たり前」表达她认为救治伤者本来就该做，不是说伤会自然痊愈。",
+          "explanationZh": "她对比昴为几乎不认识的自己拼命，认为后者才是远超常规的恩情。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "拒绝受恩者的单向框架",
+          "takeawayZh": "昴感谢被救，艾米莉雅却说“该道谢的是我”，重新平衡双方人情。",
+          "explanationZh": "「なんだから」带解释兼轻微坚持，显示她不接受自己只是施恩者的定位。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "贬低式话题",
+          "plainZh": "「なんて」把某项行为说成不足以构成重大恩惠。"
+        },
+        {
+          "termZh": "互惠重构",
+          "plainZh": "说话人重新说明双方都受过帮助，而非只有一方欠情。"
+        }
+      ],
+      "historicalNoteZh": "「なんて」能表示举例、轻视或惊讶；此处的语气不是轻视治疗价值，而是谦抑自己的付出。",
+      "cautionZh": "不要把艾米莉雅写成否认昴受伤；她只是说替他治疗是自己认为理所当然的回应。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 94–99，目标 line 97；说话人艾米莉雅，前两行她说应由自己道谢，因为昴曾冒死救她。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e04-sentence-025",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e04-sentence-025",
+    "linguistic_payload": {
+      "headlineZh": "宅邸女仆向艾米莉雅报告「当主ロズワール様がお戻りになられました」；核心事实是罗兹瓦尔已经回来，整句以多重敬语抬高当主。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「お戻りになる」尊敬构式",
+          "takeawayZh": "「お＋连用形＋になる」把回来的主体罗兹瓦尔置于敬意对象。",
+          "explanationZh": "台词又出现「なられる」，形成现实会话常见的敬语重叠；无论规范评价如何，尊敬方向不变。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "完成状态由「ました」标记",
+          "takeawayZh": "过去敬体说明返回事件已经发生，而不是说他将要回来。",
+          "explanationZh": "主语「当主ロズワール様が」明确，听话人艾米莉雅随后被请回宅邸。"
+        },
+        {
+          "domain": "sociolinguistics",
+          "titleZh": "身份称号与敬称叠加",
+          "takeawayZh": "「当主」交代宅邸权力身份，「様」和尊敬谓语共同索引上下关系。",
+          "explanationZh": "前一句艾米莉雅问两名女仆为何来，报告承担召回她进入正式会面的功能。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "主体尊敬",
+          "plainZh": "通过谓语形式抬高动作执行者，这里被抬高的是罗兹瓦尔。"
+        },
+        {
+          "termZh": "敬语重叠",
+          "plainZh": "一句中多个尊敬形式叠加，现实使用存在，但规范教材可能建议简化。"
+        }
+      ],
+      "historicalNoteZh": "规范表达通常以「お戻りになりました」已经足够；「お戻りになられました」常被称作二重敬语，但真实会话并不少见。",
+      "cautionZh": "不要因教材规范而擅自说原句不存在，也不能把返回者误成艾米莉雅；主语由「ロズワール様が」明示。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 145–148，目标 line 147；source_line_no 148 偏后一行。拉姆、雷姆来到现场向艾米莉雅一方报告，并请她回宅邸。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e04-sentence-033",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e04-sentence-033",
+    "linguistic_payload": {
+      "headlineZh": "罗兹瓦尔说明「現状、国の運営は賢人会によって行われ」：目前国家治理由贤人会执行，连用形在下一行继续到遴选新王的进程。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "被动态标治理执行者",
+          "takeawayZh": "「運営は行われる」把国家运作置为话题，「賢人会によって」标出执行机构。",
+          "explanationZh": "被动不是说国家遭受伤害，而是行政说明中常见的非个人化叙述。"
+        },
+        {
+          "domain": "morphology",
+          "titleZh": "「行われ」以连用形跨行",
+          "takeawayZh": "句子没有在「行われ」结束，而是继续并列「新しい王の選出に向けて動いている」。",
+          "explanationZh": "源学习句截取前半；理解时必须补入下一字幕的进行中状态。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "王位空缺后的临时治理",
+          "takeawayZh": "前文说国王及其后代已亡，贤人会治理与选新王构成同一政治背景。",
+          "explanationZh": "「現状」限制为目前安排，不能推断贤人会永久取代王权。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "机构被动",
+          "plainZh": "用被动态突出制度过程，执行者由「によって」标记。"
+        },
+        {
+          "termZh": "连用并列",
+          "plainZh": "谓语以连用形连接下一项状态，字幕边界不构成句号。"
+        }
+      ],
+      "historicalNoteZh": "公文和新闻常用「〜によって行われる」描述活动或制度由某机构实施，语气比主动句更客观化。",
+      "cautionZh": "不要把「行われ」当完整过去时；国家运作与选王在说话时仍处于进行状态。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 207–213，目标 line 210；source_line_no 211 偏后一行。说话人罗兹瓦尔，line 211 继续说明正朝选出新王行动。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e04-sentence-035",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e04-sentence-035",
+    "linguistic_payload": {
+      "headlineZh": "罗兹瓦尔解释称地位高于自己的人要用敬称；学习句采用常规「Xのは当然だ」顺序，真实台词则先说「当然」再把判断对象后置。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "名词化动作作判断对象",
+          "takeawayZh": "「方を敬称で呼ぶの」把称呼行为名词化，再由「は」设为“理所当然”的话题。",
+          "explanationZh": "「敬称で」以「で」标出称呼所采用的形式，受称呼者是「地位の高い方」。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "真实话序为右置补充",
+          "takeawayZh": "字幕先出现「当然のことだよ」，下一行才补“称呼地位更高者”这一内容。",
+          "explanationZh": "源句把两部分重排成教学上易读的规范顺序；分析不能假装原音就是同一排列。"
+        },
+        {
+          "domain": "sociolinguistics",
+          "titleZh": "敬称索引角色等级观",
+          "takeawayZh": "罗兹瓦尔以社会地位解释自己为何称艾米莉雅为「様」。",
+          "explanationZh": "这是作品社会与角色立场中的礼貌规范，不必推广为现代所有关系都只由地位高低决定。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "右置补充",
+          "plainZh": "先说判断，再把本应在前的长成分放到后面补明。"
+        },
+        {
+          "termZh": "敬称索引",
+          "plainZh": "称呼形式向听者透露双方被理解成何种社会关系。"
+        }
+      ],
+      "historicalNoteZh": "日语口语允许先给短判断、后补长话题；字幕或教材有时会重排成标准主从顺序。",
+      "cautionZh": "源学习句并非当前字幕的逐字顺序；也不要把罗兹瓦尔的等级说明写成跨文化绝对规则。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 218–222：line 219 先说「当然のこぉーとだよ」，line 220 后置「自分より地位の高い方を敬称で呼ぶのはねーえ」；说话人罗兹瓦尔。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e04-sentence-036",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e04-sentence-036",
+    "linguistic_payload": {
+      "headlineZh": "艾米莉雅说「今の私の肩書はルグニカ王国42代目の王候補の１人」是在揭示自己是第42代国王候选人之一，并非已经登基。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "多层「の」组织头衔",
+          "takeawayZh": "「王候補の１人」先表示候选群体中的一人，「42代目の」再限定所竞争的王位世代。",
+          "explanationZh": "话题「今の私の肩書は」把整串名词设为当前身份说明，断定「だ」在口语中省略。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "候选资格不等于王权",
+          "takeawayZh": "「候補」表示仍待选拔，「１人」又明确存在其他竞争者。",
+          "explanationZh": "下一句说罗兹瓦尔是她的后盾，进一步显示当前是政治竞选关系。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "对昴迟来的身份揭示",
+          "takeawayZh": "昴刚因罗兹瓦尔使用「様」而困惑，艾米莉雅亲自补出原因。",
+          "explanationZh": "她随后为让昴吃惊道歉，说明这不是炫耀，而是澄清此前未及时说明的重大背景。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "集合成员",
+          "plainZh": "「Nの１人」表示属于N这一群体的其中一人。"
+        },
+        {
+          "termZh": "零断定",
+          "plainZh": "名词句末未说「だ／です」，但头衔判断仍完整可恢复。"
+        }
+      ],
+      "historicalNoteZh": "「代目」标继任序数，常用于家业、艺名和君主世次；它不表示人物年龄。",
+      "cautionZh": "不能把「王候補」简化成“第42代女王”；艾米莉雅只是多名候选人之一。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 218–226，目标 line 222；source_line_no 223 偏后一行。说话人艾米莉雅，line 223 说明罗兹瓦尔是其后盾。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e04-sentence-042",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e04-sentence-042",
+    "linguistic_payload": {
+      "headlineZh": "拉姆在宅邸导览结束后问「ここまでで質問は？」：意思是“到目前讲的内容，有问题吗”，省略谓语使流程确认简短直接。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "「ここまでで」划定信息范围",
+          "takeawayZh": "「まで」设终点，「で」把截至这一点的导览内容作为提问范围。",
+          "explanationZh": "它不是询问到这里的路怎么走；前一句已宣布整座宅邸的介绍结束。"
+        },
+        {
+          "domain": "morphology",
+          "titleZh": "名词疑问句省略存在谓语",
+          "takeawayZh": "「質問は？」可补成「質問はある？」或更礼貌的「質問はありますか」。",
+          "explanationZh": "短形式与拉姆冷静、办事式口吻一致，问号承担询问语调。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "议程切换前的确认",
+          "takeawayZh": "拉姆给昴一次提问机会，若没有便转入实际工作。",
+          "explanationZh": "昴确实提出“导览不该由艾米莉雅做吗”的元问题，拉姆随后判断没有其他问题并继续流程。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "范围终点",
+          "plainZh": "「ここまで」把会话或流程截至当前节点的部分圈定出来。"
+        },
+        {
+          "termZh": "谓语省略问句",
+          "plainZh": "只保留疑问焦点，听者从常规场景补出“有没有”。"
+        }
+      ],
+      "historicalNoteZh": "课堂、会议和导览中常见「ここまでで何か質問は？」；省略谓语能让主持流程更利落。",
+      "cautionZh": "不要把「ここ」只当物理地点；它同时指导览话语进行到当前为止。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 309–317，目标 line 311；source_line_no 312 偏后一行。说话人拉姆，前句宣布导览结束，后面转入实际工作。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e04-sentence-045",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e04-sentence-045",
+    "linguistic_payload": {
+      "headlineZh": "雷姆说「その可能性はかなり低いと思います」时，「その」回指昴是间谍的可能；她认为概率很低，却没有说绝对为零。",
+      "domains": [
+        {
+          "domain": "discourse",
+          "titleZh": "指示词回接间谍假设",
+          "takeawayZh": "罗兹瓦尔刚问「間者の可能性はどうかな」，雷姆用「その可能性」保持同一议题。",
+          "explanationZh": "前一句「否定はできませんが」先承认仍无法彻底排除，再给出低概率判断。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "程度副词不等于零值",
+          "takeawayZh": "「かなり低い」表示相当低，仍保留非零可能。",
+          "explanationZh": "「と思います」把结论标成雷姆基于五日观察作出的判断，而非已经查证的事实。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "向上级提交谨慎评估",
+          "takeawayZh": "雷姆避免无依据保证，同时给罗兹瓦尔一个明确倾向。",
+          "explanationZh": "她随后解释昴尤其以负面方式过于显眼，不符合隐蔽间谍的典型表现。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "假设回指",
+          "plainZh": "「その」把当前判断连接到上一问提出的同一可能性。"
+        },
+        {
+          "termZh": "校准判断",
+          "plainZh": "用程度词和「と思う」控制确信度，既不绝对排除也不含糊回避。"
+        }
+      ],
+      "historicalNoteZh": "职场判断常用「〜と思います」和概率程度词区分事实与评估，避免把有限观察写成绝对保证。",
+      "cautionZh": "不能把「低い」翻成“不可能”；雷姆上一行明说仍无法完全否定。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 362–371，目标 line 369；source_line_no 374 偏后五行。罗兹瓦尔问间谍可能，雷姆先说无法排除再判为很低。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e04-sentence-046",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e04-sentence-046",
+    "linguistic_payload": {
+      "headlineZh": "昴说和艾米莉雅在一起绝不会无聊后，她回答「そう言われると、お世辞でもうれしい」：即便那只是客套，听到仍让她高兴。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "被动式引出听者反应",
+          "takeawayZh": "「そう言われると」表示“被这样说时／听你这么说”，受话者是艾米莉雅。",
+          "explanationZh": "「そう」回指昴上一句“不觉得和她在一起无聊”的赞美。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "「Nでも」设置最低情形",
+          "takeawayZh": "即使把昴的话降格为「お世辞」，高兴这一结果仍成立。",
+          "explanationZh": "这不等于艾米莉雅断定他在撒谎；她只是允许最保守解释也不影响感谢。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "自谦地接住赞美",
+          "takeawayZh": "她没有直接认领“我当然有趣”，而是通过假设客套降低自我肯定。",
+          "explanationZh": "昴接着说最近几天没有机会好好聊天，进一步表明前句是关系亲近的真实表达。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "受话被动",
+          "plainZh": "用「言われる」从听到某句话的人一方描述言语事件。"
+        },
+        {
+          "termZh": "最低条件让步",
+          "plainZh": "即使按最不利的解释“只是客套”，主句情绪仍然成立。"
+        }
+      ],
+      "historicalNoteZh": "面对赞美时用「お世辞でもうれしい」既表达高兴又避免显得自满，是常见的谦逊回应。",
+      "cautionZh": "不要写成艾米莉雅确信昴在说假话；「でも」只是让步假设，不是事实判定。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 377–386，目标 line 381；source_line_no 386 偏后五行。昴上一句称和她一起不无聊，后续又说数日未能好好交谈。"
+  }
+]

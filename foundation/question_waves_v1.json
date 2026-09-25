@@ -1,0 +1,102 @@
+{
+  "curriculum_version": "foundation-v1",
+  "question_count": 240,
+  "stage_model": {
+    "F1": "识别",
+    "F2": "解析",
+    "F3": "对比诊断",
+    "F4": "迁移应用"
+  },
+  "waves": [
+    {
+      "pack_id": "foundation-v1-wave-1",
+      "batch_no": 1,
+      "title_zh": "语音、文字与词形基础",
+      "description_zh": "从拍、音高与文字体系进入日语形态结构，并建立格关系的初步分析能力。",
+      "topic_count": 20,
+      "question_count": 80,
+      "topic_ids": [
+        "phw_mora_syllable",
+        "phw_special_morae",
+        "phw_pitch_accent",
+        "phw_vowel_devoicing",
+        "phw_rendaku",
+        "phw_kana_orthography",
+        "phw_script_choice",
+        "phw_kanji_reading_okurigana",
+        "morph_word_morpheme_classes",
+        "morph_verb_conjugation",
+        "morph_adjective_inflection",
+        "morph_copula",
+        "morph_auxiliary_chain",
+        "morph_negation_forms",
+        "morph_tense_forms",
+        "morph_derivation_nominalization",
+        "morph_compounding",
+        "morph_transitivity_pairs",
+        "syn_constituent_order",
+        "syn_case_particles"
+      ]
+    },
+    {
+      "pack_id": "foundation-v1-wave-2",
+      "batch_no": 2,
+      "title_zh": "句法、语义与解释",
+      "description_zh": "围绕论元、从句、时体情态与作用域，建立从结构到解释的系统分析能力。",
+      "topic_count": 20,
+      "question_count": 80,
+      "topic_ids": [
+        "syn_topic_subject",
+        "syn_zero_arguments",
+        "syn_valency_argument_structure",
+        "syn_existential_constructions",
+        "syn_relative_clauses",
+        "syn_nominalized_clauses",
+        "syn_complement_quotation",
+        "syn_te_clause_linking",
+        "syn_conditionals",
+        "syn_passive",
+        "syn_causative",
+        "sem_compositionality_polysemy",
+        "sem_tense_reference_time",
+        "sem_lexical_aspect",
+        "sem_teiru_readings",
+        "sem_modality",
+        "sem_evidentiality",
+        "sem_negation_scope",
+        "sem_quantifier_scope",
+        "prag_context_implicature"
+      ]
+    },
+    {
+      "pack_id": "foundation-v1-wave-3",
+      "batch_no": 3,
+      "title_zh": "语用、社会变异与语言变化",
+      "description_zh": "把形式分析扩展到话语互动、社会意义及历时变化，训练跨话轮与跨语境推理。",
+      "topic_count": 20,
+      "question_count": 80,
+      "topic_ids": [
+        "prag_speech_acts",
+        "prag_deixis",
+        "prag_reference_anaphora",
+        "prag_information_focus",
+        "prag_ellipsis_fragments",
+        "prag_sentence_final_particles",
+        "prag_politeness_honorifics",
+        "prag_register_style",
+        "prag_turn_taking_backchannels",
+        "prag_connectives_coherence",
+        "prag_viewpoint_empathy",
+        "soc_standard_regional_variation",
+        "soc_gender_age_indexing",
+        "soc_style_shifting_community",
+        "soc_uchi_soto_power",
+        "soc_contact_borrowing",
+        "hist_classical_modern_grammar",
+        "hist_sound_change_orthography",
+        "hist_grammaticalization_auxiliaries",
+        "hist_lexicalization_construction_change"
+      ]
+    }
+  ]
+}

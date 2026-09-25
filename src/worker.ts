@@ -4,6 +4,31 @@ import {
   normalizePronunciationSentenceId,
   pronunciationSentenceLookupPath,
 } from './server/pronunciationTicket'
+import {
+  foundationDomains,
+  foundationQuestionTypes,
+  foundationSourceKinds,
+  foundationStages,
+} from './lib/types'
+import type {
+  CursorPage,
+  FoundationDomain,
+  FoundationExampleSpec,
+  FoundationLearningObjectives,
+  FoundationPackId,
+  FoundationQuestion,
+  FoundationQuestionId,
+  FoundationQuestionOption,
+  FoundationQuestionPack,
+  FoundationQuestionType,
+  FoundationSourceKind,
+  FoundationStage,
+  FoundationStimulus,
+  FoundationStimulusItem,
+  FoundationStimulusTurn,
+  FoundationTopic,
+  FoundationTopicId,
+} from './lib/types'
 
 type Env = {
   ASSETS: Fetcher
@@ -29,6 +54,14 @@ const cacheSchemaVersion = 'v6'
 const sessionCookieName = 'ajl_session'
 const sessionMaxAgeSeconds = 60 * 60 * 24 * 30
 const passwordIterations = 100_000
+const foundationDefaultCurriculumVersion = 'foundation-v1'
+const foundationDefaultPageLimit = 40
+const foundationMaximumPageLimit = 100
+
+const foundationDomainSet = new Set<string>(foundationDomains)
+const foundationStageSet = new Set<string>(foundationStages)
+const foundationQuestionTypeSet = new Set<string>(foundationQuestionTypes)
+const foundationSourceKindSet = new Set<string>(foundationSourceKinds)
 
 type GatewayModel = 'gemini-3.1-flash-lite' | 'gemini-3.5-flash' | 'deepseek-v4-flash' | 'deepseek-v4-pro' | 'grok-4.3'
 type ReasoningEffort = 'low' | 'medium' | 'high'
@@ -103,6 +136,39 @@ type LearningCardEnrichmentRow = {
   linguistic_prompt_version?: string
   linguistic_quality_score?: number
   linguistic_status?: string
+}
+
+export type FoundationApiResource = 'topics' | 'packs' | 'questions'
+
+export type FoundationCursor =
+  | {
+      version: 1
+      resource: 'topics'
+      filterKey: string
+      sortOrder: number
+      id: string
+    }
+  | {
+      version: 1
+      resource: 'packs'
+      filterKey: string
+      batchNo: number
+      id: string
+    }
+  | {
+      version: 1
+      resource: 'questions'
+      filterKey: string
+      packId: string
+      sortOrder: number
+      id: string
+    }
+
+export type FoundationListPlan = {
+  resource: FoundationApiResource
+  path: string
+  limit: number
+  filterKey: string
 }
 
 type ReviewState = 'known' | 'fuzzy' | 'unknown' | 'good' | 'ok' | 'bad'
@@ -225,6 +291,11 @@ async function handleApi(request: Request, env: Env, url: URL) {
 
   if (url.pathname === '/api/ai/models') {
     return json(gatewayModels)
+  }
+
+  const foundationResource = matchFoundationApiRoute(request.method, url.pathname)
+  if (foundationResource) {
+    return handleFoundationList(env, url, foundationResource)
   }
 
   if (url.pathname === '/api/linguistic-exercises') {
@@ -465,6 +536,808 @@ async function handleLinguisticExercises(request: Request, env: Env, url: URL) {
     : await supabase<unknown[]>(env, path)
   const phenomena = await listLinguisticPhenomena(env, rows)
   return json(rows.map((row) => mapLinguisticExercise(row, phenomena)))
+}
+
+export function matchFoundationApiRoute(method: string, pathname: string): FoundationApiResource | null {
+  const resource = pathname === '/api/linguistics/foundation/topics'
+    ? 'topics'
+    : pathname === '/api/linguistics/foundation/packs'
+      ? 'packs'
+      : pathname === '/api/linguistics/foundation/questions'
+        ? 'questions'
+        : null
+  if (!resource) return null
+  if (method !== 'GET') throw new HttpError(405, 'Method not allowed')
+  return resource
+}
+
+async function handleFoundationList(env: Env, url: URL, resource: FoundationApiResource) {
+  const plan = buildFoundationListPlan(resource, url)
+  const payload = await supabase<unknown>(env, plan.path)
+  if (!Array.isArray(payload)) {
+    throw new HttpError(500, `Foundation ${resource} response is not an array`)
+  }
+
+  switch (resource) {
+    case 'topics': {
+      const rows = payload.map(mapFoundationTopic)
+      return json(buildFoundationPage(rows, plan.limit, (row) => ({
+        version: 1,
+        resource: 'topics',
+        filterKey: plan.filterKey,
+        sortOrder: row.sortOrder,
+        id: row.id,
+      })))
+    }
+    case 'packs': {
+      const rows = payload.map(mapFoundationPack)
+      return json(buildFoundationPage(rows, plan.limit, (row) => ({
+        version: 1,
+        resource: 'packs',
+        filterKey: plan.filterKey,
+        batchNo: row.batchNo,
+        id: row.id,
+      })))
+    }
+    case 'questions': {
+      const rows = payload.map(mapFoundationQuestion)
+      return json(buildFoundationPage(rows, plan.limit, (row) => ({
+        version: 1,
+        resource: 'questions',
+        filterKey: plan.filterKey,
+        packId: row.packId,
+        sortOrder: row.sortOrder,
+        id: row.id,
+      })))
+    }
+    default:
+      return assertNever(resource)
+  }
+}
+
+function buildFoundationPage<T>(
+  rows: T[],
+  limit: number,
+  cursorFor: (row: T) => FoundationCursor,
+): CursorPage<T> {
+  const hasMore = rows.length > limit
+  const items = hasMore ? rows.slice(0, limit) : rows
+  const last = items[items.length - 1]
+  const nextCursor = hasMore && last !== undefined ? encodeFoundationCursor(cursorFor(last)) : null
+  return {
+    items,
+    page: {
+      limit,
+      hasMore,
+      nextCursor,
+    },
+  } satisfies CursorPage<T>
+}
+
+export function buildFoundationListPlan(resource: FoundationApiResource, url: URL): FoundationListPlan {
+  const allowedParams = resource === 'topics'
+    ? ['curriculumVersion', 'domain', 'moduleId', 'cursor', 'limit']
+    : resource === 'packs'
+      ? ['curriculumVersion', 'cursor', 'limit']
+      : ['curriculumVersion', 'packId', 'topicId', 'stage', 'questionType', 'difficulty', 'cursor', 'limit']
+  assertAllowedFoundationParams(url.searchParams, allowedParams)
+
+  const limit = parseFoundationLimit(url.searchParams)
+  const curriculumVersion = readFoundationSearchParam(
+    url.searchParams,
+    'curriculumVersion',
+    foundationDefaultCurriculumVersion,
+  )
+  assertFoundationIdentifier(curriculumVersion, 'curriculumVersion')
+
+  const query = new URLSearchParams()
+  query.set('status', 'eq.published')
+  query.set('curriculum_version', `eq.${curriculumVersion}`)
+  query.set('limit', String(limit + 1))
+
+  if (resource === 'topics') {
+    const domainValue = readFoundationSearchParam(url.searchParams, 'domain')
+    const moduleId = readFoundationSearchParam(url.searchParams, 'moduleId')
+    if (domainValue && !isFoundationDomain(domainValue)) {
+      throw new HttpError(400, 'domain is invalid')
+    }
+    if (moduleId) assertFoundationId(moduleId, 'moduleId')
+
+    const filterKey = makeFoundationFilterKey(resource, {
+      curriculumVersion,
+      domain: domainValue,
+      moduleId,
+    })
+    const cursor = readFoundationCursor(url.searchParams, resource, filterKey)
+    query.set(
+      'select',
+      [
+        'id',
+        'curriculum_version',
+        'domain',
+        'module_id',
+        'sort_order',
+        'title_ja',
+        'title_zh',
+        'short_definition_zh',
+        'beginner_explanation_zh',
+        'deep_explanation_zh',
+        'caution_note_zh',
+        'prerequisite_topic_ids',
+        'learning_objectives_json',
+        'example_spec_json',
+        'tags_json',
+        'status',
+        'quality_score',
+      ].join(','),
+    )
+    if (domainValue) query.set('domain', `eq.${domainValue}`)
+    if (moduleId) query.set('module_id', `eq.${moduleId}`)
+    query.set('order', 'sort_order.asc,id.asc')
+    if (cursor) {
+      query.set(
+        'or',
+        `(sort_order.gt.${cursor.sortOrder},and(sort_order.eq.${cursor.sortOrder},id.gt.${quotePostgrestString(cursor.id)}))`,
+      )
+    }
+    return {
+      resource,
+      path: `/rest/v1/linguistic_foundation_topics?${query.toString()}`,
+      limit,
+      filterKey,
+    }
+  }
+
+  if (resource === 'packs') {
+    const filterKey = makeFoundationFilterKey(resource, { curriculumVersion })
+    const cursor = readFoundationCursor(url.searchParams, resource, filterKey)
+    query.set(
+      'select',
+      [
+        'id',
+        'curriculum_version',
+        'batch_no',
+        'title_zh',
+        'description_zh',
+        'topic_count',
+        'question_count',
+        'domain_quotas_json',
+        'status',
+        'quality_score',
+      ].join(','),
+    )
+    query.set('order', 'batch_no.asc,id.asc')
+    if (cursor) {
+      query.set(
+        'or',
+        `(batch_no.gt.${cursor.batchNo},and(batch_no.eq.${cursor.batchNo},id.gt.${quotePostgrestString(cursor.id)}))`,
+      )
+    }
+    return {
+      resource,
+      path: `/rest/v1/linguistic_foundation_question_packs?${query.toString()}`,
+      limit,
+      filterKey,
+    }
+  }
+
+  const packId = readFoundationSearchParam(url.searchParams, 'packId')
+  const topicId = readFoundationSearchParam(url.searchParams, 'topicId')
+  const stageValue = readFoundationSearchParam(url.searchParams, 'stage')
+  const questionTypeValue = readFoundationSearchParam(url.searchParams, 'questionType')
+  const difficultyValue = readFoundationSearchParam(url.searchParams, 'difficulty')
+  if (packId) assertFoundationId(packId, 'packId')
+  if (topicId) assertFoundationId(topicId, 'topicId')
+  if (stageValue && !isFoundationStage(stageValue)) throw new HttpError(400, 'stage is invalid')
+  if (questionTypeValue && !isFoundationQuestionType(questionTypeValue)) {
+    throw new HttpError(400, 'questionType is invalid')
+  }
+  const difficulty = difficultyValue ? parseFoundationDifficulty(difficultyValue) : undefined
+  const filterKey = makeFoundationFilterKey(resource, {
+    curriculumVersion,
+    packId,
+    topicId,
+    stage: stageValue,
+    questionType: questionTypeValue,
+    difficulty: difficulty === undefined ? '' : String(difficulty),
+  })
+  const cursor = readFoundationCursor(url.searchParams, resource, filterKey)
+  query.set(
+    'select',
+    [
+      'id',
+      'pack_id',
+      'topic_id',
+      'curriculum_version',
+      'stage',
+      'question_type',
+      'source_kind',
+      'stimulus_json',
+      'prompt_zh',
+      'options_json',
+      'answer_json',
+      'hint_zh',
+      'explanation_zh',
+      'deep_explanation_zh',
+      'caution_note_zh',
+      'wrong_explanations_json',
+      'transfer_example_ja',
+      'transfer_explanation_zh',
+      'difficulty',
+      'tags_json',
+      'sort_order',
+      'status',
+      'quality_score',
+      'content_version',
+      'content_sha256',
+    ].join(','),
+  )
+  if (packId) query.set('pack_id', `eq.${packId}`)
+  if (topicId) query.set('topic_id', `eq.${topicId}`)
+  if (stageValue) query.set('stage', `eq.${stageValue}`)
+  if (questionTypeValue) query.set('question_type', `eq.${questionTypeValue}`)
+  if (difficulty !== undefined) query.set('difficulty', `eq.${difficulty}`)
+  query.set('order', 'pack_id.asc,sort_order.asc,id.asc')
+  if (cursor) {
+    query.set(
+      'or',
+      [
+        `(pack_id.gt.${quotePostgrestString(cursor.packId)}`,
+        `and(pack_id.eq.${quotePostgrestString(cursor.packId)},sort_order.gt.${cursor.sortOrder})`,
+        `and(pack_id.eq.${quotePostgrestString(cursor.packId)},sort_order.eq.${cursor.sortOrder},id.gt.${quotePostgrestString(cursor.id)}))`,
+      ].join(','),
+    )
+  }
+  return {
+    resource,
+    path: `/rest/v1/linguistic_foundation_questions?${query.toString()}`,
+    limit,
+    filterKey,
+  }
+}
+
+function assertAllowedFoundationParams(searchParams: URLSearchParams, allowed: string[]) {
+  const allowedSet = new Set(allowed)
+  for (const key of searchParams.keys()) {
+    if (!allowedSet.has(key)) throw new HttpError(400, `Unknown query parameter: ${key}`)
+  }
+  for (const key of allowed) {
+    if (searchParams.getAll(key).length > 1) throw new HttpError(400, `Duplicate query parameter: ${key}`)
+  }
+}
+
+function parseFoundationLimit(searchParams: URLSearchParams) {
+  const value = readFoundationSearchParam(searchParams, 'limit')
+  if (!value) return foundationDefaultPageLimit
+  if (!/^\d+$/.test(value)) throw new HttpError(400, 'limit must be an integer from 1 to 100')
+  const limit = Number(value)
+  if (!Number.isSafeInteger(limit) || limit < 1 || limit > foundationMaximumPageLimit) {
+    throw new HttpError(400, 'limit must be an integer from 1 to 100')
+  }
+  return limit
+}
+
+function parseFoundationDifficulty(value: string): 1 | 2 | 3 | 4 {
+  if (value === '1') return 1
+  if (value === '2') return 2
+  if (value === '3') return 3
+  if (value === '4') return 4
+  throw new HttpError(400, 'difficulty is invalid')
+}
+
+function readFoundationSearchParam(searchParams: URLSearchParams, key: string, fallback = '') {
+  const value = searchParams.get(key)
+  if (value === null) return fallback
+  if (!value || value !== value.trim()) throw new HttpError(400, `${key} is invalid`)
+  return value
+}
+
+function assertFoundationIdentifier(value: string, label: string) {
+  if (!/^[a-z0-9]+(?:[-_.][a-z0-9]+)*$/.test(value)) throw new HttpError(400, `${label} is invalid`)
+}
+
+function assertFoundationId(value: string, label: string) {
+  if (!/^[a-z0-9]+(?:[-_][a-z0-9]+)*$/.test(value)) throw new HttpError(400, `${label} is invalid`)
+}
+
+function makeFoundationFilterKey(resource: FoundationApiResource, filters: Record<string, string>) {
+  const values = new URLSearchParams()
+  values.set('resource', resource)
+  for (const [key, value] of Object.entries(filters)) {
+    if (value) values.set(key, value)
+  }
+  values.sort()
+  return values.toString()
+}
+
+function readFoundationCursor(
+  searchParams: URLSearchParams,
+  resource: 'topics',
+  filterKey: string,
+): Extract<FoundationCursor, { resource: 'topics' }> | null
+function readFoundationCursor(
+  searchParams: URLSearchParams,
+  resource: 'packs',
+  filterKey: string,
+): Extract<FoundationCursor, { resource: 'packs' }> | null
+function readFoundationCursor(
+  searchParams: URLSearchParams,
+  resource: 'questions',
+  filterKey: string,
+): Extract<FoundationCursor, { resource: 'questions' }> | null
+function readFoundationCursor(
+  searchParams: URLSearchParams,
+  resource: FoundationApiResource,
+  filterKey: string,
+): FoundationCursor | null {
+  const token = readFoundationSearchParam(searchParams, 'cursor')
+  if (!token) return null
+  const cursor = decodeFoundationCursor(token)
+  if (cursor.resource !== resource || cursor.filterKey !== filterKey) {
+    throw new HttpError(400, 'cursor does not match this resource and filter set')
+  }
+  return cursor
+}
+
+export function encodeFoundationCursor(cursor: FoundationCursor) {
+  const bytes = new TextEncoder().encode(JSON.stringify(cursor))
+  let binary = ''
+  for (const byte of bytes) binary += String.fromCharCode(byte)
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/u, '')
+}
+
+export function decodeFoundationCursor(token: string): FoundationCursor {
+  try {
+    if (token.length > 4096 || !/^[A-Za-z0-9_-]+$/.test(token)) throw new Error('Invalid base64url')
+    const base64 = token.replace(/-/g, '+').replace(/_/g, '/')
+    const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=')
+    const binary = atob(padded)
+    const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0))
+    const value: unknown = JSON.parse(new TextDecoder().decode(bytes))
+    if (!isRecord(value) || value.version !== 1 || typeof value.filterKey !== 'string') {
+      throw new Error('Invalid cursor')
+    }
+    if (value.resource === 'topics') {
+      const sortOrder = requireNonNegativeInteger(value.sortOrder, 'cursor.sortOrder')
+      const id = requireCursorId(value.id, 'cursor.id')
+      return { version: 1, resource: 'topics', filterKey: value.filterKey, sortOrder, id }
+    }
+    if (value.resource === 'packs') {
+      const batchNo = requirePositiveInteger(value.batchNo, 'cursor.batchNo')
+      const id = requireCursorId(value.id, 'cursor.id')
+      return { version: 1, resource: 'packs', filterKey: value.filterKey, batchNo, id }
+    }
+    if (value.resource === 'questions') {
+      const packId = requireCursorId(value.packId, 'cursor.packId')
+      const sortOrder = requireNonNegativeInteger(value.sortOrder, 'cursor.sortOrder')
+      const id = requireCursorId(value.id, 'cursor.id')
+      return { version: 1, resource: 'questions', filterKey: value.filterKey, packId, sortOrder, id }
+    }
+    throw new Error('Invalid cursor resource')
+  } catch (error) {
+    if (error instanceof HttpError) throw error
+    throw new HttpError(400, 'cursor is invalid')
+  }
+}
+
+function requireCursorId(value: unknown, label: string) {
+  if (typeof value !== 'string') throw new Error(`${label} is invalid`)
+  assertFoundationId(value, label)
+  return value
+}
+
+export function mapFoundationTopic(input: unknown): FoundationTopic {
+  const row = requireFoundationRecord(input, 'topic')
+  const idValue = requireFoundationString(row, 'id', 'topic')
+  const objectives = mapFoundationObjectives(row.learning_objectives_json, idValue)
+  const exampleSpec = mapFoundationExampleSpec(row.example_spec_json, idValue)
+  const prerequisiteTopicIds = requireFoundationStringArray(row, 'prerequisite_topic_ids', idValue)
+    .map(toFoundationTopicId)
+  return {
+    id: toFoundationTopicId(idValue),
+    curriculumVersion: requireFoundationString(row, 'curriculum_version', idValue),
+    domain: requireFoundationDomain(row.domain, idValue),
+    moduleId: requireFoundationString(row, 'module_id', idValue),
+    sortOrder: requireFoundationInteger(row, 'sort_order', idValue, 0),
+    titleJa: requireFoundationString(row, 'title_ja', idValue),
+    titleZh: requireFoundationString(row, 'title_zh', idValue),
+    shortDefinitionZh: requireFoundationString(row, 'short_definition_zh', idValue),
+    beginnerExplanationZh: requireFoundationString(row, 'beginner_explanation_zh', idValue),
+    deepExplanationZh: requireFoundationString(row, 'deep_explanation_zh', idValue),
+    cautionNoteZh: requireFoundationString(row, 'caution_note_zh', idValue),
+    prerequisiteTopicIds,
+    learningObjectives: objectives,
+    exampleSpec,
+    tags: requireFoundationStringArray(row, 'tags_json', idValue),
+    status: requireFoundationPublishedStatus(row, idValue),
+    qualityScore: requireFoundationInteger(row, 'quality_score', idValue, 0, 100),
+  } satisfies FoundationTopic
+}
+
+export function mapFoundationPack(input: unknown): FoundationQuestionPack {
+  const row = requireFoundationRecord(input, 'pack')
+  const idValue = requireFoundationString(row, 'id', 'pack')
+  const topicCount = requireFoundationInteger(row, 'topic_count', idValue, 1)
+  const questionCount = requireFoundationInteger(row, 'question_count', idValue, 1)
+  if (questionCount !== topicCount * 4) {
+    throw foundationDataError(idValue, 'question_count must equal topic_count multiplied by four')
+  }
+  return {
+    id: toFoundationPackId(idValue),
+    curriculumVersion: requireFoundationString(row, 'curriculum_version', idValue),
+    batchNo: requireFoundationInteger(row, 'batch_no', idValue, 1),
+    titleZh: requireFoundationString(row, 'title_zh', idValue),
+    descriptionZh: requireFoundationString(row, 'description_zh', idValue),
+    topicCount,
+    questionCount,
+    domainQuotas: mapFoundationDomainQuotas(row.domain_quotas_json, idValue),
+    status: requireFoundationPublishedStatus(row, idValue),
+    qualityScore: requireFoundationInteger(row, 'quality_score', idValue, 0, 100),
+  } satisfies FoundationQuestionPack
+}
+
+export function mapFoundationQuestion(input: unknown): FoundationQuestion {
+  const row = requireFoundationRecord(input, 'question')
+  const idValue = requireFoundationString(row, 'id', 'question')
+  const stage = requireFoundationStage(row.stage, idValue)
+  const difficulty = requireFoundationDifficulty(row.difficulty, idValue)
+  const expectedDifficulty = foundationStages.indexOf(stage) + 1
+  if (difficulty !== expectedDifficulty) {
+    throw foundationDataError(idValue, 'difficulty does not match stage')
+  }
+  const options = mapFoundationOptions(row.options_json, idValue)
+  const answer = mapFoundationAnswer(row.answer_json, options, idValue)
+  const wrongExplanations = mapFoundationWrongExplanations(
+    row.wrong_explanations_json,
+    options,
+    answer.optionId,
+    idValue,
+  )
+  const transferExampleJa = readFoundationOptionalString(row, 'transfer_example_ja', idValue)
+  const transferExplanationZh = readFoundationOptionalString(row, 'transfer_explanation_zh', idValue)
+  if (Boolean(transferExampleJa) !== Boolean(transferExplanationZh)) {
+    throw foundationDataError(idValue, 'transfer fields must be provided together')
+  }
+
+  return {
+    id: toFoundationQuestionId(idValue),
+    packId: toFoundationPackId(requireFoundationString(row, 'pack_id', idValue)),
+    topicId: toFoundationTopicId(requireFoundationString(row, 'topic_id', idValue)),
+    curriculumVersion: requireFoundationString(row, 'curriculum_version', idValue),
+    stage,
+    questionType: requireFoundationQuestionType(row.question_type, idValue),
+    sourceKind: requireFoundationSourceKind(row.source_kind, idValue),
+    stimulus: mapFoundationStimulus(row.stimulus_json, idValue),
+    promptZh: requireFoundationString(row, 'prompt_zh', idValue),
+    options,
+    answer,
+    hintZh: requireFoundationString(row, 'hint_zh', idValue),
+    explanationZh: requireFoundationString(row, 'explanation_zh', idValue),
+    deepExplanationZh: requireFoundationString(row, 'deep_explanation_zh', idValue),
+    cautionNoteZh: requireFoundationString(row, 'caution_note_zh', idValue),
+    wrongExplanations,
+    ...(transferExampleJa ? { transferExampleJa } : {}),
+    ...(transferExplanationZh ? { transferExplanationZh } : {}),
+    difficulty,
+    tags: requireFoundationStringArray(row, 'tags_json', idValue),
+    sortOrder: requireFoundationInteger(row, 'sort_order', idValue, 0),
+    status: requireFoundationPublishedStatus(row, idValue),
+    qualityScore: requireFoundationInteger(row, 'quality_score', idValue, 0, 100),
+    contentVersion: requireFoundationInteger(row, 'content_version', idValue, 1),
+    contentHash: requireFoundationSha256(row.content_sha256, idValue),
+  } satisfies FoundationQuestion
+}
+
+function requireFoundationSha256(value: unknown, id: string) {
+  if (typeof value !== 'string' || !/^[a-f0-9]{64}$/.test(value)) {
+    throw foundationDataError(id, 'content_sha256 must be a lowercase SHA-256 digest')
+  }
+  return value
+}
+
+function mapFoundationObjectives(value: unknown, id: string): FoundationLearningObjectives {
+  const objectives = requireFoundationRecord(value, `${id}.learning_objectives_json`)
+  return {
+    F1Zh: requireFoundationString(objectives, 'F1_zh', id),
+    F2Zh: requireFoundationString(objectives, 'F2_zh', id),
+    F3Zh: requireFoundationString(objectives, 'F3_zh', id),
+    F4Zh: requireFoundationString(objectives, 'F4_zh', id),
+  } satisfies FoundationLearningObjectives
+}
+
+function mapFoundationExampleSpec(value: unknown, id: string): FoundationExampleSpec {
+  const spec = requireFoundationRecord(value, `${id}.example_spec_json`)
+  return {
+    formZh: requireFoundationString(spec, 'form_zh', id),
+    contrastZh: requireFoundationString(spec, 'contrast_zh', id),
+    constraintsZh: requireFoundationString(spec, 'constraints_zh', id),
+  } satisfies FoundationExampleSpec
+}
+
+function mapFoundationDomainQuotas(value: unknown, id: string): Partial<Record<FoundationDomain, number>> {
+  const quotas = requireFoundationRecord(value, `${id}.domain_quotas_json`)
+  const result: Partial<Record<FoundationDomain, number>> = {}
+  for (const [key, count] of Object.entries(quotas)) {
+    if (!isFoundationDomain(key)) throw foundationDataError(id, `unknown domain quota: ${key}`)
+    result[key] = requireNonNegativeInteger(count, `${id}.domain_quotas_json.${key}`)
+  }
+  return result
+}
+
+function mapFoundationStimulus(value: unknown, id: string): FoundationStimulus {
+  const stimulus = requireFoundationRecord(value, `${id}.stimulus_json`)
+  const kind = requireFoundationString(stimulus, 'kind', id)
+  if (kind === 'sentence') {
+    const zhContext = readFoundationOptionalAlias(stimulus, ['zh_context', 'zh_text'], id)
+    return {
+      kind,
+      jaText: requireFoundationString(stimulus, 'ja_text', id),
+      ...(zhContext ? { zhContext } : {}),
+    } satisfies FoundationStimulus
+  }
+  if (kind === 'dialogue') {
+    if (!Array.isArray(stimulus.turns) || stimulus.turns.length === 0) {
+      throw foundationDataError(id, 'dialogue stimulus requires turns')
+    }
+    const turns = stimulus.turns.map((turn, index) => mapFoundationStimulusTurn(turn, id, index))
+    const zhContext = readFoundationOptionalAlias(stimulus, ['zh_context', 'zh_text'], id)
+    return {
+      kind,
+      turns,
+      ...(zhContext ? { zhContext } : {}),
+    } satisfies FoundationStimulus
+  }
+  if (kind === 'contrast') {
+    if (!Array.isArray(stimulus.items) || stimulus.items.length < 2) {
+      throw foundationDataError(id, 'contrast stimulus requires at least two items')
+    }
+    const items = stimulus.items.map((item, index) => mapFoundationStimulusItem(item, id, index))
+    const zhContext = readFoundationOptionalAlias(stimulus, ['zh_context', 'zh_text'], id)
+    return {
+      kind,
+      items,
+      ...(zhContext ? { zhContext } : {}),
+    } satisfies FoundationStimulus
+  }
+  if (kind === 'metalinguistic') {
+    const form = readFoundationOptionalAlias(stimulus, ['form', 'text', 'ja_text'], id)
+    const descriptionZh = readFoundationOptionalAlias(
+      stimulus,
+      ['description_zh', 'zh_context', 'text_zh', 'statement_zh'],
+      id,
+    )
+    if (!descriptionZh) {
+      throw foundationDataError(id, 'metalinguistic stimulus requires a Chinese description')
+    }
+    return {
+      kind,
+      ...(form ? { form } : {}),
+      descriptionZh,
+    } satisfies FoundationStimulus
+  }
+  throw foundationDataError(id, `unknown stimulus kind: ${kind}`)
+}
+
+function mapFoundationStimulusTurn(value: unknown, id: string, index: number): FoundationStimulusTurn {
+  const turn = requireFoundationRecord(value, `${id}.stimulus_json.turns[${index}]`)
+  const speaker = readFoundationOptionalString(turn, 'speaker', id)
+  const zhText = readFoundationOptionalAlias(turn, ['zh_text', 'zh_context'], id)
+  return {
+    ...(speaker ? { speaker } : {}),
+    jaText: requireFoundationString(turn, 'ja_text', id),
+    ...(zhText ? { zhText } : {}),
+  } satisfies FoundationStimulusTurn
+}
+
+function mapFoundationStimulusItem(value: unknown, id: string, index: number): FoundationStimulusItem {
+  if (typeof value === 'string' && value.trim()) {
+    return { text: value.trim() }
+  }
+  const item = requireFoundationRecord(value, `${id}.stimulus_json.items[${index}]`)
+  const label = readFoundationOptionalAlias(item, ['label', 'id'], id)
+  const text = readFoundationOptionalAlias(item, ['ja_text', 'text'], id)
+  if (!text) throw foundationDataError(id, `contrast item ${index} requires ja_text or text`)
+  const noteZh = readFoundationOptionalAlias(
+    item,
+    ['zh_text', 'zh_context', 'meaning_zh', 'structure'],
+    id,
+  )
+  return {
+    ...(label ? { label } : {}),
+    text,
+    ...(noteZh ? { noteZh } : {}),
+  } satisfies FoundationStimulusItem
+}
+
+function mapFoundationOptions(value: unknown, id: string): FoundationQuestionOption[] {
+  if (!Array.isArray(value) || value.length !== 4) {
+    throw foundationDataError(id, 'options_json must contain exactly four options')
+  }
+  const options = value.map((option, index) => {
+    const row = requireFoundationRecord(option, `${id}.options_json[${index}]`)
+    return {
+      id: requireFoundationString(row, 'id', id),
+      text: requireFoundationString(row, 'text', id),
+    } satisfies FoundationQuestionOption
+  })
+  const optionIds = new Set(options.map((option) => option.id))
+  if (optionIds.size !== options.length) throw foundationDataError(id, 'option ids must be unique')
+  return options
+}
+
+function mapFoundationAnswer(
+  value: unknown,
+  options: FoundationQuestionOption[],
+  id: string,
+): FoundationQuestion['answer'] {
+  const answer = requireFoundationRecord(value, `${id}.answer_json`)
+  const optionId = requireFoundationString(answer, 'option_id', id)
+  if (!options.some((option) => option.id === optionId)) {
+    throw foundationDataError(id, 'answer option_id is not present in options')
+  }
+  return { optionId }
+}
+
+function mapFoundationWrongExplanations(
+  value: unknown,
+  options: FoundationQuestionOption[],
+  correctOptionId: string,
+  id: string,
+) {
+  const explanations = requireFoundationRecord(value, `${id}.wrong_explanations_json`)
+  const expectedIds = options.filter((option) => option.id !== correctOptionId).map((option) => option.id)
+  const actualIds = Object.keys(explanations)
+  if (
+    actualIds.length !== expectedIds.length
+    || expectedIds.some((optionId) => !actualIds.includes(optionId))
+    || actualIds.includes(correctOptionId)
+  ) {
+    throw foundationDataError(id, 'wrong explanations must cover exactly the three incorrect options')
+  }
+  return Object.fromEntries(expectedIds.map((optionId) => [
+    optionId,
+    requireFoundationString(explanations, optionId, id),
+  ]))
+}
+
+function requireFoundationRecord(value: unknown, label: string): Record<string, unknown> {
+  if (!isRecord(value)) throw new HttpError(500, `Invalid foundation data: ${label} must be an object`)
+  return value
+}
+
+function requireFoundationString(row: Record<string, unknown>, key: string, id: string) {
+  const value = row[key]
+  if (typeof value !== 'string' || !value.trim()) throw foundationDataError(id, `${key} must be a non-empty string`)
+  return value
+}
+
+function readFoundationOptionalString(row: Record<string, unknown>, key: string, id: string) {
+  const value = row[key]
+  if (value === null || value === undefined) return undefined
+  if (typeof value !== 'string' || !value.trim()) throw foundationDataError(id, `${key} must be null or a non-empty string`)
+  return value
+}
+
+function readFoundationOptionalAlias(
+  row: Record<string, unknown>,
+  keys: string[],
+  id: string,
+) {
+  for (const key of keys) {
+    const value = row[key]
+    if (value === null || value === undefined) continue
+    if (typeof value !== 'string' || !value.trim()) {
+      throw foundationDataError(id, `${key} must be a non-empty string`)
+    }
+    return value
+  }
+  return undefined
+}
+
+function requireFoundationStringArray(row: Record<string, unknown>, key: string, id: string) {
+  const value = row[key]
+  if (!Array.isArray(value)) throw foundationDataError(id, `${key} must be an array`)
+  return value.map((item, index) => {
+    if (typeof item !== 'string' || !item.trim()) {
+      throw foundationDataError(id, `${key}[${index}] must be a non-empty string`)
+    }
+    return item
+  })
+}
+
+function requireFoundationInteger(
+  row: Record<string, unknown>,
+  key: string,
+  id: string,
+  minimum: number,
+  maximum = Number.MAX_SAFE_INTEGER,
+) {
+  const value = row[key]
+  if (!Number.isInteger(value) || typeof value !== 'number' || value < minimum || value > maximum) {
+    throw foundationDataError(id, `${key} is outside its valid integer range`)
+  }
+  return value
+}
+
+function requireFoundationPublishedStatus(row: Record<string, unknown>, id: string): 'published' {
+  if (row.status !== 'published') throw foundationDataError(id, 'status must be published')
+  return 'published'
+}
+
+function requireFoundationDomain(value: unknown, id: string): FoundationDomain {
+  if (!isFoundationDomain(value)) throw foundationDataError(id, 'domain is invalid')
+  return value
+}
+
+function requireFoundationStage(value: unknown, id: string): FoundationStage {
+  if (!isFoundationStage(value)) throw foundationDataError(id, 'stage is invalid')
+  return value
+}
+
+function requireFoundationQuestionType(value: unknown, id: string): FoundationQuestionType {
+  if (!isFoundationQuestionType(value)) throw foundationDataError(id, 'question_type is invalid')
+  return value
+}
+
+function requireFoundationSourceKind(value: unknown, id: string): FoundationSourceKind {
+  if (!isFoundationSourceKind(value)) throw foundationDataError(id, 'source_kind is invalid')
+  return value
+}
+
+function requireFoundationDifficulty(value: unknown, id: string): 1 | 2 | 3 | 4 {
+  if (value === 1 || value === 2 || value === 3 || value === 4) return value
+  throw foundationDataError(id, 'difficulty is invalid')
+}
+
+function isFoundationDomain(value: unknown): value is FoundationDomain {
+  return typeof value === 'string' && foundationDomainSet.has(value)
+}
+
+function isFoundationStage(value: unknown): value is FoundationStage {
+  return typeof value === 'string' && foundationStageSet.has(value)
+}
+
+function isFoundationQuestionType(value: unknown): value is FoundationQuestionType {
+  return typeof value === 'string' && foundationQuestionTypeSet.has(value)
+}
+
+function isFoundationSourceKind(value: unknown): value is FoundationSourceKind {
+  return typeof value === 'string' && foundationSourceKindSet.has(value)
+}
+
+function requireNonNegativeInteger(value: unknown, label: string) {
+  if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0) throw new Error(`${label} is invalid`)
+  return value
+}
+
+function requirePositiveInteger(value: unknown, label: string) {
+  const integer = requireNonNegativeInteger(value, label)
+  if (integer < 1) throw new Error(`${label} is invalid`)
+  return integer
+}
+
+function toFoundationTopicId(value: string) {
+  return value as FoundationTopicId
+}
+
+function toFoundationPackId(value: string) {
+  return value as FoundationPackId
+}
+
+function toFoundationQuestionId(value: string) {
+  return value as FoundationQuestionId
+}
+
+function foundationDataError(id: string, detail: string) {
+  return new HttpError(500, `Invalid foundation data for ${id}: ${detail}`)
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function assertNever(value: never): never {
+  throw new Error(`Unhandled value: ${String(value)}`)
 }
 
 function normalizeLinguisticStatus(value: string | null) {
@@ -3302,10 +4175,26 @@ function compareReviewTasks(a: ReviewTask, b: ReviewTask) {
   return a.nextReviewOn.localeCompare(b.nextReviewOn)
 }
 
-function reviewRoute(progress: ReturnType<typeof mapProgress>) {
+export function reviewRoute(progress: ReturnType<typeof mapProgress>) {
   const workSlug = progress.workSlug || 'k-on'
   const episode = progress.episode || 1
   const payload = progress.payload as Record<string, unknown>
+  if (payload.track === 'foundation') {
+    const search = new URLSearchParams({ track: 'foundation' })
+    if (typeof payload.packId === 'string' && payload.packId) search.set('packId', payload.packId)
+    if (typeof payload.topicId === 'string' && payload.topicId) search.set('topicId', payload.topicId)
+    if (typeof payload.stage === 'string' && foundationStageSet.has(payload.stage)) {
+      search.set('stage', payload.stage)
+    }
+    if (
+      typeof payload.questionType === 'string'
+      && foundationQuestionTypeSet.has(payload.questionType)
+    ) {
+      search.set('questionType', payload.questionType)
+    }
+    if (progress.itemId) search.set('questionId', progress.itemId)
+    return `/linguistic-training?${search.toString()}`
+  }
   if (typeof payload.lessonId === 'string' || typeof payload.exerciseType === 'string') {
     return `/works/${workSlug}/episodes/${episode}/lesson?mode=review`
   }

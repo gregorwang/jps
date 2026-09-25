@@ -1,0 +1,1642 @@
+[
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-025",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-025",
+    "linguistic_payload": {
+      "headlineZh": "「ケガの治療なんて当たり前なんだから」用「なんだから」把“治疗本来就理所当然”作为带立场的理由，反驳昴的郑重道谢。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "名词判断接解释性原因",
+          "takeawayZh": "「当たり前だ」在「んだから」前变为「当たり前なんだから」。",
+          "explanationZh": "「の／ん」把判断解释化，「から」提供理由；后项“无需谢我”由前文恢复。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "互惠义务的基准判断",
+          "takeawayZh": "艾米莉雅认为昴先拼命救她，替他治伤只达到最低应有回报。",
+          "explanationZh": "「なんて」还把治疗降为不值得单独计算的大事，进一步缩小自己的功劳。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "亲切反驳重新分配感谢",
+          "takeawayZh": "语尾带情感说明，不是冷静陈述一般常识。",
+          "explanationZh": "她先说该道谢的是自己，再用本句阻止昴把她摆到施恩者位置。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "解释性「ん」",
+          "plainZh": "把命题作为对当前对话状况的说明或理由。"
+        },
+        {
+          "termZh": "省略后件",
+          "plainZh": "原因说完后不明说结论，由双方根据前文补出。"
+        }
+      ],
+      "historicalNoteZh": "「のだから」在口语中常缩为「んだから」，除因果外还容易带提醒、责怪或坚持。",
+      "cautionZh": "不要只译成客观“因为”；本句的重点还有“这不是本来就应该的吗”这一立场。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 94–98，目标在 line 97；先反向道谢，再以「当たり前なんだから」压低治疗功劳。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-026",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-026",
+    "linguistic_payload": {
+      "headlineZh": "「新しい一日の始まりといきますか」中的「Nといく」表示把接下来的进程定为 N；疑问式「いきますか」是轻快的自我提议。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "引用格标记所选进程",
+          "takeawayZh": "「Nといく」把 N 当作接下来要采取的行动或阶段。",
+          "explanationZh": "它不是物理地“去一个开始”，而是“那就进入新一天的开端吧”。"
+        },
+        {
+          "domain": "morphology",
+          "titleZh": "敬体疑问承担意志功能",
+          "takeawayZh": "形式是问句，功能接近「始めようか」。",
+          "explanationZh": "句首「んじゃ」「改めまして」先重整话题，再以「か」给自己一个启动信号。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "仪式化开启日常",
+          "takeawayZh": "昴把普通起床后的活动说成节目开场，为自己打气。",
+          "explanationZh": "经历生死后仍用主持式口吻宣布新一天，表现他主动恢复节奏。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "行动定调",
+          "plainZh": "说话人用一个名词概括并选定接下来要进入的进程。"
+        },
+        {
+          "termZh": "自我提议",
+          "plainZh": "疑问形并非真向别人索取答案，而是推动自己开始行动。"
+        }
+      ],
+      "historicalNoteZh": "「それでは一曲といきましょう」等说法常见于主持、表演和轻松提议。",
+      "cautionZh": "不要把所有「といく」都当成移动动词；需看前项是否是所选方案或阶段。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 97–102，目标在 line 99；昴结束道谢话题后宣布新一天开始。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-027",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-027",
+    "linguistic_payload": {
+      "headlineZh": "「俺のマネしてやってみよう」用「Vてみる」表示实际尝试，再用意志形「みよう」邀请对方一起照着做。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "て形加「みる」再变意志形",
+          "takeawayZh": "「やる→やってみる→やってみよう」逐层加入尝试与共同意志。",
+          "explanationZh": "这里的「みる」已语法化，不是用眼睛观看广播体操。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "方式先行的动作提议",
+          "takeawayZh": "「俺のマネして」说明尝试的方式：模仿昴。",
+          "explanationZh": "主语虽省略，意志形自然包含说话人与受邀者，近似“我们来试试”。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "教师式引导降低陌生动作门槛",
+          "takeawayZh": "先承诺可跟着模仿，再要求尝试，比直接命令更具互动感。",
+          "explanationZh": "对方刚问“这是什么”，昴立即把说明转成示范练习。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "尝试体",
+          "plainZh": "「Vてみる」表示实际做一次，以观察体验或结果。"
+        },
+        {
+          "termZh": "包含式意志",
+          "plainZh": "意志形可邀请听者与说话人共同实施动作。"
+        }
+      ],
+      "historicalNoteZh": "表示尝试的「みる」通常写平假名，以区别实义动词「見る」。",
+      "cautionZh": "「Vてみる」不保证完成成功，只表示愿意试做并看看结果。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 105–111，目标在 line 108；昴先示范广播体操，再让对方模仿尝试。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-028",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-028",
+    "linguistic_payload": {
+      "headlineZh": "「昨日は危うく君を失うところだった」用「Vるところだった」标出坏结果即将实现的临界点，但现实中并未失去对方。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "非过去形动作接过去判断",
+          "takeawayZh": "「失う」表示将要发生的结果，「ところだった」把说话视点放在临界瞬间。",
+          "explanationZh": "若写「失ったところだった」，就会转向动作完成后的时点，含义不同。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "近失与反事实",
+          "takeawayZh": "事件非常接近发生，却因救援而没有成为现实。",
+          "explanationZh": "副词「危うく」与该构式叠加，强化危险距离极近。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "严重后果为感谢定标",
+          "takeawayZh": "帕克先说差点失去艾米莉雅，随后才称对昴感谢不尽。",
+          "explanationZh": "这让感谢程度建立在明确的未遂灾难上，而非泛泛客套。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "临界相位",
+          "plainZh": "动作尚未完成、却已经逼近实现的一刻。"
+        },
+        {
+          "termZh": "未实现结果",
+          "plainZh": "句中描写的结果在实际世界最终没有发生。"
+        }
+      ],
+      "historicalNoteZh": "「もう少しで」「危うく」经常与「ところだった」共同表达“差一点”。",
+      "cautionZh": "不能只看「だった」就译成事件已发生；关键是前接辞书形还是过去形。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 122–126，目标在 line 124；艾米莉雅获救，所以「失う」明确是未实现结果。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-029",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-029",
+    "linguistic_payload": {
+      "headlineZh": "「感謝しても したりないくらい」是“即使感谢也仍感谢不够”；后半「したりない」应解析为「し足りない」，不是列举助词「たり」。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "サ变词干接「足りない」",
+          "takeawayZh": "「感謝する」的「し」与「足りない」结合为「し足りない」。",
+          "explanationZh": "表记全用平假名容易误切成「したり＋ない」，但语义和重音都指向“不足”。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "让步前件与不足后件",
+          "takeawayZh": "「Vても V足りない」表示无论做多少 V 都达不到充分程度。",
+          "explanationZh": "末尾「くらい」把这种不充分作为感谢强度的程度基准。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "数量不可穷尽的感恩",
+          "takeawayZh": "帕克不是请求昴反复道谢，而是说自己的感谢怎样表达都不足。",
+          "explanationZh": "该夸张承接差点失去艾米莉雅的危险，也引出要给昴回礼。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "复合谓语",
+          "plainZh": "动词连用形与「足りない」结合，表示做得不够。"
+        },
+        {
+          "termZh": "让步不足",
+          "plainZh": "即使实施某动作，仍无法满足所需程度。"
+        }
+      ],
+      "historicalNoteZh": "类似说法有「言っても言い足りない」「見ても見足りない」，常通过重复动词强调无上限。",
+      "cautionZh": "连续假名「したりない」容易诱发错误分词；本句与「VたりVたりする」无关。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 124–126，目标在 line 125；逐字确认「感謝しても したりないくらい」，按「し足りない」解析。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-030",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-030",
+    "linguistic_payload": {
+      "headlineZh": "「その毛並み触らせてくれ」中的使役形不是强迫别人触摸，而是请求对方允许“让我摸”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "五段动词的使役形",
+          "takeawayZh": "「触る」变为「触らせる」，再接「てくれ」形成许可请求。",
+          "explanationZh": "动作执行者是昴，被请求授予许可的是帕克。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "使役与受益请求叠合",
+          "takeawayZh": "「Vさせてくれ」字面是“请为我允许做 V”。",
+          "explanationZh": "「くれ」把许可视为对说话人的恩惠，语气直接但仍是请求。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "把回礼改成持续接触权",
+          "takeawayZh": "面对“想要什么谢礼”，昴要求以后随时摸毛。",
+          "explanationZh": "荒诞请求显示他真正看重触感，也让帕克惊讶“只要这样就好”。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "许可使役",
+          "plainZh": "使役形可表示让某人获准行动，不一定是强制命令。"
+        },
+        {
+          "termZh": "恩惠请求",
+          "plainZh": "「てくれ」要求对方为说话人提供有利行为。"
+        }
+      ],
+      "historicalNoteZh": "「Vさせてください」是更礼貌的同类形式，常用于请求发言、参加或先行离开。",
+      "cautionZh": "只把使役译成“让某人做”会弄反角色；本句是昴本人要触摸。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 125–131，目标在 line 128；前文明确让昴选择谢礼，确认许可请求。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-031",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-031",
+    "linguistic_payload": {
+      "headlineZh": "完整句「百万の富と引き換えにしても惜しくない対価だぜ」表示即便拿百万财富来交换，随时摸毛的权利也值得。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "交换构式再接让步「ても」",
+          "takeawayZh": "「Nと引き換えにする」表示拿 N 作为交换物，「しても」加入“即使如此”。",
+          "explanationZh": "若只截取「と引き換えに」，会漏掉并非真的成交，而是夸张假设。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "高代价反向证明价值",
+          "takeawayZh": "愿意舍弃百万财富，表示毛绒接触权在昴心中的价值极高。",
+          "explanationZh": "后件「惜しくない」否定舍不得，完成价值比较。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "御宅式夸张代替现实计价",
+          "takeawayZh": "他把主观喜爱说成可与巨额财富交换的客观对价。",
+          "explanationZh": "帕克能模糊读心，随后确认昴竟然真心这么想，强化笑点。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "交换物",
+          "plainZh": "为了得到另一项事物而交出的代价。"
+        },
+        {
+          "termZh": "让步假设",
+          "plainZh": "即使接受一个极端条件，后项判断仍然成立。"
+        }
+      ],
+      "historicalNoteZh": "「命と引き換えに」「自由と引き換えに」常用于强调所得背后的重大代价。",
+      "cautionZh": "本句不是已发生的百万交易；「ても」把它设为极端假设。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 129–134，目标在 line 132；必须连同后件「惜しくない対価だぜ」理解。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-032",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-032",
+    "linguistic_payload": {
+      "headlineZh": "「悪意とか敵意とか害意ってものは見当たらない」用「とか」列举同类负面意图，并保留“诸如此类”的开放范围。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "开放式并列而非封闭清单",
+          "takeawayZh": "「AとかBとか」举出代表项；第三项「害意」后接「ってもの」统摄整类。",
+          "explanationZh": "没有最后一个「とか」不妨碍列举成立，口语可以改变收尾方式。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "近义词细分意图方向",
+          "takeawayZh": "恶意偏坏心，敌意偏对立，害意偏加害打算。",
+          "explanationZh": "帕克连续列词，不是同义赘述，而是在不同风险维度上都找不到问题。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "读心结论为信任背书",
+          "takeawayZh": "列举扩大检查范围，使“昴没有危险意图”的保证更全面。",
+          "explanationZh": "这句话直接回应艾米莉雅担忧，也为她继续与昴相处提供依据。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "例示列举",
+          "plainZh": "举几个代表项，让听者理解还包括同类内容。"
+        },
+        {
+          "termZh": "语义邻域",
+          "plainZh": "意义相近但侧重点不同的一组词。"
+        }
+      ],
+      "historicalNoteZh": "口语「とか」比书面「や」「および」更松散，也常暗示说话人不追求完整枚举。",
+      "cautionZh": "不要把每个「とか」都译成不确定“或许”；本句的主要功能是列举。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 135–141，目标在 line 138；前文帕克说明能模糊读心，随后给出无恶意判断。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-033",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-033",
+    "linguistic_payload": {
+      "headlineZh": "「相当に頭が残念みたいかしら」用「みたい」作基于言行的推断，再叠加「かしら」塑造贝阿特莉丝式柔软外壳下的毒舌。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "推量形式后再接人物语尾",
+          "takeawayZh": "「頭が残念みたい」形成“似乎脑子很遗憾”的判断，「かしら」附在句末。",
+          "explanationZh": "两层缓和不代表真正拿不准，而是让侮辱以似问非问的方式送出。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "「残念」委婉替代能力贬损",
+          "takeawayZh": "把人的头脑说成“令人遗憾”，实际暗示愚蠢或不正常。",
+          "explanationZh": "「相当に」又把程度提高，和表面含蓄形成反差。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "观察判断充当当面攻击",
+          "takeawayZh": "她看了昴的行为后给出人物评语，不是在寻求诊断意见。",
+          "explanationZh": "昴下一句立刻反骂，证明听者接收到的是明确侮辱。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "证据推量",
+          "plainZh": "根据可见迹象，用「みたい」提出看似保留的判断。"
+        },
+        {
+          "termZh": "双重缓和",
+          "plainZh": "连续使用保留形式，但实际语气未必更友善。"
+        }
+      ],
+      "historicalNoteZh": "现代角色语言中「かしら」常用于塑造女性化或特定人设，真实使用不应机械限定性别。",
+      "cautionZh": "不能只看「頭が残念みたい」；完整表达还含「相当に」与「かしら」，分别提高程度并塑造语气。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 148–153，目标在 line 150；完整句比 source 例更长，下一句昴立即反击。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-035",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-035",
+    "linguistic_payload": {
+      "headlineZh": "「４日ぶり」表示自上次见面以来隔了四天；时间长度直接接「ぶり」，把本次重逢与上一次同类事件相连。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "期间名词加后缀「ぶり」",
+          "takeawayZh": "可说「三年ぶり」「久しぶり」，后接动作时用「三年ぶりに会う」。",
+          "explanationZh": "本句独立作招呼语，省略了「会う／会った」等重逢谓语。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "两次同类事件之间的间隔",
+          "takeawayZh": "四天不是事件持续时间，而是从上次见到贝阿特莉丝到现在的长度。",
+          "explanationZh": "因此它不同于「４日目」，后者表示进入一段过程的第四天。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "短时间也可被亲密关系突出",
+          "takeawayZh": "帕克主动计算离别时间，贝阿特莉丝随即欢呼并说一直期待。",
+          "explanationZh": "「ぶり」在此兼具事实间隔和重逢情感的提示作用。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "事件间隔",
+          "plainZh": "从上一次某动作到本次同类动作之间经过的时间。"
+        },
+        {
+          "termZh": "谓语省略",
+          "plainZh": "招呼中只报间隔，见面动作由现场直接补足。"
+        }
+      ],
+      "historicalNoteZh": "「久しぶり」已高度固定，可不说明具体时长；具体数字则更精确。",
+      "cautionZh": "「４日ぶり」不是“持续四天”，也不是“第四次”；要找到隐含的上一次事件。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 152–158，目标在 line 154；帕克问候后，贝阿特莉丝立刻表现久别亲近。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-036",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-036",
+    "linguistic_payload": {
+      "headlineZh": "「私がこの屋敷の当主…というわぁーけだよ」用「というわけだ」把前面的姓名身份总结为“也就是说，我就是宅邸主人”。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "引用内容接总结名词「わけ」",
+          "takeawayZh": "「Pというわけだ」把 P 当作根据当前信息得出的说明或结论。",
+          "explanationZh": "这里 P 本身就是身份判断，不要求存在复杂因果推理。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "身份揭示而非原因说明",
+          "takeawayZh": "罗兹瓦尔回答昴“怎么回事”，把自己的全名与当主身份对应起来。",
+          "explanationZh": "自然译法是“我就是……”，若硬译成“有这样的理由”反而生硬。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "拖长音塑造夸张自我呈现",
+          "takeawayZh": "「わぁーけ」的延长超出语法需要，是人物独特韵律。",
+          "explanationZh": "他以舞台式语调介绍自己，使正式身份与戏谑声线同时出现。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "总结说明",
+          "plainZh": "把前面信息收束成听者现在应理解的结论。"
+        },
+        {
+          "termZh": "超音段人设",
+          "plainZh": "拉长、节奏和音高等不改变词形，却能塑造角色。"
+        }
+      ],
+      "historicalNoteZh": "「わけ」原指道理、缘由，现代「というわけだ」也广泛用于归纳结果和解释身份。",
+      "cautionZh": "不要把每个「わけだ」都译作“因为”；本句主要承担身份落点。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 174–178，实际完整身份句跨 lines 176–177；source 存储行号偏后。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-037",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-037",
+    "linguistic_payload": {
+      "headlineZh": "「こう見えて レムの料理はちょっとしたものだよ」用「こう見えて」承认眼前印象，再提出与该印象不一致的料理实力。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "て形构成让步框架",
+          "takeawayZh": "「こう見えて」可补成“虽看起来是这样”，后项给出意外事实。",
+          "explanationZh": "「こう」依赖现场视觉和共同认识，无法脱离人物外观独立确定。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "外观预期与实际能力冲突",
+          "takeawayZh": "说话人预设听者可能没有从蕾姆外表推断出高超厨艺。",
+          "explanationZh": "后项「ちょっとしたもの」并非“一点东西”，而是“相当不错”。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "赞美中暗含预期管理",
+          "takeawayZh": "罗兹瓦尔替沉默的女仆介绍能力，也引导昴重新评价她。",
+          "explanationZh": "这种说法可能让被评价者觉得“外表本来不像”，使用时需留意。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "让步前置",
+          "plainZh": "先承认一种表面印象，再给出与之不一致的结论。"
+        },
+        {
+          "termZh": "指示依赖",
+          "plainZh": "「こう」的具体内容必须从现场对象和共同注意恢复。"
+        }
+      ],
+      "historicalNoteZh": "「こう見えて」常用于自我介绍隐藏技能，也可由第三方介绍他人。",
+      "cautionZh": "对别人使用可能暗示外貌不符合优点；不是任何赞美场景都合适。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 179–184，目标在 line 181；前句昴称料理好吃，罗兹瓦尔顺势介绍蕾姆。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-038",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-038",
+    "linguistic_payload": {
+      "headlineZh": "「姉様は料理があまり得意ではないので」用「ではない」礼貌否定擅长，再以「ので」说明餐桌由蕾姆负责的理由。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "名词性评价的否定原因从句",
+          "takeawayZh": "「得意だ→得意ではない→得意ではないので」形成否定后接原因。",
+          "explanationZh": "后项职责安排已在前一句出现，日语允许理由句后置来补充说明。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "「あまり＋否定」降低断言程度",
+          "takeawayZh": "表达“不太擅长”，比直接说「苦手だ」更克制。",
+          "explanationZh": "蕾姆仍在公开说明姐姐能力不足，但用程度副词保留礼貌。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "敬体外壳下的姐妹评价",
+          "takeawayZh": "女仆式正式语气让负面信息听起来像职责说明。",
+          "explanationZh": "后续她又称姐姐擅长清扫洗衣，再反转说明自己家务全能，形成冷面笑点。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "缓和否定",
+          "plainZh": "用「それほど／あまり＋否定」避免把能力说成绝对没有。"
+        },
+        {
+          "termZh": "后置理由",
+          "plainZh": "先说结果，再补充以「ので」结尾的原因。"
+        }
+      ],
+      "historicalNoteZh": "「ので」比强断定的「から」常显得解释性更强，但礼貌度仍取决于整体关系。",
+      "cautionZh": "否定别人能力即使语法礼貌也可能失礼；本句是宅邸内部的角色关系。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 183–190，目标在 line 186；「当家の食卓はレムが預かる」在前，原因随后补出。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-039",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-039",
+    "linguistic_payload": {
+      "headlineZh": "「掃除 洗濯を家事の中では得意としています」用较正式的「Nを得意とする」说明专长，并以「家事の中では」限定比较领域。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "能力对象用「を」标记",
+          "takeawayZh": "「Nを得意とする」把擅长项目作为宾语；「得意としています」的「ている」在此描述稳定特征。",
+          "explanationZh": "它比简单「Nが得意です」更像客观介绍或人物简介。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "领域内部的相对擅长",
+          "takeawayZh": "「家事の中では」只在家务项目之间比较，不宣称总体能力高。",
+          "explanationZh": "蕾姆列出扫除、洗衣，是在为“料理不擅长”寻找姐姐相对较强的项目。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "正式措辞暂时维护姐姐颜面",
+          "takeawayZh": "蕾姆先肯定拉姆两项能力，避免评价完全负面。",
+          "explanationZh": "随后的“我家务全般都擅长、而且比姐姐强”又把这份维护变成冷幽默。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "比较领域",
+          "plainZh": "判断优劣时限定只在哪一组项目内部比较。"
+        },
+        {
+          "termZh": "稳定属性",
+          "plainZh": "「得意としている」描述长期专长，不是当下正在做某事。"
+        }
+      ],
+      "historicalNoteZh": "简历和介绍文常见「語学を得意とする」「守備を得意とする」。",
+      "cautionZh": "「家事の中では」带相对限制，不能省略后夸大成“她很擅长所有家务”。"
+    },
+    "review_note": "核对当前字幕 EP4 lines 187–194，目标在 line 190；后文明确蕾姆才是「家事全般が得意」。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-041",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-041",
+    "linguistic_payload": {
+      "headlineZh": "「その可能性は かなり低いと思います」切分为「その可能性は｜かなり低い｜と思います」；「は」设定主题，「と」引用低概率判断。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "主题「は」不属于引用助词",
+          "takeawayZh": "切分应为「その可能性は｜かなり低い｜と思います」。",
+          "explanationZh": "「と」只引用形容词命题「かなり低い」，前面的「は」标记被评估的可能性。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "无法排除但概率很低",
+          "takeawayZh": "前句「否定はできませんが」保留逻辑可能，本句给出低概率判断。",
+          "explanationZh": "两句共同表达“不是零，但不大”，不能简化成完全否认间谍风险。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "敬体报告限制确定性",
+          "takeawayZh": "「と思います」把结论呈现为蕾姆的评估，而非无条件事实。",
+          "explanationZh": "这是向当主汇报风险，既要给出判断，也要留下证据不足的余地。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "结构误切",
+          "plainZh": "把相邻的主题助词和引用助词错误合并成一个语法模式。"
+        },
+        {
+          "termZh": "概率校准",
+          "plainZh": "区分不可能、低可能与确定，避免把判断说得过强。"
+        }
+      ],
+      "historicalNoteZh": "「とは思う」当然可以成立，如「正しいとは思う」，但必须有完整引用内容与对比语境。",
+      "cautionZh": "不要把相邻的主题助词「は」和引用助词「と」误切成「とは」；本句实际构式是「Pと思います」。"
+    },
+    "review_note": "全文定位当前字幕 EP4 lines 367–371，目标在 line 369；数据库 source_line_no=374 有偏移，且 pattern 明确错配。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-042",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-042",
+    "linguistic_payload": {
+      "headlineZh": "罗兹瓦尔说「私の立場としては 邪魔するべきなんだろうけどね」：用「べき」表达身份职责上的应然，却由「だろう」「けど」保留不介入的余地。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "辞书形接规范判断",
+          "takeawayZh": "「邪魔するべきだ」表示按某一标准应当阻止。",
+          "explanationZh": "「立場としては」明确标准来自身份职责，不是说话人的全部愿望。"
+        },
+        {
+          "domain": "morphology",
+          "titleZh": "推量与逆接削弱断言",
+          "takeawayZh": "「べきなんだろう」把应然再放入自我推测，「けどね」悬置执行。",
+          "explanationZh": "多层形式让“应该”与“未必会做”同时存在。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "旁观者承认职责却悬置行动",
+          "takeawayZh": "罗兹瓦尔从自己的身份出发，说自己似乎应当干预昴与艾米莉雅的相处。",
+          "explanationZh": "他是在向蕾姆评论窗外两人，并未发布命令；下一话轮蕾姆还用「どちらも子供」降低干预必要。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "规范情态",
+          "plainZh": "依据规则、身份或价值判断某行为应当发生。"
+        },
+        {
+          "termZh": "立场分裂",
+          "plainZh": "同一人从角色责任和个人感情得出不同倾向。"
+        }
+      ],
+      "historicalNoteZh": "「べき」语气可强可弱；与「だろう」「かもしれない」组合时也能表达自我审视。",
+      "cautionZh": "不要把本句译成已决定阻止；「けど」明确留下相反方向。"
+    },
+    "review_note": "全文定位当前字幕 EP4 lines 374–377，目标在 line 376；数据库 source_line_no=381 偏后 5 行。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-043",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-043",
+    "linguistic_payload": {
+      "headlineZh": "「どちらも子供ですから 放っておいても何も起きませんよ」用「Vても」表示即使不干预，蕾姆判断也不会发生问题。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "复合动词「放っておく」",
+          "takeawayZh": "「放る＋ておく」已固化为不管、任其保持现状。",
+          "explanationZh": "变为「放っておいても」后加入让步条件“即使放着不管”。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "原因在前、让步判断在后",
+          "takeawayZh": "「どちらも子供ですから」先给出风险低的依据。",
+          "explanationZh": "后件「何も起きませんよ」否定任何值得担心的事件发生。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "下属替主人解除职责压力",
+          "takeawayZh": "蕾姆回应罗兹瓦尔“从立场上应该阻止”的旁观评论。",
+          "explanationZh": "把两人归为孩子既是安抚，也轻微贬低了他们造成政治后果的能力。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "让步条件",
+          "plainZh": "即使前项成立，后项结果仍不改变。"
+        },
+        {
+          "termZh": "不干预",
+          "plainZh": "有能力介入，却选择让现状自行发展。"
+        }
+      ],
+      "historicalNoteZh": "「ほうっておく」也常写「放っておく」，会话中还可缩成「ほっとく」。",
+      "cautionZh": "不能把「ても」机械译成“但是”；本句需要恢复“即使不管”的条件关系。"
+    },
+    "review_note": "全文定位当前字幕 EP4 line 377；数据库 source_line_no=382 偏后，前一句正是立场上的「べき」冲突。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-044",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-044",
+    "linguistic_payload": {
+      "headlineZh": "「欲がなさすぎない？」由「欲がない」变出程度词干「なさ」，再接「すぎる」与否定疑问：你是不是太没有欲望了？",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "否定形的程度名词化",
+          "takeawayZh": "「ない」谈程度时常用「なさ」，形成「なさすぎる」。",
+          "explanationZh": "末尾再否定为「なさすぎない」，不是把前面的“没有”简单取消。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "否定问句邀请认同",
+          "takeawayZh": "说话人倾向认为昴确实欲望过少，问句要求他回应这一判断。",
+          "explanationZh": "「ちょっと」在此缓和直接评价，不表示程度真的很轻。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "好奇追问揭开价值观差异",
+          "takeawayZh": "艾米莉雅回顾昴只要名字、摸帕克和工作，觉得愿望异常朴素。",
+          "explanationZh": "昴随后解释自己只求当下真正想要之物，把质疑转成自我原则。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "程度词干「さ」",
+          "plainZh": "把性质转成可衡量程度，如「高さ」「なさ」。"
+        },
+        {
+          "termZh": "偏向疑问",
+          "plainZh": "形式上提问，实际上期待听者承认某判断。"
+        }
+      ],
+      "historicalNoteZh": "「なさすぎる」在现代口语高频，可接名词所有结构，如「やる気がなさすぎる」。",
+      "cautionZh": "双重出现「ない」不等于逻辑上的双重否定；整体仍批评欲望太少。"
+    },
+    "review_note": "全文定位当前字幕 EP4 line 397；数据库 source_line_no=402 偏后，前后列举帕克和王都取名两次选择。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-045",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-045",
+    "linguistic_payload": {
+      "headlineZh": "「欲しがらなきゃいけないものも…あった」表示回头想想，当时本来还有许多自己“应该表现出想要”的东西。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「欲しがる」接缩约义务",
+          "takeawayZh": "「欲しがらなければいけない」缩为「欲しがらなきゃいけない」。",
+          "explanationZh": "「欲しがる」把欲望作为外显倾向来观察，昴在反思中像从外部评价过去的自己。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "义务从句修饰「もの」",
+          "takeawayZh": "整个「欲しがらなきゃいけない」限定“本应想要的东西”。",
+          "explanationZh": "后面的「もほかにいろいろと」说明这只是许多可能选择中的一组。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "承认常识方案却坚持真实欲望",
+          "takeawayZh": "昴承认冷静计算会要求金钱、生活资源等更多东西。",
+          "explanationZh": "下一句以「でも」转折，宣称自己不会对内心撒谎，因此没有后悔当时选择。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "外显欲望",
+          "plainZh": "「欲しがる」描述可从行为观察到的想要倾向。"
+        },
+        {
+          "termZh": "回顾性义务",
+          "plainZh": "站在后来视角判断过去本应做什么，并非当前命令。"
+        }
+      ],
+      "historicalNoteZh": "初级语法常把「欲しい」用于第一人称、「欲しがる」用于观察他人；文学独白中人也可客体化自己。",
+      "cautionZh": "本句不是别人强迫昴贪心，而是他根据现实利益回顾“按常理本该想要什么”。"
+    },
+    "review_note": "全文定位当前字幕 EP4 lines 405–409，目标在 line 408；数据库 source_line_no=413 偏后。"
+  },
+  {
+    "id": "grammar-card-v1:re-zero-s01e04-grammar-047",
+    "source_type": "grammar",
+    "source_id": "re-zero-s01e04-grammar-047",
+    "linguistic_payload": {
+      "headlineZh": "「治癒魔法 かけてあげようか？」以「Vてあげる」把治疗呈现为对昴有利的行动，再用意志疑问「ようか」主动提议。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "授受表达接提议问句",
+          "takeawayZh": "「かけてあげる」说明恩惠方向从艾米莉雅到昴，「あげようか」询问是否实施。",
+          "explanationZh": "受益者虽未出现格助词，现场只有昴的手伤需要治疗，指向明确。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "能力施加与受益同时编码",
+          "takeawayZh": "「魔法をかける」说动作内容，「てあげる」再评价它对对方有帮助。",
+          "explanationZh": "这比单纯问「治す？」更强调说话人愿意替对方做。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "关心仍给对方拒绝空间",
+          "takeawayZh": "艾米莉雅看见伤痕主动提议，却没有直接施法。",
+          "explanationZh": "昴随后拒绝并说明伤痕是努力证明，提议形式让这种个人选择得以表达。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "授受方向",
+          "plainZh": "语法明确谁为谁实施有利动作。"
+        },
+        {
+          "termZh": "提议权",
+          "plainZh": "说话人提出愿意行动，同时把接受与否留给听者。"
+        }
+      ],
+      "historicalNoteZh": "「てあげる」对平辈、晚辈自然，但若强调施恩可能显得居高临下，敬语关系需谨慎。",
+      "cautionZh": "本场景是真诚照顾，不应机械把所有「てあげる」都判为傲慢。"
+    },
+    "review_note": "全文定位当前字幕 EP4 line 421；数据库 source_line_no=426 偏后，昴随后明确拒绝治疗并解释理由。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-001",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-001",
+    "linguistic_payload": {
+      "headlineZh": "「また戻ってきちまった」是「戻ってきてしまった」的粗口语缩约：昴确认自己又回到重置点，并带出不由自主与沉重感。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「てしまう」缩为「ちまう」",
+          "takeawayZh": "「戻ってきてしまった→戻ってきちまった」，过去形表示回归已经完成。",
+          "explanationZh": "「ちまった」保留「しまった」的结果完成，也常附带遗憾、失控或懊恼。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "「戻ってくる」以当前点为终点",
+          "takeawayZh": "「くる」把移动终点设在说话人此刻所在的重置现场。",
+          "explanationZh": "「また」确认同一回归模式重复，左手仍在等身体证据完成识别。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "生还与失败同时进入独白",
+          "takeawayZh": "第一反应把回归视为又一次不愿发生的重置。",
+          "explanationZh": "下一句他立刻用「いや」改口，意识到也可以把这称作“成功回来了”。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "方向性补助动词",
+          "plainZh": "「てくる」把动作变化连接到说话人的当前视点。"
+        },
+        {
+          "termZh": "遗憾缩约",
+          "plainZh": "「ちまう」用粗口语压缩「てしまう」，仍携带失控评价。"
+        }
+      ],
+      "historicalNoteZh": "「ちまう／ちまった」常塑造男性化、随便或粗率口吻，标准会话也可用较中性的「ちゃう」。",
+      "cautionZh": "不是单纯过去式“回来了”；「しまう」所加的非自愿感是本句情绪关键。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 3–7，目标 line 6；昴先检查左手，随后下一句自我修正回归评价。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-002",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-002",
+    "linguistic_payload": {
+      "headlineZh": "「いや…戻ってこれたと言うべきか」用「いや」撤回前一句的负面说法，再讨论更准确的表述：或许该说自己“还能回来”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "口语可能形「来れた」",
+          "takeawayZh": "「戻って来られた」在会话中缩为「戻って来れた」。",
+          "explanationZh": "这里的可能形不是能力炫耀，而是把死亡后的回归视为得以实现的结果。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "引用内容接「と言うべきか」",
+          "takeawayZh": "「Pと言うべきか」表示正在选择是否应以 P 来命名局面。",
+          "explanationZh": "句末「か」面向自己的措辞判断，不要求身边人回答。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "显式自我修复改变价值方向",
+          "takeawayZh": "「いや」否定的不是回归事实，而是“又倒霉回来了”这一表述角度。",
+          "explanationZh": "从失去上一轮转向至少仍能继续尝试，独白完成细小但重要的认知重构。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "自我修复",
+          "plainZh": "说话人中途撤回或改写自己刚说出的表达。"
+        },
+        {
+          "termZh": "元语言选择",
+          "plainZh": "讨论某件事究竟应当怎样说，而非直接谈事件本身。"
+        }
+      ],
+      "historicalNoteZh": "「ら抜き」可能形在现代口语中很常见，正式规范书写仍常保留「来られる」。",
+      "cautionZh": "自然中文不是生硬的“应该说回来了吗”，而是“或许该说幸好还能回来”。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 6–9，目标 line 7；「いや」直接修正上一句「戻ってきちまった」。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-003",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-003",
+    "linguistic_payload": {
+      "headlineZh": "「ご迷惑をおかけしました！」是为自己给对方造成困扰而道歉的固定敬语；昴发现众人再次忘记自己后，迅速用礼貌公式重启关系。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "美化前缀与谦恭构式",
+          "takeawayZh": "「迷惑」加「ご」，「かける」用「おかけする」降低自己一方。",
+          "explanationZh": "过去敬体「しました」把道歉对象定位为已经造成的麻烦。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "麻烦被概念化为施加物",
+          "takeawayZh": "日语说「人に迷惑をかける」，把负担描述为加到别人身上。",
+          "explanationZh": "具体麻烦未展开，现场的突兀言行足以让听者恢复。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "敬语作为关系重置工具",
+          "takeawayZh": "上一轮亲近记忆只属于昴，他必须重新回到陌生人的礼貌起点。",
+          "explanationZh": "紧接的「再始動します」又把正式道歉转为夸张自我开场。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "谦恭表达",
+          "plainZh": "降低己方动作，以尊重受影响的对方。"
+        },
+        {
+          "termZh": "关系重置",
+          "plainZh": "根据对方当前认知，重新选择初次交往所需的礼貌距离。"
+        }
+      ],
+      "historicalNoteZh": "「ご迷惑をおかけしました」是职场、服务和正式道歉中的高频定型句。",
+      "cautionZh": "严重事件只说固定句可能显得空泛；现实道歉最好补充具体责任与补救。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 11–16，目标 line 13；昴先确认被忘记，再以敬语道歉并宣布重新启动。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-004",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-004",
+    "linguistic_payload": {
+      "headlineZh": "「今って 何日の何時？」用会话主题标记「って」把“现在”提出来，同时询问日期和时刻，以确认重置落点。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "口语提题与并列疑问",
+          "takeawayZh": "「今って」近似「今は」，「何日の何時」把日期与钟点压入同一问句。",
+          "explanationZh": "句末省略「なの／ですか」，熟悉场景中名词疑问仍完整可懂。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "时间坐标需要双重定位",
+          "takeawayZh": "只知道“现在”不足以辨别循环，他同时需要第几日和几点。",
+          "explanationZh": "后续字幕标明这是第三次宅邸初日，问题承担循环校准功能。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "突兀确认隐藏私人危机",
+          "takeawayZh": "对旁人只是奇怪的时间问题，对昴却是判断可用行动窗口的关键信息。",
+          "explanationZh": "轻口语掩盖了提问背后的死亡经验和紧迫性。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "口语主题",
+          "plainZh": "「って」把当前要说明或询问的对象提为话题。"
+        },
+        {
+          "termZh": "坐标校准",
+          "plainZh": "通过日期与时刻确定自己处于事件序列的哪一点。"
+        }
+      ],
+      "historicalNoteZh": "会话「Nって？」还能单独表示“你说的 N 是什么”，具体功能由后项决定。",
+      "cautionZh": "「何日」在此问几号／第几天，需结合回答；不能预先固定为某一种中文。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 14–19，目标 line 16；问题后画面标注第三次罗兹瓦尔宅邸初日。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-005",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-005",
+    "linguistic_payload": {
+      "headlineZh": "「最初の死因は 寝てる間の衰弱死ってとこか」用「ってとこか」把“睡眠中的衰弱死”标为目前大致可下的推测。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「というところ」的口语压缩",
+          "takeawayZh": "「ってとこ」近似「というところ」，句末「か」保留自问。",
+          "explanationZh": "它在此不是物理地点，而是“归纳起来大约是这个判断”。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "时间范围修饰死因类别",
+          "takeawayZh": "「寝てる間の」限定衰弱死亡发生在睡眠期间。",
+          "explanationZh": "「寝てる」是「寝ている」缩约，整个名词组充当死因判断的内容。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "用侦探口吻整理不完整证据",
+          "takeawayZh": "昴依据寒意推断第一次死亡，却仍用约略形式避免过度确定。",
+          "explanationZh": "下一句「だが二度目は」立即建立对照，说明两轮死法并不相同。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "近似归类",
+          "plainZh": "把现有证据暂时归纳为最接近的解释，而非宣布定论。"
+        },
+        {
+          "termZh": "时间范围",
+          "plainZh": "「Vている間」限定某事件发生所处的持续时段。"
+        }
+      ],
+      "historicalNoteZh": "口语「まあ、そんなところだ」也用「ところ」表示大致结论或程度。",
+      "cautionZh": "不能把死因译成已经查明的定论；「ってとこか」明确保留推测性。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 19–24，目标 line 21；前有寒意线索，后以「だが二度目は」切换另一死因。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-006",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-006",
+    "linguistic_payload": {
+      "headlineZh": "「襲撃者がいた」本身只断定“存在袭击者”；轮次信息来自前一行「だが ２度目は」，不属于这句短句自身。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "存在句引入新人物",
+          "takeawayZh": "「襲撃者がいた」以「が」呈现此前未进入话题的存在者。",
+          "explanationZh": "这里不是用「は」继续谈已知袭击者，而是首次为第二轮死亡提出这一角色。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "最低事实不包含身份",
+          "takeawayZh": "句子只确认有人发动袭击，尚未说明是谁、目的为何。",
+          "explanationZh": "后文昴承认没看见对方面貌与武器，证明信息边界很窄。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "短句形成推理节点",
+          "takeawayZh": "它与第一轮衰弱死形成对照，迫使昴考虑屋内其他人是否也被盯上。",
+          "explanationZh": "极短断言在独白中像列出第二条调查事实。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "呈现「が」",
+          "plainZh": "把新出现、尚未成为共同话题的人或事引入叙述。"
+        },
+        {
+          "termZh": "证据边界",
+          "plainZh": "只声称句子和现场能够支持的最小事实。"
+        }
+      ],
+      "historicalNoteZh": "日语存在句常用「場所に 人がいる」，地点可在上下文清楚时省略。",
+      "cautionZh": "离开前一句时只能译作“有袭击者”；不能凭这句短句独立补出时间轮次。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 22–25；目标实际在 line 23，数据库 source_line_no=25 有偏移；「２度目」只见于 line 22。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-007",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-007",
+    "linguistic_payload": {
+      "headlineZh": "「説明できる証拠も 未然に防ぐ手段も―」是跨行残句，必须接下一行「俺の手の中にはねえ」才得到“证据和手段都没有”。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "「も…も」受后置否定管辖",
+          "takeawayZh": "两个名词组都由下一行「ねえ」否定，形成两项皆无。",
+          "explanationZh": "破折号标记句子未完；若停在这一行，就会看不到决定极性的谓语。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "说明证据与预防能力双重缺口",
+          "takeawayZh": "一项关系到说服他人，另一项关系到实际阻止袭击。",
+          "explanationZh": "昴即使知道危险会来，也同时缺乏可信叙述和可执行方案。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "手中隐喻强调可支配资源",
+          "takeawayZh": "「手の中にはない」不是物理上没拿东西，而是目前没有可用资源。",
+          "explanationZh": "并列缺口解释他为何不能直接警告宅邸众人。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "否定辖域",
+          "plainZh": "句末否定词同时作用于前面以「も」并列的多个项目。"
+        },
+        {
+          "termZh": "跨行完句",
+          "plainZh": "字幕换行不等于句法结束，核心谓语可能在下一行。"
+        }
+      ],
+      "historicalNoteZh": "「AもBもない」是日语表达“二者皆无”的基本结构，项目可被长定语修饰。",
+      "cautionZh": "不能把破折号当作完整省略而随意补义；必须连读后续的「俺の手の中にはねえ」。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 27–30；source 词面在 line 28，句法谓语位于 line 29，数据库行号偏后。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-008",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-008",
+    "linguistic_payload": {
+      "headlineZh": "「グルグルしてっと 不思議と頭のほうも回る」一面说身体转来转去，一面用同一个「回る」表示脑子运转，构成词义双关。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「していると」的粗快缩约",
+          "takeawayZh": "「していると→してると→してっと」，表示持续这样做时会出现后果。",
+          "explanationZh": "缩约与昴快速、随意的说话节奏相合。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "物理旋转与认知运转",
+          "takeawayZh": "前项「グルグル」是身体移动，后项「頭が回る」是思考变灵活。",
+          "explanationZh": "「頭のほうも」中的「も」明确邀请听者把两种回转对应起来。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "用玩笑解释扰人动作",
+          "takeawayZh": "贝阿特莉丝嫌他来回转得烦，昴把动作合理化为整理思路。",
+          "explanationZh": "幽默解释既请求她容忍，也掩盖自己因死亡循环而高度紧张。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "词义双关",
+          "plainZh": "同一动词在相邻位置分别使用物理义和抽象义。"
+        },
+        {
+          "termZh": "条件习惯",
+          "plainZh": "「Vると」表示在某状态持续时自然出现的结果。"
+        }
+      ],
+      "historicalNoteZh": "身体运动词常扩展到认知，如日语「頭が働く／回る」和汉语“脑子转起来”。",
+      "cautionZh": "后半的「回る」不能译成头部物理旋转；它说思路变得活跃。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 35–39；目标实际在 line 36，数据库 source_line_no=38 偏后。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-009",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-009",
+    "linguistic_payload": {
+      "headlineZh": "「怖いのも ごまかせるようになった 頃合いかしら」判断昴已经到了能掩饰恐惧的时点；贝阿特莉丝早看穿了他的发抖。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "能力变化修饰时机名词",
+          "takeawayZh": "「ごまかせるようになった」说明能力状态改变，整体修饰「頃合い」。",
+          "explanationZh": "「怖いの」用「の」把害怕这一状态名词化，成为掩饰对象。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "「頃合い」是合适或成熟时点",
+          "takeawayZh": "它不是精确钟点，而是根据手抖停止判断阶段已经到了。",
+          "explanationZh": "恐惧并未消失，变化的是昴能否把它藏住。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "似问句揭露早已掌握的信息",
+          "takeawayZh": "「かしら」不是向昴求知，而是带讽刺地宣布观察结论。",
+          "explanationZh": "昴回答「ばれてた？」确认她比他想象中更早识破伪装。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "能力状态变化",
+          "plainZh": "「可能形＋ようになる」表示从不能到能够。"
+        },
+        {
+          "termZh": "阶段判断",
+          "plainZh": "根据迹象认定某过程进入了适合下一步的时点。"
+        }
+      ],
+      "historicalNoteZh": "「頃合い」常用于火候、行动时机和谈判节点，含“差不多正合适”的判断。",
+      "cautionZh": "不能译成“已经不害怕”；本句明确说的是「ごまかせる」，恐惧仍存在。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 50–54，目标实际在 line 51；前项「手の震えも止まってる」提供判断证据。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-010",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-010",
+    "linguistic_payload": {
+      "headlineZh": "「そうそう都合よく扱われるのも 心外なのよ」抱怨自己不能总被昴当成方便好用的对象；被动形突出贝阿特莉丝承受的关系定位。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "被动从句经「の」名词化",
+          "takeawayZh": "「扱われる」描述被对待，「のも」把整件事提为评价对象。",
+          "explanationZh": "谓语「心外だ」评价的不是某个物品，而是反复被便利使用这件事。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "「都合よく扱う」含工具化",
+          "takeawayZh": "只在需要时利用对方，而不充分尊重其意愿和关系。",
+          "explanationZh": "昴一边说不会添麻烦，一边又道谢并说下次还要拜托，正触发她的不满。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「心外」设置关系边界",
+          "takeawayZh": "该词表示现实待遇违背自我期待，因此感到受冒犯。",
+          "explanationZh": "她随后赶人，表明抱怨不仅是嘴硬，也是在拒绝被理所当然地调用。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "受影响被动",
+          "plainZh": "从承受者视角描写别人如何对待自己。"
+        },
+        {
+          "termZh": "关系工具化",
+          "plainZh": "只按便利价值使用一个人，忽略其主体意愿。"
+        }
+      ],
+      "historicalNoteZh": "「心外」字面是“出乎内心预期”，现代常表达受冒犯、不服或遗憾。",
+      "cautionZh": "句首「そうそう」在此不是附和语“对对”，而与反复、轻易按方便使用的抱怨相连。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 53–59，目标实际在 line 54；昴刚说「また頼む」，贝阿特莉丝随后赶他走。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-011",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-011",
+    "linguistic_payload": {
+      "headlineZh": "「大丈夫って聞いていい？」并非直接问“没事吧”，而是先引用这句话，再问自己在眼前惨状下是否还适合这样问。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "引用「って」嵌入许可问句",
+          "takeawayZh": "「大丈夫」是被引用的发言内容，「聞いていい」询问说出这句话是否合适。",
+          "explanationZh": "若去掉「って聞いていい」，语用层次才会变成普通的「大丈夫？」。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "问题关注发问资格",
+          "takeawayZh": "艾米莉雅已看见昴摔进花坛，状态显然狼狈。",
+          "explanationZh": "她不是不知道发生了什么，而是觉得“问你没事吧”可能显得过于明知故问。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "关心通过自觉荒谬产生幽默",
+          "takeawayZh": "先请求提问许可，既传达担忧，也承认场面滑稽。",
+          "explanationZh": "昴立刻把她的温柔称为疗愈，证明他接受到了关心而非嘲笑。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "元语用提问",
+          "plainZh": "不直接问事情，而是询问此刻说某句话是否得体。"
+        },
+        {
+          "termZh": "引用内容",
+          "plainZh": "「って」把拟说出的原话作为更大句子的成分。"
+        }
+      ],
+      "historicalNoteZh": "会话中「～って聞いてもいい？」也可用于先征得许可再提出较敏感的问题。",
+      "cautionZh": "若只译成直接问候“你没事吧”，会丢失对发问是否得体的自我意识和喜剧效果。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 66–72，目标实际在 line 69；昴刚摔进花坛，艾米莉雅先问能否这样问。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-012",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-012",
+    "linguistic_payload": {
+      "headlineZh": "「既にエミリアたんが 慰めモードにシフトしてる」把艾米莉雅的安慰话术说成系统已经切换模式，是昴典型的游戏化观察。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "外来语组合成状态变化",
+          "takeawayZh": "「モード」表示运行状态，「シフトする」表示切换到另一状态。",
+          "explanationZh": "「してる」是「している」缩约，描述切换后的当前状态仍在持续。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "互动策略被模型化",
+          "takeawayZh": "艾米莉雅把沾到肥料改说成会带来好运，明显是在安慰。",
+          "explanationZh": "「既に」强调她甚至不再讨论事实本身，已经进入照顾情绪的阶段。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "识破安慰却仍接受善意",
+          "takeawayZh": "昴知道这套说法是为安抚自己，却没有责怪她虚假。",
+          "explanationZh": "用界面词汇吐槽，可以同时保留尴尬、感激和自我调节。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "状态模式",
+          "plainZh": "把人的互动行为理解为可切换的一组运行规则。"
+        },
+        {
+          "termZh": "游戏化框架",
+          "plainZh": "借游戏或系统术语组织现实中的人物行为。"
+        }
+      ],
+      "historicalNoteZh": "「モードに入る／シフトする」已从机器和驾驶语境扩展到工作、情绪与说话方式。",
+      "cautionZh": "这种说法带旁观和吐槽感；正式评价他人关怀时可能显得把人机械化。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 75–80，目标实际在 line 78；艾米莉雅正把「ふん」重新解释成「運」。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-013",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-013",
+    "linguistic_payload": {
+      "headlineZh": "「とりあえず 最初の悪印象は挽回！」以名词句宣布阶段性成果：先不管其他问题，最初留下的坏印象已经扳回。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "省略「できた」的结果名词句",
+          "takeawayZh": "「悪印象は挽回」可恢复为「悪印象は挽回できた」。",
+          "explanationZh": "感叹式省略让台词像游戏任务结算或进度提示。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "恢复的是评价而非消除事实",
+          "takeawayZh": "「挽回」指通过后续表现修复已经下降的印象、信用或局面。",
+          "explanationZh": "昴之前言行留下负面看法，此刻借与帕克的互动让艾米莉雅重新露出笑容。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「とりあえず」限定成功范围",
+          "takeawayZh": "他只宣称第一阶段过关，没有保证关系已经完全建立。",
+          "explanationZh": "随后向帕克道谢“助攻”，显露他把关系修复当成攻略进度。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "阶段性达成",
+          "plainZh": "只确认眼前一个子目标完成，不推及全部任务。"
+        },
+        {
+          "termZh": "零系词感叹",
+          "plainZh": "省去谓语或系词，以名词短语直接宣布结果。"
+        }
+      ],
+      "historicalNoteZh": "「名誉挽回」「信頼を挽回する」都表示从受损状态拉回，但搭配自然度各有差异。",
+      "cautionZh": "「悪印象を挽回する」在实际使用中可见，也有人更偏好「悪印象を払拭する／好印象を取り戻す」。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 111–116，目标实际在 line 112；昴随后把帕克称作助攻。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-014",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-014",
+    "linguistic_payload": {
+      "headlineZh": "「これは いわゆる愛称ってやつだよ」用「いわゆる」和「ってやつ」把「エミリアたん」包装成大家所谓的昵称类别。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "双重类别提示",
+          "takeawayZh": "「いわゆるN」先引用社会标签，「Nってやつ」再以口语方式确认类别。",
+          "explanationZh": "两者叠用让解释显得很有定义感，尽管实际称呼是昴单方面创造。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "普通名称升级为关系称呼",
+          "takeawayZh": "「愛称」不仅缩短名字，还通常暗示亲近或喜爱。",
+          "explanationZh": "昴拿帕克称她「リア」作类比，试图证明自己的「たん」也属同类。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "用定义抢先合法化称呼",
+          "takeawayZh": "艾米莉雅尚未同意亲密关系，昴先把行为说成正常语言习惯。",
+          "explanationZh": "她下一句否认两人已经亲近，直接挑战这个定义背后的关系前提。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "社会标签引用",
+          "plainZh": "「いわゆる」提示接下来的名称被当作通行分类。"
+        },
+        {
+          "termZh": "类别合法化",
+          "plainZh": "把个人行为归入熟悉类别，以降低其突兀或越界感。"
+        }
+      ],
+      "historicalNoteZh": "「ってやつ」由引用「って」与名词「やつ」组成，常用来随意解释“所谓的那种东西”。",
+      "cautionZh": "称呼是否为爱称不只看形式，还需关系双方接受；单方面定义不能自动创造亲密。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 123–127，目标实际在 line 124；后续以帕克的「リア」作类比，艾米莉雅随即否认亲近。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-015",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-015",
+    "linguistic_payload": {
+      "headlineZh": "「親しい２人の間柄を示す 一種の愛情表現だな」把昵称定义为显示亲密关系的一种爱意表达，但「一種の」也给夸张说法留出余地。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "长定语限定表达类别",
+          "takeawayZh": "「親しい２人の間柄を示す」整体修饰「一種の愛情表現」。",
+          "explanationZh": "核心谓语是「だな」，前面的内容都在说明昵称属于哪类表达。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "称呼被赋予关系指示功能",
+          "takeawayZh": "昵称不只传达爱意，还被说成能显示双方关系亲密。",
+          "explanationZh": "「一種の」表示它只是众多爱意表达之一，不等于爱情告白。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "理论说明掩护个人愿望",
+          "takeawayZh": "昴像讲语言知识一样解释，实际是在为自己继续用亲昵称呼争取许可。",
+          "explanationZh": "艾米莉雅以“我不记得与你这么熟”回应，把抽象定义拉回真实关系。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "关系指示",
+          "plainZh": "一种语言形式让听者推断说话双方的亲疏程度。"
+        },
+        {
+          "termZh": "类别缓冲",
+          "plainZh": "「一種の」避免把对象断言为某类别唯一或最典型成员。"
+        }
+      ],
+      "historicalNoteZh": "姓名缩略、后缀变化和专属叫法都可形成「愛称」，不同社群规则差异很大。",
+      "cautionZh": "不能由“用了爱称”反推双方必然亲密；本段剧情正展示形式与关系不同步。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 124–131，目标实际在 line 126；下一行艾米莉雅否认已有亲密关系。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-016",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-016",
+    "linguistic_payload": {
+      "headlineZh": "「俺は愛称で呼べる関係になるくらい 親しくしたいと思ってるってこと」把昵称从“现有亲密证明”改说成“希望未来亲密到这种程度”。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "程度从句限定亲近愿望",
+          "takeawayZh": "「愛称で呼べる関係になるくらい」说明「親しくしたい」所追求的程度。",
+          "explanationZh": "「と思ってる」承载持续愿望，末尾「ってこと」把整段重新归纳为解释。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "当前事实改写为未来目标",
+          "takeawayZh": "昴不再声称两人已经亲密，而是表达希望变亲密。",
+          "explanationZh": "这种时间方向的改变回应了艾米莉雅“我们没那么熟”的反驳。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "快速修复越界而不撤回好感",
+          "takeawayZh": "他承认关系不足，却保留继续使用昵称背后的积极意图。",
+          "explanationZh": "艾米莉雅随后接受这个解释，说明重述成功降低了冒犯感。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "目标程度",
+          "plainZh": "用「くらい」说明希望状态最终达到什么水平。"
+        },
+        {
+          "termZh": "时间重构",
+          "plainZh": "把对当前关系的主张改写成对未来关系的愿望。"
+        }
+      ],
+      "historicalNoteZh": "「ってこと」常用于长解释后的口语收束，相当于“我的意思就是……”。",
+      "cautionZh": "自然理解不是“我已经能用昵称叫你”，而是“我想亲近到能够这样称呼”。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 127–135，目标实际在 line 131；前文否认当前亲近，后文接受其未来愿望解释。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-017",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-017",
+    "linguistic_payload": {
+      "headlineZh": "「当主 ロズワール様が お戻りになられました」以双重尊敬形式郑重通报主人归来，体现宅邸服务语域的高敬意。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "两种尊敬标记叠加",
+          "takeawayZh": "「お戻りになる」本已是尊敬语，又接尊敬助动词「られる」成为「お戻りになられる」。",
+          "explanationZh": "规范教材常称这种形式为二重敬语，但真实服务语言和角色台词中确实可见。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "身份称号与姓名敬称并置",
+          "takeawayZh": "「当主」先说明职位，「ロズワール様」再点名被尊敬者。",
+          "explanationZh": "主语由「が」标记，通报的核心新信息是主人已经回来。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "固定通报触发循环记忆",
+          "takeawayZh": "对宅邸成员是例行迎接，对昴则意味着第三次初次见面事件到来。",
+          "explanationZh": "极高敬语维持女仆身份，也让重复场景显得仪式化。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "二重敬语",
+          "plainZh": "对同一动作叠加两个尊敬形式，规范上常建议简化。"
+        },
+        {
+          "termZh": "服务语域",
+          "plainZh": "在接待、通报和组织等级中使用的正式表达方式。"
+        }
+      ],
+      "historicalNoteZh": "「お帰りになられる」等重叠尊敬在实际语言中不罕见，规范评价与使用事实需要分开。",
+      "cautionZh": "学习者主动表达时用「お戻りになりました」已足够；分析作品时则不能删掉真实台词的叠加。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 149–153，目标实际在 line 150；数据库 source_line_no=154 偏后 4 行。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-018",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-018",
+    "linguistic_payload": {
+      "headlineZh": "「４日目の夜に 何者かの襲撃があるという事実だ」用「という」把完整事件命题包装成目前掌握的一项事实。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "命题从句与「事実」同位",
+          "takeawayZh": "「Pという事実」表示“P 这一事实”，P 提供事实的具体内容。",
+          "explanationZh": "前一句「今 分かっていることは」已设置框架，本句完成其谓语。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "已知时间与未知施事并存",
+          "takeawayZh": "袭击发生在第四夜较确定，但「何者か」保留袭击者身份未知。",
+          "explanationZh": "「ある」描述袭击事件发生，不是说某个袭击实体静态存在。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "把循环记忆压成可操作情报",
+          "takeawayZh": "昴先只列自己能确信的最低事实，再评估能否告诉罗兹瓦尔。",
+          "explanationZh": "后文因无法解释情报来源而放弃直接报告，显示“事实”不等于可公开证据。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "同位内容",
+          "plainZh": "从句说明后面抽象名词究竟包含什么命题。"
+        },
+        {
+          "termZh": "未知施事",
+          "plainZh": "确认事件发生，却无法识别执行该事件的人。"
+        }
+      ],
+      "historicalNoteZh": "「という事実」在说明文和推理叙述中常用于把复杂句子转成可讨论的名词项。",
+      "cautionZh": "「事実」只反映昴跨循环的确信；对其他角色而言，他仍拿不出可验证来源。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 154–158，目标实际在 line 155；数据库 source_line_no=159 偏后。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-019",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-019",
+    "linguistic_payload": {
+      "headlineZh": "「下手すると 刺客の一味と疑われかねない」表示处理不好时，自己甚至可能被怀疑为刺客同伙；「かねない」专指不希望发生的可能。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "评价条件接负面可能",
+          "takeawayZh": "「下手すると」设定事态走坏的条件，「Vかねない」给出风险结果。",
+          "explanationZh": "「疑われる」是被动，昴处于被宅邸众人怀疑的位置。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "「かねない」不是能力否定",
+          "takeawayZh": "它表示坏事有可能发生，而非“无法被怀疑”。",
+          "explanationZh": "突然知道尚未发生的袭击、却说不出来源，会合理触发共犯嫌疑。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "预判听者视角约束行动",
+          "takeawayZh": "昴不只考虑自己知道什么，还模拟别人将如何解释他的情报。",
+          "explanationZh": "这一风险判断推动他转向自行收集可验证信息。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "负面可能性",
+          "plainZh": "「かねない」提示说话人担忧的不利结果可能实现。"
+        },
+        {
+          "termZh": "视角模拟",
+          "plainZh": "从他人掌握的信息出发预测他们会怎样判断自己。"
+        }
+      ],
+      "historicalNoteZh": "「かねる」表示难以做，「かねない」经否定后却表示可能做，形式容易误导学习者。",
+      "cautionZh": "不能译成“不会被怀疑”；本句恰恰是在警告被怀疑的风险。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 157–160，目标实际在 line 158；前文明确说无法解释情报来源。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-020",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-020",
+    "linguistic_payload": {
+      "headlineZh": "「情報収集に徹して 襲撃者の正体を暴いてみせる」先限定自己专注调查，再用「てみせる」宣示一定揭开袭击者身份。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "「Nに徹する」选择单一任务",
+          "takeawayZh": "助词「に」标记全力贯彻的领域，此处是情报收集。",
+          "explanationZh": "前一行「これから４日間」提供期限，本句给出这段时间内的行动原则。"
+        },
+        {
+          "domain": "morphology",
+          "titleZh": "「Vてみせる」表达必达决意",
+          "takeawayZh": "「暴いてみせる」不是展示揭露动作，而是“一定要揭出来”。",
+          "explanationZh": "它把尚未知道方法的目标说成说话人将亲自证明能够完成。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "调查方案替代无证告警",
+          "takeawayZh": "昴接受不能直接说服众人的限制，改为取得身份与证据。",
+          "explanationZh": "决意句把被动等待第四夜转化为主动收集情报的循环策略。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "任务专一化",
+          "plainZh": "暂时排除其他目标，把资源集中在一项行动上。"
+        },
+        {
+          "termZh": "证明性决意",
+          "plainZh": "「てみせる」承诺用实际结果证明自己会完成。"
+        }
+      ],
+      "historicalNoteZh": "「職務に徹する」「脇役に徹する」都强调彻底按选定角色行动，不夹入其他目的。",
+      "cautionZh": "「てみせる」不同于尝试性的「てみる」；前者的承诺强度明显更高。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 160–163，目标实际在 line 162；前文给出四日期限，后文转入为调查争取留宿身份。"
+  }
+]

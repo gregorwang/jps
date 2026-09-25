@@ -1,0 +1,282 @@
+[
+  {
+    "id": "re-zero-s01e17-exercise-084",
+    "prompt": "昴骂奥托是「レムを見捨てるようなお前」。「見捨てる」比普通「離れる」多出什么判断？",
+    "answer": "表示明知对方处于危难仍抛下、见死不救；昴把奥托继续逃亡解释成道德背叛，而非单纯空间分离",
+    "hint": "后半「捨てる」带主动放弃的负面评价。",
+    "review_note": "对应 vocab-re-zero-misuteru；核对 EP17 lines 80–83，按昴的责难立场解释。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-085",
+    "prompt": "「あいつのこと語る資格なんざあるか！」中的「資格」怎么读？",
+    "answer": "读作「しかく」",
+    "hint": "可联想“资格考试”这个常见复合词，目标词位于其前半。",
+    "review_note": "对应 vocab-re-zero-shikaku；核对 EP17 line 83；交叉复核时移除提示中直接出现的目标读音。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-086",
+    "prompt": "「レムを見捨てるお前に、あいつのこと語る資格なんざあるか」里的「資格」是证书吗？",
+    "answer": "不是正式证照，而是道德上谈论雷姆的正当性；昴用反问断言抛下她的奥托没有发言资格",
+    "hint": "行为与谈论对象之间的关系决定“有没有资格”。",
+    "review_note": "对应 vocab-re-zero-shikaku；核对 EP17 lines 81–84，区分制度资格与道德权利。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-087",
+    "prompt": "昴再次只喊「戻れ！」。这个词怎么读？",
+    "answer": "读作「もどれ」，是「戻る（もどる）」的命令形",
+    "hint": "五段动词命令形把末尾变到え段。",
+    "review_note": "对应 vocab-re-zero-7acdc0722a；核对 EP17 line 84。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-088",
+    "prompt": "单独一词「戻れ！」为何足以构成完整发言？",
+    "answer": "前文已明确命令奥托掉转龙车去救雷姆，主语、目的地和理由都可省略；只保留命令形反而突出昴拒绝讨论的强硬",
+    "hint": "省略的信息已经在连续争吵中共享。",
+    "review_note": "对应 vocab-re-zero-7acdc0722a；核对 EP17 lines 70–84，按会话省略解释。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-089",
+    "prompt": "「白鯨がどれだけ恐ろしいか」中的「白鯨」怎么读？",
+    "answer": "读作「はくげい」",
+    "hint": "作品专名采用音读。",
+    "review_note": "对应 vocab-re-zero-hakugei；核对 EP17 lines 85–86。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-090",
+    "prompt": "奥托以「白鯨がどれだけ恐ろしいか」继续劝阻。这里的白鲸为何不是抽象威胁？",
+    "answer": "它是刚摧散车队、逼雷姆留下迎击的具体魔兽；奥托接着援引王国讨伐队和先代剑圣之死，证明危险有历史尺度",
+    "hint": "后面的历史例证把“可怕”从主观感受变成战力证据。",
+    "review_note": "对应 vocab-re-zero-hakugei；核对 EP17 lines 85–91。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-091",
+    "prompt": "「恐ろしい」怎么读？",
+    "answer": "读作「おそろしい」",
+    "hint": "这是い形容词；先回想常用感叹「恐ろしい話だ」的整体发音。",
+    "review_note": "对应 vocab-re-zero-osoroshii；核对 EP17 lines 85–86；交叉复核时移除提示中直接给出的词干读音。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-092",
+    "prompt": "「白鯨がどれだけ恐ろしいか」中的「恐ろしい」只表示奥托害怕吗？",
+    "answer": "还表示对象本身具有令人畏惧的巨大危险性；「どれだけ」把程度设为昴尚未充分理解的焦点",
+    "hint": "比较“我很害怕”和“那东西极其可怕”的评价方向。",
+    "review_note": "对应 vocab-re-zero-osoroshii；核对 EP17 lines 85–90，结合劝阻论证解释。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-097",
+    "prompt": "「ルグニカ王国が編成した討伐隊」中的「討伐隊」怎么读？",
+    "answer": "读作「とうばつたい」",
+    "hint": "拆成“讨伐”和“队伍”两个音读部分，末字与「軍隊」中的读法相同。",
+    "review_note": "对应 vocab-re-zero-toubatsutai；核对 EP17 line 88；交叉复核时移除能直接拼出完整答案的注音。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-098",
+    "prompt": "「討伐隊」在此指普通巡逻队还是哪类组织？",
+    "answer": "指王国为击败白鲸而专门编成的武装征讨部队；连这种国家级力量都失败，用来证明回头迎战近乎无望",
+    "hint": "留意修饰语「王国が編成した」和后面的「大征伐」。",
+    "review_note": "对应 vocab-re-zero-toubatsutai；核对 EP17 lines 88–90，限定历史军事语境。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-099",
+    "prompt": "「大征伐」中的「征伐」怎么读？",
+    "answer": "读作「せいばつ」",
+    "hint": "两个字都采用汉语音读，可联想「征服」和「討伐」各自包含的同字。",
+    "review_note": "对应 vocab-re-zero-seibatsu；核对 EP17 line 88；交叉复核时移除逐字直给答案的注音。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-100",
+    "prompt": "奥托称往昔行动为「大征伐」。「征伐」在这里强调什么规模和目的？",
+    "answer": "强调由权力组织的大规模军事讨伐，目标是消灭白鲸；它不是临时自卫，更凸显当年投入巨大仍遭惨败",
+    "hint": "前面有王国编队，后面有剑圣死亡。",
+    "review_note": "对应 vocab-re-zero-seibatsu；核对 EP17 lines 88–91。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-101",
+    "prompt": "「先代剣聖」中的「先代」怎么读？",
+    "answer": "读作「せんだい」",
+    "hint": "表示现任之前的一代。",
+    "review_note": "对应 vocab-re-zero-sendai；核对 EP17 line 89。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-102",
+    "prompt": "「先代剣聖」里的「先代」指年长的剑圣，还是职位继承关系？",
+    "answer": "指现任剑圣之前承袭该称号的人，即上一代剑圣；重点是代际职位，不只是年龄较大",
+    "hint": "可与「先代社長」比较。",
+    "review_note": "对应 vocab-re-zero-sendai；核对 EP17 lines 88–91，按称号继承解释。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-103",
+    "prompt": "「剣聖」怎么读？",
+    "answer": "读作「けんせい」",
+    "hint": "两个字均取音读，可分别联想「剣道」和「聖人」。",
+    "review_note": "对应 vocab-re-zero-kensei；核对 EP17 line 89；交叉复核时移除逐字直给答案的注音。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-104",
+    "prompt": "「先代剣聖が殺されたような化け物」中的「剣聖」是什么性质的称号？",
+    "answer": "是授予顶尖剑士、并由世代承袭的特殊称号；白鲸能杀死上一代剑圣，被用作其战力远超常人的证据",
+    "hint": "「先代」说明它不是普通职业名。",
+    "review_note": "对应 vocab-re-zero-kensei；核对 EP17 lines 88–90，结合战力论证解释。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-105",
+    "prompt": "昴震惊地复述「剣聖を…殺した？」。「剣聖」怎么读？",
+    "answer": "读作「けんせい」",
+    "hint": "读音与奥托上一句相同，停顿表现震惊。",
+    "review_note": "对应 vocab-re-zero-kensei；核对 EP17 line 91。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-106",
+    "prompt": "昴只重复「剣聖を殺した？」时，「剣聖」为何成为信息焦点？",
+    "answer": "剑圣代表他认知中的顶级战力；得知白鲸曾杀死上一代剑圣，迫使他重新估计敌人强度，所以用回声疑问确认",
+    "hint": "重复不是询问词义，而是在确认难以置信的新事实。",
+    "review_note": "对应 vocab-re-zero-kensei；核对 EP17 lines 89–93。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-107",
+    "prompt": "「幸いにも逃げきったはず」中的「幸い」怎么读？",
+    "answer": "读作「さいわい」",
+    "hint": "不是「しあわせ」；副词性用法常见「幸いにも」。",
+    "review_note": "对应 re-zero-vocab-幸い；核对 EP17 line 95。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-108",
+    "prompt": "奥托先以「僕ら」指自己与昴，随后说「今は幸いにも逃げきったはず」。这里被评价为「幸い」的是谁脱离了追击？",
+    "answer": "是昴和奥托乘坐的龙车暂时逃脱，并不是说雷姆已经脱险；奥托把两人眼下逃开白鲸视为幸运，昴却认为这份逃生建立在抛下雷姆之上，因而被这个措辞激怒",
+    "hint": "往前找「僕ら」，再看昴为何立刻抓住这个副词发火。",
+    "review_note": "对应 re-zero-vocab-幸い；核对 EP17 lines 92–101；交叉复核时修正了「逃げきった」的省略主语，指昴和奥托一方而非雷姆。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-109",
+    "prompt": "「霧を抜けるまでは」中的「霧」怎么读？",
+    "answer": "读作「きり」",
+    "hint": "与本集前面的「霧の中」同读。",
+    "review_note": "对应 vocab-re-zero-kiri；核对 EP17 line 96。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-110",
+    "prompt": "「霧を抜けるまでは、いつどこで出くわすか分からない」中，「霧」为何划定风险范围？",
+    "answer": "浓雾遮蔽白鲸位置并包围逃亡路线；只要尚未离开雾区，就随时可能再次遭遇它",
+    "hint": "「まで」给不确定状态设定终点。",
+    "review_note": "对应 vocab-re-zero-kiri；核对 EP17 lines 95–96。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-111",
+    "prompt": "「出くわす」怎么读？",
+    "answer": "读作「でくわす」",
+    "hint": "这是固定动词，可从「出る」的连用形发音推想开头，再接表面可见的假名。",
+    "review_note": "对应 vocab-re-zero-dekuwasu；核对 EP17 line 96；交叉复核时避免在提示中直接给出唯一缺失的读音。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-112",
+    "prompt": "「いつどこで出くわすか分かりません」里的「出くわす」与约好见面有什么不同？",
+    "answer": "表示意外碰上、猝然遭遇，通常不受说话人控制；这里指在雾中可能突然撞上白鲸",
+    "hint": "「いつどこで」均未知，排除了预先安排。",
+    "review_note": "对应 vocab-re-zero-dekuwasu；核对 EP17 line 96，按偶发危险解释。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-113",
+    "prompt": "「言い方に気をつけろ」中的「言い方」怎么读？",
+    "answer": "读作「いいかた」",
+    "hint": "由「言う」的连用形「言い」和「方」组成。",
+    "review_note": "对应 re-zero-vocab-言い方；核对 EP17 line 97。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-114",
+    "prompt": "奥托把自己与昴暂时逃脱说成「幸いにも」，昴随即说「言い方に気をつけろ」。他首先要求改变事实内容，还是表达方式？",
+    "answer": "首先针对表达方式，尤其是不该把两人靠雷姆留下断后才换来的逃生称为「幸い」；在昴看来这种措辞抹去了她付出的代价",
+    "hint": "后面争执围绕一个副词，而非白鲸是否危险。",
+    "review_note": "对应 re-zero-vocab-言い方；核对 EP17 lines 92–101；交叉复核时明确「幸い」评价的是两人的逃生，而非雷姆的牺牲本身。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-115",
+    "prompt": "「ふざけた言い方するな」中的「言い方」怎么读？",
+    "answer": "读作「いいかた」",
+    "hint": "与前一句同词同读。",
+    "review_note": "对应 re-zero-vocab-言い方；核对 EP17 line 99。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-116",
+    "prompt": "「ふざけた言い方するな」里的「言い方」被「ふざけた」修饰后带什么指责？",
+    "answer": "昴指责奥托的措辞轻率、像在开玩笑，完全不配雷姆冒死救人的分量；这是对态度而非发音的批判",
+    "hint": "联系他紧接着反问「幸いにもだと？」。",
+    "review_note": "对应 re-zero-vocab-言い方；核对 EP17 lines 97–101。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-117",
+    "prompt": "昴回声反问「幸いにもだと？」。「幸い」怎么读？",
+    "answer": "读作「さいわい」",
+    "hint": "回声重复不会改变原词读音。",
+    "review_note": "对应 re-zero-vocab-幸い；核对 EP17 line 100。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-118",
+    "prompt": "奥托把两人暂时逃脱称为「幸いにも」，但这次逃生是雷姆留下断后换来的。为什么昴无法接受这个词？",
+    "answer": "奥托把暂时逃脱视为幸运，昴却认为那是建立在抛下雷姆之上的结果；同一事态因评价立场不同而产生冒犯",
+    "hint": "争议不在词典义，而在谁为这份“幸运”付出代价。",
+    "review_note": "对应 re-zero-vocab-幸い；核对 EP17 lines 94–102；交叉复核时把两种评价立场补入题面。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-119",
+    "prompt": "「冗談じゃねえ」中的「冗談」怎么读？",
+    "answer": "读作「じょうだん」",
+    "hint": "「冗」读长音「じょう」。",
+    "review_note": "对应 re-zero-vocab-冗談；核对 EP17 line 101。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-120",
+    "prompt": "昴喊「冗談じゃねえ」。这里是在说某句话不好笑吗？",
+    "answer": "更强地表示“开什么玩笑／绝不能接受”；他全面拒绝把雷姆的牺牲说成幸运，并非评价一个笑话的幽默程度",
+    "hint": "固定否定句常用于愤怒拒绝现实或对方态度。",
+    "review_note": "对应 re-zero-vocab-冗談；核对 EP17 lines 99–102。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-121",
+    "prompt": "奥托问「レムって誰のことです？」。「誰」怎么读？",
+    "answer": "读作「だれ」",
+    "hint": "常用疑问代词。",
+    "review_note": "对应 vocab-re-zero-dare；核对 EP17 line 102。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-122",
+    "prompt": "雷姆刚为昴和奥托留下断后，奥托却问「レムって誰のことです？」。其中「誰」为何让昴震惊，而非只是普通求证？",
+    "answer": "雷姆刚与两人同行并牺牲，奥托却像从未认识她一样询问身份；「誰」揭示关于雷姆的记忆或存在已发生异常",
+    "hint": "比较昴与奥托对共同经历的认知是否一致。",
+    "review_note": "对应 vocab-re-zero-dare；核对 EP17 lines 101–106；交叉复核时补入刚发生的共同经历，使记忆断裂在题面中成立。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-123",
+    "prompt": "「誰の話をしてるんですか？」中的「誰」怎么读？",
+    "answer": "读作「だれ」",
+    "hint": "与上一处相同。",
+    "review_note": "对应 vocab-re-zero-dare；核对 EP17 line 106。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-124",
+    "prompt": "奥托先说散开的行商人中本应没有名叫雷姆的人，又问「誰の話をしてるんですか？」。「誰」把对话分歧扩大到哪一步？",
+    "answer": "他不只不认识名字“雷姆”，还否认昴描述的同行者对应任何已知人物；双方已无法共享最基本的谈话所指",
+    "hint": "他已不只是没记住名字，而是在否认当前描述能对应到共同认识的人。",
+    "review_note": "对应 vocab-re-zero-dare；核对 EP17 lines 102–106；交叉复核时把前句补入题面，并避免暗示奥托当场进行了实际搜查。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-125",
+    "prompt": "「レムを指して―」中的「指して」怎样读？辞书形是什么？",
+    "answer": "读作「さして」，辞书形是「指す（さす）」",
+    "hint": "五段动词「す」的て形为「して」。",
+    "review_note": "对应 vocab-re-zero-sasu；核对 EP17 line 110。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-126",
+    "prompt": "「俺たちを逃がすために残ったレムを指して」里的「指す」是用手指，还是语言指称？",
+    "answer": "是语言上指称、说的是某人；昴强调自己所说的“雷姆”正是那个留下掩护他们的人",
+    "hint": "后面接被引用的话「誰のことだ」，说明争议在所指对象。",
+    "review_note": "对应 vocab-re-zero-sasu；核对 EP17 lines 109–111。"
+  },
+  {
+    "id": "re-zero-s01e17-exercise-127",
+    "prompt": "「“誰のことだ”なんて、ふざけんな！」中的「誰」怎么读？",
+    "answer": "读作「だれ」；这里被嵌在昴愤怒复述的引语中",
+    "hint": "引号内仍保持疑问代词原读音。",
+    "review_note": "对应 vocab-re-zero-dare；核对 EP17 lines 110–111。"
+  }
+]

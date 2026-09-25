@@ -1,6 +1,15 @@
 import type {
+  CursorPage,
   Episode,
   EpisodePlan,
+  FoundationDomain,
+  FoundationPackListParams,
+  FoundationQuestion,
+  FoundationQuestionListParams,
+  FoundationQuestionPack,
+  FoundationStimulus,
+  FoundationTopic,
+  FoundationTopicListParams,
   HistoryResponse,
   HistoryDetail,
   GrammarPoint,
@@ -12,6 +21,12 @@ import type {
   SubtitleLine,
   VocabItem,
   Work,
+} from '../../lib/types'
+import {
+  foundationDomains,
+  foundationQuestionTypes,
+  foundationSourceKinds,
+  foundationStages,
 } from '../../lib/types'
 
 const works: Work[] = [
@@ -341,6 +356,319 @@ async function apiGet<T>(path: string, fallback: T): Promise<T> {
   }
 }
 
+const emptyFoundationPageLimit = 40
+const foundationDomainSet = new Set<string>(foundationDomains)
+const foundationStageSet = new Set<string>(foundationStages)
+const foundationQuestionTypeSet = new Set<string>(foundationQuestionTypes)
+const foundationSourceKindSet = new Set<string>(foundationSourceKinds)
+
+type FoundationCommonListParams = {
+  curriculumVersion?: string
+  cursor?: string
+  limit?: number
+}
+
+function addFoundationCommonParams(searchParams: URLSearchParams, params: FoundationCommonListParams) {
+  if (params.curriculumVersion) searchParams.set('curriculumVersion', params.curriculumVersion)
+  if (params.cursor) searchParams.set('cursor', params.cursor)
+  if (params.limit !== undefined) searchParams.set('limit', String(params.limit))
+}
+
+export function buildFoundationTopicsPath(params: FoundationTopicListParams = {}) {
+  const searchParams = new URLSearchParams()
+  addFoundationCommonParams(searchParams, params)
+  if (params.domain) searchParams.set('domain', params.domain)
+  if (params.moduleId) searchParams.set('moduleId', params.moduleId)
+  return withSearchParams('/api/linguistics/foundation/topics', searchParams)
+}
+
+export function buildFoundationPacksPath(params: FoundationPackListParams = {}) {
+  const searchParams = new URLSearchParams()
+  addFoundationCommonParams(searchParams, params)
+  return withSearchParams('/api/linguistics/foundation/packs', searchParams)
+}
+
+export function buildFoundationQuestionsPath(params: FoundationQuestionListParams = {}) {
+  const searchParams = new URLSearchParams()
+  addFoundationCommonParams(searchParams, params)
+  if (params.packId) searchParams.set('packId', params.packId)
+  if (params.topicId) searchParams.set('topicId', params.topicId)
+  if (params.stage) searchParams.set('stage', params.stage)
+  if (params.questionType) searchParams.set('questionType', params.questionType)
+  if (params.difficulty !== undefined) searchParams.set('difficulty', String(params.difficulty))
+  return withSearchParams('/api/linguistics/foundation/questions', searchParams)
+}
+
+function withSearchParams(path: string, searchParams: URLSearchParams) {
+  const query = searchParams.toString()
+  return query ? `${path}?${query}` : path
+}
+
+async function apiGetFoundationPage<T>(
+  path: string,
+  parser: (input: unknown) => CursorPage<T>,
+  requestedLimit?: number,
+): Promise<CursorPage<T>> {
+  if (typeof window === 'undefined') {
+    return {
+      items: [],
+      page: {
+        limit: requestedLimit ?? emptyFoundationPageLimit,
+        hasMore: false,
+        nextCursor: null,
+      },
+    }
+  }
+
+  const response = await fetch(path)
+  if (!response.ok) {
+    throw new Error(`Foundation API failed: ${response.status} ${await response.text()}`)
+  }
+  const payload: unknown = await response.json()
+  return parser(payload)
+}
+
+export function parseFoundationTopicPage(input: unknown) {
+  return parseFoundationPage(input, isFoundationTopic)
+}
+
+export function parseFoundationPackPage(input: unknown) {
+  return parseFoundationPage(input, isFoundationPack)
+}
+
+export function parseFoundationQuestionPage(input: unknown) {
+  return parseFoundationPage(input, isFoundationQuestion)
+}
+
+function parseFoundationPage<T>(
+  input: unknown,
+  itemGuard: (value: unknown) => value is T,
+): CursorPage<T> {
+  if (!isRecord(input) || !Array.isArray(input.items) || !isRecord(input.page)) {
+    throw new Error('Invalid foundation page response')
+  }
+  if (!input.items.every(itemGuard)) throw new Error('Invalid foundation page item')
+  const limit = input.page.limit
+  const hasMore = input.page.hasMore
+  const nextCursor = input.page.nextCursor
+  if (
+    typeof limit !== 'number'
+    || !Number.isSafeInteger(limit)
+    || limit < 1
+    || limit > 100
+    || typeof hasMore !== 'boolean'
+    || (nextCursor !== null && (typeof nextCursor !== 'string' || !nextCursor))
+    || (hasMore && typeof nextCursor !== 'string')
+    || (!hasMore && nextCursor !== null)
+    || input.items.length > limit
+  ) {
+    throw new Error('Invalid foundation page metadata')
+  }
+  return {
+    items: input.items,
+    page: {
+      limit,
+      hasMore,
+      nextCursor,
+    },
+  }
+}
+
+function isFoundationTopic(value: unknown): value is FoundationTopic {
+  if (!isRecord(value)) return false
+  return isNonEmptyString(value.id)
+    && isNonEmptyString(value.curriculumVersion)
+    && isFoundationDomain(value.domain)
+    && isNonEmptyString(value.moduleId)
+    && isNonNegativeInteger(value.sortOrder)
+    && isNonEmptyString(value.titleJa)
+    && isNonEmptyString(value.titleZh)
+    && isNonEmptyString(value.shortDefinitionZh)
+    && isNonEmptyString(value.beginnerExplanationZh)
+    && isNonEmptyString(value.deepExplanationZh)
+    && isNonEmptyString(value.cautionNoteZh)
+    && isStringArray(value.prerequisiteTopicIds)
+    && isFoundationObjectives(value.learningObjectives)
+    && isFoundationExampleSpec(value.exampleSpec)
+    && isStringArray(value.tags)
+    && value.status === 'published'
+    && isQualityScore(value.qualityScore)
+}
+
+function isFoundationPack(value: unknown): value is FoundationQuestionPack {
+  if (!isRecord(value)) return false
+  return isNonEmptyString(value.id)
+    && isNonEmptyString(value.curriculumVersion)
+    && isPositiveInteger(value.batchNo)
+    && isNonEmptyString(value.titleZh)
+    && isNonEmptyString(value.descriptionZh)
+    && isPositiveInteger(value.topicCount)
+    && isPositiveInteger(value.questionCount)
+    && value.questionCount === value.topicCount * 4
+    && isFoundationDomainQuotas(value.domainQuotas)
+    && value.status === 'published'
+    && isQualityScore(value.qualityScore)
+}
+
+function isFoundationQuestion(value: unknown): value is FoundationQuestion {
+  if (!isRecord(value)) return false
+  const options = value.options
+  const answer = value.answer
+  if (
+    !isFoundationOptions(options)
+    || !isRecord(answer)
+    || !isNonEmptyString(answer.optionId)
+    || !options.some((option) => option.id === answer.optionId)
+  ) {
+    return false
+  }
+  if (
+    !isNonEmptyString(value.id)
+    || !isNonEmptyString(value.packId)
+    || !isNonEmptyString(value.topicId)
+    || !isNonEmptyString(value.curriculumVersion)
+    || !isFoundationStage(value.stage)
+    || !isFoundationQuestionType(value.questionType)
+    || !isFoundationSourceKind(value.sourceKind)
+    || !isFoundationStimulus(value.stimulus)
+    || !isNonEmptyString(value.promptZh)
+    || !isNonEmptyString(value.hintZh)
+    || !isNonEmptyString(value.explanationZh)
+    || !isNonEmptyString(value.deepExplanationZh)
+    || !isNonEmptyString(value.cautionNoteZh)
+    || !isWrongExplanations(value.wrongExplanations, options, answer.optionId)
+    || !isFoundationDifficulty(value.difficulty)
+    || foundationStages.indexOf(value.stage) + 1 !== value.difficulty
+    || !isStringArray(value.tags)
+    || !isNonNegativeInteger(value.sortOrder)
+    || value.status !== 'published'
+    || !isQualityScore(value.qualityScore)
+  ) {
+    return false
+  }
+  const hasTransferExample = value.transferExampleJa !== undefined
+  const hasTransferExplanation = value.transferExplanationZh !== undefined
+  return hasTransferExample === hasTransferExplanation
+    && (!hasTransferExample || (
+      isNonEmptyString(value.transferExampleJa)
+      && isNonEmptyString(value.transferExplanationZh)
+    ))
+}
+
+function isFoundationObjectives(value: unknown) {
+  return isRecord(value)
+    && isNonEmptyString(value.F1Zh)
+    && isNonEmptyString(value.F2Zh)
+    && isNonEmptyString(value.F3Zh)
+    && isNonEmptyString(value.F4Zh)
+}
+
+function isFoundationExampleSpec(value: unknown) {
+  return isRecord(value)
+    && isNonEmptyString(value.formZh)
+    && isNonEmptyString(value.contrastZh)
+    && isNonEmptyString(value.constraintsZh)
+}
+
+function isFoundationDomainQuotas(value: unknown): value is Partial<Record<FoundationDomain, number>> {
+  if (!isRecord(value)) return false
+  return Object.entries(value).every(([key, count]) => isFoundationDomain(key) && isNonNegativeInteger(count))
+}
+
+function isFoundationStimulus(value: unknown): value is FoundationStimulus {
+  if (!isRecord(value)) return false
+  if (value.kind === 'sentence') {
+    return isNonEmptyString(value.jaText)
+      && (value.zhContext === undefined || isNonEmptyString(value.zhContext))
+  }
+  if (value.kind === 'dialogue') {
+    return Array.isArray(value.turns)
+      && value.turns.length > 0
+      && value.turns.every((turn) => isRecord(turn)
+        && isNonEmptyString(turn.jaText)
+        && (turn.speaker === undefined || isNonEmptyString(turn.speaker))
+        && (turn.zhText === undefined || isNonEmptyString(turn.zhText)))
+      && (value.zhContext === undefined || isNonEmptyString(value.zhContext))
+  }
+  if (value.kind === 'contrast') {
+    return Array.isArray(value.items)
+      && value.items.length >= 2
+      && value.items.every((item) => isRecord(item)
+        && isNonEmptyString(item.text)
+        && (item.label === undefined || isNonEmptyString(item.label))
+        && (item.noteZh === undefined || isNonEmptyString(item.noteZh)))
+      && (value.zhContext === undefined || isNonEmptyString(value.zhContext))
+  }
+  return value.kind === 'metalinguistic'
+    && isNonEmptyString(value.descriptionZh)
+    && (value.form === undefined || isNonEmptyString(value.form))
+}
+
+function isFoundationOptions(value: unknown): value is FoundationQuestion['options'] {
+  if (!Array.isArray(value) || value.length !== 4) return false
+  if (!value.every((option) => isRecord(option) && isNonEmptyString(option.id) && isNonEmptyString(option.text))) {
+    return false
+  }
+  return new Set(value.map((option) => option.id)).size === value.length
+}
+
+function isWrongExplanations(
+  value: unknown,
+  options: FoundationQuestion['options'],
+  correctOptionId: string,
+) {
+  if (!isRecord(value)) return false
+  const expectedIds = options.filter((option) => option.id !== correctOptionId).map((option) => option.id)
+  const actualIds = Object.keys(value)
+  return actualIds.length === expectedIds.length
+    && expectedIds.every((optionId) => isNonEmptyString(value[optionId]))
+    && !actualIds.includes(correctOptionId)
+}
+
+function isFoundationDomain(value: unknown): value is FoundationDomain {
+  return typeof value === 'string' && foundationDomainSet.has(value)
+}
+
+function isFoundationStage(value: unknown): value is FoundationQuestion['stage'] {
+  return typeof value === 'string' && foundationStageSet.has(value)
+}
+
+function isFoundationQuestionType(value: unknown): value is FoundationQuestion['questionType'] {
+  return typeof value === 'string' && foundationQuestionTypeSet.has(value)
+}
+
+function isFoundationSourceKind(value: unknown): value is FoundationQuestion['sourceKind'] {
+  return typeof value === 'string' && foundationSourceKindSet.has(value)
+}
+
+function isFoundationDifficulty(value: unknown): value is FoundationQuestion['difficulty'] {
+  return value === 1 || value === 2 || value === 3 || value === 4
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && Boolean(value.trim())
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(isNonEmptyString)
+}
+
+function isNonNegativeInteger(value: unknown): value is number {
+  return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0
+}
+
+function isPositiveInteger(value: unknown): value is number {
+  return isNonNegativeInteger(value) && value > 0
+}
+
+function isQualityScore(value: unknown): value is number {
+  return isNonNegativeInteger(value) && value <= 100
+}
+
 export const animeRepository = {
   async listWorks() {
     return apiGet('/api/works', works)
@@ -389,6 +717,27 @@ export const animeRepository = {
       status: 'all',
     })
     return apiGet(`/api/linguistic-exercises?${params.toString()}`, [] as LinguisticExerciseDraft[])
+  },
+  async listFoundationTopics(params: FoundationTopicListParams = {}) {
+    return apiGetFoundationPage(
+      buildFoundationTopicsPath(params),
+      parseFoundationTopicPage,
+      params.limit,
+    )
+  },
+  async listFoundationPacks(params: FoundationPackListParams = {}) {
+    return apiGetFoundationPage(
+      buildFoundationPacksPath(params),
+      parseFoundationPackPage,
+      params.limit,
+    )
+  },
+  async listFoundationQuestions(params: FoundationQuestionListParams = {}) {
+    return apiGetFoundationPage(
+      buildFoundationQuestionsPath(params),
+      parseFoundationQuestionPage,
+      params.limit,
+    )
   },
   async listSubtitleLines(workSlug: string, episodeNo: number) {
     const fallback = workSlug === 'k-on' && episodeNo === 1 ? subtitleLines : []

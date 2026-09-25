@@ -1,0 +1,4167 @@
+{
+  "pack": {
+    "id": "foundation-v1-wave-2",
+    "curriculum_version": "foundation-v1",
+    "batch_no": 2,
+    "title_zh": "句法、语义与解释",
+    "description_zh": "围绕论元、从句、时体情态与作用域，建立从结构到解释的系统分析能力。",
+    "topic_count": 20,
+    "question_count": 80,
+    "generator_agent": "/root/foundation_topics_reviewer"
+  },
+  "topic_ids": [
+    "syn_topic_subject",
+    "syn_zero_arguments",
+    "syn_valency_argument_structure",
+    "syn_existential_constructions",
+    "syn_relative_clauses",
+    "syn_nominalized_clauses",
+    "syn_complement_quotation",
+    "syn_te_clause_linking",
+    "syn_conditionals",
+    "syn_passive",
+    "syn_causative",
+    "sem_compositionality_polysemy",
+    "sem_tense_reference_time",
+    "sem_lexical_aspect",
+    "sem_teiru_readings",
+    "sem_modality",
+    "sem_evidentiality",
+    "sem_negation_scope",
+    "sem_quantifier_scope",
+    "prag_context_implicature"
+  ],
+  "questions": [
+    {
+      "id": "foundation-v1-syn-topic-subject-f1",
+      "topic_id": "syn_topic_subject",
+      "stage": "F1",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "この町は、冬が長い。",
+        "zh_context": "对某座城镇作一般说明。"
+      },
+      "prompt_zh": "句中「この町は」与「冬が」分别承担什么作用？",
+      "options": [
+        {
+          "id": "A",
+          "text": "「この町は」是话语主题，「冬が」是「長い」的主格成分"
+        },
+        {
+          "id": "B",
+          "text": "「この町は」是直接宾语，「冬が」是话语主题"
+        },
+        {
+          "id": "C",
+          "text": "两者都是由「長い」要求的主格论元"
+        },
+        {
+          "id": "D",
+          "text": "两者都只是表示对比，不参与句法关系"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "分别看「は」引出的谈论范围和「が」直接连接的谓语。",
+      "explanation_zh": "句子以这座城镇为谈论范围，并断言其中“冬天很长”。",
+      "deep_explanation_zh": "「この町は」设定主题框架；形容词谓语「長い」在内部由「冬が」提供主格成分。主题和主语可在同一句中由不同短语实现。",
+      "caution_note_zh": "不能把所有带「は」的成分都直接标为主语；本句恰好显示主题内另有「が」成分。",
+      "wrong_explanations": {
+        "B": "「この町」不是「長い」的直接宾语，而且「冬」没有用「は」标记。",
+        "C": "「この町は」建立话语框架，并非和「冬が」并列的两个主格论元。",
+        "D": "「は」可有对比读法，但本语境是一般主题；「冬が」仍有明确主格关系。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "topic",
+        "subject",
+        "wa",
+        "ga"
+      ],
+      "sort_order": 0
+    },
+    {
+      "id": "foundation-v1-syn-topic-subject-f2",
+      "topic_id": "syn_topic_subject",
+      "stage": "F2",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "この本は、もう読みました。",
+        "zh_context": "说话人回答对方关于这本书阅读进度的问题。"
+      },
+      "prompt_zh": "若把主题还原到「読む」的格框架中，最合适的基础关系是哪一项？",
+      "options": [
+        {
+          "id": "A",
+          "text": "この本が読みました"
+        },
+        {
+          "id": "B",
+          "text": "この本を読みました"
+        },
+        {
+          "id": "C",
+          "text": "この本に読みました"
+        },
+        {
+          "id": "D",
+          "text": "この本で読みました"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "考虑他动词「読む」通常如何标记被阅读的对象。",
+      "explanation_zh": "「この本は」是由对象成分「この本を」主题化得到的。",
+      "deep_explanation_zh": "他动词「読む」的阅读对象以「を」标记；主题化后「は」覆盖该表面格标记，但对象关系仍可从谓语配价恢复。",
+      "caution_note_zh": "还原格关系是分析步骤，不表示实际发话中必须把「は」机械换回「を」。",
+      "wrong_explanations": {
+        "A": "「読む」在该义项下不把书标作主格施事者。",
+        "C": "「に」不能在此标记普通阅读对象。",
+        "D": "「で」可标手段或场所，但这本书在句中是阅读对象。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "topic",
+        "case_recovery",
+        "object"
+      ],
+      "sort_order": 1
+    },
+    {
+      "id": "foundation-v1-syn-topic-subject-f3",
+      "topic_id": "syn_topic_subject",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "contrast",
+        "items": [
+          "質問：だれが窓を開けましたか。回答1：係員が窓を開けました。",
+          "質問：だれが窓を開けましたか。回答2：係員は窓を開けました。"
+        ]
+      },
+      "prompt_zh": "在没有额外对比语境时，哪项诊断最准确？",
+      "options": [
+        {
+          "id": "A",
+          "text": "回答2更直接，因为「は」总是标记疑问焦点"
+        },
+        {
+          "id": "B",
+          "text": "两种回答完全没有任何信息结构差异"
+        },
+        {
+          "id": "C",
+          "text": "回答1更直接填补“谁”这一焦点；回答2容易把“负责人”设为主题或对比项"
+        },
+        {
+          "id": "D",
+          "text": "回答1不成立，因为人不能由「が」标记"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "观察前问留下的未知槽位是“谁”。",
+      "explanation_zh": "「係員が」直接回答「だれが」，是该问答下的中性焦点配置。",
+      "deep_explanation_zh": "疑问词对应位置通常构成焦点；以「が」填入参与者与当前问题对齐。「係員は」并非语法错误，但容易引入已建立主题或与其他候选的对比。",
+      "caution_note_zh": "不能把「が＝新信息、は＝旧信息」当成无语境例外的规则；本题结论依赖明确的前置问题。",
+      "wrong_explanations": {
+        "A": "「は」不总标疑问焦点，反而常把成分主题化或对比化。",
+        "B": "两句命题内容接近，但对当前问题的焦点对齐方式不同。",
+        "D": "人名或人物类别当然可以用「が」标作主格。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "wa_ga",
+        "focus",
+        "question_answer"
+      ],
+      "sort_order": 2
+    },
+    {
+      "id": "foundation-v1-syn-topic-subject-f4",
+      "topic_id": "syn_topic_subject",
+      "stage": "F4",
+      "question_type": "kuuki_yomi",
+      "source_kind": "constructed_dialogue",
+      "stimulus": {
+        "kind": "dialogue",
+        "turns": [
+          {
+            "speaker": "点检员",
+            "ja_text": "どの機械が止まりましたか。"
+          },
+          {
+            "speaker": "操作员",
+            "ja_text": "＿＿＿＿。"
+          }
+        ],
+        "zh_context": "三台机器中只有二号机停止；此前尚未把二号机设为话题。"
+      },
+      "prompt_zh": "哪句最自然地填入第二轮，并直接回答前问？",
+      "options": [
+        {
+          "id": "A",
+          "text": "二号機は機械です"
+        },
+        {
+          "id": "B",
+          "text": "機械は二号機を止まりました"
+        },
+        {
+          "id": "C",
+          "text": "二号機を止まりました"
+        },
+        {
+          "id": "D",
+          "text": "二号機が止まりました"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "让未知的机器身份直接占据「どの機械が」留下的位置。",
+      "explanation_zh": "「二号機が止まりました」以主格形式直接填补前问的焦点。",
+      "deep_explanation_zh": "自动词「止まる」要求停止的实体作主格；前问以「どの機械が」询问该主格，回答用「二号機が」同时满足配价与信息结构。",
+      "caution_note_zh": "若二号机已是持续话题，「二号機は」也可能自然；题面明确排除了该前提。",
+      "wrong_explanations": {
+        "A": "该句只说明二号机属于机器，没有回答哪台停止。",
+        "B": "自动词「止まる」不能把机器用「を」标作普通对象，句法也不成立。",
+        "C": "此处应由「が」标记停止实体，「を」不合该动词的基本格框架。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "topic_subject",
+        "focus",
+        "intransitive"
+      ],
+      "sort_order": 3
+    },
+    {
+      "id": "foundation-v1-syn-zero-arguments-f1",
+      "topic_id": "syn_zero_arguments",
+      "stage": "F1",
+      "question_type": "syntax_relation",
+      "source_kind": "constructed_dialogue",
+      "stimulus": {
+        "kind": "dialogue",
+        "turns": [
+          {
+            "speaker": "甲",
+            "ja_text": "申込書はどうしましたか。"
+          },
+          {
+            "speaker": "乙",
+            "ja_text": "受付に出しました。"
+          }
+        ]
+      },
+      "prompt_zh": "第二轮中最明确被省略、但由「出す」的配价和前文恢复的成分是什么？",
+      "options": [
+        {
+          "id": "A",
+          "text": "受付が"
+        },
+        {
+          "id": "B",
+          "text": "申込書を"
+        },
+        {
+          "id": "C",
+          "text": "甲に"
+        },
+        {
+          "id": "D",
+          "text": "受付を"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "前问把哪件东西设为当前话题？",
+      "explanation_zh": "乙省略了对象「申込書を」，回答意为“把申请表交到受理处了”。",
+      "deep_explanation_zh": "提交义「出す」需要被提交物和目标；目标「受付に」已明示，被提交物可由前问的主题「申込書」唯一恢复。",
+      "caution_note_zh": "句中也可不明说施事者，但本题询问的是由前文最明确恢复的对象论元。",
+      "wrong_explanations": {
+        "A": "「受付」已以「に」明示为目标，不是省略的主格成分。",
+        "C": "题面没有把甲设为提交目标，且「受付に」已经承担目标关系。",
+        "D": "实际句面已有「受付に」，不能把它分析为被省略的「受付を」。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "zero_argument",
+        "object_ellipsis",
+        "dialogue"
+      ],
+      "sort_order": 4
+    },
+    {
+      "id": "foundation-v1-syn-zero-arguments-f2",
+      "topic_id": "syn_zero_arguments",
+      "stage": "F2",
+      "question_type": "kuuki_yomi",
+      "source_kind": "constructed_dialogue",
+      "stimulus": {
+        "kind": "dialogue",
+        "turns": [
+          {
+            "speaker": "甲",
+            "ja_text": "プリンターと窓を確認しました。窓は開いたままでした。"
+          },
+          {
+            "speaker": "乙",
+            "ja_text": "それで、どうしましたか。"
+          },
+          {
+            "speaker": "甲",
+            "ja_text": "すぐ閉めました。"
+          }
+        ]
+      },
+      "prompt_zh": "末轮「閉めました」的零对象最合理地指向什么？",
+      "options": [
+        {
+          "id": "A",
+          "text": "プリンター"
+        },
+        {
+          "id": "B",
+          "text": "甲"
+        },
+        {
+          "id": "C",
+          "text": "窓"
+        },
+        {
+          "id": "D",
+          "text": "乙"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "同时核对最近话题和「閉める」对对象的语义选择。",
+      "explanation_zh": "零对象是「窓を」；前文刚说明窗户开着，关闭它形成自然事件连续。",
+      "deep_explanation_zh": "「窓」具有可被「閉める」作用的语义属性，并在前句被主题化。打印机虽先出现，却既非当前中心，也不自然用该词描述普通关机操作。",
+      "caution_note_zh": "不能只按最近名词机械恢复；本题恰好由话语显著性和选择限制共同支持窗户。",
+      "wrong_explanations": {
+        "A": "打印机不是当前主题，普通关闭打印机也通常不用该事件链表达。",
+        "B": "甲是动作实施者候选，不是「閉める」的关闭对象。",
+        "D": "乙只提出问题，没有成为可关闭的对象。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "zero_argument",
+        "anaphora",
+        "selectional_restriction"
+      ],
+      "sort_order": 5
+    },
+    {
+      "id": "foundation-v1-syn-zero-arguments-f3",
+      "topic_id": "syn_zero_arguments",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "constructed_dialogue",
+      "stimulus": {
+        "kind": "dialogue",
+        "turns": [
+          {
+            "speaker": "甲",
+            "ja_text": "部長は報告書を確認しましたか。"
+          },
+          {
+            "speaker": "乙",
+            "ja_text": "はい、先ほどご覧になりました。"
+          }
+        ]
+      },
+      "prompt_zh": "关于第二轮敬语谓语的零主语，哪项诊断正确？",
+      "options": [
+        {
+          "id": "A",
+          "text": "必定是乙，因为日语省略主语时总补说话人"
+        },
+        {
+          "id": "B",
+          "text": "必定是报告书，因为它离谓语最近"
+        },
+        {
+          "id": "C",
+          "text": "是甲，因为提问者控制所有后续零论元"
+        },
+        {
+          "id": "D",
+          "text": "是部长；前问建立该候选，尊敬表达「ご覧になる」也与部长这一受尊敬主体一致"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "敬语方向可以排除哪几类主体？",
+      "explanation_zh": "零主语恢复为部长，完整理解是「部長が先ほどご覧になりました」。",
+      "deep_explanation_zh": "前问把部长设为确认动作的候选主体；尊敬语「ご覧になる」抬高该动作主体。若主体是乙本人，在普通服务关系下如此自我尊敬会造成方向冲突。",
+      "caution_note_zh": "敬语是强线索但仍需与前文角色关系合并判断；不能脱离语境只凭词形猜身份。",
+      "wrong_explanations": {
+        "A": "零主语不默认等于说话人，而且自我使用该尊敬语会造成敬语方向问题。",
+        "B": "报告书是被查看的对象，不可能成为「ご覧になる」的有意动作主体。",
+        "C": "甲是提问者不等于甲执行查看；前问明确询问的是部长。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "zero_subject",
+        "honorific_direction",
+        "reference"
+      ],
+      "sort_order": 6
+    },
+    {
+      "id": "foundation-v1-syn-zero-arguments-f4",
+      "topic_id": "syn_zero_arguments",
+      "stage": "F4",
+      "question_type": "kuuki_yomi",
+      "source_kind": "constructed_dialogue",
+      "stimulus": {
+        "kind": "dialogue",
+        "turns": [
+          {
+            "speaker": "甲",
+            "ja_text": "赤い封筒と青い封筒があります。青い封筒は受付に出してください。"
+          },
+          {
+            "speaker": "乙",
+            "ja_text": "分かりました。＿＿＿＿。"
+          }
+        ],
+        "zh_context": "乙准备复述将要执行的动作。"
+      },
+      "prompt_zh": "哪一补句既自然省略对象，又能让对象唯一恢复？",
+      "options": [
+        {
+          "id": "A",
+          "text": "すぐ出します"
+        },
+        {
+          "id": "B",
+          "text": "すぐあります"
+        },
+        {
+          "id": "C",
+          "text": "赤い封筒がすぐ出します"
+        },
+        {
+          "id": "D",
+          "text": "受付をすぐ出します"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "前轮已把哪一个封筒指定为提交对象？",
+      "explanation_zh": "「すぐ出します」自然省略「青い封筒を」，前轮命令使其成为唯一相关对象。",
+      "deep_explanation_zh": "目标「受付に」和对象「青い封筒を」均可由前轮恢复；在确认后续中省略重复成分符合日语话语经济性，且红色封筒被明确排除。",
+      "caution_note_zh": "若前轮只说“请交一个封筒”而不指明颜色，省略会留下真实歧义，不能声称唯一恢复。",
+      "wrong_explanations": {
+        "B": "「ある」是存在谓语，不能表达乙将提交封筒的动作。",
+        "C": "「出す」是他动词，封筒不能以「が」作有意提交者。",
+        "D": "「受付」是提交目标，应以「に」标记，不是被提交对象。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "zero_object",
+        "unique_reference",
+        "dialogue"
+      ],
+      "sort_order": 7
+    },
+    {
+      "id": "foundation-v1-syn-valency-argument-structure-f1",
+      "topic_id": "syn_valency_argument_structure",
+      "stage": "F1",
+      "question_type": "syntax_relation",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "比较「雨が降る」「係員が扉を開ける」「係員が利用者に鍵を渡す」三个最小句框。"
+      },
+      "prompt_zh": "哪一项正确对应三个谓语的基本配价？",
+      "options": [
+        {
+          "id": "A",
+          "text": "全部都是一价谓语"
+        },
+        {
+          "id": "B",
+          "text": "依次为二价、一价、二价"
+        },
+        {
+          "id": "C",
+          "text": "依次为一价、二价、三价"
+        },
+        {
+          "id": "D",
+          "text": "依次为三价、二价、一价"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "只计算每个事件定义要求的核心参与者。",
+      "explanation_zh": "「降る」在该句框中一价，「開ける」二价，「渡す」三价。",
+      "deep_explanation_zh": "降雨事件只实现现象主体；开门事件要求施事和对象；传递事件要求给予者、被给予物和接受者。表面可省略不改变词汇配价。",
+      "caution_note_zh": "时间和地点短语即使出现，通常也不因此自动增加谓语的核心配价。",
+      "wrong_explanations": {
+        "A": "「開ける」和「渡す」都要求不止一个核心参与者。",
+        "B": "该分析颠倒了「降る」与「開ける」的参与者数量，并漏掉接受者。",
+        "D": "三个句框的配价顺序正好与题面事件结构不符。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "valency",
+        "one_place",
+        "two_place",
+        "three_place"
+      ],
+      "sort_order": 8
+    },
+    {
+      "id": "foundation-v1-syn-valency-argument-structure-f2",
+      "topic_id": "syn_valency_argument_structure",
+      "stage": "F2",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "係員が入口で利用者に鍵を渡した。"
+      },
+      "prompt_zh": "对句中成分的论元／附加语分析，哪项最准确？",
+      "options": [
+        {
+          "id": "A",
+          "text": "只有「係員が」是核心论元，其余全是附加语"
+        },
+        {
+          "id": "B",
+          "text": "「入口で」是唯一核心论元，因为它最靠近谓语"
+        },
+        {
+          "id": "C",
+          "text": "四个带助词成分都是「渡す」不可缺少的核心论元"
+        },
+        {
+          "id": "D",
+          "text": "给予者、接受者和钥匙是核心参与者；「入口で」是可替换或省略的场所附加语"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "设想换一个地点后，传递事件的核心角色是否改变。",
+      "explanation_zh": "「渡す」的三价框架由给予者、物品和接受者构成，入口只是事件地点。",
+      "deep_explanation_zh": "「入口で」可换为大厅、室外或省略，不改变“谁把什么给谁”的事件定义；这支持其附加语分析。",
+      "caution_note_zh": "可省略性不是单独充分的测试，因为核心论元也能在语境中省略；需结合选择限制和事件定义。",
+      "wrong_explanations": {
+        "A": "接受者和被传递物都是「渡す」事件的核心角色。",
+        "B": "线性距离不能决定论元身份，地点并非传递义的唯一核心。",
+        "C": "「入口で」不是每个「渡す」事件都必须有的角色。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "argument",
+        "adjunct",
+        "transfer_event"
+      ],
+      "sort_order": 9
+    },
+    {
+      "id": "foundation-v1-syn-valency-argument-structure-f3",
+      "topic_id": "syn_valency_argument_structure",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "contrast",
+        "items": [
+          "絵が壁に掛かっている。",
+          "修理に三日掛かった。"
+        ]
+      },
+      "prompt_zh": "两句同形谓语「かかる」的配价差异应如何诊断？",
+      "options": [
+        {
+          "id": "A",
+          "text": "第一句描述物体与位置关系；第二句描述事件与所需时长，义项和核心角色配置不同"
+        },
+        {
+          "id": "B",
+          "text": "两句都只能分析为“某人把某物挂起来”的二价他动事件"
+        },
+        {
+          "id": "C",
+          "text": "「壁に」与「三日」都只是无意义填充，谓语没有配价"
+        },
+        {
+          "id": "D",
+          "text": "只因汉字都可写作「掛かる」，两句的语义和配价必定完全相同"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "比较一个是空间状态，另一个是耗时评价。",
+      "explanation_zh": "同形「かかる」在两句中选择不同义项，因此参与者框架也不同。",
+      "deep_explanation_zh": "第一句以图画为主题实体、墙为位置；第二句以修理事件为耗时事项、三日为所需量。配价必须按具体义项和选择限制分析。",
+      "caution_note_zh": "不能从同一表面词形推出同一配价，也不能只靠中文译词数决定论元数。",
+      "wrong_explanations": {
+        "B": "第一句是自动状态，第二句是耗时义，都不是题述他动挂置事件。",
+        "C": "各成分与义项存在系统语义关系，不是无意义填充。",
+        "D": "同形词可多义，具体搭配正是区分义项和配价的证据。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "valency",
+        "polysemy",
+        "selectional_restriction"
+      ],
+      "sort_order": 10
+    },
+    {
+      "id": "foundation-v1-syn-valency-argument-structure-f4",
+      "topic_id": "syn_valency_argument_structure",
+      "stage": "F4",
+      "question_type": "syntax_relation",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "目标事件定义：一名负责人把一把钥匙交给一名使用者。要求构造包含三个核心角色的最小日语句框。"
+      },
+      "prompt_zh": "哪一项最完整且格关系正确？",
+      "options": [
+        {
+          "id": "A",
+          "text": "責任者が鍵に利用者を渡した。"
+        },
+        {
+          "id": "B",
+          "text": "責任者が利用者に鍵を渡した。"
+        },
+        {
+          "id": "C",
+          "text": "利用者で責任者を鍵が渡した。"
+        },
+        {
+          "id": "D",
+          "text": "鍵が責任者に利用者を渡した。"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "标出给予者、接受者和被给予物。",
+      "explanation_zh": "给予者用「が」，接受者用「に」，被给予物用「を」。",
+      "deep_explanation_zh": "三价动词「渡す」的基础句框为 Xが Yに Zを渡す；该选项把负责人、使用者和钥匙逐一映射到正确角色。",
+      "caution_note_zh": "实际对话中某些论元可省略，但目标要求的是显式展示最小完整格框。",
+      "wrong_explanations": {
+        "A": "该句把钥匙错标为接受者、使用者错标为被传递物。",
+        "C": "格标记使无生命钥匙成为施事，并把其他角色全部错配。",
+        "D": "钥匙不是有意给予者，使用者也不是被交付的对象。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "valency",
+        "argument_mapping",
+        "dative"
+      ],
+      "sort_order": 11
+    },
+    {
+      "id": "foundation-v1-syn-existential-constructions-f1",
+      "topic_id": "syn_existential_constructions",
+      "stage": "F1",
+      "question_type": "single_choice",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "庭に猫が＿＿。"
+      },
+      "prompt_zh": "在普通字面语境中，应填入哪一形式？",
+      "options": [
+        {
+          "id": "A",
+          "text": "あるでした"
+        },
+        {
+          "id": "B",
+          "text": "あったいる"
+        },
+        {
+          "id": "C",
+          "text": "ある"
+        },
+        {
+          "id": "D",
+          "text": "いる"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "猫通常被概念化为有生、可自主活动的主体。",
+      "explanation_zh": "普通语境中，猫的存在用「いる」。",
+      "deep_explanation_zh": "存在动词选择体现日语语法有生性；人和动物等典型有生实体通常选择「いる」。",
+      "caution_note_zh": "该倾向是语法概念化，不是只按生物学分类；拟人化和边界用法仍需语境。",
+      "wrong_explanations": {
+        "A": "该形式混合了非过去词干和过去礼貌成分，形态不成立。",
+        "B": "该序列不是存在动词的合法活用。",
+        "C": "普通字面语境下，猫不用无生存在动词「ある」。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "existential",
+        "iru",
+        "animacy"
+      ],
+      "sort_order": 12
+    },
+    {
+      "id": "foundation-v1-syn-existential-constructions-f2",
+      "topic_id": "syn_existential_constructions",
+      "stage": "F2",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "机の上に新しい端末がある。",
+        "zh_context": "此前没有提到该终端，说话人第一次告知其存在。"
+      },
+      "prompt_zh": "本句最合适的结构与信息功能分析是什么？",
+      "options": [
+        {
+          "id": "A",
+          "text": "以地点为范围，引入一个新的存在物，是存在句"
+        },
+        {
+          "id": "B",
+          "text": "以已知终端为主题，单纯说明其所在，是主题所在句"
+        },
+        {
+          "id": "C",
+          "text": "表达说话人拥有该终端，是主动持有句"
+        },
+        {
+          "id": "D",
+          "text": "表达终端把桌子作为对象，是他动句"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "题面说明终端尚未进入共同知识。",
+      "explanation_zh": "「机の上に」给出存在地点，「新しい端末が」引入新存在物。",
+      "deep_explanation_zh": "新实体通常以「が」出现在存在句中；若终端已知，可改为「端末は机の上にある」来说明其所在。",
+      "caution_note_zh": "存在句与所在句可描述相近事实，但主题状态和信息结构不同。",
+      "wrong_explanations": {
+        "B": "句中终端用「が」首次引入，并非已知主题「端末は」。",
+        "C": "没有所有者主题，不能推出说话人拥有终端。",
+        "D": "「ある」在此为自动存在谓语，没有终端作用于桌子的他动关系。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "existential_sentence",
+        "information_structure",
+        "aru"
+      ],
+      "sort_order": 13
+    },
+    {
+      "id": "foundation-v1-syn-existential-constructions-f3",
+      "topic_id": "syn_existential_constructions",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "contrast",
+        "items": [
+          "庭に桜がある。",
+          "庭に犬がいる。"
+        ]
+      },
+      "prompt_zh": "为什么这组普通表达分别选择「ある」与「いる」？",
+      "options": [
+        {
+          "id": "A",
+          "text": "因为「桜」是单数而「犬」是复数"
+        },
+        {
+          "id": "B",
+          "text": "因为日语的语法有生性通常把植物归入「ある」类，把动物归入「いる」类"
+        },
+        {
+          "id": "C",
+          "text": "因为所有在庭院里的名词都必须随机选择存在动词"
+        },
+        {
+          "id": "D",
+          "text": "因为「ある」只表示过去，而「いる」只表示现在"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "不要把生物学“活着”直接等同于日语存在动词分类。",
+      "explanation_zh": "植物虽有生命，普通日语通常仍用「ある」；动物典型用「いる」。",
+      "deep_explanation_zh": "存在动词反映语法上的有生性和主体性概念化，而非生物学二分。樱树作为植物属于「ある」的典型项，狗属于「いる」的典型项。",
+      "caution_note_zh": "特殊拟人化或移动主体语境可能改变边界判断，但题面明确是普通字面场景。",
+      "wrong_explanations": {
+        "A": "单复数不是这两个存在动词的选择条件。",
+        "C": "选择有系统的语义概念化依据，并非随机。",
+        "D": "两者在题中都是非过去形，差别不是时态。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "aru_iru",
+        "grammatical_animacy",
+        "plant"
+      ],
+      "sort_order": 14
+    },
+    {
+      "id": "foundation-v1-syn-existential-constructions-f4",
+      "topic_id": "syn_existential_constructions",
+      "stage": "F4",
+      "question_type": "single_choice",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "公共设施说明首次向来访者引入“入口处有一台导览终端”。终端是普通无生命设备。"
+      },
+      "prompt_zh": "哪一句最自然并符合存在句的信息结构？",
+      "options": [
+        {
+          "id": "A",
+          "text": "入口が案内端末にいる。"
+        },
+        {
+          "id": "B",
+          "text": "案内端末を入口がある。"
+        },
+        {
+          "id": "C",
+          "text": "入口に案内端末がある。"
+        },
+        {
+          "id": "D",
+          "text": "案内端末に入口をいる。"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "地点用「に」，首次引入的无生存在物用「が＋ある」。",
+      "explanation_zh": "「入口に案内端末がある」正确标记地点和无生存在物。",
+      "deep_explanation_zh": "存在句的基础配置是地点に 存在物が ある／いる；该终端尚未成为主题，因此以「が」引入最合适。",
+      "caution_note_zh": "若回答“终端在哪里”，可使用「案内端末は入口にある」；那是已知主题的所在句。",
+      "wrong_explanations": {
+        "A": "入口和终端的格关系颠倒，且无生终端的存在不应由「いる」表达。",
+        "B": "存在物不能在该基础存在句中用「を」标记。",
+        "D": "地点、存在物和存在动词三者均错配。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "existential",
+        "aru",
+        "location"
+      ],
+      "sort_order": 15
+    },
+    {
+      "id": "foundation-v1-syn-relative-clauses-f1",
+      "topic_id": "syn_relative_clauses",
+      "stage": "F1",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "職員が昨日点検した装置を使う。"
+      },
+      "prompt_zh": "哪一部分构成修饰中心名词「装置」的连体从句？",
+      "options": [
+        {
+          "id": "A",
+          "text": "職員が昨日点検した"
+        },
+        {
+          "id": "B",
+          "text": "装置を使う"
+        },
+        {
+          "id": "C",
+          "text": "昨日点検した装置を使う"
+        },
+        {
+          "id": "D",
+          "text": "職員が昨日"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "连体从句在中心名词前闭合。",
+      "explanation_zh": "「職員が昨日点検した」整体前置修饰「装置」。",
+      "deep_explanation_zh": "中心名词「装置」随后在主句中由「を」标记；修饰从句内部不重复关系代词或格助词。",
+      "caution_note_zh": "不要把主句谓语「使う」误划入修饰从句。",
+      "wrong_explanations": {
+        "B": "这是中心名词连同主句谓语，不是位于中心名词前的修饰从句。",
+        "C": "该范围包含中心名词和主句，超出了连体从句边界。",
+        "D": "缺少从句谓语「点検した」，不能构成完整修饰小句。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "relative_clause",
+        "boundary",
+        "head_noun"
+      ],
+      "sort_order": 16
+    },
+    {
+      "id": "foundation-v1-syn-relative-clauses-f2",
+      "topic_id": "syn_relative_clauses",
+      "stage": "F2",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "私が使った机は窓の近くにある。"
+      },
+      "prompt_zh": "在内关系分析中，中心名词「机」在从句「私が使った」里对应什么格关系？",
+      "options": [
+        {
+          "id": "A",
+          "text": "私が机に使った"
+        },
+        {
+          "id": "B",
+          "text": "私が机を使った"
+        },
+        {
+          "id": "C",
+          "text": "机が私を使った"
+        },
+        {
+          "id": "D",
+          "text": "私が机で使った"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "考虑「使う」的使用者和被使用物。",
+      "explanation_zh": "「机」是「使う」的对象，可恢复为「私が机を使った」。",
+      "deep_explanation_zh": "该连体修饰属于内关系；中心名词填补从句谓语的对象位置。主句中的「机は」和从句内部恢复的「机を」属于不同层级。",
+      "caution_note_zh": "恢复格关系是语义句法诊断，不意味着实际连体从句里要插入「机を」。",
+      "wrong_explanations": {
+        "A": "普通使用对象不由「に」标记。",
+        "C": "这会颠倒使用者和被使用物的语义角色。",
+        "D": "「机で」会把桌子解释为场所或手段，而非题中被使用的对象。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "inner_relation",
+        "gap_recovery",
+        "object"
+      ],
+      "sort_order": 17
+    },
+    {
+      "id": "foundation-v1-syn-relative-clauses-f3",
+      "topic_id": "syn_relative_clauses",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "contrast",
+        "items": [
+          "私が読んだ本",
+          "雨が屋根を打つ音"
+        ]
+      },
+      "prompt_zh": "两种连体修饰的关系应如何区分？",
+      "options": [
+        {
+          "id": "A",
+          "text": "两者都是外关系，中心名词都不能在从句中恢复"
+        },
+        {
+          "id": "B",
+          "text": "两者都是内关系，分别可恢复「本が読んだ」「雨が音を打つ」"
+        },
+        {
+          "id": "C",
+          "text": "前者是内关系，可恢复「本を読んだ」；后者是外关系，声音由雨打屋顶的事件产生，而不是「打つ」的格论元"
+        },
+        {
+          "id": "D",
+          "text": "前者没有连体从句，后者才有连体从句"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "尝试把每个中心名词补回前面的从句，并检查能否配置自然格关系。",
+      "explanation_zh": "「本」可填补「読む」的对象位；「音」则通过雨打屋顶事件与声音的产生关系连接，不能补成「打つ」的普通论元。",
+      "deep_explanation_zh": "可恢复明确格关系是内关系的操作性诊断；「雨が屋根を打つ音」中的从句已经具有施事「雨」和对象「屋根」，中心名词「音」在外部概括该事件产生的声音，属于外关系。",
+      "caution_note_zh": "外关系并非没有语义联系；关键是该联系不等于中心名词填补从句谓语的普通格空位。",
+      "wrong_explanations": {
+        "A": "「本を読んだ」可自然恢复，因此前者不是外关系。",
+        "B": "「本が読んだ」颠倒阅读角色；「雨が音を打つ」也把声音误当成「打つ」的对象。",
+        "D": "两项都有置于中心名词前的连体修饰小句。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "inner_relation",
+        "outer_relation",
+        "relative_clause"
+      ],
+      "sort_order": 18
+    },
+    {
+      "id": "foundation-v1-syn-relative-clauses-f4",
+      "topic_id": "syn_relative_clauses",
+      "stage": "F4",
+      "question_type": "syntax_relation",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "合并两个命题：「職員が地図を作った。」「その地図を入口に掲示した。」要求把“地图”作为内关系中心名词，保持制作人与展示地点不变。"
+      },
+      "prompt_zh": "哪一句合并正确？",
+      "options": [
+        {
+          "id": "A",
+          "text": "地図が作った職員を入口に掲示した。"
+        },
+        {
+          "id": "B",
+          "text": "職員を地図が作った入口に掲示した。"
+        },
+        {
+          "id": "C",
+          "text": "入口が職員を作った地図に掲示した。"
+        },
+        {
+          "id": "D",
+          "text": "職員が作った地図を入口に掲示した。"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "修饰从句先结束，再让中心名词在主句中带「を」。",
+      "explanation_zh": "「職員が作った」修饰「地図」，整个名词短语再作为「掲示した」的对象。",
+      "deep_explanation_zh": "从句内可恢复「職員が地図を作った」；主句结构为「地図を入口に掲示した」。同一中心名词在两个层级承担不同的表面实现。",
+      "caution_note_zh": "不能因中心名词在从句中对应对象，就把从句内的「を」直接写在中心名词前；日语连体结构不这样重复标记。",
+      "wrong_explanations": {
+        "A": "该句让地图成为制作施事，并把职员当作展示对象。",
+        "B": "主从句角色和格标记都颠倒，无法表达目标命题。",
+        "C": "该句误让入口成为制作施事，并把地图片段置于错误格关系。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "relative_clause",
+        "sentence_combining",
+        "inner_relation"
+      ],
+      "sort_order": 19
+    },
+    {
+      "id": "foundation-v1-syn-nominalized-clauses-f1",
+      "topic_id": "syn_nominalized_clauses",
+      "stage": "F1",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "朝早く泳ぐのが好きです。"
+      },
+      "prompt_zh": "哪一部分是以「の」名词化并由「が」标记的从句？",
+      "options": [
+        {
+          "id": "A",
+          "text": "朝早く"
+        },
+        {
+          "id": "B",
+          "text": "朝早く泳ぐの"
+        },
+        {
+          "id": "C",
+          "text": "のが好きです"
+        },
+        {
+          "id": "D",
+          "text": "好きです"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "找到普通体小句和紧随其后的名词化形式。",
+      "explanation_zh": "「朝早く泳ぐ」由「の」名词化，整体再以「が」连接「好きだ」。",
+      "deep_explanation_zh": "名词化使事件小句进入名词性位置；「が」附着于整个「朝早く泳ぐの」，而不是只附着于动词。",
+      "caution_note_zh": "这里的「の」不是属格或句末说明形式，判断依据是它后接格助词并让从句成为主句论元。",
+      "wrong_explanations": {
+        "A": "这只是从句内部的时间副词，不是完整名词化单位。",
+        "C": "该范围把主句谓语也包含进来，超过了名词化从句边界。",
+        "D": "这是主句谓语，不是被名词化的事件。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "nominalization",
+        "no",
+        "clause_boundary"
+      ],
+      "sort_order": 20
+    },
+    {
+      "id": "foundation-v1-syn-nominalized-clauses-f2",
+      "topic_id": "syn_nominalized_clauses",
+      "stage": "F2",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "委員会は来月移転することを決めた。"
+      },
+      "prompt_zh": "为何此处「こと」与主句谓语的组合特别自然？",
+      "options": [
+        {
+          "id": "A",
+          "text": "因为「こと」在此只表示一件可触摸的物品"
+        },
+        {
+          "id": "B",
+          "text": "因为「決める」只能接受人名，不能接受事件内容"
+        },
+        {
+          "id": "C",
+          "text": "因为「こと」把“下月搬迁”作为决定的命题／事件内容，符合「決める」的选择"
+        },
+        {
+          "id": "D",
+          "text": "因为「こと」把「委員会」变成了地点格"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "判断被决定的究竟是实体还是事件内容。",
+      "explanation_zh": "「来月移転すること」把搬迁事件包装成「決める」的对象。",
+      "deep_explanation_zh": "决定谓语选择计划、方针等抽象命题内容；「こと」名词化与这一选择限制匹配，整个从句由「を」标作对象。",
+      "caution_note_zh": "这不表示「の」永远不能出现在相近环境；应按具体构式和语体判断，本题采用规范的「ことに／を決める」框架。",
+      "wrong_explanations": {
+        "A": "此处「こと」没有普通词汇名词“事情物件”的独立指称，而是名词化事件。",
+        "B": "「決める」恰可接受决定内容，本句正是这种配价。",
+        "D": "委员会仍由「は」标作主题，没有被「こと」改成地点。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "koto",
+        "selectional_restriction",
+        "decision"
+      ],
+      "sort_order": 21
+    },
+    {
+      "id": "foundation-v1-syn-nominalized-clauses-f3",
+      "topic_id": "syn_nominalized_clauses",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "contrast",
+        "items": [
+          "鳥が飛ぶのを見た。",
+          "参加することに決めた。"
+        ]
+      },
+      "prompt_zh": "哪项最准确说明两句的名词化选择？",
+      "options": [
+        {
+          "id": "A",
+          "text": "两句中的「の／こと」都只是格助词，没有名词化作用"
+        },
+        {
+          "id": "B",
+          "text": "第一句必须改成「鳥が飛ぶことを見た」，直接感知与形式选择无关"
+        },
+        {
+          "id": "C",
+          "text": "第二句必须改成「参加するのに決めた」，因为「こと」不能表示计划"
+        },
+        {
+          "id": "D",
+          "text": "直接观察具体事件时「の」自然；决定构式把计划内容名词化时「こと」自然"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "比较直接感知和抽象决定两类主句谓语。",
+      "explanation_zh": "两句分别展示感知谓语偏好的具体事件「の」和决定构式偏好的「こと」。",
+      "deep_explanation_zh": "名词化形式的选择受到主句谓语和事件概念化制约；「見る」直接接触可感事件，「決める」则选择计划命题。",
+      "caution_note_zh": "「の／こと」并非在所有谓语后都形成绝对二选一；本题使用的是选择倾向明确的典型构式。",
+      "wrong_explanations": {
+        "A": "「を／に」才是外层助词，「の／こと」在两句中使小句获得名词性。",
+        "B": "直接感知具体动作时「のを見た」非常自然，机械改换会改变自然度。",
+        "C": "「ことに決める」是规范决定构式；「のに」还可能被分析为让步连接。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "no_koto",
+        "perception",
+        "decision"
+      ],
+      "sort_order": 22
+    },
+    {
+      "id": "foundation-v1-syn-nominalized-clauses-f4",
+      "topic_id": "syn_nominalized_clauses",
+      "stage": "F4",
+      "question_type": "syntax_relation",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "把命题「子どもが広場を走る」嵌入“说话人亲眼看见该动作”的框架。"
+      },
+      "prompt_zh": "哪一句最自然地表达目标意义？",
+      "options": [
+        {
+          "id": "A",
+          "text": "子どもが広場を走るのを見た。"
+        },
+        {
+          "id": "B",
+          "text": "子どもが広場を走ることに決めた。"
+        },
+        {
+          "id": "C",
+          "text": "子どもが広場を走るので見た。"
+        },
+        {
+          "id": "D",
+          "text": "子どもが広場を走るのが決めた。"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "目标是直接视觉感知，不是决定、原因或评价。",
+      "explanation_zh": "「走るのを見た」把具体进行的动作名词化为视觉感知对象。",
+      "deep_explanation_zh": "小句保持普通体，以「の」名词化后由「を」连接感知谓语「見る」。说话人是外层感知者，儿童仍是内层动作主体。",
+      "caution_note_zh": "主从句的两个主体不同但不矛盾；不能把外层说话人误补为跑步者。",
+      "wrong_explanations": {
+        "B": "这表示决定让儿童跑或儿童决定跑，未表达亲眼看见。",
+        "C": "「ので」会引出原因关系，不能把事件作为「見る」的对象。",
+        "D": "格标记和主句谓语选择均不成立，且改成了决定意义。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "nominalized_clause",
+        "direct_perception",
+        "speaker"
+      ],
+      "sort_order": 23
+    },
+    {
+      "id": "foundation-v1-syn-complement-quotation-f1",
+      "topic_id": "syn_complement_quotation",
+      "stage": "F1",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "案内係は「こちらでお待ちください」と言った。"
+      },
+      "prompt_zh": "哪一部分是被「と」标记的直接引用内容？",
+      "options": [
+        {
+          "id": "A",
+          "text": "案内係は"
+        },
+        {
+          "id": "B",
+          "text": "と言った"
+        },
+        {
+          "id": "C",
+          "text": "こちらでお待ちください"
+        },
+        {
+          "id": "D",
+          "text": "案内係は言った"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "引号内部保留了原发话的请求形式。",
+      "explanation_zh": "引号内「こちらでお待ちください」是被展示的原发话。",
+      "deep_explanation_zh": "直接引用可保留原话的礼貌命令「ください」和指示词「こちら」；引用结束后由「と」连接外层发言谓语。",
+      "caution_note_zh": "带引号并不保证现实中逐字记录绝对可靠，但句法上本题明确按直接引用分析。",
+      "wrong_explanations": {
+        "A": "这是外层发言者主题，不属于引用内容。",
+        "B": "这是引用标记加外层谓语，而非引号内部话语。",
+        "D": "该范围只概括外层句，没有包含实际被引用的发话。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "direct_quotation",
+        "to",
+        "boundary"
+      ],
+      "sort_order": 24
+    },
+    {
+      "id": "foundation-v1-syn-complement-quotation-f2",
+      "topic_id": "syn_complement_quotation",
+      "stage": "F2",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "担当者は翌日そこへ戻ると言った。",
+        "zh_context": "叙述者在另一地点转述负责人的计划，没有声称逐字复现原话。"
+      },
+      "prompt_zh": "本句最合适的分析是哪一项？",
+      "options": [
+        {
+          "id": "A",
+          "text": "「翌日そこへ戻る」是拟声词内容"
+        },
+        {
+          "id": "B",
+          "text": "「担当者は」属于引用内部第一人称"
+        },
+        {
+          "id": "C",
+          "text": "「と言った」没有外层发言谓语"
+        },
+        {
+          "id": "D",
+          "text": "「翌日そこへ戻る」是普通体间接补语，时间和地点指示已按转述视点表达"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "题面明确没有逐字复现，观察普通体和指示形式。",
+      "explanation_zh": "该句以普通体命题补语间接转述计划。",
+      "deep_explanation_zh": "外层主体是负责人，内部命题省略与其同指的主语；「翌日」「そこ」由叙述者选择，用于重建原发话的时间和地点关系。",
+      "caution_note_zh": "间接转述不要求保留原发话的「明日」「ここ」或礼貌体，必须核对当前指示中心。",
+      "wrong_explanations": {
+        "A": "内部内容是返回计划命题，不是声音或拟态内容。",
+        "B": "「担当者は」是外层发言者主题，并非引用内的人称表达。",
+        "C": "「言った」明确是选择该补语的外层发言谓语。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "indirect_quotation",
+        "deictic_shift",
+        "plain_form"
+      ],
+      "sort_order": 25
+    },
+    {
+      "id": "foundation-v1-syn-complement-quotation-f3",
+      "topic_id": "syn_complement_quotation",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "constructed_dialogue",
+      "stimulus": {
+        "kind": "dialogue",
+        "turns": [
+          {
+            "speaker": "负责人（周一在一楼）",
+            "ja_text": "私は明日ここに来ます。"
+          },
+          {
+            "speaker": "转述者（周二在二楼）",
+            "ja_text": "担当者は、翌日その場所に来ると言いました。"
+          }
+        ]
+      },
+      "prompt_zh": "对第二轮转述的诊断，哪项正确？",
+      "options": [
+        {
+          "id": "A",
+          "text": "作为间接转述，它把原话的「明日」「ここ」调整为「翌日」「その場所」，并把内部谓语改为普通体"
+        },
+        {
+          "id": "B",
+          "text": "它错误，因为任何转述都必须原样保留「私」「明日」「ここ」「来ます」"
+        },
+        {
+          "id": "C",
+          "text": "它表达负责人在周二从二楼说话，因此不存在外层转述者"
+        },
+        {
+          "id": "D",
+          "text": "它只能分析为声音拟态，不能表达命题内容"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "区分原发话中心和周二叙述者的中心。",
+      "explanation_zh": "第二轮是一致的间接转述：人称被外层主体承接，时地指示相应转换。",
+      "deep_explanation_zh": "原话的“我”与外层负责人同指，不必在内部重复；「明日」相对周一变为「翌日」，「ここ」改为指向原地点的「その場所」。",
+      "caution_note_zh": "若使用引号作直接引用，则可保留「明日」「ここ」「来ます」；两种方式的规则不能混用。",
+      "wrong_explanations": {
+        "B": "原样保留是直接引用的典型做法，不是间接引用的强制条件。",
+        "C": "题面明确第二轮由另一个转述者在周二发出。",
+        "D": "「来ると言う」在此选择命题补语，与拟态内容无关。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "reported_speech",
+        "person",
+        "time_deixis",
+        "place_deixis"
+      ],
+      "sort_order": 26
+    },
+    {
+      "id": "foundation-v1-syn-complement-quotation-f4",
+      "topic_id": "syn_complement_quotation",
+      "stage": "F4",
+      "question_type": "syntax_relation",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "原发话是负责人礼貌地说：「この資料を確認します。」现在由旁观者作不带引号的间接转述。"
+      },
+      "prompt_zh": "哪一句最合适？",
+      "options": [
+        {
+          "id": "A",
+          "text": "担当者は「この資料を確認すると」言った。"
+        },
+        {
+          "id": "B",
+          "text": "担当者はこの資料を確認すると言った。"
+        },
+        {
+          "id": "C",
+          "text": "担当者をこの資料が確認しますと言った。"
+        },
+        {
+          "id": "D",
+          "text": "この資料は担当者に確認して言った。"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "间接补语通常去掉引号并采用普通体。",
+      "explanation_zh": "「確認する」采用普通体，与「と」共同构成间接命题补语。",
+      "deep_explanation_zh": "外层主体负责人同时控制内部省略主语；原发话的礼貌形式「確認します」在句法整合的间接转述中变为普通体「確認する」。",
+      "caution_note_zh": "若指示对象随地点或时间改变，「この資料」还可能需要调整；题面假定双方当前仍指同一资料。",
+      "wrong_explanations": {
+        "A": "引号范围和「と」位置错误，把引用标记塞进了引号。",
+        "C": "主客格关系颠倒，并混用了间接结构和原礼貌体。",
+        "D": "该句没有形成命题补语，还改变了确认动作的参与者关系。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "indirect_report",
+        "register_shift",
+        "quotation"
+      ],
+      "sort_order": 27
+    },
+    {
+      "id": "foundation-v1-syn-te-clause-linking-f1",
+      "topic_id": "syn_te_clause_linking",
+      "stage": "F1",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "contrast",
+        "items": [
+          "窓を開けて、空気を入れ替えた。",
+          "窓が開いている。"
+        ]
+      },
+      "prompt_zh": "哪项正确区分两处「て」？",
+      "options": [
+        {
+          "id": "A",
+          "text": "两处都只表示过去时"
+        },
+        {
+          "id": "B",
+          "text": "第一处是被动标记，第二处是格助词"
+        },
+        {
+          "id": "C",
+          "text": "第一处和第二处都必须解释为原因分句"
+        },
+        {
+          "id": "D",
+          "text": "第一处连接开窗与换气两个分句；第二处属于「開いている」这一体貌谓语内部"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "看「て」后面是新的独立事件还是辅助成分「いる」。",
+      "explanation_zh": "第一句用て形连接两个事件，第二句的「ている」构成紧密体貌表达。",
+      "deep_explanation_zh": "分句连接允许分别识别「開ける」和「入れ替える」；「開いている」则把变化动词与「いる」组合，表达开着的结果状态。",
+      "caution_note_zh": "表面都有「て」，不能忽略后续谓语的句法紧密度和语义功能。",
+      "wrong_explanations": {
+        "A": "过去时由句末「た」等表达，「て」本身不是两句的过去标记。",
+        "B": "两处都不是题述被动或格助词。",
+        "C": "第一句在该中性语境中是顺序／方式连接，第二句根本不是原因分句。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "te_form",
+        "clause_linking",
+        "teiru"
+      ],
+      "sort_order": 28
+    },
+    {
+      "id": "foundation-v1-syn-te-clause-linking-f2",
+      "topic_id": "syn_te_clause_linking",
+      "stage": "F2",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "電車が遅れて、会議に間に合わなかった。",
+        "zh_context": "没有其他迟到原因。"
+      },
+      "prompt_zh": "前后分句最自然的关系是什么？",
+      "options": [
+        {
+          "id": "A",
+          "text": "电车晚点是没赶上会议的原因"
+        },
+        {
+          "id": "B",
+          "text": "说话人先没赶上会议，之后电车才晚点"
+        },
+        {
+          "id": "C",
+          "text": "两个分句互为同义改写"
+        },
+        {
+          "id": "D",
+          "text": "「遅れて」只修饰名词「会議」"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "结合事件的常识时间顺序和题面排除的其他原因。",
+      "explanation_zh": "电车晚点自然解释为未能及时到会的原因。",
+      "deep_explanation_zh": "て形本身欠指定，但“交通延误”与“未及时到达”构成可验证因果链；否定过去「間に合わなかった」描述结果。",
+      "caution_note_zh": "不能由所有て形机械推出原因；本题因果来自谓语组合和明确背景。",
+      "wrong_explanations": {
+        "B": "该顺序违背句面事件链和通常因果关系。",
+        "C": "晚点与未赶上是不同事件，不是同义复述。",
+        "D": "「遅れて」连接后续谓语小句，不是名词定语。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "te_clause",
+        "cause",
+        "past_negative"
+      ],
+      "sort_order": 29
+    },
+    {
+      "id": "foundation-v1-syn-te-clause-linking-f3",
+      "topic_id": "syn_te_clause_linking",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "contrast",
+        "items": [
+          "係員が説明して、利用者が操作した。",
+          "係員が説明して、操作した。"
+        ],
+        "zh_context": "目标意义是“负责人说明，使用者操作”，两人不同。"
+      },
+      "prompt_zh": "哪项诊断最准确？",
+      "options": [
+        {
+          "id": "A",
+          "text": "第二句更明确，因为省略主语必定改指使用者"
+        },
+        {
+          "id": "B",
+          "text": "第一句明确标出主语切换；第二句在无额外线索时更容易把两动作都归给负责人"
+        },
+        {
+          "id": "C",
+          "text": "第一句不成立，因为て形两边绝不能出现不同主语"
+        },
+        {
+          "id": "D",
+          "text": "两句都必定表示使用者说明、负责人操作"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "零主语通常先寻找延续中的显著主体。",
+      "explanation_zh": "主语切换时显式写出「利用者が」能避免把后句零主语延续为负责人。",
+      "deep_explanation_zh": "て形允许主语切换，但省略后的恢复受主体连续性偏好制约。第二句没有另一个显著线索，最自然的默认是负责人说明后自己操作。",
+      "caution_note_zh": "主体连续性是偏好而非不可取消的句法定律；有充分前文时第二句也可能恢复为他人。",
+      "wrong_explanations": {
+        "A": "省略不会自动触发换指，反而通常偏向延续当前主体。",
+        "C": "て形分句可切换主语，只需信息和语义条件支持。",
+        "D": "该角色映射既不由句面支持，也与显式「係員が」「利用者が」相反。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "subject_continuity",
+        "zero_subject",
+        "te_clause"
+      ],
+      "sort_order": 30
+    },
+    {
+      "id": "foundation-v1-syn-te-clause-linking-f4",
+      "topic_id": "syn_te_clause_linking",
+      "stage": "F4",
+      "question_type": "syntax_relation",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "表达同一操作员“先确认开关，然后接通电源”的顺序关系。"
+      },
+      "prompt_zh": "哪一句用て形自然连接两个事件？",
+      "options": [
+        {
+          "id": "A",
+          "text": "スイッチが確認して、電源を入れた。"
+        },
+        {
+          "id": "B",
+          "text": "スイッチを確認いる、電源が入れた。"
+        },
+        {
+          "id": "C",
+          "text": "スイッチを確認して、電源を入れた。"
+        },
+        {
+          "id": "D",
+          "text": "スイッチに確認している電源を入れた。"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "两个他动词共享省略的操作员主语，对象都用「を」。",
+      "explanation_zh": "「確認して」连接先行确认事件，随后是「電源を入れた」。",
+      "deep_explanation_zh": "共享主体使省略自然；语义上确认开关先于通电，句末过去形给整个事件序列定位。",
+      "caution_note_zh": "顺序读法由可控动作和操作逻辑支持；在其他谓语组合中，て形也可表达并列或原因。",
+      "wrong_explanations": {
+        "A": "开关不是确认动作的施事，应用「スイッチを」。",
+        "B": "「確認いる」形态不成立，且电源不应作为「入れる」的主格施事。",
+        "D": "格标记和从句边界错误，也没有形成目标顺序连接。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "te_form",
+        "event_sequence",
+        "shared_subject"
+      ],
+      "sort_order": 31
+    },
+    {
+      "id": "foundation-v1-syn-conditionals-f1",
+      "topic_id": "syn_conditionals",
+      "stage": "F1",
+      "question_type": "single_choice",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "このボタンを押すと、扉が開く。"
+      },
+      "prompt_zh": "句中「と」最典型地表达哪类条件？",
+      "options": [
+        {
+          "id": "A",
+          "text": "操作后自动出现的规律性结果"
+        },
+        {
+          "id": "B",
+          "text": "承接对方刚提出的话题前提"
+        },
+        {
+          "id": "C",
+          "text": "与事实相反的过去愿望"
+        },
+        {
+          "id": "D",
+          "text": "说话人的礼貌请求"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "主句描述设备的自动反应。",
+      "explanation_zh": "按按钮就开门是可重复的自动结果，适合条件「と」。",
+      "deep_explanation_zh": "「と」常把前件建立为触发条件，后件呈现规律、习惯或自动结果；本句主句没有意志或命令。",
+      "caution_note_zh": "这不是说所有规律句只能用「と」；本题判断的是该语境下最典型的功能。",
+      "wrong_explanations": {
+        "B": "承接对方前提更典型地与「なら」相关，题面也没有前轮发话。",
+        "C": "句中没有反事实标记或过去愿望。",
+        "D": "后件是设备状态陈述，不是对听话人的请求。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "conditional",
+        "to",
+        "automatic_result"
+      ],
+      "sort_order": 32
+    },
+    {
+      "id": "foundation-v1-syn-conditionals-f2",
+      "topic_id": "syn_conditionals",
+      "stage": "F2",
+      "question_type": "kuuki_yomi",
+      "source_kind": "constructed_dialogue",
+      "stimulus": {
+        "kind": "dialogue",
+        "turns": [
+          {
+            "speaker": "甲",
+            "ja_text": "来月、東京へ行こうと思います。"
+          },
+          {
+            "speaker": "乙",
+            "ja_text": "東京へ行く＿＿、早めに宿を予約したほうがいいですよ。"
+          }
+        ]
+      },
+      "prompt_zh": "乙承接甲刚提出的计划并给建议，填哪项最自然？",
+      "options": [
+        {
+          "id": "A",
+          "text": "と"
+        },
+        {
+          "id": "B",
+          "text": "なら"
+        },
+        {
+          "id": "C",
+          "text": "ながら"
+        },
+        {
+          "id": "D",
+          "text": "ので"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "找能把对方提出的信息当作话语前提的形式。",
+      "explanation_zh": "「なら」自然承接“要去东京”这一新提出的前提并给出建议。",
+      "deep_explanation_zh": "乙不是陈述自动规律，而是对甲的计划作条件化回应；「なら」具有承接话题前提的典型功能。",
+      "caution_note_zh": "其他条件式在改写语境后也可能成立；本题由明确的前一话轮决定偏好。",
+      "wrong_explanations": {
+        "A": "「と」接意志性建议主句在此不如承接前提的「なら」自然。",
+        "C": "「ながら」表示同时或逆接，不是目标条件。",
+        "D": "「ので」表示原因，会把“去东京”直接断言为建议原因而非承接条件。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "nara",
+        "discourse_premise",
+        "advice"
+      ],
+      "sort_order": 33
+    },
+    {
+      "id": "foundation-v1-syn-conditionals-f3",
+      "topic_id": "syn_conditionals",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "contrast",
+        "items": [
+          "駅に着いたら、電話してください。",
+          "駅に着くと、電話してください。"
+        ]
+      },
+      "prompt_zh": "在“到站后请打电话”的一次性指示语境中，哪项诊断正确？",
+      "options": [
+        {
+          "id": "A",
+          "text": "第二句更自然，因为「と」总能自由接请求"
+        },
+        {
+          "id": "B",
+          "text": "两句都只能表示自然规律，不能表示一次性事件"
+        },
+        {
+          "id": "C",
+          "text": "第一句自然地表达先到站再请求打电话；第二句的「と」与意志性请求主句搭配受限"
+        },
+        {
+          "id": "D",
+          "text": "第一句表示打电话先于到站"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "检查后件「電話してください」是否包含说话人的请求。",
+      "explanation_zh": "具体先后加请求主句时，「たら」比「と」自然。",
+      "deep_explanation_zh": "「たら」可把前件完成设为后件实施时点；规律性「と」通常限制由说话人控制的命令、请求或意志后件。",
+      "caution_note_zh": "某些特殊引述或路线说明可让「と」后出现相关形式；基础判断应依据当前一次性请求语境。",
+      "wrong_explanations": {
+        "A": "「と」并非无条件许可意志性请求后件。",
+        "B": "「たら」非常适合具体一次性先后关系。",
+        "D": "「着いたら」把到站完成设为打电话的先行条件。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "tara",
+        "to",
+        "request",
+        "temporal_order"
+      ],
+      "sort_order": 34
+    },
+    {
+      "id": "foundation-v1-syn-conditionals-f4",
+      "topic_id": "syn_conditionals",
+      "stage": "F4",
+      "question_type": "single_choice",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "表达尚未确定的明天天气条件：“如果明天天晴，我们就去公园吧。”后件是共同提议。"
+      },
+      "prompt_zh": "哪一句最自然？",
+      "options": [
+        {
+          "id": "A",
+          "text": "明日晴れると、公園へ行きましょう。"
+        },
+        {
+          "id": "B",
+          "text": "明日晴れながら、公園へ行きましょう。"
+        },
+        {
+          "id": "C",
+          "text": "明日晴れるので、公園へ行きましょう。"
+        },
+        {
+          "id": "D",
+          "text": "明日晴れたら、公園へ行きましょう。"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "选择能容纳开放假设和意志性提议的条件式。",
+      "explanation_zh": "「晴れたら」自然表达未来开放条件，并允许后件「行きましょう」。",
+      "deep_explanation_zh": "前件た形在「たら」构式中不等于过去事实，而是把条件实现设为后件行动的前提。",
+      "caution_note_zh": "不能仅见「た」就判过去；条件构式的整体功能和未来时间副词必须一起分析。",
+      "wrong_explanations": {
+        "A": "自动结果「と」与说话人提议的组合在此受限。",
+        "B": "「ながら」不是条件标记，不能表达目标假设。",
+        "C": "「ので」会把明日晴天当作已采纳的原因，弱化尚未确定的条件性。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "tara",
+        "future_condition",
+        "volitional"
+      ],
+      "sort_order": 35
+    },
+    {
+      "id": "foundation-v1-syn-passive-f1",
+      "topic_id": "syn_passive",
+      "stage": "F1",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "資料は担当者に修正された。"
+      },
+      "prompt_zh": "哪项正确标出本句的被动角色？",
+      "options": [
+        {
+          "id": "A",
+          "text": "资料是施事者，负责人是被修正对象"
+        },
+        {
+          "id": "B",
+          "text": "资料是被修正的受事／主语，负责人是由「に」标记的施事者"
+        },
+        {
+          "id": "C",
+          "text": "资料和负责人都是地点成分"
+        },
+        {
+          "id": "D",
+          "text": "「修正された」只可能是可能形，不是被动"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "还原主动句「担当者が資料を修正した」。",
+      "explanation_zh": "主动句对象“资料”在直接被动中成为主语／主题，原施事者用「に」。",
+      "deep_explanation_zh": "被动形「修正された」重排句法实现但保留修正事件：负责人实施修正，资料承受变化。",
+      "caution_note_zh": "「に」不总标被动施事者；本题依据被动谓语及可还原主动句共同判断。",
+      "wrong_explanations": {
+        "A": "该分析完全颠倒了主动事件的施受关系。",
+        "C": "两者都是事件参与者，不是两个地点。",
+        "D": "语义和格框明确支持直接被动，而非能力解释。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "passive",
+        "agent",
+        "patient"
+      ],
+      "sort_order": 36
+    },
+    {
+      "id": "foundation-v1-syn-passive-f2",
+      "topic_id": "syn_passive",
+      "stage": "F2",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "私は同僚に資料を捨てられた。",
+        "zh_context": "同事扔掉了属于说话人的资料，说话人因此受到影响。"
+      },
+      "prompt_zh": "本句应怎样分析？",
+      "options": [
+        {
+          "id": "A",
+          "text": "普通直接被动，原主动句对象只有「私」"
+        },
+        {
+          "id": "B",
+          "text": "可能句，表示说话人有能力扔掉同事"
+        },
+        {
+          "id": "C",
+          "text": "受影响／所有者被动：说话人作受影响主语，资料仍以「を」保留为基础事件对象"
+        },
+        {
+          "id": "D",
+          "text": "使役句，表示说话人命令资料扔掉同事"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "注意主语“我”不是「捨てる」的直接对象，句中另有「資料を」。",
+      "explanation_zh": "“我”因自己的资料被同事扔掉而受影响，属于所有者型受影响被动。",
+      "deep_explanation_zh": "基础事件可表为「同僚が私の資料を捨てた」；被动构式引入所有者／受影响者「私」，所属物仍作直接对象。",
+      "caution_note_zh": "受影响含意常见但不必总是强烈不利；题面明确给出了受到影响的视点。",
+      "wrong_explanations": {
+        "A": "基础事件直接对象是资料，不是“我”，因此不能作普通对象提升分析。",
+        "B": "句中没有能力语境，格关系也不支持“扔掉同事”的解释。",
+        "D": "没有致使者命令另一个主体行动的两层使役结构。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "possessor_passive",
+        "affected_subject",
+        "voice"
+      ],
+      "sort_order": 37
+    },
+    {
+      "id": "foundation-v1-syn-passive-f3",
+      "topic_id": "syn_passive",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "contrast",
+        "items": [
+          "この部屋から山が見られる。",
+          "この絵は多くの人に見られた。"
+        ]
+      },
+      "prompt_zh": "两处「見られる／見られた」的最合适诊断是什么？",
+      "options": [
+        {
+          "id": "A",
+          "text": "两句都只能是尊敬语"
+        },
+        {
+          "id": "B",
+          "text": "第一句是直接被动，第二句是能力可能"
+        },
+        {
+          "id": "C",
+          "text": "两句都没有任何格或语义差别"
+        },
+        {
+          "id": "D",
+          "text": "第一句在地点条件下表示“能看见山”的可能；第二句有「多くの人に」施事者，表示画被观看的被动"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "用格成分和命题意义排除同形分析。",
+      "explanation_zh": "第一句是可见性／可能，第二句是直接被动。",
+      "deep_explanation_zh": "「られる」同形可对应多个功能；第一句没有被动施事者且可改写为「見ることができる」，第二句可还原主动句「多くの人がこの絵を見た」。",
+      "caution_note_zh": "不能只凭「られる」字符串分类，必须结合动词类别、格框和语境。",
+      "wrong_explanations": {
+        "A": "两句都没有需要抬高的动作主体语境。",
+        "B": "两种功能正好判断相反。",
+        "C": "地点条件和「人に」施事者提供了明确结构差异。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "rareru",
+        "potential",
+        "passive",
+        "ambiguity"
+      ],
+      "sort_order": 38
+    },
+    {
+      "id": "foundation-v1-syn-passive-f4",
+      "topic_id": "syn_passive",
+      "stage": "F4",
+      "question_type": "syntax_relation",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "把主动句「係員が窓を閉めた」改为以窗户为主语／主题的直接被动，保持施事者明确。"
+      },
+      "prompt_zh": "哪一句转换正确？",
+      "options": [
+        {
+          "id": "A",
+          "text": "窓は係員に閉められた。"
+        },
+        {
+          "id": "B",
+          "text": "係員は窓に閉められた。"
+        },
+        {
+          "id": "C",
+          "text": "窓を係員が閉められた。"
+        },
+        {
+          "id": "D",
+          "text": "係員に窓を閉めさせた。"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "原对象提升，原主语改由「に」标记。",
+      "explanation_zh": "「窓は係員に閉められた」正确保留“负责人关窗”的参与者关系。",
+      "deep_explanation_zh": "直接被动将原对象「窓を」实现为主语／主题「窓は」，原施事「係員が」转为「係員に」，谓语变为被动形。",
+      "caution_note_zh": "被动改写改变视点和信息结构，不保证在所有语境与主动句完全同义同用。",
+      "wrong_explanations": {
+        "B": "该句表示负责人被窗户关闭，施受角色颠倒。",
+        "C": "没有完成对象提升，且「閉められた」的主语关系不清。",
+        "D": "这是使役结构，表示让负责人关窗，不是直接被动。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "direct_passive",
+        "voice_conversion",
+        "argument_mapping"
+      ],
+      "sort_order": 39
+    },
+    {
+      "id": "foundation-v1-syn-causative-f1",
+      "topic_id": "syn_causative",
+      "stage": "F1",
+      "question_type": "morphology_analysis",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "責任者は利用者を休ませた。"
+      },
+      "prompt_zh": "对谓语「休ませた」的形态分析，哪项正确？",
+      "options": [
+        {
+          "id": "A",
+          "text": "「休む」的普通过去形，未增加参与者"
+        },
+        {
+          "id": "B",
+          "text": "「休む」的直接被动过去形"
+        },
+        {
+          "id": "C",
+          "text": "基础动词「休む」加使役成分，再加过去时"
+        },
+        {
+          "id": "D",
+          "text": "名词「休み」加存在动词"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "找出基础动词以及表示“让某人做”的部分。",
+      "explanation_zh": "「休ませた」来自「休む＋使役＋过去」，表示负责人让使用者休息。",
+      "deep_explanation_zh": "基础事件只有休息者；使役构式新增外层致使者「責任者」，原主体实现为被使役者「利用者を」。",
+      "caution_note_zh": "使役词形本身不说明是强制还是许可；本题只识别形态和论元增加。",
+      "wrong_explanations": {
+        "A": "「休んだ」才是普通过去形；「させ」体现使役。",
+        "B": "被动形应呈现「休まれる」等形态，且角色映射不同。",
+        "D": "句中核心是动词使役活用，不是名词加存在动词。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "causative",
+        "morphology",
+        "yasumu"
+      ],
+      "sort_order": 40
+    },
+    {
+      "id": "foundation-v1-syn-causative-f2",
+      "topic_id": "syn_causative",
+      "stage": "F2",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "指導者が学生に資料を読ませた。"
+      },
+      "prompt_zh": "哪项正确表示本句的两层事件结构？",
+      "options": [
+        {
+          "id": "A",
+          "text": "资料致使指导者阅读学生"
+        },
+        {
+          "id": "B",
+          "text": "学生致使资料阅读指导者"
+        },
+        {
+          "id": "C",
+          "text": "指导者阅读资料，学生只表示地点"
+        },
+        {
+          "id": "D",
+          "text": "指导者是外层致使者；学生是基础阅读事件的主体；资料是阅读对象"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "先还原基础句「学生が資料を読む」。",
+      "explanation_zh": "外层指导者让内层学生执行“阅读资料”的事件。",
+      "deep_explanation_zh": "使役将「学生が資料を読む」嵌入致使事件；指导者以「が」成为外层主语，学生以「に」实现为被使役者，资料仍以「を」作内层对象。",
+      "caution_note_zh": "同一句可在不同语境解释为命令、安排或许可，但这些语用差别不改变基本两层角色。",
+      "wrong_explanations": {
+        "A": "该分析颠倒了所有格标和有生角色。",
+        "B": "学生不是外层致使者，资料也不可能执行阅读。",
+        "C": "学生由使役构式标为被使役者，不是地点。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "causative",
+        "causee",
+        "argument_structure"
+      ],
+      "sort_order": 41
+    },
+    {
+      "id": "foundation-v1-syn-causative-f3",
+      "topic_id": "syn_causative",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "constructed_dialogue",
+      "stimulus": {
+        "kind": "dialogue",
+        "turns": [
+          {
+            "speaker": "工作人员",
+            "ja_text": "少し休んでもいいですか。"
+          },
+          {
+            "speaker": "负责人",
+            "ja_text": "はい、どうぞ。"
+          },
+          {
+            "speaker": "同事",
+            "ja_text": "どう対応しましたか。"
+          },
+          {
+            "speaker": "负责人",
+            "ja_text": "本人の希望どおり、十分間休ませました。"
+          }
+        ],
+        "zh_context": "负责人随后向同事说明自己按照工作人员的请求，允许其休息了十分钟。"
+      },
+      "prompt_zh": "本语境中「休ませました」最自然的使役解读是什么？",
+      "options": [
+        {
+          "id": "A",
+          "text": "负责人许可工作人员休息；许可义由请求与同意语境支持"
+        },
+        {
+          "id": "B",
+          "text": "词形本身强制表示负责人惩罚工作人员"
+        },
+        {
+          "id": "C",
+          "text": "工作人员命令负责人休息"
+        },
+        {
+          "id": "D",
+          "text": "句子是直接被动，与使役无关"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "前轮是请求许可，负责人明确回答「はい」。",
+      "explanation_zh": "这里的使役表达许可，而非强迫。",
+      "deep_explanation_zh": "使役形式编码致使／允许关系，但控制强度由语境推断。工作人员主动请求、负责人同意，使许可读法得到直接证据。",
+      "caution_note_zh": "不能把所有使役句都翻成“强迫”；反过来，也不能在缺少许可线索时自动判为允许。",
+      "wrong_explanations": {
+        "B": "惩罚和强制没有题面证据，且与明确许可话轮冲突。",
+        "C": "负责人是使役句主语，角色方向不能倒置。",
+        "D": "「休ませる」是使役形；被动或使役被动会有不同形态。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "causative",
+        "permission",
+        "context"
+      ],
+      "sort_order": 42
+    },
+    {
+      "id": "foundation-v1-syn-causative-f4",
+      "topic_id": "syn_causative",
+      "stage": "F4",
+      "question_type": "syntax_relation",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "基础事件是「職員が箱を運ぶ」。现在增加管理者作为致使者，要求保留职员为搬运者、箱子为搬运对象。"
+      },
+      "prompt_zh": "哪一句格关系完整且自然？",
+      "options": [
+        {
+          "id": "A",
+          "text": "箱が管理者に職員を運ばせた。"
+        },
+        {
+          "id": "B",
+          "text": "管理者は職員に箱を運ばせた。"
+        },
+        {
+          "id": "C",
+          "text": "管理者を箱が職員に運ばせた。"
+        },
+        {
+          "id": "D",
+          "text": "職員は箱に管理者を運ばせた。"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "他动基础事件已有「箱を」，被使役者通常用「に」。",
+      "explanation_zh": "管理者是外层致使者，职员以「に」作被使役者，箱子仍是「運ぶ」的对象。",
+      "deep_explanation_zh": "目标结构可括为“管理者 [職員が箱を運ぶ] CAUSE”；使役形将内层主体实现为「職員に」，避免与对象「箱を」冲突。",
+      "caution_note_zh": "被使役者格还受基础动词及控制解释影响；本题采用他动词使役的典型配置。",
+      "wrong_explanations": {
+        "A": "该句让箱子成为致使者并把职员当作搬运对象。",
+        "C": "管理者、箱子和职员三者格角色全部错位。",
+        "D": "该句把职员设为外层主体，并让管理者成为被搬运物。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "causative",
+        "transitive_base",
+        "case_mapping"
+      ],
+      "sort_order": 43
+    },
+    {
+      "id": "foundation-v1-sem-compositionality-polysemy-f1",
+      "topic_id": "sem_compositionality_polysemy",
+      "stage": "F1",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "静かな部屋で本を読む。"
+      },
+      "prompt_zh": "哪项正确说明词汇和结构对整体意义的贡献？",
+      "options": [
+        {
+          "id": "A",
+          "text": "「静かな」修饰动作「読む」，与房间无关"
+        },
+        {
+          "id": "B",
+          "text": "「で」把书标成阅读者"
+        },
+        {
+          "id": "C",
+          "text": "句义只由「読む」一个词决定，其余形式没有作用"
+        },
+        {
+          "id": "D",
+          "text": "「静かな」描述房间，「部屋で」标阅读场所，「本を」标阅读对象"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "逐一核对修饰边界和两个助词。",
+      "explanation_zh": "词义和句法组合共同得到“在安静房间读书”的整体意义。",
+      "deep_explanation_zh": "连体形式「静かな」与名词组成短语；「で」赋予该短语场所关系；「を」将书连接为「読む」的对象。",
+      "caution_note_zh": "不能把中文词序直接当成日语结构；助词和修饰范围提供更可靠证据。",
+      "wrong_explanations": {
+        "A": "「静かな」紧邻并连体修饰「部屋」。",
+        "B": "「で」标场所，书由「を」标作对象。",
+        "C": "删除修饰语和助词会丢失房间性质、场所和对象关系。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "compositionality",
+        "modifier",
+        "case"
+      ],
+      "sort_order": 44
+    },
+    {
+      "id": "foundation-v1-sem-compositionality-polysemy-f2",
+      "topic_id": "sem_compositionality_polysemy",
+      "stage": "F2",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "contrast",
+        "items": [
+          "本を開く。",
+          "会議を開く。"
+        ]
+      },
+      "prompt_zh": "同一动词「開く」在两句中的意义关系，哪项分析最有依据？",
+      "options": [
+        {
+          "id": "A",
+          "text": "第一句是把书本展开，第二句是召开活动；搭配显示从物理展开到活动启动的相关多义"
+        },
+        {
+          "id": "B",
+          "text": "两句意义完全相同，会议也是有书页的实体"
+        },
+        {
+          "id": "C",
+          "text": "只因中文译词不同，就能断定两个形式毫无语义联系"
+        },
+        {
+          "id": "D",
+          "text": "「本」与「会議」都是施事者，动词没有对象"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "比较两个对象的语义类别，同时寻找“从未展开到展开”的共同结构。",
+      "explanation_zh": "对象搭配分别触发「開く」的物理展开义和活动召开义，两者存在可解释的相关性。",
+      "deep_explanation_zh": "多义不是任意翻译差异；物理对象由闭合进入展开状态，与活动由未启动进入展开阶段形成系统联系，而「本」「会議」的选择限制使当前义项明确。",
+      "caution_note_zh": "相关性分析不等于声称所有母语者都在每次使用时实时推导比喻；两个义项都可能已高度词汇化。",
+      "wrong_explanations": {
+        "B": "会议没有书页，语义选择限制排除物理展开读法。",
+        "C": "译词差异不是判定偶然同音的充分证据，本例存在系统意义联系。",
+        "D": "两名词都以「を」标作对象，不是施事者。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "polysemy",
+        "selectional_restriction",
+        "hiraku"
+      ],
+      "sort_order": 45
+    },
+    {
+      "id": "foundation-v1-sem-compositionality-polysemy-f3",
+      "topic_id": "sem_compositionality_polysemy",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "古い机と椅子を片づけた。",
+        "zh_context": "没有上下文或韵律说明「古い」只描述桌子，还是同时描述桌子和椅子。"
+      },
+      "prompt_zh": "名词短语「古い机と椅子」为何可能出现两种范围理解？",
+      "options": [
+        {
+          "id": "A",
+          "text": "因为「古い」和「机」是两个偶然同音词"
+        },
+        {
+          "id": "B",
+          "text": "因为「古い」可只修饰第一并列项「机」，也可对并列整体「机と椅子」取范围"
+        },
+        {
+          "id": "C",
+          "text": "因为过去形「片づけた」会把肯定句自动变成否定句"
+        },
+        {
+          "id": "D",
+          "text": "因为助词「と」只能标引用，不能连接名词"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "分别尝试“旧桌子和一把椅子”与“旧桌子和旧椅子”两种括号范围。",
+      "explanation_zh": "歧义来自形容词对第一并列项或整个并列短语的修饰范围，而非词义同音。",
+      "deep_explanation_zh": "一种结构是「[古い机]と[椅子]」，只断言桌子旧；另一种解释让「古い」覆盖「[机と椅子]」整体，断言两类物品都旧。语境、停顿和重音可偏向其中一种。",
+      "caution_note_zh": "书面孤句允许两种范围不表示每次实际发话都同样歧义；明确改写可分别说「古い机と新しい椅子」或「古い机と古い椅子」。",
+      "wrong_explanations": {
+        "A": "目标词没有形成两个同音词项，变化的是修饰范围。",
+        "C": "过去形只定位整理事件，与名词短语内部范围无关。",
+        "D": "「と」可以正常协调两个名词，本句正是名词并列。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "modifier_scope",
+        "coordination",
+        "ambiguity"
+      ],
+      "sort_order": 46
+    },
+    {
+      "id": "foundation-v1-sem-compositionality-polysemy-f4",
+      "topic_id": "sem_compositionality_polysemy",
+      "stage": "F4",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "需要用同一个动词展示两个由搭配明确区分、且可视为相关扩展的义项。"
+      },
+      "prompt_zh": "哪一组最符合要求？",
+      "options": [
+        {
+          "id": "A",
+          "text": "本を開く／本を開く"
+        },
+        {
+          "id": "B",
+          "text": "展示会を開く／展示会を始める"
+        },
+        {
+          "id": "C",
+          "text": "本を開く／展示会を開く"
+        },
+        {
+          "id": "D",
+          "text": "本を閉じる／展示会を開く"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "目标词形和读法必须保持不变，搭配对象则要提供充分选义线索。",
+      "explanation_zh": "两句都用「開く（ひらく）」，书本触发物理展开义，展览会触发举办义。",
+      "deep_explanation_zh": "对象的语义类别使两个义项清楚；形式与读法恒定又允许比较一个词项的相关多义，而不是换词造成的意义变化。",
+      "caution_note_zh": "该题展示同步多义教学对照，不要求学习者据此证明完整历史派生路径。",
+      "wrong_explanations": {
+        "A": "形式和搭配都相同，没有展示两个义项。",
+        "B": "第二项换成「始める」，不满足保持同一目标词形。",
+        "D": "两项使用不同动词，无法检验同词多义。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "polysemy",
+        "minimal_pair",
+        "transfer"
+      ],
+      "sort_order": 47
+    },
+    {
+      "id": "foundation-v1-sem-tense-reference-time-f1",
+      "topic_id": "sem_tense_reference_time",
+      "stage": "F1",
+      "question_type": "single_choice",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "说话日期为7月10日。设备在7月8日停止；叙述者以7月9日的检查为观察基准，回顾此前的停止。"
+      },
+      "prompt_zh": "事件时、说话时、基准时分别是哪一天？",
+      "options": [
+        {
+          "id": "A",
+          "text": "事件时7月8日；说话时7月10日；基准时7月9日"
+        },
+        {
+          "id": "B",
+          "text": "事件时7月10日；说话时7月8日；基准时7月9日"
+        },
+        {
+          "id": "C",
+          "text": "事件时7月9日；说话时7月9日；基准时7月8日"
+        },
+        {
+          "id": "D",
+          "text": "三个时间点都只能是7月10日"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "分别找事件发生、发话发生和叙述观察三个时间。",
+      "explanation_zh": "停止发生在8日，发话发生在10日，9日检查提供基准时。",
+      "deep_explanation_zh": "三点模型允许把事件相对一个过去基准定位，而不只比较事件与现实发话日。",
+      "caution_note_zh": "基准时不是每句都由单一显式日期给出；本题为确保唯一答案已明确说明。",
+      "wrong_explanations": {
+        "B": "该选项交换了事件时和说话时。",
+        "C": "三项都与题面给定日期角色不符。",
+        "D": "题面明确列出了三个不同日期。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "event_time",
+        "speech_time",
+        "reference_time"
+      ],
+      "sort_order": 48
+    },
+    {
+      "id": "foundation-v1-sem-tense-reference-time-f2",
+      "topic_id": "sem_tense_reference_time",
+      "stage": "F2",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "昨日、来週出発する人に会った。",
+        "zh_context": "说话人今天回顾昨天的会面；被会见者的出发安排在下周。"
+      },
+      "prompt_zh": "从句为何使用非过去形「出発する」？",
+      "options": [
+        {
+          "id": "A",
+          "text": "因为「出発する」表示会面发生在说话之后"
+        },
+        {
+          "id": "B",
+          "text": "因为出发相对于昨天的会面基准尚未发生；主句「会った」则相对说话时为过去"
+        },
+        {
+          "id": "C",
+          "text": "因为所有连体从句都禁止过去形"
+        },
+        {
+          "id": "D",
+          "text": "因为「来週」在日语中只能与过去形搭配"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "分别定位会面和出发，不要用主句一个过去形覆盖两件事。",
+      "explanation_zh": "主句会面在昨天，出发在该会面之后，因此从句用非过去形。",
+      "deep_explanation_zh": "日语从属时制可相对主句事件建立时间关系；「来週」同时明确出发也晚于当前发话时。",
+      "caution_note_zh": "连体从句并非总用相对时制，具体读法还受谓语、名词和时间副词影响。",
+      "wrong_explanations": {
+        "A": "会面由「会った」明确发生在昨天，而非未来。",
+        "C": "连体从句可正常使用过去形，如「昨日会った人」。",
+        "D": "「来週」通常与未来／非过去解释相容，不要求过去形。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "relative_tense",
+        "adnominal_clause",
+        "nonpast"
+      ],
+      "sort_order": 49
+    },
+    {
+      "id": "foundation-v1-sem-tense-reference-time-f3",
+      "topic_id": "sem_tense_reference_time",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "来週、完成した資料を提出する。",
+        "zh_context": "资料尚未完成；计划在下周提交前先完成。"
+      },
+      "prompt_zh": "哪项诊断正确？",
+      "options": [
+        {
+          "id": "A",
+          "text": "「完成した」证明资料在说话时已经完成，因此题面自相矛盾"
+        },
+        {
+          "id": "B",
+          "text": "「提出する」是非过去形，所以完成也必须与说话同时"
+        },
+        {
+          "id": "C",
+          "text": "从句过去形可把完成定位在未来提交基准之前，不必早于当前说话时"
+        },
+        {
+          "id": "D",
+          "text": "句中两个谓语都没有任何时间解释"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "把“完成”与未来“提交”比较，而不是只与今天比较。",
+      "explanation_zh": "「完成した」在此表示相对未来提交事件已完成。",
+      "deep_explanation_zh": "主句非过去形加「来週」设定未来提交；连体从句た形把完成事件定位在该主句基准之前，允许它仍晚于说话时。",
+      "caution_note_zh": "该相对读法由明确未来计划支持；脱离语境时读者也可能优先理解为已经完成。",
+      "wrong_explanations": {
+        "A": "过去形在该从句可相对未来基准解释，不强制早于发话时。",
+        "B": "主从句有各自时间关系，不能把非过去形机械复制到从句。",
+        "D": "「来週」和两个时制形式共同提供清楚时间结构。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "relative_tense",
+        "future_reference",
+        "ta_form"
+      ],
+      "sort_order": 50
+    },
+    {
+      "id": "foundation-v1-sem-tense-reference-time-f4",
+      "topic_id": "sem_tense_reference_time",
+      "stage": "F4",
+      "question_type": "single_choice",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "说话日为8月10日；资料将在8月12日送达；计划8月15日查看已经送达的资料。"
+      },
+      "prompt_zh": "哪一句最清楚地表达这组时间关系？",
+      "options": [
+        {
+          "id": "A",
+          "text": "8月10日に届く資料を、8月12日に確認した。"
+        },
+        {
+          "id": "B",
+          "text": "8月15日に届いている資料を、8月10日に確認する。"
+        },
+        {
+          "id": "C",
+          "text": "8月12日に資料が確認して、8月15日に届いた。"
+        },
+        {
+          "id": "D",
+          "text": "8月15日に、8月12日に届いた資料を確認する。"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "送达先于15日查看，但两者都晚于10日发话。",
+      "explanation_zh": "主句查看在15日；连体从句送达在12日，对15日基准而言已发生。",
+      "deep_explanation_zh": "「届いた」虽为过去形，其事件可晚于发话日而早于未来主句事件；显式日期使三点关系唯一。",
+      "caution_note_zh": "不能只把「た」翻成“在今天以前”；应先确定从句参照的主句基准。",
+      "wrong_explanations": {
+        "A": "日期和时制把送达、查看顺序改乱，且与目标计划不符。",
+        "B": "该句把查看安排在发话日，并让资料到15日才处于送达状态。",
+        "C": "资料不能作有意确认者，且时间顺序与目标相反。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "reference_time",
+        "future_main_clause",
+        "relative_past"
+      ],
+      "sort_order": 51
+    },
+    {
+      "id": "foundation-v1-sem-lexical-aspect-f1",
+      "topic_id": "sem_lexical_aspect",
+      "stage": "F1",
+      "question_type": "single_choice",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "从以下谓语短语中找出典型的“活动”：它具有持续性，但本身不规定自然终点。"
+      },
+      "prompt_zh": "哪一项最符合？",
+      "options": [
+        {
+          "id": "A",
+          "text": "鍵を見つける"
+        },
+        {
+          "id": "B",
+          "text": "公園を歩く"
+        },
+        {
+          "id": "C",
+          "text": "箱を一個作る"
+        },
+        {
+          "id": "D",
+          "text": "窓が割れる"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "排除瞬间变化和带明确完成点的事件。",
+      "explanation_zh": "「公園を歩く」可持续展开，且短语本身没有必须到达的终点。",
+      "deep_explanation_zh": "发现钥匙和窗户破裂是瞬时达成；制作一个箱子有完成终点；步行活动可停止但不以完成内在目标为定义。",
+      "caution_note_zh": "添加目标地点或规定路线后，「歩く」短语的终结性可能改变。",
+      "wrong_explanations": {
+        "A": "“找到”在发现时形成边界，属于瞬时达成类。",
+        "C": "量化对象“一个箱子”给制作事件提供自然完成点。",
+        "D": "“破裂”表示瞬时状态变化，不是可持续活动。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "lexical_aspect",
+        "activity",
+        "telicity"
+      ],
+      "sort_order": 52
+    },
+    {
+      "id": "foundation-v1-sem-lexical-aspect-f2",
+      "topic_id": "sem_lexical_aspect",
+      "stage": "F2",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "contrast",
+        "items": [
+          "一時間走った。",
+          "一時間で橋を渡った。"
+        ]
+      },
+      "prompt_zh": "「一時間」与「一時間で」分别提供什么事件类型诊断？",
+      "options": [
+        {
+          "id": "A",
+          "text": "两者都证明事件没有持续时间"
+        },
+        {
+          "id": "B",
+          "text": "「一時間で」只能修饰永久状态"
+        },
+        {
+          "id": "C",
+          "text": "前者测量活动持续时长；后者测量到达“过桥完成点”所需时间"
+        },
+        {
+          "id": "D",
+          "text": "前者必然表示过桥，后者必然表示奔跑"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "区分“持续了多久”和“用了多久完成”。",
+      "explanation_zh": "时长短语与完成时间短语对活动和有终点事件的相容性不同。",
+      "deep_explanation_zh": "「一時間」自然给奔跑活动量时；「一時間で」以完成边界为参照，和到达桥另一端的有界事件相容。",
+      "caution_note_zh": "时间短语是诊断而非无例外公式；特殊语境可改变可接受性。",
+      "wrong_explanations": {
+        "A": "两个表达都明确测量时间，只是测量方式不同。",
+        "B": "「一時間で」恰常与有完成点的动态事件搭配。",
+        "D": "该选项完全交换了题面谓语。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "duration",
+        "completion_time",
+        "aspect_diagnostic"
+      ],
+      "sort_order": 53
+    },
+    {
+      "id": "foundation-v1-sem-lexical-aspect-f3",
+      "topic_id": "sem_lexical_aspect",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "contrast",
+        "items": [
+          "パンを一個焼く。",
+          "毎朝パンを焼く。"
+        ]
+      },
+      "prompt_zh": "哪项正确说明同一动词短语的事件边界变化？",
+      "options": [
+        {
+          "id": "A",
+          "text": "「焼く」的事件类型永久固定，对象和频率表达都不影响解释"
+        },
+        {
+          "id": "B",
+          "text": "第一句没有任何终点，第二句只表示一次瞬间变化"
+        },
+        {
+          "id": "C",
+          "text": "两句都是静态存在句"
+        },
+        {
+          "id": "D",
+          "text": "量化对象「一個」给单次烘烤自然终点；「毎朝」把无特定数量的烘烤概括为反复习惯"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "观察对象是否有界，以及时间框架是否把事件反复化。",
+      "explanation_zh": "事件类型属于整个谓语短语的组合结果，不只是「焼く」的固定标签。",
+      "deep_explanation_zh": "完成一个面包提供可计量结果；每天早晨的表达则量化事件重复，并未指定单次对象总量，整体呈习惯序列。",
+      "caution_note_zh": "第二句每次具体烘烤仍可能有局部终点；这里比较的是句子整体的习惯性解释。",
+      "wrong_explanations": {
+        "A": "对象量化和时间副词正是改变事件边界与重复解释的重要因素。",
+        "B": "第一句有明确完成点，第二句也不是单次瞬时事件。",
+        "C": "两句都描述动态制作活动，不是存在状态。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "telicity",
+        "quantized_object",
+        "habitual"
+      ],
+      "sort_order": 54
+    },
+    {
+      "id": "foundation-v1-sem-lexical-aspect-f4",
+      "topic_id": "sem_lexical_aspect",
+      "stage": "F4",
+      "question_type": "single_choice",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "构造一个可持续、动态、没有内在完成点的活动谓语短语；不能用到达目标或量化产物。"
+      },
+      "prompt_zh": "哪一项最符合？",
+      "options": [
+        {
+          "id": "A",
+          "text": "広場で人々が歩く"
+        },
+        {
+          "id": "B",
+          "text": "駅に着く"
+        },
+        {
+          "id": "C",
+          "text": "報告書を一枚書き終える"
+        },
+        {
+          "id": "D",
+          "text": "扉が閉まる"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "找能任意延续、停止却不等于“未完成”的事件。",
+      "explanation_zh": "在广场步行是典型无内在终点的持续活动。",
+      "deep_explanation_zh": "场所「広場で」没有设定路径终点；参与者复数也未产生量化产物，因此短语保持活动性。",
+      "caution_note_zh": "若改为「入口まで歩く」，目标短语会引入自然终点。",
+      "wrong_explanations": {
+        "B": "到站具有明确达成点。",
+        "C": "写完一份报告既有量化对象也有完成标记。",
+        "D": "门关闭是状态变化达成，不是可持续活动。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "activity",
+        "atelic",
+        "transfer"
+      ],
+      "sort_order": 55
+    },
+    {
+      "id": "foundation-v1-sem-teiru-readings-f1",
+      "topic_id": "sem_teiru_readings",
+      "stage": "F1",
+      "question_type": "single_choice",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "今、係員が窓を拭いている。"
+      },
+      "prompt_zh": "「拭いている」在明确的「今」语境中是什么读法？",
+      "options": [
+        {
+          "id": "A",
+          "text": "过去经验记录"
+        },
+        {
+          "id": "B",
+          "text": "变化后的结果状态"
+        },
+        {
+          "id": "C",
+          "text": "正在进行的动作"
+        },
+        {
+          "id": "D",
+          "text": "对未来的义务判断"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "「拭く」是可持续动作，「今」给出观察时点。",
+      "explanation_zh": "负责人此刻正处于擦窗动作的展开过程中。",
+      "deep_explanation_zh": "活动谓语与「ている」组合，默认产生进行读法；时间副词「今」进一步固定当前观察点。",
+      "caution_note_zh": "不能把所有「ている」都判为进行；基础动词事件类型会改变默认解释。",
+      "wrong_explanations": {
+        "A": "句中没有既往记录框架或明确过去事件。",
+        "B": "「拭く」在此描述持续动作，而非瞬间变化后的静态结果。",
+        "D": "没有义务形式或规范来源。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "teiru",
+        "progressive",
+        "activity"
+      ],
+      "sort_order": 56
+    },
+    {
+      "id": "foundation-v1-sem-teiru-readings-f2",
+      "topic_id": "sem_teiru_readings",
+      "stage": "F2",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "今、窓が開いている。",
+        "zh_context": "说话人观察到窗户处于打开状态，没有看见开窗动作正在展开。"
+      },
+      "prompt_zh": "为什么本句通常不是“窗户正在完成打开动作”？",
+      "options": [
+        {
+          "id": "A",
+          "text": "因为「いる」在这里标被动施事者"
+        },
+        {
+          "id": "B",
+          "text": "因为「今」会删除所有体貌意义"
+        },
+        {
+          "id": "C",
+          "text": "因为「窓が」是有意动作主体"
+        },
+        {
+          "id": "D",
+          "text": "因为「開く」是瞬时状态变化，ている常把变化后的开放状态呈现在观察时点"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "区分变化发生的瞬间与变化后持续的状态。",
+      "explanation_zh": "「開いている」在此是结果状态读法。",
+      "deep_explanation_zh": "自动词「開く」编码由闭到开的边界变化；「ている」把结果状态与当前基准连接，而不要求变化过程仍在进行。",
+      "caution_note_zh": "某些渐进或特定语境可突出变化过程，但题面明确只观察到状态。",
+      "wrong_explanations": {
+        "A": "「いる」是体貌辅助成分，不是施事格标记。",
+        "B": "「今」设定观察时点，反而帮助确定体貌读法。",
+        "C": "窗户是变化主体，不是有意施事者。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "teiru",
+        "result_state",
+        "change_of_state"
+      ],
+      "sort_order": 57
+    },
+    {
+      "id": "foundation-v1-sem-teiru-readings-f3",
+      "topic_id": "sem_teiru_readings",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "contrast",
+        "items": [
+          "今、門が開いている。",
+          "毎朝、係員が門を開けている。"
+        ]
+      },
+      "prompt_zh": "两句「ている」读法为何不同？",
+      "options": [
+        {
+          "id": "A",
+          "text": "第一句由自动变化谓语和「今」得到结果状态；第二句由「毎朝」和他动活动得到反复习惯"
+        },
+        {
+          "id": "B",
+          "text": "第一句是义务，第二句是被动"
+        },
+        {
+          "id": "C",
+          "text": "两句都只可能表示动作正在同一瞬间展开"
+        },
+        {
+          "id": "D",
+          "text": "差异只来自「門」使用了不同汉字"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "同时比较基础动词的自他性和时间副词。",
+      "explanation_zh": "事件类型与时间框架共同选择结果状态和习惯读法。",
+      "deep_explanation_zh": "「門が開く」突出状态变化及其结果；「係員が門を開ける」是可重复控制动作，「毎朝」把多次事件概括为习惯。",
+      "caution_note_zh": "第二句在特定“每天此刻”语境也可兼有进行色彩；本题采用无额外观察时点的普通习惯读法。",
+      "wrong_explanations": {
+        "B": "两句都没有义务或被动形态。",
+        "C": "「毎朝」明确建立跨日反复，第一句又是结果状态。",
+        "D": "两句名词相同，差异来自谓语和语境。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "resultative",
+        "habitual",
+        "teiru_contrast"
+      ],
+      "sort_order": 58
+    },
+    {
+      "id": "foundation-v1-sem-teiru-readings-f4",
+      "topic_id": "sem_teiru_readings",
+      "stage": "F4",
+      "question_type": "single_choice",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "设备维护记录显示：同一装置在去年发生过两次停止。现在并未停机。要求用「ている」呈现经验／记录事实。"
+      },
+      "prompt_zh": "哪一句最符合目标？",
+      "options": [
+        {
+          "id": "A",
+          "text": "この装置は今、二回止まっている。"
+        },
+        {
+          "id": "B",
+          "text": "記録によると、この装置は昨年二度停止している。"
+        },
+        {
+          "id": "C",
+          "text": "この装置は昨年二度停止しているところだ。"
+        },
+        {
+          "id": "D",
+          "text": "この装置は二度停止していなければならない。"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "题面要求既往记录，不是当前状态、正在进行或义务。",
+      "explanation_zh": "记录来源、过去时间和次数共同支持经验／记录用法。",
+      "deep_explanation_zh": "「停止している」把既往发生事件作为当前维护知识中的相关记录呈现；它不蕴涵设备现在仍停着。",
+      "caution_note_zh": "并非任意过去事件都能自然换成此用法；记录体裁、次数和当前相关性是重要支持。",
+      "wrong_explanations": {
+        "A": "「今」与“两次”组合会混淆当前结果状态和事件次数。",
+        "C": "「ところだ」倾向表示正处于某阶段，与去年两次记录冲突。",
+        "D": "「なければならない」表达义务／必然，不是历史记录。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "teiru",
+        "experiential_record",
+        "reference_time"
+      ],
+      "sort_order": 59
+    },
+    {
+      "id": "foundation-v1-sem-modality-f1",
+      "topic_id": "sem_modality",
+      "stage": "F1",
+      "question_type": "single_choice",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "この部屋では飲食してはいけない。",
+        "zh_context": "入口规则牌上的规定。"
+      },
+      "prompt_zh": "句中情态来源属于哪一类？",
+      "options": [
+        {
+          "id": "A",
+          "text": "说话人根据天气作出的认识推测"
+        },
+        {
+          "id": "B",
+          "text": "主体自身的身体能力"
+        },
+        {
+          "id": "C",
+          "text": "过去事件的完成状态"
+        },
+        {
+          "id": "D",
+          "text": "由场所规则产生的道义禁止"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "题面说明这是规则牌，而不是能力报告或证据推断。",
+      "explanation_zh": "「てはいけない」在此表达制度规则禁止饮食。",
+      "deep_explanation_zh": "情态基础是该房间的规范集合；算子作用于“在房间饮食”这一命题，判断其不被允许。",
+      "caution_note_zh": "同一形式在照护或劝告语境可带不同社会力度；本题由规则牌固定为道义来源。",
+      "wrong_explanations": {
+        "A": "句中没有证据或概率判断。",
+        "B": "它没有说明任何人是否具备饮食能力。",
+        "C": "禁止构式不是体貌完成表达。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "modality",
+        "deontic",
+        "prohibition"
+      ],
+      "sort_order": 60
+    },
+    {
+      "id": "foundation-v1-sem-modality-f2",
+      "topic_id": "sem_modality",
+      "stage": "F2",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "予備の鍵があるので、私は中に入れる。",
+        "zh_context": "场所规则允许进入；问题只在于是否有实际手段开门。"
+      },
+      "prompt_zh": "「入れる」在此最自然地表达什么情态？",
+      "options": [
+        {
+          "id": "A",
+          "text": "有备用钥匙这一手段所支持的能力／现实可能"
+        },
+        {
+          "id": "B",
+          "text": "管理规定授予的许可"
+        },
+        {
+          "id": "C",
+          "text": "根据传闻推测别人已经进入"
+        },
+        {
+          "id": "D",
+          "text": "说话人有义务必须进入"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "题面已排除规则许可争议，突出钥匙这一实际条件。",
+      "explanation_zh": "备用钥匙使说话人具备进入的现实手段。",
+      "deep_explanation_zh": "可能形可跨能力和许可等读法；这里因果从句提供物理手段，故动力／环境可能读法最有依据。",
+      "caution_note_zh": "若语境改为管理员说“你可以进去”，相同形式可能被理解为许可。",
+      "wrong_explanations": {
+        "B": "题面明确规则已经允许，句子的因果依据是钥匙而非授权。",
+        "C": "没有传闻来源，主体也是「私」。",
+        "D": "句中没有必要性或义务形式。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "potential",
+        "ability",
+        "modal_base"
+      ],
+      "sort_order": 61
+    },
+    {
+      "id": "foundation-v1-sem-modality-f3",
+      "topic_id": "sem_modality",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "constructed_dialogue",
+      "stimulus": {
+        "kind": "dialogue",
+        "turns": [
+          {
+            "speaker": "来访者",
+            "ja_text": "この展示室では写真が撮れますか。"
+          },
+          {
+            "speaker": "工作人员",
+            "ja_text": "はい、規則で許可されています。"
+          }
+        ]
+      },
+      "prompt_zh": "第一轮「撮れますか」在该回应后应优先怎样理解？",
+      "options": [
+        {
+          "id": "A",
+          "text": "询问相机是否在技术上能工作，与规则无关"
+        },
+        {
+          "id": "B",
+          "text": "询问拍照是否获许可；工作人员用规则授权作答明确了该读法"
+        },
+        {
+          "id": "C",
+          "text": "推测过去有人拍过照"
+        },
+        {
+          "id": "D",
+          "text": "命令工作人员立刻拍照"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "同形可能问能力或许可，后续回答提供消歧证据。",
+      "explanation_zh": "工作人员直接以规定许可回应，确认问题的道义许可读法。",
+      "deep_explanation_zh": "可能形式本身可有动力或道义来源；跨话轮的相关回应显示双方把问题置于场所规范，而非设备能力。",
+      "caution_note_zh": "若回答是「暗すぎて撮れません」，则会支持技术／环境可能读法。",
+      "wrong_explanations": {
+        "A": "工作人员没有谈相机性能，而是明确援引规则。",
+        "C": "问题是非过去许可询问，没有过去经验线索。",
+        "D": "疑问形式和回应都不构成拍照命令。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "permission",
+        "ability",
+        "dialogue_disambiguation"
+      ],
+      "sort_order": 62
+    },
+    {
+      "id": "foundation-v1-sem-modality-f4",
+      "topic_id": "sem_modality",
+      "stage": "F4",
+      "question_type": "single_choice",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "核心命题是“负责人使用这台终端”。要求改成认识情态：说话人根据不完全证据判断这件事有可能发生，不表达能力、许可或义务。"
+      },
+      "prompt_zh": "哪一句符合目标？",
+      "options": [
+        {
+          "id": "A",
+          "text": "担当者はこの端末を使える。"
+        },
+        {
+          "id": "B",
+          "text": "担当者はこの端末を使ってもよい。"
+        },
+        {
+          "id": "C",
+          "text": "担当者はこの端末を使うかもしれない。"
+        },
+        {
+          "id": "D",
+          "text": "担当者はこの端末を使わなければならない。"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "寻找对命题真值概率作判断的形式。",
+      "explanation_zh": "「かもしれない」表达说话人认为使用事件可能发生。",
+      "deep_explanation_zh": "认识情态以说话人知识为基础，对整个命题取作用域；它不把可能性归因于主体能力或制度许可。",
+      "caution_note_zh": "概率强弱还受其他副词和语境影响；本题只要求区分情态来源。",
+      "wrong_explanations": {
+        "A": "可能形主要表达主体能力或条件可能。",
+        "B": "「てもよい」表达许可。",
+        "D": "「なければならない」表达义务必要性。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "epistemic_modality",
+        "scope",
+        "kamoshirenai"
+      ],
+      "sort_order": 63
+    },
+    {
+      "id": "foundation-v1-sem-evidentiality-f1",
+      "topic_id": "sem_evidentiality",
+      "stage": "F1",
+      "question_type": "single_choice",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "天気予報によると、午後は雨だそうだ。"
+      },
+      "prompt_zh": "「そうだ」在此是什么用法？",
+      "options": [
+        {
+          "id": "A",
+          "text": "报告天气预报这一信息来源的传闻用法"
+        },
+        {
+          "id": "B",
+          "text": "仅凭眼前云层作出的样态判断"
+        },
+        {
+          "id": "C",
+          "text": "说话人命令下午下雨"
+        },
+        {
+          "id": "D",
+          "text": "过去完成体"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "「天気予報によると」明确给出了第三方来源。",
+      "explanation_zh": "终止形「雨だ」后接「そうだ」，并由预报来源支持传闻读法。",
+      "deep_explanation_zh": "传闻「そうだ」报告他处获得的命题；说话人呈现来源，但不声称通过当下直接感知独立得出。",
+      "caution_note_zh": "不能只看中文“好像”；接续形式和信息渠道都必须核对。",
+      "wrong_explanations": {
+        "B": "题面没有描写眼前迹象，而是明确引用预报。",
+        "C": "该形式不具有使天气服从命令的言语行为。",
+        "D": "句中没有表达事件完成的体貌结构。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "hearsay",
+        "souda",
+        "information_source"
+      ],
+      "sort_order": 64
+    },
+    {
+      "id": "foundation-v1-sem-evidentiality-f2",
+      "topic_id": "sem_evidentiality",
+      "stage": "F2",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "機械から焦げたにおいがする。内部が熱くなっているようだ。"
+      },
+      "prompt_zh": "第二句「ようだ」的证据基础是什么？",
+      "options": [
+        {
+          "id": "A",
+          "text": "说话人逐字转述制造商公告"
+        },
+        {
+          "id": "B",
+          "text": "说话人从焦味这一可感知迹象推断内部过热"
+        },
+        {
+          "id": "C",
+          "text": "「ようだ」证明说话人亲眼看见内部温度计"
+        },
+        {
+          "id": "D",
+          "text": "说话人表达允许机器过热"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "区分直接感知到的“焦味”和由此推出的“内部过热”。",
+      "explanation_zh": "焦味是直接感知证据，内部过热是以「ようだ」表达的间接推断。",
+      "deep_explanation_zh": "说话人没有直接接触内部状态，而把嗅觉迹象与常识结合形成推论；这说明证据不限于视觉。",
+      "caution_note_zh": "推断合理不等于命题必真；「ようだ」仍保留认知不确定性。",
+      "wrong_explanations": {
+        "A": "题面没有任何公告或第三方消息。",
+        "C": "说话人感知的是气味，内部温度并未被直接看到。",
+        "D": "该形式是推定，不是许可情态。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "youda",
+        "inference",
+        "sensory_evidence"
+      ],
+      "sort_order": 65
+    },
+    {
+      "id": "foundation-v1-sem-evidentiality-f3",
+      "topic_id": "sem_evidentiality",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "contrast",
+        "items": [
+          "予報では、雨が降るそうだ。",
+          "空が暗い。雨が降りそうだ。"
+        ]
+      },
+      "prompt_zh": "哪项正确说明两处「そうだ」？",
+      "options": [
+        {
+          "id": "A",
+          "text": "两句都是过去时，信息来源完全相同"
+        },
+        {
+          "id": "B",
+          "text": "第一句是样态，第二句是传闻，判断与接续无关"
+        },
+        {
+          "id": "C",
+          "text": "第一句接终止形「降る」并有预报来源，是传闻；第二句接连用形「降り」并有天空迹象，是样态预测"
+        },
+        {
+          "id": "D",
+          "text": "第二句中的天空变暗证明雨已经发生"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "同时比较接续「降る／降り」和证据渠道。",
+      "explanation_zh": "形态接续与语境证据共同消除两种「そうだ」的同形歧义。",
+      "deep_explanation_zh": "传闻形式选完整命题并报告来源；样态形式附着于谓语连用基，表达根据当前征兆判断事件将要发生。",
+      "caution_note_zh": "样态并不只依据视觉；本例恰好给出天空这一可见迹象。",
+      "wrong_explanations": {
+        "A": "两句都是非过去相关表达，且来源一个是预报、一个是现场迹象。",
+        "B": "两种功能被颠倒，接续恰是关键证据。",
+        "D": "天空变暗只支持将下雨的预测，不蕴涵雨已开始。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "souda",
+        "hearsay",
+        "appearance",
+        "morphology"
+      ],
+      "sort_order": 66
+    },
+    {
+      "id": "foundation-v1-sem-evidentiality-f4",
+      "topic_id": "sem_evidentiality",
+      "stage": "F4",
+      "question_type": "single_choice",
+      "source_kind": "constructed_dialogue",
+      "stimulus": {
+        "kind": "dialogue",
+        "turns": [
+          {
+            "speaker": "甲",
+            "ja_text": "今日は開館していますか。"
+          },
+          {
+            "speaker": "乙",
+            "ja_text": "館内放送を聞きました。＿＿＿＿。"
+          }
+        ],
+        "zh_context": "广播明确说今天休馆；乙只转述广播，没有亲自确认门是否打开。"
+      },
+      "prompt_zh": "哪句最准确表达乙的信息渠道？",
+      "options": [
+        {
+          "id": "A",
+          "text": "今日は休館しそうな形だ。"
+        },
+        {
+          "id": "B",
+          "text": "今日は休館してもよい。"
+        },
+        {
+          "id": "C",
+          "text": "今日は必ず休館しているところだ。"
+        },
+        {
+          "id": "D",
+          "text": "今日は休館だそうです。"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "乙依据听到的公告作转述。",
+      "explanation_zh": "「休館だそうです」以传闻形式报告广播内容。",
+      "deep_explanation_zh": "名词性谓语「休館だ」以终止形连接传闻「そうだ」；礼貌外层「です」面向听话人，不改变来源性质。",
+      "caution_note_zh": "若乙只看见大门紧闭，可改用「休館のようです」等推断表达；题面明确是广播来源。",
+      "wrong_explanations": {
+        "A": "该表达不自然地把名词内容改成外观“形”，未准确报告广播。",
+        "B": "「てもよい」表达许可，不是传闻。",
+        "C": "「ところだ」是阶段表达，且「必ず」过度提升了乙的证据承诺。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "hearsay",
+        "souda",
+        "constructed_dialogue"
+      ],
+      "sort_order": 67
+    },
+    {
+      "id": "foundation-v1-sem-negation-scope-f1",
+      "topic_id": "sem_negation_scope",
+      "stage": "F1",
+      "question_type": "single_choice",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "全員が来たわけではない。"
+      },
+      "prompt_zh": "本句最典型的否定范围是什么？",
+      "options": [
+        {
+          "id": "A",
+          "text": "所有人都没来"
+        },
+        {
+          "id": "B",
+          "text": "并非所有人都来了，至少允许有些人来了"
+        },
+        {
+          "id": "C",
+          "text": "所有人都必须来"
+        },
+        {
+          "id": "D",
+          "text": "说话人不知道“全員”的词义"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "「わけではない」否定的是“全员都来”这一整体概括。",
+      "explanation_zh": "句子表达部分否定，不等于无人到场。",
+      "deep_explanation_zh": "量化命题“全员来”处于否定作用域内，可形式化为 NOT(ALL came)，它与 ALL(NOT came) 的全无读法不同。",
+      "caution_note_zh": "本句本身不保证究竟来了多少人，只排除“全部都来”。",
+      "wrong_explanations": {
+        "A": "无人来是更强的全否定，句面并不蕴涵。",
+        "C": "句中没有义务情态，且末尾明确是否定。",
+        "D": "语义可以正常计算，不涉及元语言无知。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "negation_scope",
+        "partial_negation",
+        "quantifier"
+      ],
+      "sort_order": 68
+    },
+    {
+      "id": "foundation-v1-sem-negation-scope-f2",
+      "topic_id": "sem_negation_scope",
+      "stage": "F2",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "今日中に申請しなければならない。"
+      },
+      "prompt_zh": "为何句中有否定形「しなければ」却整体表示“必须申请”？",
+      "options": [
+        {
+          "id": "A",
+          "text": "因为「ない」在任何条件式中都会自动删除"
+        },
+        {
+          "id": "B",
+          "text": "因为句子实际表示禁止申请"
+        },
+        {
+          "id": "C",
+          "text": "因为构式把“不申请”设为不可接受条件，从而产生申请的必要性"
+        },
+        {
+          "id": "D",
+          "text": "因为「ならない」只表示过去完成"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "分析整个「なければならない」构式，而非孤立翻译一个「ない」。",
+      "explanation_zh": "该必要构式通过排除“不申请”的可能来表达必须申请。",
+      "deep_explanation_zh": "否定嵌在条件前件，外层「ならない」评价该条件不可成立；作用域组合得到对肯定行动的道义必要性。",
+      "caution_note_zh": "不能把形态上出现两个否定片段就简单当作普通数学双重否定；这是构式化情态表达。",
+      "wrong_explanations": {
+        "A": "否定形仍参与构式语义，没有被删除。",
+        "B": "整体意义与禁止相反，是申请义务。",
+        "D": "「ならない」在此参与必要性构式，不是完成体。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "negation",
+        "necessity",
+        "scope"
+      ],
+      "sort_order": 69
+    },
+    {
+      "id": "foundation-v1-sem-negation-scope-f3",
+      "topic_id": "sem_negation_scope",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "三名成员中，甲和乙已提交，丙未提交。判断哪一句与事实相容，同时不错误断言三人全都没交。"
+      },
+      "prompt_zh": "哪一句符合？",
+      "options": [
+        {
+          "id": "A",
+          "text": "三人とも提出しなかった。"
+        },
+        {
+          "id": "B",
+          "text": "だれも提出しなかった。"
+        },
+        {
+          "id": "C",
+          "text": "三人とも必ず提出した。"
+        },
+        {
+          "id": "D",
+          "text": "三人とも提出したわけではない。"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "事实要求“不是所有人”，而不是“没有任何人”。",
+      "explanation_zh": "「三人とも提出したわけではない」只否定全员提交，与两交一未交相容。",
+      "deep_explanation_zh": "前三项分别断言全无或全有，均与枚举事实冲突；部分否定准确表示 NOT(ALL submitted)。",
+      "caution_note_zh": "部分否定不指明未提交者是谁；题面事实用于判真，而句子本身只编码范围。",
+      "wrong_explanations": {
+        "A": "该句断言三人都未提交，与甲乙已提交冲突。",
+        "B": "「だれも…ない」同样断言无人提交。",
+        "C": "该句断言三人全都提交，与丙未提交冲突。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "partial_negation",
+        "truth_conditions",
+        "all"
+      ],
+      "sort_order": 70
+    },
+    {
+      "id": "foundation-v1-sem-negation-scope-f4",
+      "topic_id": "sem_negation_scope",
+      "stage": "F4",
+      "question_type": "single_choice",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "事实是受邀的三个人一个都没有到场。要求用日语明确表达全无，不留下“并非全部到场”的较弱读法。"
+      },
+      "prompt_zh": "哪一句最符合？",
+      "options": [
+        {
+          "id": "A",
+          "text": "だれも来なかった。"
+        },
+        {
+          "id": "B",
+          "text": "全員が来たわけではない。"
+        },
+        {
+          "id": "C",
+          "text": "だれかが来なかった。"
+        },
+        {
+          "id": "D",
+          "text": "全員も来た。"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "寻找与否定呼应、覆盖所有人的不定表达。",
+      "explanation_zh": "「だれも…なかった」明确表示无人到场。",
+      "deep_explanation_zh": "否定极性环境中的「だれも」在否定范围内产生全称无例外解释，符合三人全无的事实条件。",
+      "caution_note_zh": "选项B只是部分否定，与全无相容但不充分表达全无，因此不满足“明确”要求。",
+      "wrong_explanations": {
+        "B": "它只说并非所有人都来，仍允许有人来了。",
+        "C": "它只说有某个人没来，不排除另外两人到场。",
+        "D": "该形式既缺否定，也不是目标全无表达。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "total_negation",
+        "daremo",
+        "scope"
+      ],
+      "sort_order": 71
+    },
+    {
+      "id": "foundation-v1-sem-quantifier-scope-f1",
+      "topic_id": "sem_quantifier_scope",
+      "stage": "F1",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "学生が三人来た。"
+      },
+      "prompt_zh": "浮游数量表达「三人」的宿主和计数对象是什么？",
+      "options": [
+        {
+          "id": "A",
+          "text": "宿主是「来た」，计数三次到来事件"
+        },
+        {
+          "id": "B",
+          "text": "宿主是省略的教室，计数三个地点"
+        },
+        {
+          "id": "C",
+          "text": "宿主是「学生が」，计数三名学生个体"
+        },
+        {
+          "id": "D",
+          "text": "宿主是说话人，计数三种情态"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "量词「人」与哪类实体匹配？",
+      "explanation_zh": "「三人」以人的量词类别计数主格学生。",
+      "deep_explanation_zh": "数量词虽与名词分开出现，语义和格关系把它连接到「学生が」；若计数事件次数，应使用「三回来た」等形式。",
+      "caution_note_zh": "线性上接近谓语不等于数量词修饰谓语本身。",
+      "wrong_explanations": {
+        "A": "事件次数应使用「回」，不是人的量词「人」。",
+        "B": "句中没有地点宿主，且「人」不计地点。",
+        "D": "说话人和情态都不是该数量词的语义宿主。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "floating_quantifier",
+        "host",
+        "nin"
+      ],
+      "sort_order": 72
+    },
+    {
+      "id": "foundation-v1-sem-quantifier-scope-f2",
+      "topic_id": "sem_quantifier_scope",
+      "stage": "F2",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "contrast",
+        "items": [
+          "利用者が機械を二台点検した。",
+          "利用者が機械を二回点検した。"
+        ]
+      },
+      "prompt_zh": "两句数量表达的差别是什么？",
+      "options": [
+        {
+          "id": "A",
+          "text": "两句都只能计数利用者人数"
+        },
+        {
+          "id": "B",
+          "text": "「二台」计数两次事件，「二回」计数两台机器"
+        },
+        {
+          "id": "C",
+          "text": "两个量词完全可以任意互换，意义不变"
+        },
+        {
+          "id": "D",
+          "text": "「二台」计数机器个体；「二回」计数点检事件次数"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "「台」匹配设备，「回」匹配次数。",
+      "explanation_zh": "量词类别决定数量表达连接到个体还是事件。",
+      "deep_explanation_zh": "第一句至少涉及两台机器；第二句只保证发生两次点检，可能两次针对同一台机器。",
+      "caution_note_zh": "若语境另行说明每次对象不同，第二句可推知两台，但那不是「二回」自身编码的内容。",
+      "wrong_explanations": {
+        "A": "两项都不使用人数单位。",
+        "B": "该选项把「台」和「回」的计数类别颠倒。",
+        "C": "互换会改变个体数量与事件次数的真值条件。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "classifier",
+        "event_count",
+        "individual_count"
+      ],
+      "sort_order": 73
+    },
+    {
+      "id": "foundation-v1-sem-quantifier-scope-f3",
+      "topic_id": "sem_quantifier_scope",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "桌上有三本指定的书。阅读者读完其中两本，第三本没读。选择与事实相容的范围表达。"
+      },
+      "prompt_zh": "哪一句正确？",
+      "options": [
+        {
+          "id": "A",
+          "text": "三冊とも読んだわけではない。"
+        },
+        {
+          "id": "B",
+          "text": "三冊とも読まなかった。"
+        },
+        {
+          "id": "C",
+          "text": "一冊も読まなかった。"
+        },
+        {
+          "id": "D",
+          "text": "三冊を全部読んだ。"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "事实是部分读完，既非全读也非全未读。",
+      "explanation_zh": "选项A否定“三本全读完”，允许实际读了两本。",
+      "deep_explanation_zh": "量词全称「三冊とも」位于「わけではない」否定范围内，得到 NOT(ALL three read)，符合给定集合。",
+      "caution_note_zh": "该句不单独编码“正好两本”；正好数量来自题面事实。",
+      "wrong_explanations": {
+        "B": "该句断言三本都没读，与两本已读冲突。",
+        "C": "「一冊も…ない」同样断言一本也没读。",
+        "D": "该句断言三本全读，与第三本未读冲突。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "quantifier_scope",
+        "negation",
+        "tomo"
+      ],
+      "sort_order": 74
+    },
+    {
+      "id": "foundation-v1-sem-quantifier-scope-f4",
+      "topic_id": "sem_quantifier_scope",
+      "stage": "F4",
+      "question_type": "single_choice",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "明确表达“点检了三台机器”，数量必须直接限制机器个体，不能只表示点检三次。"
+      },
+      "prompt_zh": "哪一句最不歧义地满足要求？",
+      "options": [
+        {
+          "id": "A",
+          "text": "機械を三回点検した。"
+        },
+        {
+          "id": "B",
+          "text": "三台の機械を点検した。"
+        },
+        {
+          "id": "C",
+          "text": "三人の機械を点検した。"
+        },
+        {
+          "id": "D",
+          "text": "機械が三冊点検した。"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "让设备量词「台」直接进入名词短语。",
+      "explanation_zh": "「三台の機械」直接把三台限定为对象个体数量。",
+      "deep_explanation_zh": "数量词紧邻宿主名词并以「の」构成定量名词短语，排除了只计事件次数的读法。",
+      "caution_note_zh": "浮游形式「機械を三台点検した」也可自然，但题目要求最不歧义的名词内部限定。",
+      "wrong_explanations": {
+        "A": "「三回」只计点检次数，可能三次都针对同一台。",
+        "C": "「人」不能用来计数普通机器。",
+        "D": "「冊」计册本且格关系让机器成为点检施事，均不成立。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "numeral_classifier",
+        "unambiguous_host",
+        "machine"
+      ],
+      "sort_order": 75
+    },
+    {
+      "id": "foundation-v1-prag-context-implicature-f1",
+      "topic_id": "prag_context_implicature",
+      "stage": "F1",
+      "question_type": "kuuki_yomi",
+      "source_kind": "constructed_dialogue",
+      "stimulus": {
+        "kind": "dialogue",
+        "turns": [
+          {
+            "speaker": "甲",
+            "ja_text": "準備は全部終わりましたか。"
+          },
+          {
+            "speaker": "乙",
+            "ja_text": "報告書は書きました。"
+          }
+        ],
+        "zh_context": "准备工作包括报告书和会场确认两项。"
+      },
+      "prompt_zh": "第二轮的字面内容和最自然会话含意分别是什么？",
+      "options": [
+        {
+          "id": "A",
+          "text": "字面说两项都完成；含意是报告书没写"
+        },
+        {
+          "id": "B",
+          "text": "字面说会场已确认；含意是报告书与会场都完成"
+        },
+        {
+          "id": "C",
+          "text": "字面没有任何断言；含意也是空白"
+        },
+        {
+          "id": "D",
+          "text": "字面只断言报告书已写；对“全部完成”的不完整回答自然含意为另有准备尚未完成"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "先严格陈述乙说了什么，再看为何只提其中一项。",
+      "explanation_zh": "报告书完成是字面内容；会场确认可能未完成是由相关性和数量期待推出的含意。",
+      "deep_explanation_zh": "若两项都完成，直接回答肯定通常更充分；乙只确认一项，使听者推断无法肯定全部，但该推断仍可取消。",
+      "caution_note_zh": "乙没有语义上断言会场未确认；后续可自然补充说明它其实也已完成。",
+      "wrong_explanations": {
+        "A": "乙没有字面断言全部完成，也明确说报告书已写。",
+        "B": "乙从未说会场确认完成。",
+        "C": "「報告書は書きました」有清楚可判真的字面内容。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "implicature",
+        "literal_content",
+        "partial_answer"
+      ],
+      "sort_order": 76
+    },
+    {
+      "id": "foundation-v1-prag-context-implicature-f2",
+      "topic_id": "prag_context_implicature",
+      "stage": "F2",
+      "question_type": "kuuki_yomi",
+      "source_kind": "constructed_dialogue",
+      "stimulus": {
+        "kind": "dialogue",
+        "turns": [
+          {
+            "speaker": "甲",
+            "ja_text": "二つの作業は終わりましたか。"
+          },
+          {
+            "speaker": "乙",
+            "ja_text": "一つ目は終わりました。"
+          }
+        ]
+      },
+      "prompt_zh": "为什么听者容易推断第二项尚未完成？",
+      "options": [
+        {
+          "id": "A",
+          "text": "当前问题要求两项的整体状态，而乙只提供第一项；若第二项也完成，通常可以给出更充分的肯定回答"
+        },
+        {
+          "id": "B",
+          "text": "因为「一つ目」在词典中固定表示“第二项失败”"
+        },
+        {
+          "id": "C",
+          "text": "因为过去形「終わりました」必然否定后续所有事件"
+        },
+        {
+          "id": "D",
+          "text": "因为甲和乙的社会身份决定乙必须撒谎"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "把回答与当前问题所要求的信息量比较。",
+      "explanation_zh": "推断依赖回答的信息不足和合作性期待，不是词汇编码。",
+      "deep_explanation_zh": "乙选择较弱、局部命题而没有肯定整体；在默认合作条件下，这触发“无法断言第二项完成”的数量含意。",
+      "caution_note_zh": "“无法断言完成”不必等于乙亲知未完成，也可能是不确定；具体承诺程度需看后文。",
+      "wrong_explanations": {
+        "B": "「一つ目」只指第一项，不词汇蕴涵第二项失败。",
+        "C": "过去形定位第一项完成，不会自动否定其他事件。",
+        "D": "题面没有身份或欺骗线索，推断可由普通合作原则解释。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "quantity_implicature",
+        "question_under_discussion",
+        "cooperation"
+      ],
+      "sort_order": 77
+    },
+    {
+      "id": "foundation-v1-prag-context-implicature-f3",
+      "topic_id": "prag_context_implicature",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "contrast",
+        "items": [
+          "報告書は書きました。会場の確認はまだです。",
+          "報告書は書きました。実は、それで準備は全部です。"
+        ]
+      },
+      "prompt_zh": "两种追加句如何检验“还有准备未完成”这一推断？",
+      "options": [
+        {
+          "id": "A",
+          "text": "两项都证明该推断是不可取消的词汇语义"
+        },
+        {
+          "id": "B",
+          "text": "第一项强化推断；第二项自然取消推断，因此原推断是可撤销含意"
+        },
+        {
+          "id": "C",
+          "text": "第二项造成逻辑矛盾，所以原推断必是语义蕴涵"
+        },
+        {
+          "id": "D",
+          "text": "追加句与原回答没有任何关系"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "看第二个追加句能否在不否定“报告书写了”的情况下消除推断。",
+      "explanation_zh": "第二项保留原字面真值，却说明准备只有报告书，从而取消“另有未完成项”。",
+      "deep_explanation_zh": "可撤销性是会话含意的重要诊断：新增信息能阻止推断，而无需收回原句的字面断言。",
+      "caution_note_zh": "取消必须与背景相容；若题面已明说另有必做任务，第二项就会与背景而非原句字面冲突。",
+      "wrong_explanations": {
+        "A": "第二项恰展示推断可以取消。",
+        "C": "它与原句“报告书写了”不矛盾，只改变共同背景。",
+        "D": "两项分别直接强化和取消目标推断。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "cancellability",
+        "implicature_test",
+        "contrast"
+      ],
+      "sort_order": 78
+    },
+    {
+      "id": "foundation-v1-prag-context-implicature-f4",
+      "topic_id": "prag_context_implicature",
+      "stage": "F4",
+      "question_type": "kuuki_yomi",
+      "source_kind": "constructed_dialogue",
+      "stimulus": {
+        "kind": "dialogue",
+        "turns": [
+          {
+            "speaker": "甲",
+            "ja_text": "明日の午後の説明会に来られますか。"
+          },
+          {
+            "speaker": "乙",
+            "ja_text": "直前まで別の会議があります。＿＿＿＿。"
+          }
+        ],
+        "zh_context": "说明会下午两点开始，乙的另一场会议在一点五十分结束。第一句单独出现时容易被理解为婉转暗示行程冲突；目标是在保留该会议事实的情况下取消“不来”的含意。"
+      },
+      "prompt_zh": "哪一追加句最能完成该目标？",
+      "options": [
+        {
+          "id": "A",
+          "text": "ですから、別の会議はありません。"
+        },
+        {
+          "id": "B",
+          "text": "説明会は昨日でした。"
+        },
+        {
+          "id": "C",
+          "text": "でも、会場は隣なので、二時の開始には間に合います。"
+        },
+        {
+          "id": "D",
+          "text": "会議という言葉は名詞です。"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "保留会前另有一场会议的事实，同时明确下午两点可以到场。",
+      "explanation_zh": "说明会场就在隔壁且能赶上两点开始，直接取消“无法参加”的推断。",
+      "deep_explanation_zh": "原回答的婉拒含意来自相关性推理；追加句说明前一会议虽持续到临近开始，却不阻碍准时出席，使字面内容保持真而含意撤销。",
+      "caution_note_zh": "若两地距离或结束时间不同，该追加句未必足以取消冲突；本题给出了可核对的时间和地点条件。",
+      "wrong_explanations": {
+        "A": "它直接否定“另有一场会议”，与要求保留字面内容冲突。",
+        "B": "它改变了活动日期，与题面“明日下午”冲突。",
+        "D": "元语言说明不能回答能否参加，也无法取消行程推断。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "implicature",
+        "cancellation",
+        "cross_turn_context"
+      ],
+      "sort_order": 79
+    }
+  ],
+  "review_audit": {
+    "generator_agent": "/root/foundation_topics_reviewer",
+    "reviewer_agent": "/root/foundation_topics_generator",
+    "quality_score": 96,
+    "reviewed_count": 80,
+    "generation_sha256": "e59bdf68731fd513f0a481d2f1dadeb55b6e9a3bb416006aa8377ff3582fd4c0",
+    "review_overlay_sha256": "c5feb54bc3513b35805c51ca7f9fa9c39095da2b62b9a77ae0862d886d6195b7",
+    "replacements_applied": 6
+  }
+}

@@ -1,0 +1,412 @@
+[
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-053",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-053",
+    "linguistic_payload": {
+      "headlineZh": "「余計なことは言わない ドラゴンに誓うぜ」先承诺不泄露多余信息，再以龙为见证强化誓言，两个短句无需连接词也形成因果般承接。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "非过去否定承担未来承诺",
+          "takeawayZh": "「言わない」形式上是普通非过去，语境中却表示“我保证不会说”。",
+          "explanationZh": "话题「余計なことは」把保密范围设为不该透露的事项。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "「Nに誓う」指定誓言见证",
+          "takeawayZh": "助词「に」连接承诺所诉诸的神圣对象。",
+          "explanationZh": "世界观中对龙起誓等级极高，因此不是随便拿某种动物作比喻。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「ぜ」把保证说成男子气宣言",
+          "takeawayZh": "昴用强势句尾显示自己懂得并会遵守口止め条件。",
+          "explanationZh": "罗兹瓦尔随即提醒这种誓言的重量，说明他并未完全把夸口当玩笑。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "承诺性非过去",
+          "plainZh": "用现在／未来形式在当下承担以后不做某事的责任。"
+        },
+        {
+          "termZh": "誓言见证",
+          "plainZh": "借具有神圣或权威地位的对象担保自己的话。"
+        }
+      ],
+      "historicalNoteZh": "日语誓言常用「神に誓う」「名誉にかけて誓う」；作品改用龙体现当地政治与信仰秩序。",
+      "cautionZh": "「余計なこと」由口止め语境限定，并非昴承诺以后一句闲话都不说；「ぜ」也不自动使承诺可信。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 402–411，目标 line 406；lines 409–410 解释对龙起誓是最高等级的誓言。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-054",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-054",
+    "linguistic_payload": {
+      "headlineZh": "「ゆめゆめ それを忘れないように」用古雅副词与否定呼应，郑重告诫昴千万别忘记“对龙起誓”的分量。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "「ゆめゆめ」在否定中表示万万不可",
+          "takeawayZh": "现代常与「ない」共现，把遗忘禁令推到极强程度。",
+          "explanationZh": "它不是名词「夢」的重复，也不描述昴做梦。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「Vないように」省略请求谓语",
+          "takeawayZh": "句末可补「してください／気をつけて」，原句用省略保持威严。",
+          "explanationZh": "「それ」回指上一句“在这个国家对龙起誓是最高级誓言”这一事实。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "礼貌缺席不等于轻率",
+          "takeawayZh": "罗兹瓦尔没有使用完整敬语，反而以古式警句加重约束。",
+          "explanationZh": "昴的「了解！」紧接其后，证明这被当作指示而非普通陈述。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "否定呼应副词",
+          "plainZh": "自身倾向与否定谓语搭配，共同加强“绝不可”的含义。"
+        },
+        {
+          "termZh": "省略式告诫",
+          "plainZh": "只留下目标状态「ように」，让听者补出务必遵守的指令。"
+        }
+      ],
+      "historicalNoteZh": "「ゆめゆめ〜するな／ないように」带古典或郑重色彩，现代常见于历史剧、训诫与刻意庄重的表达。",
+      "cautionZh": "「それ」不是指前文伴手礼，因为最近且被强调的命题是龙誓的最高等级；指称必须按相邻话轮恢复。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 406–412；lines 409–410 给出回指内容，目标 line 411 后由昴回答「了解！」。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-055",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-055",
+    "linguistic_payload": {
+      "headlineZh": "「お客様ってば お世辞が絶望的に下手クソですよ」用礼貌称呼叫住昴，却用“恭维差得令人绝望”毫不客气地吐槽他。",
+      "domains": [
+        {
+          "domain": "discourse",
+          "titleZh": "「ってば」带责备地重提听话人",
+          "takeawayZh": "放在人称称呼后，表示“客人你真是……”的无奈强调。",
+          "explanationZh": "它不是引用某句“客人”，而是雷姆对昴刚才发言的直接反应。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "能力对象用「が」进入评价",
+          "takeawayZh": "「お世辞が下手」表示在说恭维话这件事上不擅长。",
+          "explanationZh": "真正被评为笨拙的人是昴，技能领域则由「お世辞が」标出。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "敬体与粗俗评价混搭",
+          "takeawayZh": "「お客様」「ですよ」保持女仆礼貌外壳，「下手クソ」却非常直白。",
+          "explanationZh": "昴想不出夸拉姆的话，只夸厕所清扫，因而两姐妹轮流加码批评。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "责备性提题",
+          "plainZh": "用「ってば」再次叫出对方，表达其行为令人无奈。"
+        },
+        {
+          "termZh": "礼貌毒舌",
+          "plainZh": "保留敬称与敬体，同时在评价内容上毫不客气。"
+        }
+      ],
+      "historicalNoteZh": "「ってば」可用于催促、抱怨或亲近关系中的强调；正式场合通常避免。",
+      "cautionZh": "「絶望的に」修饰差的程度，不是说昴本人陷入绝望；「下手クソ」也比中性「苦手」强烈得多。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 413–421，目标 line 418；昴前行只想到夸拉姆擅长厕所清扫。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-056",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-056",
+    "linguistic_payload": {
+      "headlineZh": "「いろいろありがとう」以副词式「いろいろ」概括无法逐项列出的帮助；艾米莉雅用很短的一句收束与昴相处的三天。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "「いろいろ」省略受谢行动",
+          "takeawayZh": "可展开为「いろいろしてくれてありがとう」，原句把动作与授受部分全省掉。",
+          "explanationZh": "告别场景中的共同经历足以让昴恢复她在感谢哪些事。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "多项集合的模糊概括",
+          "takeawayZh": "它承认帮助不止一件，却不承诺双方对每项内容有相同清单。",
+          "explanationZh": "这种宽口径适合在告别时汇总陪伴、互动和照顾。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "低修饰感谢显示真诚亲近",
+          "takeawayZh": "没有复杂敬语，直接「ありがとう」更贴合两人逐渐拉近的距离。",
+          "explanationZh": "下一句邀请他有事随时再来，使感谢与未来关系延续相连。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "集合概括",
+          "plainZh": "用一个宽泛词覆盖多项共同经历，不逐一枚举。"
+        },
+        {
+          "termZh": "语境省略",
+          "plainZh": "共享场景足够明确时，省去“为我做了什么”等授受成分。"
+        }
+      ],
+      "historicalNoteZh": "日常告别常说「いろいろありがとう」「いろいろお世話になりました」，前者亲近，后者更正式。",
+      "cautionZh": "不要逐字译成“各种各样谢谢”；自然中文是“谢谢你做了这么多／谢谢你这些天的照顾”。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 422–430，目标 line 426；line 427 接「何かあったら いつでも寄ってね」。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-057",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-057",
+    "linguistic_payload": {
+      "headlineZh": "单独一句「食い止める」是昴把潜伏目的压成一个动词：等袭击发生，然后把它拦下来。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "词汇化复合动词",
+          "takeawayZh": "「食い＋止める」整体表示阻止进展，现代语义不能按“吃”逐字拆解。",
+          "explanationZh": "它是他动词，正常可接「被害を／侵入を食い止める」。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "宾语由前句事件恢复",
+          "takeawayZh": "前一行「事が起こるのを待ち構え」给出将被阻止的袭击或事态。",
+          "explanationZh": "主语昴同样省略，孤立非过去形仍能组成内心行动宣言。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "停顿后单词落锤",
+          "takeawayZh": "省略号先拉长“等待事情发生”，下一行才用一个动词确定主动目标。",
+          "explanationZh": "节奏从被动监视转成介入，显示昴不满足于只看见凶手。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "动词独语",
+          "plainZh": "只用一个非过去动词，借上下文补出主语、宾语和决心。"
+        },
+        {
+          "termZh": "语篇落点",
+          "plainZh": "把最关键行动放到停顿后的短行，使其获得强调。"
+        }
+      ],
+      "historicalNoteZh": "常见搭配「侵攻を食い止める」「感染拡大を食い止める」，语体可用于新闻与日常重大风险。",
+      "cautionZh": "不能因「食い」译成进食，也不能把 source 的单词脱离上一行；被阻止的是即将发生的危机。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 432–439，目标 line 435；line 434「事が起こるのを待ち構え…」提供省略宾语与策略前半。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-058",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-058",
+    "linguistic_payload": {
+      "headlineZh": "「死なせたくねえな」在前一句“我不想死”上只增加使役，却把愿望从保全自己扩展为“不想让别人死”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "使役＋愿望＋口语否定",
+          "takeawayZh": "「死ぬ→死なせる→死なせたい→死なせたくない→死なせたくねえ」。",
+          "explanationZh": "层层形态分别加入致使、愿望与否定，最终保持昴的粗口声线。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "被保护对象保持省略",
+          "takeawayZh": "台词未列姓名，宅邸众人和他在意的人由整个守望计划恢复。",
+          "explanationZh": "使役句不要求昴本来是杀人施事，也可表达“不容许他们走向死亡”。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "最小对照扩大责任范围",
+          "takeawayZh": "line 438「死にたくねえ」只关乎自己，line 439 增加「させ」便转向他人。",
+          "explanationZh": "相邻短句让求生欲和保护欲并列，而非把后者包装成纯粹无私。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "形态最小对",
+          "plainZh": "两个句子只差一个形态成分，却由此改变参与者关系。"
+        },
+        {
+          "termZh": "防止性使役",
+          "plainZh": "否定“让某状态发生”，自然表达阻止他人进入该状态。"
+        }
+      ],
+      "historicalNoteZh": "「Vさせたくない」常用于不愿让他人经历某事，如「心配させたくない」「苦労させたくない」。",
+      "cautionZh": "不要译成“我不想命令他们去死”；死亡不是被命令动作，而是昴决心阻止的结果。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 432–440；line 438「死にたくねえな」与目标 line 439 构成清楚的使役最小对。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-059",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-059",
+    "linguistic_payload": {
+      "headlineZh": "「見た！ ああ 見たぞ！」重复过去式感知动词，是昴在遭突袭后确认自己终于看清了线索；具体看到什么到下一行才揭示。",
+      "domains": [
+        {
+          "domain": "aspect",
+          "titleZh": "瞬间完成的视觉取得",
+          "takeawayZh": "过去形「見た」把看见作为刚刚成功发生的事件。",
+          "explanationZh": "前几轮他连对方武器都没看清，这一次的完成因此具有调查成果意义。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "重复承担自我确认",
+          "takeawayZh": "第二次不是提供新命题，而是在疼痛和震惊中确认第一次感知可靠。",
+          "explanationZh": "插入「ああ」像给自己回答，随后「ぞ」把确信提高为宣告。"
+        },
+        {
+          "domain": "information_structure",
+          "titleZh": "宾语推迟到下一话轮",
+          "takeawayZh": "本行只突出“看见成功”，line 454 才说「鎖の音の正体」。",
+          "explanationZh": "先报突破、后报内容，让观众与昴同步等待线索名称。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "确认式重复",
+          "plainZh": "同一短句再说一次，用来加强确信而非增加新事实。"
+        },
+        {
+          "termZh": "后续宾语揭示",
+          "plainZh": "感知动作先出现，所见对象延迟到下一句才明说。"
+        }
+      ],
+      "historicalNoteZh": "终助词「ぞ」常给独白或对他人宣告增加强势确认，人物与场合色彩明显。",
+      "cautionZh": "source meaning 把“锁链声音的真身”补入本行，但日文对象实际位于下一行；不能说本行逐字包含该信息。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 446–455，目标 line 453，line 454 才补出「鎖の音の正体！」。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-060",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-060",
+    "linguistic_payload": {
+      "headlineZh": "「完全に相手の手のひらの上で 踊らされたってことか」用掌上起舞的惯用隐喻承认：自己以为在设局，其实每一步都被对手操控。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「踊る」的使役被动",
+          "takeawayZh": "「踊る→踊らせる→踊らされる」，过去形说明已被摆布。",
+          "explanationZh": "动作发出者是相手，昴则是不知情地按对方安排行动的一方。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "「手のひらの上」编码控制范围",
+          "takeawayZh": "这里没有真实舞蹈或手掌，而是对手完全掌握局面。",
+          "explanationZh": "副词「完全に」同时加强控制程度和昴判断自己受骗的彻底性。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「ってことか」组织迟来的领悟",
+          "takeawayZh": "昴把刚发生的转向袭击归纳成“原来对方早就算到这里”。",
+          "explanationZh": "省略号表现震惊尚未消化，下一步才转为正面叫阵。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "操控隐喻",
+          "plainZh": "把受人算计理解成在对方掌中按指令起舞。"
+        },
+        {
+          "termZh": "归纳式领悟",
+          "plainZh": "用「ってことか」把新证据整理成对全局的解释。"
+        }
+      ],
+      "historicalNoteZh": "固定说法「手のひらの上で転がされる／踊らされる」都表示被人轻易操控，后者更突出按安排行动。",
+      "cautionZh": "不要译成物理舞蹈；使役被动也不能省成普通“被看见跳舞”，关键是被迫按对方盘算行动。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 453–459，目标 line 457；袭击者改变目标接近昴，触发其对整套诱敌计划的重新理解。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-061",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-061",
+    "linguistic_payload": {
+      "headlineZh": "「終わってもらえるのが 一番だったんですが」以礼貌授受外形委婉说“让你死去最好”，雷姆的冷静措辞与实际杀意形成寒意。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「てもらう」进入可能形",
+          "takeawayZh": "「終わってもらう→終わってもらえる」，形式上表示能让对方完成某动作。",
+          "explanationZh": "在敌对语境中「終わる」是生命终结的委婉说法，并非对昴有利的普通帮忙。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「のが一番」名词化方案评价",
+          "takeawayZh": "整段行动由「の」包装，助词「が」标为最理想方案。",
+          "explanationZh": "过去「だった」说明这是雷姆原先偏好的计划，当前因昴察觉而未能照办。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「んですが」礼貌地承认计划落空",
+          "takeawayZh": "句末像在说明小麻烦，实际省略的是“但你已经发现我了”。",
+          "explanationZh": "前一行「何も気付かれないまま」显示她本想让昴无知无觉地被杀。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "敌意授受",
+          "plainZh": "授受构式在语法上保留“让对方做”，语境却可承载对对方不利的愿望。"
+        },
+        {
+          "termZh": "死亡委婉语",
+          "plainZh": "以「終わる」回避直接说「死ぬ」，但并不减轻真实后果。"
+        }
+      ],
+      "historicalNoteZh": "「Vてもらう」通常含说话人受益，但所谓“受益”只反映说话人立场；在威胁中可成为冷酷表达。",
+      "cautionZh": "不能因「もらう」翻成雷姆在帮昴，也不能把礼貌「ですが」当成犹豫撤回；她只是说明理想暗杀方案已失败。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 467–473，目标 lines 470–471；source_line_no 478 有偏移，当前前件明确为「何も気付かれないまま」。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-062",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-062",
+    "linguistic_payload": {
+      "headlineZh": "「ウソだろ レム…」不是指控雷姆刚说谎，而是昴面对“袭击者竟是雷姆”时脱口而出的不愿相信。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「だろ」压缩推量「だろう」",
+          "takeawayZh": "名词判断「ウソだ」接推量／确认形式，口语省去长音。",
+          "explanationZh": "没有问号也能以声调和省略号表达“这不是真的吧”。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "人名后置锁定震惊来源",
+          "takeawayZh": "先否认眼前事实，再低声叫出「レム」，让身份揭示成为句末焦点。",
+          "explanationZh": "前一话轮雷姆亲口说明暗杀意图，人物身份并非昴猜测的泛指敌人。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "反事实愿望取代求证",
+          "takeawayZh": "昴并没有等待雷姆回答“是不是谎话”，而是在表达希望现实为假。",
+          "explanationZh": "过去几天的照顾记忆与眼前杀意冲突，使最短否认承载背叛冲击。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "不信式疑问",
+          "plainZh": "形式像请求确认，实际主要表达说话人无法接受已经显现的事实。"
+        },
+        {
+          "termZh": "后置呼语",
+          "plainZh": "在人名之前先说主要反应，再用称呼标明情感对象。"
+        }
+      ],
+      "historicalNoteZh": "「嘘だろ／嘘でしょ」常用于惊讶与否认，既可回应真实谎言，也可只是“不会吧”。",
+      "cautionZh": "不要据字面写成“雷姆在撒谎”；当前证据反而显示她坦白了计划，昴只是无法接受袭击者身份。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 467–473，目标 line 473；前两行由雷姆说明最理想的暗杀方式，随后昴认出她。"
+  }
+]

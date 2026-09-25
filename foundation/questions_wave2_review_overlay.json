@@ -1,0 +1,403 @@
+{
+  "generator_agent": "/root/foundation_topics_reviewer",
+  "reviewer_agent": "/root/foundation_topics_generator",
+  "quality_score": 96,
+  "reviewed_count": 80,
+  "generation_sha256": "e59bdf68731fd513f0a481d2f1dadeb55b6e9a3bb416006aa8377ff3582fd4c0",
+  "decisions": [
+    {"id": "foundation-v1-syn-topic-subject-f1", "decision": "keep", "quality_score": 98, "note": "主题框架「この町は」与内层主格「冬が」边界清楚，未把「は」机械等同主语。"},
+    {"id": "foundation-v1-syn-topic-subject-f2", "decision": "keep", "quality_score": 98, "note": "对象主题可依据「読む」配价恢复为「本を」，并明确区分分析还原与实际改写。"},
+    {"id": "foundation-v1-syn-topic-subject-f3", "decision": "keep", "quality_score": 98, "note": "前问「だれが」锁定焦点，答案准确比较「が」的直接焦点对齐与「は」的主题／对比倾向。"},
+    {"id": "foundation-v1-syn-topic-subject-f4", "decision": "keep", "quality_score": 98, "note": "自动词主格、未知机器焦点和此前未设主题三项条件一致，只有D直接回答。"},
+    {"id": "foundation-v1-syn-zero-arguments-f1", "decision": "keep", "quality_score": 98, "note": "对象「申込書を」由前问与提交义配价共同恢复，同时承认施事者也可不明说。"},
+    {"id": "foundation-v1-syn-zero-arguments-f2", "decision": "keep", "quality_score": 98, "note": "窗户由当前主题、开放状态和「閉める」选择限制共同确定，未按最近名词机械回指。"},
+    {"id": "foundation-v1-syn-zero-arguments-f3", "decision": "keep", "quality_score": 99, "note": "部长主体同时受前问和尊敬语方向支持，说话人自我尊敬及无生命对象候选均被针对性排除。"},
+    {"id": "foundation-v1-syn-zero-arguments-f4", "decision": "keep", "quality_score": 98, "note": "颜色指令使蓝色信封成为唯一对象，省略对象与目标后的确认话轮自然且指代无歧义。"},
+    {"id": "foundation-v1-syn-valency-argument-structure-f1", "decision": "keep", "quality_score": 98, "note": "降雨、开门、传递的一至三价按核心事件参与者递增，未受表面省略影响。"},
+    {"id": "foundation-v1-syn-valency-argument-structure-f2", "decision": "keep", "quality_score": 98, "note": "给予者、物品、接受者与场所附加语划分准确，并提醒可省略性不是单独充分诊断。"},
+    {"id": "foundation-v1-syn-valency-argument-structure-f3", "decision": "keep", "quality_score": 97, "note": "同形「かかる」的空间状态义与耗时义通过选择限制区分，选项不以汉字同形替代配价分析。"},
+    {"id": "foundation-v1-syn-valency-argument-structure-f4", "decision": "keep", "quality_score": 98, "note": "三价「渡す」的给予者、接受者、被给予物映射完整，错误项逐一错配同一组三角色。"},
+    {"id": "foundation-v1-syn-existential-constructions-f1", "decision": "keep", "quality_score": 96, "note": "普通字面语境中的猫明确选择「いる」；时态、极性与有生性边界足以保证唯一答案。"},
+    {"id": "foundation-v1-syn-existential-constructions-f2", "decision": "keep", "quality_score": 98, "note": "地点に＋新存在物が＋ある准确实现首次引入，并与已知主题所在句及所有表达区分。"},
+    {"id": "foundation-v1-syn-existential-constructions-f3", "decision": "keep", "quality_score": 98, "note": "植物与动物的「ある／いる」对照按语法有生性而非生物学生命解释，边界语境提醒充分。"},
+    {"id": "foundation-v1-syn-existential-constructions-f4", "decision": "keep", "quality_score": 97, "note": "无生导览终端首次引入时的地点、主格和存在动词配置正确，所在句替代语境亦有说明。"},
+    {"id": "foundation-v1-syn-relative-clauses-f1", "decision": "keep", "quality_score": 98, "note": "连体从句在中心名词前闭合，主句对象格与「使う」没有误纳入从句。"},
+    {"id": "foundation-v1-syn-relative-clauses-f2", "decision": "keep", "quality_score": 98, "note": "内关系中心名词可恢复为「机を」，从句对象位与主句主题层级分明。"},
+    {"id": "foundation-v1-syn-relative-clauses-f3", "decision": "revise", "quality_score": 98, "note": "已将自然度不足的「雨が降った音」改为「雨が屋根を打つ音」，保留无格空位的外关系诊断。"},
+    {"id": "foundation-v1-syn-relative-clauses-f4", "decision": "keep", "quality_score": 98, "note": "制作人、地图对象和展示地点在合并后均保留，中心名词的从句关系与主句格实现准确。"},
+    {"id": "foundation-v1-syn-nominalized-clauses-f1", "decision": "keep", "quality_score": 98, "note": "「朝早く泳ぐの」边界完整，外层「が」附着整个名词化从句。"},
+    {"id": "foundation-v1-syn-nominalized-clauses-f2", "decision": "keep", "quality_score": 97, "note": "搬迁事件以「こと」成为决定内容，「ことを／に決める」构式边界与词汇名词义分开。"},
+    {"id": "foundation-v1-syn-nominalized-clauses-f3", "decision": "keep", "quality_score": 98, "note": "直接感知「の」和决定构式「こと」按主句谓语选择，且明确只是典型倾向而非全局绝对规则。"},
+    {"id": "foundation-v1-syn-nominalized-clauses-f4", "decision": "keep", "quality_score": 98, "note": "内层儿童动作与外层说话人感知者不混同，名词化和对象格连接自然。"},
+    {"id": "foundation-v1-syn-complement-quotation-f1", "decision": "keep", "quality_score": 98, "note": "直接引用边界、原请求语体、指示词与外层「と言った」层级明确。"},
+    {"id": "foundation-v1-syn-complement-quotation-f2", "decision": "keep", "quality_score": 97, "note": "普通体间接补语、外层负责人主题及「翌日／そこ」的转述视点关系自洽。"},
+    {"id": "foundation-v1-syn-complement-quotation-f3", "decision": "keep", "quality_score": 98, "note": "周一原发话到周二转述的人称、时间、地点与礼貌体转换一致，直接引用替代条件也注明。"},
+    {"id": "foundation-v1-syn-complement-quotation-f4", "decision": "keep", "quality_score": 98, "note": "无引号间接补语使用普通体，负责人控制内部零主语，资料指示对象的稳定前提明确。"},
+    {"id": "foundation-v1-syn-te-clause-linking-f1", "decision": "keep", "quality_score": 98, "note": "分句连接「開けて」与体貌内部「開いている」按后续结构和结果状态准确区分。"},
+    {"id": "foundation-v1-syn-te-clause-linking-f2", "decision": "keep", "quality_score": 98, "note": "电车晚点与未赶上会议的因果、主语切换和结果否定过去均由语境充分支持。"},
+    {"id": "foundation-v1-syn-te-clause-linking-f3", "decision": "keep", "quality_score": 98, "note": "显式「利用者が」标明主语切换，省略版仅作为可取消的主体连续性偏好处理。"},
+    {"id": "foundation-v1-syn-te-clause-linking-f4", "decision": "keep", "quality_score": 97, "note": "共享操作员零主语、两个他动对象格与先确认后通电的事件顺序完整。"},
+    {"id": "foundation-v1-syn-conditionals-f1", "decision": "keep", "quality_score": 98, "note": "「と」连接按钮操作与可重复自动结果，后件没有意志、请求或命令。"},
+    {"id": "foundation-v1-syn-conditionals-f2", "decision": "keep", "quality_score": 98, "note": "「なら」承接对方东京计划并给建议，前提来源和跨话轮说话人关系明确。"},
+    {"id": "foundation-v1-syn-conditionals-f3", "decision": "keep", "quality_score": 98, "note": "一次性到站后请求以「たら」自然，「と」对意志性请求后件的限制表述为倾向而非绝对禁令。"},
+    {"id": "foundation-v1-syn-conditionals-f4", "decision": "keep", "quality_score": 98, "note": "「晴れたら」的た形属于未来开放条件构式，后件共同提议与时制、意志性均相容。"},
+    {"id": "foundation-v1-syn-passive-f1", "decision": "keep", "quality_score": 98, "note": "主动施受关系、直接被动对象提升和「に」施事者映射准确。"},
+    {"id": "foundation-v1-syn-passive-f2", "decision": "revise", "quality_score": 98, "note": "已修正提示中误残留的「ぬらす／荷物」，改为本题实际的「捨てる／資料」所有者被动分析。"},
+    {"id": "foundation-v1-syn-passive-f3", "decision": "keep", "quality_score": 98, "note": "「見られる」可能义与直接被动通过地点条件、施事「人に」及主动还原三项证据消歧。"},
+    {"id": "foundation-v1-syn-passive-f4", "decision": "keep", "quality_score": 98, "note": "原对象提升、原施事改「に」和被动活用均正确，并与使役形式明确对照。"},
+    {"id": "foundation-v1-syn-causative-f1", "decision": "keep", "quality_score": 98, "note": "「休む＋使役＋过去」形态切分正确，强制或许可未被错误编码进词形。"},
+    {"id": "foundation-v1-syn-causative-f2", "decision": "keep", "quality_score": 98, "note": "外层指导者、内层学生主体和资料对象构成完整两层事件，格关系自然。"},
+    {"id": "foundation-v1-syn-causative-f3", "decision": "keep", "quality_score": 99, "note": "请求、明确同意、第三方追问及「本人の希望どおり」共同锁定许可使役，跨话轮无指代冲突。"},
+    {"id": "foundation-v1-syn-causative-f4", "decision": "keep", "quality_score": 98, "note": "他动基础事件保留「箱を」，被使役者用「職員に」，外层致使者角色完整。"},
+    {"id": "foundation-v1-sem-compositionality-polysemy-f1", "decision": "keep", "quality_score": 98, "note": "连体修饰、场所格和对象格分别贡献句义，选项处在同一结构分析层级。"},
+    {"id": "foundation-v1-sem-compositionality-polysemy-f2", "decision": "revise", "quality_score": 98, "note": "已把可能引起「開く」读法与搭配争议的窗户改为自然的「本を開く」，保持同词相关多义对照。"},
+    {"id": "foundation-v1-sem-compositionality-polysemy-f3", "decision": "revise", "quality_score": 99, "note": "已移除站不住的「古い工場の写真」宽域分析，改用「古い机と椅子」的真实并列修饰范围歧义。"},
+    {"id": "foundation-v1-sem-compositionality-polysemy-f4", "decision": "revise", "quality_score": 98, "note": "已将不够自然的「箱を開く」改为「本を開く」，与「展示会を開く」构成同读法、不同搭配的迁移对照。"},
+    {"id": "foundation-v1-sem-tense-reference-time-f1", "decision": "keep", "quality_score": 98, "note": "事件时、说话时、基准时三个明示日期逐一对应，时间线无交换空间。"},
+    {"id": "foundation-v1-sem-tense-reference-time-f2", "decision": "keep", "quality_score": 97, "note": "昨日会面与下周出发分层定位，从句非过去和主句过去均与明示时间副词相容。"},
+    {"id": "foundation-v1-sem-tense-reference-time-f3", "decision": "keep", "quality_score": 96, "note": "未来提交基准与完成先行关系由上下文限定，并提醒脱离语境时可能优先取得已完成读法。"},
+    {"id": "foundation-v1-sem-tense-reference-time-f4", "decision": "keep", "quality_score": 97, "note": "8月10日发话、12日送达、15日查看以显式日期保证相对た形的未来先行读法唯一。"},
+    {"id": "foundation-v1-sem-lexical-aspect-f1", "decision": "keep", "quality_score": 98, "note": "无终点步行活动与发现、量化制作、破裂达成按持续性和终结性准确区分。"},
+    {"id": "foundation-v1-sem-lexical-aspect-f2", "decision": "keep", "quality_score": 98, "note": "「一時間」量活动时长，「一時間で」量到达过桥完成点所需时间，诊断边界清楚。"},
+    {"id": "foundation-v1-sem-lexical-aspect-f3", "decision": "keep", "quality_score": 97, "note": "量化对象提供单次终点，「毎朝」建立习惯序列，同时保留每次事件可能有局部终点的提醒。"},
+    {"id": "foundation-v1-sem-lexical-aspect-f4", "decision": "keep", "quality_score": 98, "note": "广场步行没有目标路径或量化产物，其他三项均有明确达成边界。"},
+    {"id": "foundation-v1-sem-teiru-readings-f1", "decision": "keep", "quality_score": 98, "note": "活动谓语「拭く」与当前观察点「今」共同锁定进行读法。"},
+    {"id": "foundation-v1-sem-teiru-readings-f2", "decision": "keep", "quality_score": 98, "note": "自动瞬时变化「開く」与观察到的当前开放状态支持结果状态，而非有意施事或被动。"},
+    {"id": "foundation-v1-sem-teiru-readings-f3", "decision": "keep", "quality_score": 98, "note": "自动变化＋今与他动反复＋毎朝分别支持结果状态和习惯，兼读边界已有提醒。"},
+    {"id": "foundation-v1-sem-teiru-readings-f4", "decision": "keep", "quality_score": 97, "note": "维护记录、去年和两次共同许可经验／记录读法，且明确不蕴涵当前仍停机。"},
+    {"id": "foundation-v1-sem-modality-f1", "decision": "keep", "quality_score": 98, "note": "入口规则牌使「てはいけない」具有明确道义禁止来源，未混入能力或认识判断。"},
+    {"id": "foundation-v1-sem-modality-f2", "decision": "keep", "quality_score": 98, "note": "备用钥匙提供现实手段且题面排除许可争议，可能形优先为动力／环境可能。"},
+    {"id": "foundation-v1-sem-modality-f3", "decision": "keep", "quality_score": 98, "note": "可能问句由工作人员援引规则的后续回应消歧为许可，跨话轮证据充分。"},
+    {"id": "foundation-v1-sem-modality-f4", "decision": "keep", "quality_score": 98, "note": "「かもしれない」对完整使用命题取认识作用域，并与能力、许可、义务选项平行区分。"},
+    {"id": "foundation-v1-sem-evidentiality-f1", "decision": "keep", "quality_score": 98, "note": "预报来源和名词谓语终止形接续共同锁定传闻「そうだ」。"},
+    {"id": "foundation-v1-sem-evidentiality-f2", "decision": "keep", "quality_score": 98, "note": "焦味是嗅觉直接证据，内部过热是「ようだ」标示的间接推断，证据渠道无误。"},
+    {"id": "foundation-v1-sem-evidentiality-f3", "decision": "keep", "quality_score": 99, "note": "「降る／降り」接续与预报／天空证据双重消歧传闻和样态，形态语义配合准确。"},
+    {"id": "foundation-v1-sem-evidentiality-f4", "decision": "keep", "quality_score": 98, "note": "广播内容以「休館だそうです」转述，名词谓语接续、礼貌外层和信息来源一致。"},
+    {"id": "foundation-v1-sem-negation-scope-f1", "decision": "keep", "quality_score": 98, "note": "NOT(ALL came) 与 ALL(NOT came) 明确分开，并未从部分否定虚构到场人数。"},
+    {"id": "foundation-v1-sem-negation-scope-f2", "decision": "keep", "quality_score": 98, "note": "「なければならない」按完整必要构式解释，否定前件与外层不可接受评价的作用域清楚。"},
+    {"id": "foundation-v1-sem-negation-scope-f3", "decision": "keep", "quality_score": 98, "note": "两交一未交的枚举事实只与部分否定相容，全无和全有候选逐项被事实排除。"},
+    {"id": "foundation-v1-sem-negation-scope-f4", "decision": "keep", "quality_score": 98, "note": "「だれも…ない」明确表达全无，较弱的「わけではない」虽相容但不充分，唯一性成立。"},
+    {"id": "foundation-v1-sem-quantifier-scope-f1", "decision": "keep", "quality_score": 98, "note": "浮游「三人」以人类量词和主格学生建立宿主关系，并与事件次数「回」对照。"},
+    {"id": "foundation-v1-sem-quantifier-scope-f2", "decision": "keep", "quality_score": 98, "note": "「二台」计机器个体、「二回」计点检事件，可能重复点检同机的真值边界明确。"},
+    {"id": "foundation-v1-sem-quantifier-scope-f3", "decision": "keep", "quality_score": 98, "note": "三本中读两本只支持 NOT(ALL)，三个全无／全有错误项均针对枚举事实解释。"},
+    {"id": "foundation-v1-sem-quantifier-scope-f4", "decision": "keep", "quality_score": 98, "note": "「三台の機械」直接限制对象个体，排除只计三次事件及量词类别错配。"},
+    {"id": "foundation-v1-prag-context-implicature-f1", "decision": "keep", "quality_score": 98, "note": "报告书完成是字面内容，另一准备可能未完成只是由局部回答触发的可撤销含意。"},
+    {"id": "foundation-v1-prag-context-implicature-f2", "decision": "keep", "quality_score": 98, "note": "整体问题与局部回答的信息差可计算出数量含意，并保留说话人可能只是不确定的承诺边界。"},
+    {"id": "foundation-v1-prag-context-implicature-f3", "decision": "keep", "quality_score": 98, "note": "强化句和取消句都保留原字面真值，正确实施含意可撤销性测试。"},
+    {"id": "foundation-v1-prag-context-implicature-f4", "decision": "revise", "quality_score": 98, "note": "已把提示和错项解释中误写的“上午会议”改为题面实际的“会前另一场会议”，保持跨话轮时间链一致。"}
+  ],
+  "replacements": [
+    {
+      "id": "foundation-v1-syn-relative-clauses-f3",
+      "topic_id": "syn_relative_clauses",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "contrast",
+        "items": [
+          "私が読んだ本",
+          "雨が屋根を打つ音"
+        ]
+      },
+      "prompt_zh": "两种连体修饰的关系应如何区分？",
+      "options": [
+        {
+          "id": "A",
+          "text": "两者都是外关系，中心名词都不能在从句中恢复"
+        },
+        {
+          "id": "B",
+          "text": "两者都是内关系，分别可恢复「本が読んだ」「雨が音を打つ」"
+        },
+        {
+          "id": "C",
+          "text": "前者是内关系，可恢复「本を読んだ」；后者是外关系，声音由雨打屋顶的事件产生，而不是「打つ」的格论元"
+        },
+        {
+          "id": "D",
+          "text": "前者没有连体从句，后者才有连体从句"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "尝试把每个中心名词补回前面的从句，并检查能否配置自然格关系。",
+      "explanation_zh": "「本」可填补「読む」的对象位；「音」则通过雨打屋顶事件与声音的产生关系连接，不能补成「打つ」的普通论元。",
+      "deep_explanation_zh": "可恢复明确格关系是内关系的操作性诊断；「雨が屋根を打つ音」中的从句已经具有施事「雨」和对象「屋根」，中心名词「音」在外部概括该事件产生的声音，属于外关系。",
+      "caution_note_zh": "外关系并非没有语义联系；关键是该联系不等于中心名词填补从句谓语的普通格空位。",
+      "wrong_explanations": {
+        "A": "「本を読んだ」可自然恢复，因此前者不是外关系。",
+        "B": "「本が読んだ」颠倒阅读角色；「雨が音を打つ」也把声音误当成「打つ」的对象。",
+        "D": "两项都有置于中心名词前的连体修饰小句。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "inner_relation",
+        "outer_relation",
+        "relative_clause"
+      ],
+      "sort_order": 18
+    },
+    {
+      "id": "foundation-v1-syn-passive-f2",
+      "topic_id": "syn_passive",
+      "stage": "F2",
+      "question_type": "syntax_relation",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "私は同僚に資料を捨てられた。",
+        "zh_context": "同事扔掉了属于说话人的资料，说话人因此受到影响。"
+      },
+      "prompt_zh": "本句应怎样分析？",
+      "options": [
+        {
+          "id": "A",
+          "text": "普通直接被动，原主动句对象只有「私」"
+        },
+        {
+          "id": "B",
+          "text": "可能句，表示说话人有能力扔掉同事"
+        },
+        {
+          "id": "C",
+          "text": "受影响／所有者被动：说话人作受影响主语，资料仍以「を」保留为基础事件对象"
+        },
+        {
+          "id": "D",
+          "text": "使役句，表示说话人命令资料扔掉同事"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "注意主语“我”不是「捨てる」的直接对象，句中另有「資料を」。",
+      "explanation_zh": "“我”因自己的资料被同事扔掉而受影响，属于所有者型受影响被动。",
+      "deep_explanation_zh": "基础事件可表为「同僚が私の資料を捨てた」；被动构式引入所有者／受影响者「私」，所属物仍作直接对象。",
+      "caution_note_zh": "受影响含意常见但不必总是强烈不利；题面明确给出了受到影响的视点。",
+      "wrong_explanations": {
+        "A": "基础事件直接对象是资料，不是“我”，因此不能作普通对象提升分析。",
+        "B": "句中没有能力语境，格关系也不支持“扔掉同事”的解释。",
+        "D": "没有致使者命令另一个主体行动的两层使役结构。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "possessor_passive",
+        "affected_subject",
+        "voice"
+      ],
+      "sort_order": 37
+    },
+    {
+      "id": "foundation-v1-sem-compositionality-polysemy-f2",
+      "topic_id": "sem_compositionality_polysemy",
+      "stage": "F2",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "contrast",
+        "items": [
+          "本を開く。",
+          "会議を開く。"
+        ]
+      },
+      "prompt_zh": "同一动词「開く」在两句中的意义关系，哪项分析最有依据？",
+      "options": [
+        {
+          "id": "A",
+          "text": "第一句是把书本展开，第二句是召开活动；搭配显示从物理展开到活动启动的相关多义"
+        },
+        {
+          "id": "B",
+          "text": "两句意义完全相同，会议也是有书页的实体"
+        },
+        {
+          "id": "C",
+          "text": "只因中文译词不同，就能断定两个形式毫无语义联系"
+        },
+        {
+          "id": "D",
+          "text": "「本」与「会議」都是施事者，动词没有对象"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "比较两个对象的语义类别，同时寻找“从未展开到展开”的共同结构。",
+      "explanation_zh": "对象搭配分别触发「開く」的物理展开义和活动召开义，两者存在可解释的相关性。",
+      "deep_explanation_zh": "多义不是任意翻译差异；物理对象由闭合进入展开状态，与活动由未启动进入展开阶段形成系统联系，而「本」「会議」的选择限制使当前义项明确。",
+      "caution_note_zh": "相关性分析不等于声称所有母语者都在每次使用时实时推导比喻；两个义项都可能已高度词汇化。",
+      "wrong_explanations": {
+        "B": "会议没有书页，语义选择限制排除物理展开读法。",
+        "C": "译词差异不是判定偶然同音的充分证据，本例存在系统意义联系。",
+        "D": "两名词都以「を」标作对象，不是施事者。"
+      },
+      "difficulty": 2,
+      "tags": [
+        "polysemy",
+        "selectional_restriction",
+        "hiraku"
+      ],
+      "sort_order": 45
+    },
+    {
+      "id": "foundation-v1-sem-compositionality-polysemy-f3",
+      "topic_id": "sem_compositionality_polysemy",
+      "stage": "F3",
+      "question_type": "contrast_choice",
+      "source_kind": "original_sentence",
+      "stimulus": {
+        "kind": "sentence",
+        "ja_text": "古い机と椅子を片づけた。",
+        "zh_context": "没有上下文或韵律说明「古い」只描述桌子，还是同时描述桌子和椅子。"
+      },
+      "prompt_zh": "名词短语「古い机と椅子」为何可能出现两种范围理解？",
+      "options": [
+        {
+          "id": "A",
+          "text": "因为「古い」和「机」是两个偶然同音词"
+        },
+        {
+          "id": "B",
+          "text": "因为「古い」可只修饰第一并列项「机」，也可对并列整体「机と椅子」取范围"
+        },
+        {
+          "id": "C",
+          "text": "因为过去形「片づけた」会把肯定句自动变成否定句"
+        },
+        {
+          "id": "D",
+          "text": "因为助词「と」只能标引用，不能连接名词"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "分别尝试“旧桌子和一把椅子”与“旧桌子和旧椅子”两种括号范围。",
+      "explanation_zh": "歧义来自形容词对第一并列项或整个并列短语的修饰范围，而非词义同音。",
+      "deep_explanation_zh": "一种结构是「[古い机]と[椅子]」，只断言桌子旧；另一种解释让「古い」覆盖「[机と椅子]」整体，断言两类物品都旧。语境、停顿和重音可偏向其中一种。",
+      "caution_note_zh": "书面孤句允许两种范围不表示每次实际发话都同样歧义；明确改写可分别说「古い机と新しい椅子」或「古い机と古い椅子」。",
+      "wrong_explanations": {
+        "A": "目标词没有形成两个同音词项，变化的是修饰范围。",
+        "C": "过去形只定位整理事件，与名词短语内部范围无关。",
+        "D": "「と」可以正常协调两个名词，本句正是名词并列。"
+      },
+      "difficulty": 3,
+      "tags": [
+        "modifier_scope",
+        "coordination",
+        "ambiguity"
+      ],
+      "sort_order": 46
+    },
+    {
+      "id": "foundation-v1-sem-compositionality-polysemy-f4",
+      "topic_id": "sem_compositionality_polysemy",
+      "stage": "F4",
+      "question_type": "contrast_choice",
+      "source_kind": "minimal_pair",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "需要用同一个动词展示两个由搭配明确区分、且可视为相关扩展的义项。"
+      },
+      "prompt_zh": "哪一组最符合要求？",
+      "options": [
+        {
+          "id": "A",
+          "text": "本を開く／本を開く"
+        },
+        {
+          "id": "B",
+          "text": "展示会を開く／展示会を始める"
+        },
+        {
+          "id": "C",
+          "text": "本を開く／展示会を開く"
+        },
+        {
+          "id": "D",
+          "text": "本を閉じる／展示会を開く"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "目标词形和读法必须保持不变，搭配对象则要提供充分选义线索。",
+      "explanation_zh": "两句都用「開く（ひらく）」，书本触发物理展开义，展览会触发举办义。",
+      "deep_explanation_zh": "对象的语义类别使两个义项清楚；形式与读法恒定又允许比较一个词项的相关多义，而不是换词造成的意义变化。",
+      "caution_note_zh": "该题展示同步多义教学对照，不要求学习者据此证明完整历史派生路径。",
+      "wrong_explanations": {
+        "A": "形式和搭配都相同，没有展示两个义项。",
+        "B": "第二项换成「始める」，不满足保持同一目标词形。",
+        "D": "两项使用不同动词，无法检验同词多义。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "polysemy",
+        "minimal_pair",
+        "transfer"
+      ],
+      "sort_order": 47
+    },
+    {
+      "id": "foundation-v1-prag-context-implicature-f4",
+      "topic_id": "prag_context_implicature",
+      "stage": "F4",
+      "question_type": "kuuki_yomi",
+      "source_kind": "constructed_dialogue",
+      "stimulus": {
+        "kind": "dialogue",
+        "turns": [
+          {
+            "speaker": "甲",
+            "ja_text": "明日の午後の説明会に来られますか。"
+          },
+          {
+            "speaker": "乙",
+            "ja_text": "直前まで別の会議があります。＿＿＿＿。"
+          }
+        ],
+        "zh_context": "说明会下午两点开始，乙的另一场会议在一点五十分结束。第一句单独出现时容易被理解为婉转暗示行程冲突；目标是在保留该会议事实的情况下取消“不来”的含意。"
+      },
+      "prompt_zh": "哪一追加句最能完成该目标？",
+      "options": [
+        {
+          "id": "A",
+          "text": "ですから、別の会議はありません。"
+        },
+        {
+          "id": "B",
+          "text": "説明会は昨日でした。"
+        },
+        {
+          "id": "C",
+          "text": "でも、会場は隣なので、二時の開始には間に合います。"
+        },
+        {
+          "id": "D",
+          "text": "会議という言葉は名詞です。"
+        }
+      ],
+      "answer": {
+        "option_id": "C"
+      },
+      "hint_zh": "保留会前另有一场会议的事实，同时明确下午两点可以到场。",
+      "explanation_zh": "说明会场就在隔壁且能赶上两点开始，直接取消“无法参加”的推断。",
+      "deep_explanation_zh": "原回答的婉拒含意来自相关性推理；追加句说明前一会议虽持续到临近开始，却不阻碍准时出席，使字面内容保持真而含意撤销。",
+      "caution_note_zh": "若两地距离或结束时间不同，该追加句未必足以取消冲突；本题给出了可核对的时间和地点条件。",
+      "wrong_explanations": {
+        "A": "它直接否定“另有一场会议”，与要求保留字面内容冲突。",
+        "B": "它改变了活动日期，与题面“明日下午”冲突。",
+        "D": "元语言说明不能回答能否参加，也无法取消行程推断。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "implicature",
+        "cancellation",
+        "cross_turn_context"
+      ],
+      "sort_order": 79
+    }
+  ]
+}

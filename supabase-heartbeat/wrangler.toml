@@ -1,0 +1,16 @@
+name = "anime-japanese-lab-supabase-heartbeat"
+main = "worker.ts"
+compatibility_date = "2026-06-18"
+workers_dev = false
+
+[[services]]
+binding = "APP"
+service = "anime-japanese-lab"
+
+[vars]
+SUPABASE_SERA_URL = "https://kvhltwdgqafdzdnpkpke.supabase.co"
+
+[triggers]
+# Ten evenly distributed runs per day (UTC, minute 17): each run makes one
+# non-cached database request to jps and one to sera.
+crons = ["17 0,2,4,7,9,12,14,16,19,21 * * *"]

@@ -1,0 +1,1642 @@
+[
+  {
+    "id": "vocab-card-v1:vocab-re-zero-makaseru",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-makaseru",
+    "linguistic_payload": {
+      "headlineZh": "「任せる」表示把任务、判断权或照料责任交给某人；说「俺に任せろ」时，说话人反过来主动接下责任。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "一段动词与口语命令",
+          "takeawayZh": "变形为「任せない／任せて／任せた／任せれば」；命令形是「任せろ」。",
+          "explanationZh": "EP1 的「任せとけ」是「任せておけ」的缩约，语气相当于“你就交给我吧”。「任せてくれ」则在接任务的同时请求对方允许自己处理。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "受托者用「に」",
+          "takeawayZh": "基本结构是「任务を人に任せる」；只说「人に任せる」时，任务由语境补出。",
+          "explanationZh": "「ここは俺に任せてくれ」省略了具体宾语，把当前局面整体交给“我”。若说「子どもを彼に任せる」，则明确交付的是照料孩子的责任。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "自信宣言也承担结果责任",
+          "takeawayZh": "「俺に任せろ」能让人安心，也可能因能力不足而显得逞强。",
+          "explanationZh": "字幕连续出现「任せとけ」「任せろと勇ましく宣言」，后者带自我吐槽，说明豪迈形式与实际成果可以形成反差。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "责任转移",
+          "plainZh": "把后续判断和结果交由另一方掌控，同时默认对方会承担处理责任。"
+        },
+        {
+          "termZh": "缩约「とけ」",
+          "plainZh": "「ておけ」在口语中可缩成「とけ」，如「任せておけ→任せとけ」。"
+        }
+      ],
+      "historicalNoteZh": "「まかせる」是日语固有动词，现代常用「任」书写；与较短的「任す」同属一词族，但日常以「任せる」更常见。",
+      "cautionZh": "「頼む」重在向人提出请求，「任せる」重在把控制权交出。请人帮一次忙不一定意味着把整件事都交给对方。"
+    },
+    "review_note": "核对 occurrence 及字幕 EP1 line 254「俺に任せとけ」、line 410「任せろと勇ましく宣言」、line 515「俺に任せてくれ」后重写。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-nattoku",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-nattoku",
+    "linguistic_payload": {
+      "headlineZh": "「納得」不只表示听懂，还表示理由进入自己的判断体系、因而能够接受；所以“理解了”仍可能“不納得”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "サ变与两个高频否定",
+          "takeawayZh": "可说「納得する／できる」，口语中「納得がいかない／納得いかない」尤其常见。",
+          "explanationZh": "EP1 同时有「納得できない」与「納得いかねえ」。前者突出无法达到信服，后者是固定搭配，表示心里过不去；粗口语「いかねえ」来自「いかない」。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "理解之后的接受判断",
+          "takeawayZh": "「理解」侧重弄懂内容，「納得」还要求理由对自己有说服力。",
+          "explanationZh": "「そんな理由じゃ納得いかない」说明信息并非没听懂，而是认为理由不足。EP6「それで納得してあげます」则表示有条件地接受对方说明。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "表达异议但保留可说服空间",
+          "takeawayZh": "说「納得できません」比直接说对方错误更聚焦自己的接受状态。",
+          "explanationZh": "这种表达适合协商，但并不天然柔和；若用「絶対納得しない」便会转成强硬拒绝。加上具体疑点更有助于继续讨论。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "认知接受",
+          "plainZh": "不仅理解信息，还认为它足以支持结论或行动。"
+        },
+        {
+          "termZh": "固定搭配",
+          "plainZh": "「納得がいく／いかない」整体表示能否信服，不能逐字按“去”理解。"
+        }
+      ],
+      "historicalNoteZh": "「納得」是汉字词，本来就带有把道理接纳进来的意象；现代会话中已非常自然，并不限于正式论证。",
+      "cautionZh": "不要把「納得しました」只译成“我听懂了”。它往往还承诺说话人认可说明，若只是理解内容可用「分かりました」。"
+    },
+    "review_note": "实查字幕 EP1 line 68「納得できない」、line 394「納得いかねえ」及 EP6 line 135「納得してあげます」，按理解与接受的差异手写。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-rei",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-rei",
+    "linguistic_payload": {
+      "headlineZh": "「礼」可指道谢、回礼或礼节；日常表达谢意时常说「お礼」，而「礼をする」还可能包含回报恩情。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "裸形与「お礼」",
+          "takeawayZh": "读「れい」，常见「礼を言う／する」「お礼をする」「礼儀」「失礼」。",
+          "explanationZh": "EP1「何のお礼もできません」使用美化语「お」；紧接着「俺が君に礼をしたい」改用裸形，语气更硬朗，也更像偿还所受帮助。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "言语感谢、谢礼与礼法",
+          "takeawayZh": "它既能是说谢谢的行为，也能是作为回报的物品或行动，还可进入礼仪词族。",
+          "explanationZh": "「お礼を言う」明确是言语致谢；「お礼をする」可包括请客或送礼；「礼を尽くす」则转向符合礼法地对待对方。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "受惠关系中的互惠",
+          "takeawayZh": "提出「お礼」承认自己受了好处，并尝试恢复人际关系的平衡。",
+          "explanationZh": "字幕中一方说无法回礼，另一方却说自己才想答谢，双方在重新定位谁欠谁。拒绝回礼时可说「お礼なんていらない」。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "互惠",
+          "plainZh": "接受帮助后以语言、礼物或行动回应，使关系不只单向受惠。"
+        },
+        {
+          "termZh": "美化语「お」",
+          "plainZh": "「お礼」已高度固定，比裸形「礼」更符合多数日常致谢场景。"
+        }
+      ],
+      "historicalNoteZh": "「礼」长期同时承载礼法与致谢含义；现代「お礼」尤其常用于具体的感谢表达和回礼。",
+      "cautionZh": "「失礼」虽含同一汉字，却是“失去礼数、打扰”的固定词，不能把其中的「礼」单独译成谢礼。"
+    },
+    "review_note": "核对字幕 EP1 line 239–242「お礼／礼をしたい／お礼をされる」这组对话后，按裸形、美化语和互惠关系重写。"
+  },
+  {
+    "id": "enrich-vocab-vocab-re-zero-tanomu-v1",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-tanomu",
+    "linguistic_payload": {
+      "headlineZh": "「頼む」从提出请求延伸到托付人与事；单独喊「頼む！」时，省略内容却能形成力度很强的“拜托了”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "マ行五段与拨音便",
+          "takeawayZh": "变形为「頼まない／頼みます／頼んで／頼んだ／頼める」。",
+          "explanationZh": "过去与て形出现「ん」。EP1「後は頼んだ」用过去形完成托付这一言语行为，并非在叙述很久以前请求过。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "请求内容和托付对象",
+          "takeawayZh": "可说「人に仕事を頼む」「人を頼む」「人に頼る」，不同格关系改变意义。",
+          "explanationZh": "「サテラを頼む」是把照料她这件事托付出去；「返事してくれ、頼む」则由前句给出请求内容。别把「人を頼む」机械理解为命令人。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "短句依靠紧迫语调",
+          "takeawayZh": "反复「頼むよ」「頼む…」把请求升级为恳求，礼貌度却不如完整敬语。",
+          "explanationZh": "亲近或危急场景很自然；对陌生人正式委托时可用「お願いします」「お願いできますか」，避免只用命令感较强的短句。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "施为性过去形",
+          "plainZh": "「頼んだ」在托付当下就使请求成立，可译“那就拜托你了”。"
+        },
+        {
+          "termZh": "内容省略",
+          "plainZh": "只说「頼む」时，听者从前一句或共同情境恢复所求事项。"
+        }
+      ],
+      "historicalNoteZh": "「たのむ」是日语固有动词，现代既保留依赖、倚仗的关系义，也广泛用于请托和点单。",
+      "cautionZh": "餐厅说「これを頼む」可表示点这道菜；在人际场景则可能是托付。必须看宾语是什么。"
+    },
+    "review_note": "依据 EP1 line 485「後は頼んだ」、line 584「サテラを頼む」、line 617「返事してくれ！頼む」实查其托付与恳求用法。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-警戒",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-警戒",
+    "linguistic_payload": {
+      "headlineZh": "「警戒」是在危险尚未发生时提高注意并准备应对，既包括心理戒备，也包括人员部署和周边监视。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "警戒对象和范围",
+          "takeawayZh": "常见「敵を警戒する」「周囲を警戒する」「事故に警戒する」「警戒を強める」。",
+          "explanationZh": "对象是可疑人物时用「を」直接监视；风险类型也常用「に」。EP9「周囲の警戒を」把周边监视当作可分派的任务。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "从戒心到战备状态",
+          "takeawayZh": "它不要求危险已经证实，只说明有风险依据，因而进入高注意状态。",
+          "explanationZh": "EP4「そんな警戒しなくても」侧重一个人的戒心；EP19「総員、警戒！」则是让全体进入战备。中文可分别译“这么防备”和“全员警戒”。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "名词命令适合紧急调度",
+          "takeawayZh": "只喊「警戒！」省略「しろ」，能把信息压缩成迅速执行的指令。",
+          "explanationZh": "军事、安保和灾害广播常用这种简洁格式。日常对人说「警戒している」也会透露自己尚未信任对方。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "预防性状态",
+          "plainZh": "危险未必已经发生，但行为者提前提高注意并准备反应。"
+        },
+        {
+          "termZh": "名词命令",
+          "plainZh": "省略动词，仅用任务名发令，如「総員、警戒」。"
+        }
+      ],
+      "historicalNoteZh": "「警戒」是汉字词，在军警、灾害和公共安全语域中非常稳定，随后也进入普通人际戒备表达。",
+      "cautionZh": "「警戒」比一般「注意」更暗示潜在威胁。只是提醒小心台阶时说「警戒してください」会显得过重。"
+    },
+    "review_note": "核查 EP4 line 202 的人际戒备、EP9 line 276 的任务分派及 EP19 line 385「総員 警戒」后逐项重写。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-要求",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-要求",
+    "linguistic_payload": {
+      "headlineZh": "「要求」明确提出希望对方满足的条件，通常预设说话人有立场、筹码或权利，因此力度高于普通请求。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "提出者、对象与内容",
+          "takeawayZh": "基本结构是「AがBにXを要求する」；「Aからの要求」把提出者放进名词短语。",
+          "explanationZh": "EP3「私からの要求は一つ」先指定来源，再把内容延后到下一句；「条件を要求する」则直接标出要求事项。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "与请求、委托的力度差",
+          "takeawayZh": "「お願い」可低姿态恳求，「依頼」请人承办事项，「要求」则更像必须满足的主张。",
+          "explanationZh": "字幕「俺様たちからの要求だ」借词本身和自称强化压迫感。即使内容简单，称为「要求」也把双方放进谈判或对立框架。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "先报数量制造控制感",
+          "takeawayZh": "「要求は一つ」让听者预期条件明确，也把话轮控制到随后公布的内容。",
+          "explanationZh": "这种结构常见于交涉、威胁和正式声明。现实合作若想降低对抗，可改说「お願いしたいことが一つあります」。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "言语力度",
+          "plainZh": "不同请求词会暗示说话人是恳求、委托，还是主张对方有义务满足。"
+        },
+        {
+          "termZh": "延后揭示",
+          "plainZh": "先说“有一个要求”，再在后句公布内容，以集中听者注意。"
+        }
+      ],
+      "historicalNoteZh": "「要求」长期用于制度、谈判和权利主张，现代也能用于软件需求等非人际对象，但核心仍是明确提出满足条件。",
+      "cautionZh": "对服务人员或同事把普通愿望说成「要求」可能显得强势。没有权利主张时，先考虑「お願い」「依頼」。"
+    },
+    "review_note": "对照 EP3 line 12「私からの要求は１つ」、EP28 line 408 与 EP39 line 75 后，按来源格、条件公布和人际力度手写。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-hitsuyou",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-hitsuyou",
+    "linguistic_payload": {
+      "headlineZh": "「必要」判断某物或某行动是不是达成目标不可缺少的条件；「必要ない」是“不需要”，不等于“禁止”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词与ナ形容词式接续",
+          "takeawayZh": "可说「必要だ／必要な条件／必要なら」，名词形式常见「必要がある」。",
+          "explanationZh": "动词普通形可直接修饰它：「説明する必要がある／ない」。EP2「自己紹介の必要はなさそうだ」把必要性作为主题，再作推测否定。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "必要性与义务不同",
+          "takeawayZh": "它说明达成目的所需条件；是否属于道德或制度义务，要由上下文决定。",
+          "explanationZh": "EP8「突破するために必要な条件」明确给出目的。说「行く必要がない」只表示无需去，并没有说去那里不被允许。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「必要ありません」是清晰婉拒",
+          "takeawayZh": "面对商品或服务时，它明确表示自己不需要，比多义的「大丈夫です」更少歧义。",
+          "explanationZh": "语气仍可因场面显得生硬；加「今回は」或先说感谢，能把拒绝限定到当前提议，而非否定对方好意。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "目的条件",
+          "plainZh": "为了实现某个目标而不可缺少的人、物或行动。"
+        },
+        {
+          "termZh": "必要性否定",
+          "plainZh": "「Vる必要はない」表示无需做V，并不表示不得做V。"
+        }
+      ],
+      "historicalNoteZh": "「必要」是汉字词，书面与口语都高频；现代说明书、制度文本和日常拒绝都使用这一结构。",
+      "cautionZh": "「必要ではない」和「してはいけない」不能互换：前者取消必要性，后者明确禁止。"
+    },
+    "review_note": "核对 EP2 line 191「自己紹介の必要」、EP5 line 210「必要ありません」及 EP8 line 42「必要な条件」后重写。"
+  },
+  {
+    "id": "enrich-vocab-vocab-re-zero-kowai-v1",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-kowai",
+    "linguistic_payload": {
+      "headlineZh": "「怖い」可描述引发恐惧的对象，也可报告说话人正在害怕；日语用格助词和人称视角区分这两种读取。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "イ形容词的规则活用",
+          "takeawayZh": "变形为「怖くない／怖かった／怖くて」，修饰名词直接说「怖い人」。",
+          "explanationZh": "名词化可用「怖さ」。字幕连续重复「怖い」时不需要任何助词，作为独立评价和情绪喊声成立。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "恐惧体验者与对象",
+          "takeawayZh": "「私は犬が怖い」中「は」标体验者，「が」标引发恐惧的对象。",
+          "explanationZh": "第三人称的内心通常不能无证据断言，因此常用外显反应词「怖がる」；EP2「そんなに怖がらなくても」正是观察对方表现。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "重复再现失控情绪",
+          "takeawayZh": "「怖い」连续出现会压倒句法组织，表现恐惧者难以形成完整叙述。",
+          "explanationZh": "EP1 的多次反复不是信息冗余，而是情绪节奏。现实安慰时，与其否认「怖くない」，不如先承认对方确实感到害怕。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "感情形容词",
+          "plainZh": "直接表达体验者内部感受的形容词，第三人称使用会受到证据限制。"
+        },
+        {
+          "termZh": "情绪性重复",
+          "plainZh": "重复同一词不增加命题内容，却强化失控程度和语音节奏。"
+        }
+      ],
+      "historicalNoteZh": "「こわい」是日语固有形容词，汉字通常写「怖い」；口语中也常直接使用平假名。",
+      "cautionZh": "「怖い人」可能是“令人害怕的人”，不是“正在害怕的人”。后者要说「怖がっている人」等。"
+    },
+    "review_note": "实查 EP1 line 954–956 的连续「怖い」及 EP2 line 268「怖がらなくても」，据形容词与派生动词的视角差重写。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-後悔-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-後悔",
+    "linguistic_payload": {
+      "headlineZh": "「後悔」是回看已经作出的选择后，认为如果能重来就会改选；它天然带过去事实不可轻易撤回的视角。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "后悔事项的表达",
+          "takeawayZh": "常说「したことを後悔する」「選択を後悔する」「後悔が残る」。",
+          "explanationZh": "EP26「そのことを後悔して」用「こと」指回前文事件。若后悔没做某事，可说「しなかったことを後悔する」。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "与「悔しい」的时间方向",
+          "takeawayZh": "「後悔する」评价自己的既往选择，「悔しい」则可对失败、受辱等结果感到不甘。",
+          "explanationZh": "两者会同时出现，但不必相同。EP22「後悔があろうと、悔恨に打たれようと」把事后评价和强烈懊恼并列。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "未来形可成为威胁",
+          "takeawayZh": "「後悔するぞ／後悔するわ」预测对方将懊悔，常暗示坏后果由当前选择造成。",
+          "explanationZh": "EP17「お前は後悔する、絶対にする」不是中性预报，而是在否定对方决定并施压。关系不足时慎用。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "反事实回看",
+          "plainZh": "设想过去若作出另一选择，结果也许更好，由此产生负面评价。"
+        },
+        {
+          "termZh": "预告性威胁",
+          "plainZh": "用“你会后悔”把未来痛苦描绘成对方当前行动的必然后果。"
+        }
+      ],
+      "historicalNoteZh": "「後悔」按汉字结构即“事后悔恨”，现代仍强烈保留回顾已发生选择的时间方向。",
+      "cautionZh": "单纯担心未来不叫「後悔」。事情尚未决定时可说「後悔しないように」，但后悔本身要以某项选择为参照。"
+    },
+    "review_note": "核对 EP6 line 354、EP17 line 267「絶対にする」及 EP26 line 86 的真实上下文后，区分事后评价、悔恨感与威胁。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-情報-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-情報",
+    "linguistic_payload": {
+      "headlineZh": "「情報」是能减少未知、支持判断的内容；它可以被收集、套出和传播，但价值取决于来源与可靠度。",
+      "domains": [
+        {
+          "domain": "collocation",
+          "titleZh": "信息流动的动词搭配",
+          "takeawayZh": "常见「情報を集める／得る／聞き出す／流す」以及「情報の出どころ」。",
+          "explanationZh": "EP1「情報収集」把动作压缩为复合名词；EP3「情報を聞き出す」表示通过询问让对方说出本不主动提供的内容。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "内容单位而非必然真相",
+          "takeawayZh": "被称为「情報」只说明它可供判断，不保证已经核实为事实。",
+          "explanationZh": "「何にも知らないって情報」甚至把“对方无知”本身当成线索。新闻、传闻和侦察所得都可能是信息，但可信度不同。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "来源说明建立证据责任",
+          "takeawayZh": "「情報の出どころを説明できない」会削弱主张，因为听者无法检查证据链。",
+          "explanationZh": "EP6 这句正体现说话人知道事实却不能公开来源的困境。正式交流应区分亲眼所见、转述与推测。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "信息来源",
+          "plainZh": "内容最初从哪里、由谁、通过何种渠道获得，决定其可验证程度。"
+        },
+        {
+          "termZh": "证据链",
+          "plainZh": "从来源到当前主张的传递路径；路径越不透明，可靠性越难判断。"
+        }
+      ],
+      "historicalNoteZh": "「情報」在近现代通信、军事和计算机语境中扩展很快，现已成为日常“信息”的核心词。",
+      "cautionZh": "「情報」不是可数形态固定的“一个消息”；要计数时可说「一つの情報」，具体新闻则常用「知らせ」。"
+    },
+    "review_note": "依据 EP1 line 51「情報収集」、EP3 line 273「情報を聞き出す」及 EP6 line 157「情報の出どころ」手写信息流与证据性分析。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-条件",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-条件",
+    "linguistic_payload": {
+      "headlineZh": "「条件」是判断、交易或行动成立时必须参照的限制项；它既能由双方谈定，也能由客观目标决定。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "条件内容和附加形式",
+          "takeawayZh": "可说「条件を出す／満たす」「その条件で」「条件付きで」「〜という条件」。",
+          "explanationZh": "EP2「その条件で徽章を買い取りたい」用「で」表示按该条件成交；EP3「条件付き」说明承诺并非无条件成立。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "成立前提与交换条款",
+          "takeawayZh": "逻辑或攻略语境强调必要前提，交易语境则强调各方同意的条款。",
+          "explanationZh": "EP8「突破するために必要な条件」属于达成目标的前提；EP1「対等な条件」评价双方力量或规则是否公平。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "改变条件会改变结论",
+          "takeawayZh": "「前回とは条件が違う」指出旧经验不能直接套用，而非单纯说结果不同。",
+          "explanationZh": "交涉中先确认条件可避免双方各自理解成交内容。附加条件过晚提出，则可能被听成反悔或隐藏限制。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "必要条件",
+          "plainZh": "某结果要成立就不能缺少的前提，但满足它未必足以保证结果。"
+        },
+        {
+          "termZh": "附带条件",
+          "plainZh": "承诺或同意只在某项限制成立时有效，常用「条件付き」。"
+        }
+      ],
+      "historicalNoteZh": "「条件」是汉字词，在逻辑、法律、交易和日常计划中都高频，各领域会给它不同精确度。",
+      "cautionZh": "「条件がある」只说明存在限制，不代表条件合理或双方已经同意；交易时要把具体内容说清楚。"
+    },
+    "review_note": "核对 EP1 line 137「対等な条件」、EP2 line 344「その条件で」及 EP3 line 381「条件付き」后，按三种关系重写。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-irai",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-irai",
+    "linguistic_payload": {
+      "headlineZh": "「依頼」是请特定对象承办某项事务，通常比口头「頼む」更像可追踪的委托关系，并会产生「依頼人／依頼主」。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "委托对象与事项",
+          "takeawayZh": "基本结构是「人に仕事を依頼する」；承办方可说「依頼を受ける」。",
+          "explanationZh": "EP1「盗みの依頼」以「の」说明委托内容。「依頼人」「依頼主」则把发出委托的人词汇化，便于后续追踪身份。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "请求行为与任务关系",
+          "takeawayZh": "它不只是一句话“拜托”，还可指已经成立、包含任务与报酬的委托事项。",
+          "explanationZh": "字幕讨论与委托人会面的时间和额外金钱，表明这是一项持续任务。普通请朋友递一下东西，通常不必上升为「依頼」。"
+        },
+        {
+          "domain": "register",
+          "titleZh": "书面和职业场景更常见",
+          "takeawayZh": "商务邮件、调查、创作约稿常用「依頼する／ご依頼」，口头紧急恳求更常用「頼む」。",
+          "explanationZh": "礼貌表达可说「ご依頼いただく」「依頼できますか」。词本身较中性，任务是否合法仍由内容决定。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "委托关系",
+          "plainZh": "一方提出明确任务，另一方承办，双方可能另有期限、报酬和责任。"
+        },
+        {
+          "termZh": "施事名词",
+          "plainZh": "用「人／主」标记行为发起者，如「依頼人」「依頼主」。"
+        }
+      ],
+      "historicalNoteZh": "「依頼」是汉字词，现代行政、商业和平台经济进一步固定了它的事务性用法。",
+      "cautionZh": "「依頼」并不自动表示礼貌；命令式地下达工作仍可能强硬，礼貌由完整句式和双方关系共同决定。"
+    },
+    "review_note": "实查 EP1 line 775「盗みの依頼」、line 782「依頼人」、line 829「依頼主」及金钱语境后重写。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-modoru",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-modoru",
+    "linguistic_payload": {
+      "headlineZh": "「戻る」是自动词，表示主体回到原来的地点、状态或位置；让某物回去则用他动词「戻す」。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "ラ行五段与自动他动配对",
+          "takeawayZh": "变形为「戻らない／戻って／戻った」；对应他动词是「戻す」。",
+          "explanationZh": "EP1「戻ってまいりました」是「戻る」的て形加谦逊语「参る」。「買い戻す」则是复合他动词，表示买回来，不能当作「戻る」的普通变形。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "地点回返与状态恢复",
+          "takeawayZh": "目的地可用「に／へ」，原状态也可作为回归终点。",
+          "explanationZh": "「店に戻る」是回到地点；「結晶石に戻る」是恢复成原有形态。EP1「進むにしても戻るにしても」把前进与返回列为两条路线。"
+        },
+        {
+          "domain": "viewpoint",
+          "titleZh": "说话点影响「帰る」选择",
+          "takeawayZh": "「戻る」强调回到先前位置，「帰る」更常指回家、回所属处。",
+          "explanationZh": "从办公室出去再回办公室可说「戻る」；结束工作回家通常说「帰る」。两词会重叠，但参照点不同。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "回归终点",
+          "plainZh": "主体曾经所在的地点或状态，动作之后重新抵达。"
+        },
+        {
+          "termZh": "自动词",
+          "plainZh": "「戻る」描述主体自身返回；要表达使物体返回需用「戻す」。"
+        }
+      ],
+      "historicalNoteZh": "「もどる」是日语固有动词，现代通过「取り戻す、買い戻す」等复合词继续扩展“恢复、取回”概念。",
+      "cautionZh": "中文“返回文件”若是把物品退还给人，要用「返す」或「戻す」，不一定能用自动词「戻る」。"
+    },
+    "review_note": "核对 EP1 line 410「戻ってまいりました」、line 463 路线对比及 line 470「結晶石に戻って」后重写。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-muri",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-muri",
+    "linguistic_payload": {
+      "headlineZh": "「無理」可判定事情做不到、不合理，也可表示勉强身体或让别人承受过度负担；中文译法随构式变化。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "判断词与サ变式搭配",
+          "takeawayZh": "可说「無理だ／無理な要求」「無理をする」「無理して」「無理させる」。",
+          "explanationZh": "EP1「無理して立つ」省略「を」，表示勉强自己；「無理させてごめん」用使役形承认让对方过度用力。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "不可能、不合理与过度",
+          "takeawayZh": "「それは無理」可能是能力上办不到，也可能是要求不合理；「無理する」则是超过承受范围。",
+          "explanationZh": "EP2「見過ごすのは無理だ」不是体力不足，而是说心理和立场上无法坐视。解释时需补出是哪种限制。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "短促拒绝力度很高",
+          "takeawayZh": "只说「無理」能迅速拒绝，但容易像完全关闭协商。",
+          "explanationZh": "需要维持合作时可说「その日程では難しいです」并提出替代方案。「無理しないで」则是关心对方别逞强。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "能力界限",
+          "plainZh": "身体、时间、制度或心理条件使某项行动无法成立。"
+        },
+        {
+          "termZh": "过度施力",
+          "plainZh": "「無理をする」表示超出当前承受范围仍强行行动。"
+        }
+      ],
+      "historicalNoteZh": "「無理」原是汉字词，在现代会话里已高度口语化，单独一句「無理」尤其常见。",
+      "cautionZh": "数据库中文“勉强”容易歧义：日语「無理」不是“勉强还可以”的低度肯定，而往往是否定或过度。"
+    },
+    "review_note": "根据 EP1 line 167「無理して」、line 479「無理させて」和 EP2 line 123「見過ごすのは無理」分别核定三个义项。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-ochitsuku",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-ochitsuku",
+    "linguistic_payload": {
+      "headlineZh": "「落ち着く」把剧烈变化收束到稳定状态，可指人冷静下来、局势安定，也可指在某处安心定居。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "カ行五段与命令形",
+          "takeawayZh": "变形为「落ち着かない／落ち着いて／落ち着いた」，命令形是「落ち着け」。",
+          "explanationZh": "EP1 自我命令「落ち着け」和 EP2 对他人喊「落ち着け」形式相同；对象由话语场面恢复。否定形「落ち着かない状況」则描述持续不安定。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "情绪、局势与环境稳定",
+          "takeawayZh": "核心是从波动变稳定，不必只译成心理“冷静”。",
+          "explanationZh": "「国が落ち着かない」指局势不稳；「落ち着いて月を見る」表示从容地做事；「この町に落ち着く」还可表示定居。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "命令冷静可能适得其反",
+          "takeawayZh": "危机中「落ち着け」简短有效，但对强烈焦虑者可能像否定其感受。",
+          "explanationZh": "EP2 后续补出「争ってる場合じゃない」，提供了冷静的理由。现实沟通若能同时给出具体下一步，通常比单喊命令更有帮助。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "状态收束",
+          "plainZh": "情绪或环境从高波动进入较稳定、可控制的状态。"
+        },
+        {
+          "termZh": "语境主语",
+          "plainZh": "命令句省略主语，听者靠场面判断是在命令自己还是对方。"
+        }
+      ],
+      "historicalNoteZh": "「落ちる＋着く」的词形仍能让人感到“落到并停在一处”，但现代已作为整体动词使用。",
+      "cautionZh": "「落ち着いた人」可表示性格沉稳，「落ち着いた色」还能表示颜色低调，不一定涉及情绪变化。"
+    },
+    "review_note": "实查 EP1 line 91 自我命令、EP2 line 230 的局势否定与 line 300 的危机劝止后，按稳定核心重写。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-対価",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-対価",
+    "linguistic_payload": {
+      "headlineZh": "「対価」是为了得到商品、服务或结果而交出的相应回报；它可能是金钱、劳动，也可能是故事中的非金钱代价。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "交换对象的标记",
+          "takeawayZh": "可说「労働の対価」「対価を払う／受け取る」「Xの対価としてYを払う」。",
+          "explanationZh": "EP1「対価はもらってる」从接受方说回报已收到；EP28「対価を頂こう」则在行动之后索取回报。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "报酬与牺牲的双向翻译",
+          "takeawayZh": "从提供者看可译“代价”，从接受者看可译“报酬、回报”。",
+          "explanationZh": "字幕「魔女の対価だ、金銭じゃない」明确否定金钱，说明交换物可以是记忆、情感或其他损失。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "把善意重新框成交易",
+          "takeawayZh": "说已经得到「対価」，可以拒绝对方继续背负人情。",
+          "explanationZh": "EP1 用这句话淡化救助恩情，让双方不必维持欠债关系。反过来主动索取对价，则会强调没有免费给予。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "交换回报",
+          "plainZh": "取得某物或服务时交出的、被认为与之对应的价值。"
+        },
+        {
+          "termZh": "交易框架",
+          "plainZh": "把行为理解为双方交换，而不是单向赠与或恩惠。"
+        }
+      ],
+      "historicalNoteZh": "「対価」常见于法律、劳动和商业语境，幻想作品则会把超自然损失也纳入交换概念。",
+      "cautionZh": "中文“代价”常偏负面，但日语「労働の対価」可以是中性的工资报酬，不能一律译成牺牲。"
+    },
+    "review_note": "核对 EP1 line 244「対価はもらってる」、EP28 line 137「対価を頂こう」及 line 139 非金钱说明后重写。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-発動",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-発動",
+    "linguistic_payload": {
+      "headlineZh": "「発動」表示原先潜伏或待机的能力、制度、术式开始产生效力，焦点在触发后的运作，而非单纯“发生”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "サ变自动用法和使役",
+          "takeawayZh": "常说「能力が発動する」「術を発動させる」「発動条件」。",
+          "explanationZh": "EP2「死ななきゃ発動しない」把机制设为主语省略的自动运作；「魔法発動イベント」则把发动作定语压进复合名词。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "触发、启动与生效",
+          "takeawayZh": "它适合能力、法律措施、保险和装置机制，不是所有动作开始都能使用。",
+          "explanationZh": "EP8「一度発動した呪術」表示术式已经生效并持续。人开始走路通常说「歩き始める」，不会说「歩行を発動する」。"
+        },
+        {
+          "domain": "aspect",
+          "titleZh": "起点与结果状态",
+          "takeawayZh": "「発動する」标出效力起点，「発動している」可描述机制当前处于生效状态。",
+          "explanationZh": "讨论触发条件时关心何时跨过起点；讨论解除时则关心已启动的效果能否终止。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "触发条件",
+          "plainZh": "使待机机制从未生效切换到开始运作的前提。"
+        },
+        {
+          "termZh": "起始体",
+          "plainZh": "从事件内部突出“开始生效”这一阶段的表达方式。"
+        }
+      ],
+      "historicalNoteZh": "「発動」原本常见于机械、法令和军事措辞，现代游戏与动画又把它固定为技能、魔法启动用语。",
+      "cautionZh": "「事故が発生する」是事故发生；「能力が発動する」是能力生效。「発生」与「発動」不要只因中文都可说“发动”而混用。"
+    },
+    "review_note": "依据 EP1 line 32「魔法発動イベント」、EP2 line 88 的触发条件及 EP8 line 187 已生效呪术重写。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-目覚める",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-目覚める",
+    "linguistic_payload": {
+      "headlineZh": "「目覚める」本义是从睡眠中醒来，也可表示一个人对能力、感情或思想突然产生清醒认识。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "一段自动词",
+          "takeawayZh": "变形为「目覚めない／目覚めて／目覚めた」；近义的「目を覚ます」也表示醒来，叫醒别人通常用「起こす」。",
+          "explanationZh": "EP4 同时有「目覚めたら」「目覚めましたね」「目覚めたわ」，分别展示条件形、礼貌过去和普通过去。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "醒来与觉醒",
+          "takeawayZh": "睡眠义接近「起きる」，抽象义则表示意识到或激活原有潜能。",
+          "explanationZh": "「才能に目覚める」「恋に目覚める」不是睁眼，而是第一次清楚体验。EP1、EP4 的实例都依据卧床场景取字面醒来义。"
+        },
+        {
+          "domain": "register",
+          "titleZh": "比「起きる」更聚焦意识恢复",
+          "takeawayZh": "日常说几点起床多用「起きる」；叙事描写苏醒时「目覚める」更有镜头感。",
+          "explanationZh": "「朝七時に起きる」还可包含离床动作，「眠りから目覚める」则把从睡眠到清醒的界线放在前景。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "状态转换",
+          "plainZh": "主体从睡眠或未察觉状态跨入清醒、认识到的状态。"
+        },
+        {
+          "termZh": "自动词与相关表达",
+          "plainZh": "自己从睡眠中醒来可用「目覚める／目を覚ます」，叫醒别人通常用「起こす」。"
+        }
+      ],
+      "historicalNoteZh": "「めざめる」由与眼和清醒有关的日语词素构成，现代抽象“觉醒”义在文学与媒体中很活跃。",
+      "cautionZh": "闹钟响后“起床去上班”通常用「起きる」。若只背「目覚める＝起床」，会忽略它更聚焦意识苏醒。"
+    },
+    "review_note": "核对 EP1 line 195 及 EP4 line 8、54、55 的同场不同活用后，另行区分「起きる」和抽象觉醒。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-関係者",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-関係者",
+    "linguistic_payload": {
+      "headlineZh": "「関係者」把人与某一事件、组织或业务的联系作为身份标准，常用于尚不必公开姓名的“相关人员”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「関係＋者」的人称派生",
+          "takeawayZh": "后缀「者」把抽象关系转换成具备该关系的人，读「かんけいしゃ」。",
+          "explanationZh": "可进一步组成「事件関係者」「学校関係者」「関係者以外」。字幕「魔女教の関係者」由「の」标出相关组织。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "联系范围由事件决定",
+          "takeawayZh": "它可包括当事人、工作人员、证人或合作方，不自动等于犯罪同伙。",
+          "explanationZh": "EP1「何だ、関係者なのね」只推断对方与交易有关；EP3「この場にいる関係者」则把现场相关人全部纳入威胁范围。"
+        },
+        {
+          "domain": "institutional",
+          "titleZh": "模糊身份方便控制信息",
+          "takeawayZh": "公告中的「関係者」能圈定访问权限，同时不逐一列名。",
+          "explanationZh": "「関係者以外立入禁止」只允许与事务有关的人进入，但具体谁算相关者仍需机构规则解释。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "人员后缀「者」",
+          "plainZh": "附在行为或属性后，构成具有该身份的人名词。"
+        },
+        {
+          "termZh": "范围模糊",
+          "plainZh": "词给出关联标准，却不明确列出所有成员，边界由制度或场面决定。"
+        }
+      ],
+      "historicalNoteZh": "「〜関係者」在新闻、行政和组织管理中高度常用，能以较中性的方式暂时代替具体身份称呼。",
+      "cautionZh": "调查报道中的「関係者」不等于嫌疑人。翻译成“涉案人员”可能额外加入负面判断，应看原文范围。"
+    },
+    "review_note": "核对 EP1 line 869、EP2 line 446 及 EP7 line 37「魔女教の関係者」后，按人员派生和制度边界重写。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-atarimae",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-atarimae",
+    "linguistic_payload": {
+      "headlineZh": "「当たり前」表示某结论符合常识、责任或当前人的价值观；所谓“理所当然”并不保证所有人共享同一标准。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "判断词和连体用法",
+          "takeawayZh": "常说「当たり前だ／でしょ」「当たり前のこと」「〜て当たり前」。",
+          "explanationZh": "EP3 连续出现「当たり前なんだ」「当たり前でしょ」「当たり前だよな」。句尾形式分别承担强调、反问和寻求共识。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "常识、义务与预期",
+          "takeawayZh": "它可指人人预期如此，也可说某人履行责任本就应该。",
+          "explanationZh": "「生きる確率が高い所を選ぶのが当たり前」是角色基于生存价值作判断。不同立场未必接受这项“当然”。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "可赞成，也可抹去他人努力",
+          "takeawayZh": "回应感谢说「当たり前だ」能表达义气，但也可能让成果听起来不值得肯定。",
+          "explanationZh": "语调柔和时接近“这是我应该做的”；在争论中则可能表示“这还用说”，关闭进一步解释。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "常态化判断",
+          "plainZh": "把某事放入无需特别解释、按理就会如此的范围。"
+        },
+        {
+          "termZh": "共识索引",
+          "plainZh": "「でしょ／だよな」邀请听者确认双方是否共享“当然”的标准。"
+        }
+      ],
+      "historicalNoteZh": "「当たり前」作为现代常用表达，比近义汉字词「当然」更口语，也更容易直接评价人的行为。",
+      "cautionZh": "“对我而言当然”不等于客观事实。跨文化或职责不明的场合，用这个词要求别人配合容易显得武断。"
+    },
+    "review_note": "实查 EP3 line 176–177、334、336 的连续判断和不同句尾后，按常识、价值立场与共识要求手写。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-nigeru",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-nigeru",
+    "linguistic_payload": {
+      "headlineZh": "「逃げる」是主体主动离开危险、追捕或不愿面对的局面；命令形「逃げろ」在危机中能单独构成完整警告。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "一段自动词与对应他动词",
+          "takeawayZh": "变形为「逃げない／逃げて／逃げた」，命令形「逃げろ」；让人逃走用「逃がす」。",
+          "explanationZh": "EP1「逃げてった」是「逃げていった」的口语缩约，描写动作朝远离说话点的方向展开。不能把「逃げる」直接当作“放走”。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "起点、方向和对象",
+          "takeawayZh": "可说「敵から逃げる」「外へ逃げる」「責任から逃げる」。",
+          "explanationZh": "「から」标离开的威胁或起点，「へ」标逃往方向。抽象宾语如责任也能作为试图摆脱的来源。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "短命令优先传递生存信息",
+          "takeawayZh": "「逃げろ、早く」删去理由和主语，使听者把注意力放到立即行动。",
+          "explanationZh": "这种强命令在真实危险中合理，普通冲突里则显得粗暴。礼貌疏散广播会改用「避難してください」。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "离源运动",
+          "plainZh": "动作从危险、追捕者或原位置向外展开，常由「から」标起点。"
+        },
+        {
+          "termZh": "紧急命令",
+          "plainZh": "为速度省略说明，只保留必须立即执行的动词命令形。"
+        }
+      ],
+      "historicalNoteZh": "「にげる」是日语固有动词，现代也广泛用于逃避责任、现实或话题等抽象对象。",
+      "cautionZh": "灾害指示中「逃げる」是一般逃离，制度化“避难”常用「避難する」。两者的正式度和信息范围不同。"
+    },
+    "review_note": "核对 EP1 line 4「逃げろ、早く」、line 124「逃げてった」及 EP2 line 63 的危机重复后重写。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-shitagau",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-shitagau",
+    "linguistic_payload": {
+      "headlineZh": "「従う」表示以规则、命令、判断或某人为基准行动，既可译遵从，也可指跟随在后。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "ワ行五段的活用",
+          "takeawayZh": "变形为「従わない／従って／従った／従えば」；复合词有「付き従う」。",
+          "explanationZh": "EP13「付き従う」加入「付く」的连用成分，突出随侍在旁。检索中出现的「従者」是名词，不能当作动词活用证据。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "基准用助词「に」",
+          "takeawayZh": "常说「命令に従う」「契約に従う」「案内に従って進む」。",
+          "explanationZh": "EP3「僕は契約に従う」把契约设为行动规范。即使主体自愿，句法仍把外部标准放在前景。"
+        },
+        {
+          "domain": "sociolinguistics",
+          "titleZh": "顺从词汇显露权力关系",
+          "takeawayZh": "对人「従う」容易暗示上下级、支配或忠诚，不是中性的“一起去”。",
+          "explanationZh": "EP13「平伏し、付き従うだけでよい」把服从和屈从并列，强烈显示说话人的优越位置。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "规范基准",
+          "plainZh": "行动所依照的规则、命令或契约，通常由「に」标记。"
+        },
+        {
+          "termZh": "权力指示",
+          "plainZh": "词汇选择让听者感到谁下令、谁服从，以及双方地位是否对等。"
+        }
+      ],
+      "historicalNoteZh": "「したがう」是日语固有动词，汉字可写「従う」；现代既用于正式规范，也保留物理跟随义。",
+      "cautionZh": "按照导航走可说「案内に従う」，但邀请朋友同行不要说「私に従って」；后者容易像命令下属。"
+    },
+    "review_note": "实查 EP3 line 121「契約に従う」与 EP13 line 77「平伏し付き従う」；同时排除「従者」造成的表面词干误命中。"
+  },
+  {
+    "id": "enrich-vocab-vocab-re-zero-yurusu-vocab-card-v1",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-yurusu",
+    "linguistic_payload": {
+      "headlineZh": "「許す」既能原谅既成过错，也能允许尚未发生的行动；共同点是说话人放弃阻止或惩罚。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "サ行五段动词",
+          "takeawayZh": "变形为「許さない／許して／許した／許せる」，请求形式常用「許してください」。",
+          "explanationZh": "EP1 求饶句省略具体过错，直接请求保命；「今なら許してあげる」在て形后接授受补助词，带“我给你宽恕”的姿态。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "宽恕与许可",
+          "takeawayZh": "对过去行为多译“原谅”，对未来行动多译“允许”。",
+          "explanationZh": "「失敗を許す」是宽恕错误，「入室を許す」是准许进入。「誤差を許す」还可指系统容许一定偏差。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "宽恕话语预设裁量权",
+          "takeawayZh": "说「許してあげる」把自己放在有资格惩罚或放过对方的位置。",
+          "explanationZh": "亲密玩笑中可以轻松，冲突里却可能居高临下。正式道歉者应请求「お許しください」，而不是替受害者宣布已经无事。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "时间取向",
+          "plainZh": "过去过错对应宽恕，未来行为对应许可，时间位置帮助区分词义。"
+        },
+        {
+          "termZh": "裁量权",
+          "plainZh": "决定是否阻止、处罚或放行的权力，常被「許す」隐含。"
+        }
+      ],
+      "historicalNoteZh": "「ゆるす」是日语固有词，传统写法可对应宽松、允许、赦免等概念，现代统一常写「許す」。",
+      "cautionZh": "「許可する」偏制度批准，「許す」还带个人宽恕。申请正式权限时优先使用前者的名词「許可」。"
+    },
+    "review_note": "根据 EP1 line 104「許してください」、line 112「許してあげる」和 line 395 的轻度放过场景，分开宽恕、许可与权力姿态。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-見つける",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-見つける",
+    "linguistic_payload": {
+      "headlineZh": "「見つける」是他动词，表示搜索者发现目标或辨认出某物；目标自己被发现时用自动词「見つかる」。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "一段他动词及复合强化",
+          "takeawayZh": "变形为「見つけない／見つけて／見つけた」；「見つけ出す」突出经过搜寻终于找到。",
+          "explanationZh": "EP1「フェルトを見つけ出す」比普通「見つける」更强调搜索过程。完成遗憾可说「見つけてしまった」。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「見つける／見つかる」视角对立",
+          "takeawayZh": "搜索者找目标说「鍵を見つける」，目标被找到说「鍵が見つかる」。",
+          "explanationZh": "EP1「迷子になったのを見つけてくれた」以施事为中心；若汇报结果，则自然说「迷子が見つかった」。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "授受形式可成为承诺",
+          "takeawayZh": "「見つけてあげる」把找到目标呈现为给对方的帮助。",
+          "explanationZh": "字幕「すぐに見つけてあげっからな」兼有保证与照顾语气；关系不当时「〜てあげる」也可能显得自居恩人。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "发现视角",
+          "plainZh": "他动词突出寻找者的行动，自动词突出目标终于出现的结果。"
+        },
+        {
+          "termZh": "复合动词「出す」",
+          "plainZh": "「見つけ出す」把从隐藏或未知中找出的过程说得更完整。"
+        }
+      ],
+      "historicalNoteZh": "「見つける」由视觉动词发展出“发现、找到”，现代也用于找出答案、人才和问题等抽象目标。",
+      "cautionZh": "中文“找到了”可能对应「見つけた」或「見つかった」；先判断要突出谁找，还是只报告结果。"
+    },
+    "review_note": "核对 EP1 line 342「見つけてあげる」、line 438「見つけてくれた」、line 491「見つけ出す」后重写视角与授受。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-証し",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-証し",
+    "linguistic_payload": {
+      "headlineZh": "「証し（あかし）」是让不可见的努力、亲爱或身份得到外在确认的标记，常以「Xの証し」出现。",
+      "domains": [
+        {
+          "domain": "orthography",
+          "titleZh": "训读名词「証し」",
+          "takeawayZh": "读「あかし」，可写「証し」或「証」；不要按音读误读成「しょうし」。",
+          "explanationZh": "「証拠（しょうこ）」「証明（しょうめい）」中的「証」用音读，本词则是独立训读。假名「し」帮助提示名词形。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "证明材料与象征标记",
+          "takeawayZh": "它未必满足法律证据标准，更常把某物解释为情感或经历的可见象征。",
+          "explanationZh": "EP4「努力した証し」把成果当作努力留下的痕迹；EP8「親愛の証し」则把行为解释为亲爱的标记。"
+        },
+        {
+          "domain": "rhetoric",
+          "titleZh": "「Xの証し」赋予物件意义",
+          "takeawayZh": "这个结构不是只报告物品，而是在说明它证明了哪种抽象关系。",
+          "explanationZh": "同一物件可以被说成胜利、忠诚或宠爱的证据；解释权也可能被角色夸张甚至扭曲。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "象征性证据",
+          "plainZh": "通过可见行为或物件，让情感、身份等抽象内容获得确认。"
+        },
+        {
+          "termZh": "训读名词",
+          "plainZh": "用日语固有读法读取汉字并作为名词使用，此处为「あかし」。"
+        }
+      ],
+      "historicalNoteZh": "「あかし」与“使事情明白、作证”的词族有关；现代书面语和叙事语言尤其喜欢「〜の証し」。",
+      "cautionZh": "司法证据通常说「証拠」，论证过程说「証明」；情感或身份象征才更适合「証し」。"
+    },
+    "review_note": "实查 EP4 line 424「努力した証し」、EP8 line 433「親愛の証し」与 EP22 的角色化反复后重写。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-冗談",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-冗談",
+    "linguistic_payload": {
+      "headlineZh": "「冗談」既指作为玩笑说的话，也进入「冗談じゃない／冗談じゃ済まない」等固定搭配，表达“这可不是闹着玩的”或强烈拒绝。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词判断与粗口语否定",
+          "takeawayZh": "可说「冗談だ／冗談じゃない」；粗口语「冗談じゃねえ」来自「じゃない」。",
+          "explanationZh": "EP2 和 EP17 多次出现「冗談じゃねえ」，词形并没有变成形容词，而是名词判断「冗談ではない」的缩约和音变。礼貌说法可用「冗談ではありません」。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "玩笑内容与严重性边界",
+          "takeawayZh": "「冗談」可给话语分类，也可反过来强调现实后果绝非玩笑。",
+          "explanationZh": "EP1「どっちも冗談じゃ済まねえ」不是判断对方有没有开玩笑，而是说两种幻想设定若成真都无法当笑话了事。「冗談に決まってる」则直接把某句话归类为玩笑。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「冗談じゃない」常是拒绝感叹",
+          "takeawayZh": "在受伤或被逼迫时，它可近于“开什么玩笑／我才不干”，不必有真实笑话在先。",
+          "explanationZh": "EP2「じょ… 冗談じゃねえ！ 割に合わねえよ！」以该表达拒绝危险交易；EP4「２人とも 冗談きつい…」则仍把双子的冷酷话语当作过分玩笑，功能要随场景区分。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "语用惯用句",
+          "plainZh": "形式上是否定“玩笑”，实际可整体执行抗议、拒绝或表达难以置信。"
+        },
+        {
+          "termZh": "严重性阈值",
+          "plainZh": "「冗談じゃ済まない」表示事态已越过可笑着带过、不追究后果的界线。"
+        }
+      ],
+      "historicalNoteZh": "「冗談」是汉语词构成，「冗」有多余、闲散之意，「談」指谈话；现代日语已稳定用于玩笑、戏言及相关感叹搭配。",
+      "cautionZh": "不要把每个「冗談じゃない」都逐字译为“不是玩笑”；若它独立喊出，常更自然地译成“别开玩笑了”或“我受不了”。"
+    },
+    "review_note": "核对 occurrence EP4/EP17/EP36，并实查字幕 EP1 line 546、EP2 line 196/461、EP4 line 497 与 EP17 line 101/223 后重写；occurrence 行号存在偏移。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-meiwaku",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-meiwaku",
+    "linguistic_payload": {
+      "headlineZh": "「迷惑」从受影响者角度把某行为评价为困扰；最重要的搭配是「人に迷惑をかける」。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "施加困扰与承受困扰",
+          "takeawayZh": "造成麻烦说「人に迷惑をかける」，感到困扰可说「迷惑する／迷惑だ」。",
+          "explanationZh": "EP2「そこまで迷惑はかけられない」省略受影响者；EP3「私だって迷惑してる」改从承受者视角表达。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "影响他人而非事情困难",
+          "takeawayZh": "「大変」可说事情很难，「迷惑」更强调行为给别人造成不便或烦恼。",
+          "explanationZh": "EP4「スバルの迷惑になる」担心自己成为对方负担。任务本身艰巨却不影响别人时，不宜只说「迷惑」。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "道歉公式承认负担",
+          "takeawayZh": "「ご迷惑をおかけします」预先或事后承认给对方带来不便。",
+          "explanationZh": "EP5「これからも迷惑かけると思う」一边道歉，一边请求关系继续容纳未来负担，带有亲密和不安。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "受影响者视角",
+          "plainZh": "是否构成迷惑取决于行为怎样妨碍他人，而非行为者是否辛苦。"
+        },
+        {
+          "termZh": "负担承认",
+          "plainZh": "通过说自己会添麻烦，承认对方为关系付出了成本。"
+        }
+      ],
+      "historicalNoteZh": "「迷惑」在日语中早期也有迷惘、困惑义；现代日语的核心义已转为给人添麻烦、令人困扰，与现代汉语常见义不同。",
+      "cautionZh": "这是中日同形异义重点词。日语「迷惑しています」通常是“很困扰”，不是“我不明白”。"
+    },
+    "review_note": "实查 EP2 line 235「迷惑をかける」、EP3 line 26「迷惑してる」及 EP4 line 455「迷惑になる」后按视角区分。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-rikai",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-rikai",
+    "linguistic_payload": {
+      "headlineZh": "「理解」表示掌握内容、关系或理由怎样构成；它可以停在认知层面，并不承诺同意或接受。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词与サ变结构",
+          "takeawayZh": "可说「理解する／できる」「理解が深い／足りない」「理解を得る」。",
+          "explanationZh": "EP10「理解できている」用可能形加持续体，询问对方是否已达到并保持理解状态。EP18「理解が足りない」则评价程度不足。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "与「納得」分开",
+          "takeawayZh": "理解回答“是否弄懂”，纳得回答“是否认为有道理并接受”。",
+          "explanationZh": "一个人可以完全理解规则却反对它。反过来，只说「なんとなく納得した」也不保证能清楚解释原理。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「ご理解を」是省略请求",
+          "takeawayZh": "正式场合的「ご理解を」省略了「お願いします」，请求听者接受说明或不便。",
+          "explanationZh": "EP3 的短句在强势安排后出现，礼貌形式并没有给对方选择权。公共通知也常借此柔化既定决定。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "认知达成",
+          "plainZh": "把信息之间的关系弄清楚，能够解释或预测其含义。"
+        },
+        {
+          "termZh": "礼貌省略",
+          "plainZh": "「ご理解を」省掉请求谓语，依靠固定格式让听者补成“敬请理解”。"
+        }
+      ],
+      "historicalNoteZh": "「理解」是汉字词，学术和正式语域色彩较强，但「理解できない」已完全进入日常会话。",
+      "cautionZh": "「理解しました」不是“同意了”。需要明确同意时，应使用「賛成する」「了承する」等符合场面的词。"
+    },
+    "review_note": "依据 EP3 line 474「ご理解を」、EP10 line 185「理解できている」及 EP18 line 46「理解が足りない」手写。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-tetsudau",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-tetsudau",
+    "linguistic_payload": {
+      "headlineZh": "「手伝う」表示参与别人的工作、分担其中一部分，通常不意味着从危险中彻底救出。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "ワ行五段及使役请求",
+          "takeawayZh": "变形为「手伝わない／手伝って／手伝った」；「手伝わせて」是使役て形。",
+          "explanationZh": "EP1「俺にも手伝わせてくれ」不是叫对方帮自己，而是请求允许“我”加入帮忙。使役者和实际行动者要分清。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "帮人和帮任务",
+          "takeawayZh": "可说「人を手伝う」「仕事を手伝う」「人が仕事をするのを手伝う」。",
+          "explanationZh": "「君を手伝う」把受助者作宾语；具体工作若重要则直接标为宾语。EP1 两种对象都由寻找行动的语境补全。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "帮忙请求也需尊重自主",
+          "takeawayZh": "「手伝いたい」表达善意，未必等于对方已经同意接受。",
+          "explanationZh": "字幕先说「手伝わせてくれ」，把加入权交给对方。现实中未经询问就接管任务，可能反而增加负担。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "部分参与",
+          "plainZh": "加入已有任务并分担环节，不一定取得整个行动的控制权。"
+        },
+        {
+          "termZh": "使役许可",
+          "plainZh": "「Vさせてくれ」请求对方允许说话人做V，而非命令对方去做。"
+        }
+      ],
+      "historicalNoteZh": "「手伝う」是日语固有动词，字面联想到“让自己的手参与”，现代广泛用于家务、工作和活动协助。",
+      "cautionZh": "生命危险中的“救助”通常用「助ける／救う」；「手伝う」更偏共同完成任务，力度不同。"
+    },
+    "review_note": "核对 EP1 line 233「手伝わせてくれ」、line 241「手伝いたい」与 line 245「君を手伝う」后重写论元与许可。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-努力",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-努力",
+    "linguistic_payload": {
+      "headlineZh": "「努力」关注为了目标持续投入的过程；有努力不保证成功，因此常另外谈「成果」是否出现。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "サ变动作与名词修饰",
+          "takeawayZh": "可说「努力する」「努力を重ねる」「努力の成果」「努力家」。",
+          "explanationZh": "EP4「努力した証し」用过去式关系从句修饰“证明”；「努力の成果」则以「の」把过程与结果连接。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "投入过程不等于结果",
+          "takeawayZh": "「努力」评价付出，「成果」评价产生的可见结果，两者可能不成比例。",
+          "explanationZh": "字幕质疑「努力の成果じゃなかったの？」正是从结果反推此前付出。说一个人努力了，不自动断言方法正确或目标达成。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "努力叙事与谦逊规范",
+          "takeawayZh": "「努力は秘めるもの」表达不炫耀付出的价值观，而非普遍语法规则。",
+          "explanationZh": "角色随后承认自己并不讨厌努力，形成自我形象修正。现实评价他人时，过度强调努力也可能忽略环境和资源差异。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "过程评价",
+          "plainZh": "衡量行动者投入的时间、精力和坚持，而不是只看最终产出。"
+        },
+        {
+          "termZh": "结果偏差",
+          "plainZh": "努力与成果没有必然一一对应，失败不必然证明没有付出。"
+        }
+      ],
+      "historicalNoteZh": "「努力」是汉字词，在教育和职场价值话语中尤其常见；「努力家」进一步把持续努力变成人物特征。",
+      "cautionZh": "「努力してください」可能把结构性困难推回个人。给建议时还应确认目标、方法和可用支持。"
+    },
+    "review_note": "实查 EP4 line 420「努力は秘める」、line 424「努力した証し」、line 444「努力の成果」后按过程与结果重写。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-大変",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-大変",
+    "linguistic_payload": {
+      "headlineZh": "「大変」既可警告事态严重，也可说任务辛苦、处境不容易；作为副词时还能表示“非常”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "ナ形容词与副词用法",
+          "takeawayZh": "可说「大変だ／大変な仕事」，也可用「大変よくできました」作程度副词。",
+          "explanationZh": "EP4「大変ですよ／大変だわ」作句末判断；「男の子は大変なんだ」用说明形式概括处境。修饰名词时不能说「大変仕事」。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "严重、辛苦与高程度",
+          "takeawayZh": "危险事件可译“不得了”，费力过程可译“辛苦”，副词则常译“非常”。",
+          "explanationZh": "「仕事を覚えるのに大変だった」侧重学习过程不容易；紧急喊「大変だ」则可能表示出了严重状况。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "固定回应表达体谅",
+          "takeawayZh": "听到别人负担重时说「それは大変ですね」，是在承认其处境，不必是客观灾难判断。",
+          "explanationZh": "语调和后文决定是真关心还是敷衍。面对具体困境，继续询问需要什么帮助比只说一句更有效。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "语义分化",
+          "plainZh": "同一形式根据句法位置和对象，分别表达严重、辛苦或程度很高。"
+        },
+        {
+          "termZh": "共情回应",
+          "plainZh": "「大変ですね」承认对方不容易，主要执行人际支持而非报告新事实。"
+        }
+      ],
+      "historicalNoteZh": "「大変」原本容易让人联想到重大变化或大事，现代已扩展为非常日常的困难评价和程度副词。",
+      "cautionZh": "「大変です」脱离上下文可能是“情况严重”也可能是“很辛苦”。翻译必须查看主语和前后事件。"
+    },
+    "review_note": "核对 EP4 line 67–69 的警报式使用、line 276 的处境概括及 line 386 的学习负担后重写。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-返す",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-返す",
+    "linguistic_payload": {
+      "headlineZh": "「返す」是他动词，表示把借来、拿走或收到的东西交回原主；它也进入大量复合动词，产生回应和反向动作。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "サ行五段与复合词",
+          "takeawayZh": "变形为「返さない／返して／返した」；复合词有「言い返す、切り返す、仕返し」。",
+          "explanationZh": "EP1「盗んだ物を返して」是单纯归还；同次检索中的「切り返し」「仕返し」包含相同字串，却不是“归还物品”的实例。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "物品用「を」，接收者用「に」",
+          "takeawayZh": "基本结构是「物を持ち主に返す」；受惠请求可说「返してもらう」。",
+          "explanationZh": "EP1「盗まれた物を返してもらう」从失主视角表示让对方归还。若物体自己回到原处，则应用「戻る」。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "归还与回应共享反向性",
+          "takeawayZh": "「挨拶を返す、笑顔を返す、言い返す」都把前方来的东西以某种形式送回。",
+          "explanationZh": "具体物品回到所有者是核心义；言语和表情用法把交流理解为双向传递。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "归还路径",
+          "plainZh": "对象从当前持有者回到原所有者或来源处。"
+        },
+        {
+          "termZh": "反向复合",
+          "plainZh": "后项「返す」使前项动作朝来路回去，如「言い返す」。"
+        }
+      ],
+      "historicalNoteZh": "「かえす」是日语固有动词，与自动词「返る」构成词族；现代复合动词生产力很高。",
+      "cautionZh": "「戻す」重在恢复位置或状态，「返す」重在归还给来源或所有者。中文都说“还原、还回”时要区分。"
+    },
+    "review_note": "实查 EP1 line 113「盗んだ物を返して」和 line 513「返してもらう」，并剔除 line 369「切り返し」、line 591「仕返し」误命中。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-handan",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-handan",
+    "linguistic_payload": {
+      "headlineZh": "「判断」是根据已有信息给事物分类或决定如何行动；它可被评价正确、仓促，也会让作判断者承担后果。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "判断内容与评价",
+          "takeawayZh": "常见「〜と判断する」「判断を下す」「判断が正しい／早い」。",
+          "explanationZh": "EP2「君の判断は正しかった」把具体行动选择作为主题评价。EP9「そんな判断を勝手に」则以「を」指责对方擅自作出决定。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "识别判断与行动决断",
+          "takeawayZh": "它可指认定事实，也可指从多个方案中选择；「決断」更突出下定决心的瞬间。",
+          "explanationZh": "「危険だと判断する」是分类认定，「撤退すべきだと判断する」则把判断用于行动选择。两者都依赖当时可得信息。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "评价判断也分配责任",
+          "takeawayZh": "称某人的判断正确是在肯定其能动性；说「勝手な判断」则指责其越权。",
+          "explanationZh": "EP3「僕個人としては困らされる判断」用个人立场缓和批评，但仍说明该决定影响了说话人。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "证据基础",
+          "plainZh": "作判断时能够接触到的信息；事后结果不能完全替代当时证据。"
+        },
+        {
+          "termZh": "决策责任",
+          "plainZh": "作出行动选择的人通常也被期待说明依据并承担后果。"
+        }
+      ],
+      "historicalNoteZh": "「判断」在逻辑、法律、医疗和日常决策中均常见，正式度略高于随口的「決める」。",
+      "cautionZh": "结果碰巧正确不一定证明判断过程可靠；学习此词时不要把「判断」和“最终答案”混成同一概念。"
+    },
+    "review_note": "核对 EP2 line 219 正面评价、EP3 line 286 个人立场及 EP9 line 219「勝手に」后重写判断与责任。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-hisshi",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-hisshi",
+    "linguistic_payload": {
+      "headlineZh": "「必死」在现代口语中多指为了活下去或达成目标而拼尽全力，常带余裕尽失的紧迫感。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "状态判断与副词形式",
+          "takeawayZh": "可说「必死だ／必死な姿」「必死で走る」「必死になる」「必死さ」。",
+          "explanationZh": "EP3「必死で走り回る」以「で」修饰动作；EP7「必死さ」加后缀「さ」把程度名词化，供评价。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "生存压力与全力投入",
+          "takeawayZh": "它比一般“认真”更紧迫，常暗示失败会有严重后果。",
+          "explanationZh": "EP1「自分が生きるのに必死」直接以生存为目标；「俺も必死だった」解释人在压力下为何无暇顾及别处。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "旁观评价可能带嘲弄",
+          "takeawayZh": "说别人「必死だな」可以同情，也可能讥笑对方太拼、失去体面。",
+          "explanationZh": "EP7「必死さが鬼がかってんな」把程度说得异常强。语调和双方立场决定这是赞叹还是揶揄。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "余裕丧失",
+          "plainZh": "目标压力太大，行动者几乎没有精力顾及形象或其他事项。"
+        },
+        {
+          "termZh": "性质名词化「さ」",
+          "plainZh": "把状态的程度变成名词，如「必死だ→必死さ」。"
+        }
+      ],
+      "historicalNoteZh": "「必死」字面曾强烈关联“必定死亡”，现代常用义已扩展为不顾一切地拼命。",
+      "cautionZh": "「必死」和「一生懸命」都可译努力，但前者更有危机和狼狈感，不一定是纯正面赞美。"
+    },
+    "review_note": "依据 EP1 line 798「生きるのに必死」、EP3 line 347「必死で」和 EP7 line 174「必死さ」实查后重写。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-isshoukenmei",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-isshoukenmei",
+    "linguistic_payload": {
+      "headlineZh": "「一生懸命」表示把注意和力量集中在一件事上认真投入，通常比「必死」更容易成为正面品格评价。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "副词与ナ形容词式用法",
+          "takeawayZh": "可说「一生懸命練習する」「一生懸命だ／一生懸命な人」。",
+          "explanationZh": "EP13 直接放在「練習した」前作副词；EP11「一生懸命で」用「で」连接人物的多个性质。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "专注努力与紧急拼命",
+          "takeawayZh": "它强调认真持续投入，不必预设生命危险或已被逼到绝境。",
+          "explanationZh": "练习、学习、守护都能「一生懸命」去做。相比之下，「必死で逃げる」更自然地突出眼前危机。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "称赞努力也可能触及结果",
+          "takeawayZh": "夸人「一生懸命」是在肯定态度，有时却可能被听成回避评价实际成果。",
+          "explanationZh": "EP11 将它与温柔、努力家并列，明确是人物品格赞美。工作反馈中最好再具体说明哪些行动有效。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "态度评价",
+          "plainZh": "关注一个人是否认真、专注地投入，而不是只测量成绩。"
+        },
+        {
+          "termZh": "副词性名词",
+          "plainZh": "不加助词就能修饰动词，如「一生懸命練習する」。"
+        }
+      ],
+      "historicalNoteZh": "较早的「一所懸命」与守住所领有关，后来产生「一生懸命」这一形式；现代后者更常用于一般的全力投入。",
+      "cautionZh": "不要按四个汉字逐字理解成“用一辈子拼命”。它是固定副词性表达，程度要由具体场面判断。"
+    },
+    "review_note": "核对 EP11 line 286 的人物评价、EP13 line 155「一生懸命練習」和 EP24 line 252 的守护行为后手写。"
+  },
+  {
+    "id": "enrich-vocab-vocab-re-zero-kanchigai-vocab-card-v1",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-kanchigai",
+    "linguistic_payload": {
+      "headlineZh": "「勘違い」是依据线索作出了错误理解，既可指认错对象，也可指把关系、动机或成果理解反了。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "误认内容的标记",
+          "takeawayZh": "可说「AをBと勘違いする」「〜と勘違いする」「勘違いだった」。",
+          "explanationZh": "EP7「うまくやってたなんて勘違い」用引用「なんて」把错误命题作为内容；EP12「勝手に勘違いした」强调推断由本人擅自完成。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "与「誤解」的倾向差",
+          "takeawayZh": "「勘違い」偏个人认错、想错，「誤解」更常谈对话或关系中的误解。",
+          "explanationZh": "两词会重叠。拿错日期、认错人很自然说「勘違い」，把对方好意误解为恶意也可说「誤解」。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「勘違いしないで」预防关系推断",
+          "takeawayZh": "这句话常在帮助别人后先否认亲密动机，带防御或傲娇效果。",
+          "explanationZh": "EP1「勘違いしないの」控制对方如何解释行为。现实中先这样说也可能无端暗示一个对方原本没有的想法。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "错误命题",
+          "plainZh": "被当成真的、实际却不成立的判断内容，常由「と」或引用形式标记。"
+        },
+        {
+          "termZh": "动机管理",
+          "plainZh": "说话人预先规定对方不要把自己的行为解释成某种亲密或利益动机。"
+        }
+      ],
+      "historicalNoteZh": "「勘」与推测、直觉有关，「勘違い」因此保留“凭自己的判断想错了”的色彩。",
+      "cautionZh": "指责「勝手な勘違い」会把责任完全推给对方。若信息本身含糊，也应承认表达方可能造成误导。"
+    },
+    "review_note": "实查 EP1 line 192、EP7 line 12 及 EP12 line 428「勝手に勘違い」后，按认知内容和关系语用重写。"
+  },
+  {
+    "id": "enrich-vocab-vocab-re-zero-owari-vocab-card-v1",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-owari",
+    "linguistic_payload": {
+      "headlineZh": "「終わり」把事件的结束点名词化；它既可报告活动完成，也能在威胁语境中委婉指生命或关系走到尽头。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "由「終わる」连用形名词化",
+          "takeawayZh": "动词「終わる」的连用形「終わり」可作名词，常见「終わりだ／終わりにする」。",
+          "explanationZh": "EP1「終わりにするとしましょう」让说话人主动结束事件；EP5「買い物終わり？」则把完成状态简短名词化。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "自然结束与人为终止",
+          "takeawayZh": "「終わる」偏事件自行到终点，「終わりにする」突出行动者决定停止。",
+          "explanationZh": "「話は終わりとする」带正式收束感；「仕事が終わる」则只报告工作完成。完成与失败并不由词本身决定。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "结束可成为死亡委婉语",
+          "takeawayZh": "「楽に終わりにしてあげる」表面说让事情结束，战斗语境实际威胁杀死对方。",
+          "explanationZh": "授受形式「てあげる」制造假善意，使威胁更冷酷。翻译不能只保留中性的“结束”。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "事件边界",
+          "plainZh": "把活动从持续状态切换到不再继续的终点。"
+        },
+        {
+          "termZh": "委婉威胁",
+          "plainZh": "避开“杀死”等直接词，却让语境清楚指向致命后果。"
+        }
+      ],
+      "historicalNoteZh": "「おわり」是日语固有名词形式，与自动词「終わる」、他动词「終える」构成结束词族。",
+      "cautionZh": "「終わりだ」可只是“结束了”，也可表示“完蛋了”。语调、对象和场面决定其情绪强度。"
+    },
+    "review_note": "核对 EP1 line 925、EP2 line 422、EP5 line 327 及 EP7 line 2 的致命委婉语后重写。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-senryoku",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-senryoku",
+    "linguistic_payload": {
+      "headlineZh": "「戦力」把人员、武器与组织能力统合为可投入战斗的资源；日常也可把能有效工作的成员称为“即战力”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「戦＋力」的能力复合词",
+          "takeawayZh": "读「せんりょく」，常见「戦力になる／足りない」「戦力を投入する」。",
+          "explanationZh": "EP5「早く戦力になる」把人评价为可用能力；EP16「戦力を貸し出す」则把组织力量整体当作资源。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "人数不等于有效战力",
+          "takeawayZh": "它衡量实际作战贡献，可以包括训练、装备、情报和协同。",
+          "explanationZh": "「戦力が足りない」不一定只缺人；「戦力をかき集める」强调从多处拼凑所有可投入资源。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "资源化称呼削弱个体性",
+          "takeawayZh": "把人称为「戦力」便于战略计算，也可能忽视个人意愿和风险。",
+          "explanationZh": "职场「即戦力」常是正面招聘词，但仍把新人首先按产出评价。需要结合语境判断是否尊重主体。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "资源化",
+          "plainZh": "把人员与装备按能提供多少功能统一计算，而弱化各自个体特征。"
+        },
+        {
+          "termZh": "即战力",
+          "plainZh": "无需长期培养便能迅速投入任务并产生贡献的人或能力。"
+        }
+      ],
+      "historicalNoteZh": "「戦力」源于军事能力计算，现代体育、组织和招聘语境也大量借用这一隐喻。",
+      "cautionZh": "对人说「戦力にならない」负面很强，近似否定其贡献。反馈时应具体说明缺少哪项能力。"
+    },
+    "review_note": "实查 EP5 line 200「戦力になる」与 EP16 line 52、163、395 的借出、不足和召集搭配后手写。"
+  },
+  {
+    "id": "enrich-vocab-vocab-re-zero-shitto-vocab-card-v1",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-shitto",
+    "linguistic_payload": {
+      "headlineZh": "「嫉妬」指因他人拥有关系、评价或优势而产生的不安与敌意；在「嫉妬の魔女」中又成为固定称号的一部分。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词与サ变用法",
+          "takeawayZh": "可说「人に嫉妬する」「嫉妬を感じる」「嫉妬深い」「嫉妬心」。",
+          "explanationZh": "对象常用「に」标记，原因可说「成功に嫉妬する」。字幕中的「嫉妬の魔女」以「の」把情感名词变为称号属性。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "关系威胁与比较劣势",
+          "takeawayZh": "日语「嫉妬」可覆盖中文嫉妒和吃醋，具体是资源比较还是关系威胁要看对象。",
+          "explanationZh": "对同事成绩嫉妒与对伴侣亲近他人吃醋都能使用。词本身不说明情绪是否有合理依据。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "称号义不等于当场情绪",
+          "takeawayZh": "「嫉妬の魔女」是世界观专名，提到她不表示说话者此刻正在嫉妒。",
+          "explanationZh": "EP1、EP2 围绕用该禁忌名字称呼别人展开冲突。专名携带历史恐惧和社会禁忌，不能只按情绪词平译。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "比较情绪",
+          "plainZh": "因他人的优势或关系地位威胁自身价值而产生的负面感受。"
+        },
+        {
+          "termZh": "称号固化",
+          "plainZh": "普通名词进入专名后固定指向特定角色，并携带设定历史。"
+        }
+      ],
+      "historicalNoteZh": "「嫉妬」是汉字词，日常心理词义与宗教、文学中的拟人化“嫉妒”主题长期并存。",
+      "cautionZh": "作品专名应整体处理。把「嫉妬の魔女」只解释成“一个嫉妒的女人”会丢失称号和禁忌地位。"
+    },
+    "review_note": "核对 EP1 line 987、EP2 line 4–7 围绕禁忌称号的对话，并与一般情绪用法分开重写。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-tachiba",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-tachiba",
+    "linguistic_payload": {
+      "headlineZh": "「立場」把一个人在关系、组织或局势中的位置概念化，因此既能表示观点，也能表示身份带来的处境与限制。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "立场来源与视角",
+          "takeawayZh": "常说「私の立場では／から」「立場としては」「立場が違う」。",
+          "explanationZh": "EP4「私の立場としては」先限定发言角色，避免把个人权限内的判断说成普遍真理。EP5「使用人という立場」用引用结构命名身份。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "观点位置与现实处境",
+          "takeawayZh": "它可以回答“从谁的角度”，也可以回答“这个人处于什么风险和权力位置”。",
+          "explanationZh": "EP1「危ない立場」是危险处境；「立場が違う」则指出双方身份和可采取行动不同，不只是意见分歧。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "立场前置可缓和责任边界",
+          "takeawayZh": "「私の立場では」把后续意见限定为职务或角色允许的范围。",
+          "explanationZh": "这种说法能解释为何不能答应，也可能被用来回避个人态度。听者要分清制度限制和主观选择。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "角色视角",
+          "plainZh": "由职位、关系或处境决定的观察角度和可发言范围。"
+        },
+        {
+          "termZh": "责任边界",
+          "plainZh": "某身份能够决定、承担或公开说明到什么程度。"
+        }
+      ],
+      "historicalNoteZh": "「立場」从“人所站的位置”发展出社会位置和观点视角，现代组织沟通中极常见。",
+      "cautionZh": "中文“立场”偏观点时，日语有时更自然说「考え」「意見」。只有位置、身份或利害关系重要时才突出「立場」。"
+    },
+    "review_note": "依据 EP1 line 280「危ない立場」、EP4 line 375、EP5 line 122「使用人という立場」及 line 275 重写。"
+  }
+]

@@ -1,0 +1,1642 @@
+[
+  {
+    "id": "vocab-card-v1:re-zero-vocab-用",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-用",
+    "linguistic_payload": {
+      "headlineZh": "单独读作「よう」的「用」指要办的事或来访目的；「用がないなら」不是“没有用途”，而是“若没别的事”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "单音汉字名词与复合扩展",
+          "takeawayZh": "常见「用がある／ない」「用を済ませる」，也构成「用件」「用事」。",
+          "explanationZh": "EP2 的「用がないなら行くわ」以「が」标示是否存在待办目的；后文的「用件って何だ」换成双汉字词，要求说明具体事项。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "事情、目的与用途要靠搭配区分",
+          "takeawayZh": "指人的来意时接近“有事”，指器物功能时才可能是“用途”。",
+          "explanationZh": "「君に用がある」是找你有事；「仕事用」中的「用」则表示供某用途。孤立翻成中文“用”会把两个框架混在一起。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "短句可结束会面",
+          "takeawayZh": "「用がないなら」把继续交谈的正当性系于是否还有事情。",
+          "explanationZh": "说话人接「行くわ」表明若目的不存在便离开，语气利落。对客户直接这样说可能冷淡，服务场合常改为「ほかにご用はございますか」。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "目的存在句",
+          "plainZh": "用「用がある／ない」表达某人是否有待办事项或来意。"
+        },
+        {
+          "termZh": "复合后项",
+          "plainZh": "「仕事用」「家庭用」中的「用」放在名词后，标明专门用途。"
+        }
+      ],
+      "historicalNoteZh": "「用」是多读音汉字；单独表示事情时常读「よう」，在「用いる」中则是和语读法「もちいる」。",
+      "cautionZh": "「用がある」与「用事がある」相近，但前者更凝练；不要把它误译为“有用”。"
+    },
+    "review_note": "核对 occurrence：EP2 共 4 次；复查当前字幕 lines 10「用がないなら行くわ」和 331「用件って何だよ」，按来意与具体事项区分。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-買い取る",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-買い取る",
+    "linguistic_payload": {
+      "headlineZh": "「買い取る」不只是付钱购买，还突出买方从对方手中接收、接手物品；徽章交易因此同时围绕出价与物品去向展开。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「買う＋取る」的复合动词",
+          "takeawayZh": "前项给出交易，后项加入取得结果；整体按五段活用为「買い取って／買い取った」。",
+          "explanationZh": "EP2 出现「徽章を買い取って返す」「こちらで買い取りたい」，宾语均是被收购物。「買い取り価格」则以连用形构成名词复合。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "普通购买与收购的视角差",
+          "takeawayZh": "「買う」只需成立买卖，「買い取る」更强调从原持有者处接手。",
+          "explanationZh": "二手店、企业回购和赎回式交易常用该词。本段两方竞价，谁买取徽章就把它接到自己一方并决定下一步如何处理，故比一般购物语感更合适；但该词本身不保证卖方有合法处分权。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "出价也是争夺行动控制权",
+          "takeawayZh": "说「買い取りたい」表面礼貌，实际在与另一买方竞争决定物品去向。",
+          "explanationZh": "Felt 明说卖给价格更高者，使善意归还与市场规则发生冲突。词汇本身中性，人物目的决定交易是否正当。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "结果复合",
+          "plainZh": "第二动词「取る」让购买包含最终取得、接收的结果。"
+        },
+        {
+          "termZh": "接手结果",
+          "plainZh": "交易话语把物品从卖方一侧交到买方一侧；法律上的所有权是否有效转移，还要另看卖方权利。"
+        }
+      ],
+      "historicalNoteZh": "「取る」在日语复合动词中常增加取得或处理完成义，如「引き取る」「受け取る」。",
+      "cautionZh": "商店“买东西”通常说「買う」；「買い取る」常有回收、收购或从持有者手中接盘的意味。尤其在赃物语境，不能仅凭这个词推断合法所有权已经转移。"
+    },
+    "review_note": "核对 occurrence：EP2 共 4 次；复查当前字幕 lines 157、333、340、344，确认徽章的收购意向、竞价和价格名词用法。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-持ち主",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-持ち主",
+    "linguistic_payload": {
+      "headlineZh": "「持ち主」指某物在当前话语中被认作属于谁、通常由谁掌握的“物主、主人”；EP2 中昴坚持把徽章送回原物主。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "连用形加关系名词",
+          "takeawayZh": "「持つ→持ち」与「主（ぬし）」组合读作「もちぬし」。",
+          "explanationZh": "可说「財布の持ち主」「元の持ち主」「持ち主に返す」。前项物品由「の」限定，后项「主」决定整体指人。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "物主与眼前持有人可以不同",
+          "takeawayZh": "是否称某人为「持ち主」，取决于话语中认定的归属关系，不只看此刻谁拿着。",
+          "explanationZh": "本段里 Felt 拿着失窃徽章，昴却把艾米莉雅认作「元の持ち主」。这个对比来自人物对原有归属的认定，并不表示「持ち主」一词本身能完成法律判定。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "归还说法表达道德立场",
+          "takeawayZh": "反复说「持ち主に返したい」拒绝把物品只当可竞价商品。",
+          "explanationZh": "对手讥为「バカバカしい」，恰好显示昴的归还伦理与赃物市场规则相冲突。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "关系名词",
+          "plainZh": "必须同时知道“谁”和“哪件物”，才能确定持ち主所指。"
+        },
+        {
+          "termZh": "持有—物主关系差",
+          "plainZh": "眼前由谁拿着是当前状态，话语把谁认作物主则是另一层关系；在失物或赃物场景中二者尤其容易分离。"
+        }
+      ],
+      "historicalNoteZh": "「主」读「ぬし」时常表示某处、某物或某种行动的主人，如「家主」「落とし主」。",
+      "cautionZh": "「持ち主」会随语境指物主或通常的持有人，并非严格法律术语；宠物主人常另说「飼い主」。"
+    },
+    "review_note": "核对 occurrence：EP2 共 3 次；复查当前字幕 lines 453、455、462，确认「元の持ち主」与当前拿着徽章的人被明确区分。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-掃除",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-掃除",
+    "linguistic_payload": {
+      "headlineZh": "「掃除」指清除污垢、整理空间的家务，可作名词也可说「掃除する」；作品以它比较双胞胎的家务强项。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词与サ变谓语",
+          "takeawayZh": "常见「部屋を掃除する」「掃除が得意」「掃除中」。",
+          "explanationZh": "EP4 的「掃除が得意」以「が」标能力领域；工作清单「浴室の掃除」则作为名词，由「の」说明对象。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "活动可含清洁与整理",
+          "takeawayZh": "根据对象不同，它可包含擦洗、除尘、收拾等多种操作。",
+          "explanationZh": "「掃除」不等于单一“扫地”；浴室、寝室和器物各有不同动作。具体任务需由场所或工具补足。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "能力评价在对话中被反转",
+          "takeawayZh": "昴先推断拉姆擅长扫除，后续却得知雷姆的家务能力更全面。",
+          "explanationZh": "同一词反复出现在猜测、纠正和工作清单中，承担人物关系笑点，而非抽象家务示例。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "活动名词",
+          "plainZh": "一个名词概括多项连续动作，并可接「する」成为谓语。"
+        },
+        {
+          "termZh": "能力领域格",
+          "plainZh": "「掃除が得意」中的「が」标明被评价为擅长的活动。"
+        }
+      ],
+      "historicalNoteZh": "「掃除」原有清扫、清除之义，现代也能比喻清理组织中的问题，但日常中心义仍是清洁空间。",
+      "cautionZh": "「片付け」更突出把物品归位、收拾；「掃除」更突出去除脏污，两者经常一起做却不完全同义。"
+    },
+    "review_note": "核对 occurrence：EP4 共 3 次；复查当前字幕 lines 188–194、321，覆盖能力比较和浴室清扫工作清单。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-毛並み",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-毛並み",
+    "linguistic_payload": {
+      "headlineZh": "「毛並み」指动物毛发排列、光泽与触感形成的整体状态；昴把抚摸帕克的毛当成可评价的专门技艺。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「毛＋並み」的状态复合",
+          "takeawayZh": "读作「けなみ」，常接「がいい」「を整える」「に触る」。",
+          "explanationZh": "后项「並み」在此不是“普通水平”的「並」，而是毛发排列成的外观与质地。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "不只是颜色",
+          "takeawayZh": "它可综合毛的顺滑、浓密、方向与光泽，范围大于「毛色」。",
+          "explanationZh": "EP4 的「最高の毛並み」评价帕克触感与外观；源 meaning 若只译“毛色”会缩窄语义。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "夸张专业身份制造亲密笑点",
+          "takeawayZh": "「一流の毛並み職人」是昴临时自封的称号，用来争取再次抚摸。",
+          "explanationZh": "这不是现实职业名称；夸张自称和帕克的肯定共同表现两者迅速拉近距离。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "集合外观",
+          "plainZh": "不看单根毛，而把整体排列与质地作为一个可评价状态。"
+        },
+        {
+          "termZh": "临时造词",
+          "plainZh": "说话人依场景创造「毛並み職人」等可理解但非固定职业的表达。"
+        }
+      ],
+      "historicalNoteZh": "「毛並み」也曾比喻血统、出身的优劣；现代使用该引申义时可能带强烈阶层评价。",
+      "cautionZh": "评价人的头发通常说「髪質」「髪のつや」，直接用动物性的「毛並み」可能失礼或带玩笑。"
+    },
+    "review_note": "核对 occurrence：EP4 共 3 次；复查当前字幕 lines 128、130、283，确认触摸许可、临时「職人」造词及对帕克毛发的赞美。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-洗濯",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-洗濯",
+    "linguistic_payload": {
+      "headlineZh": "「洗濯」专指清洗衣物、布品这类家务；既能说「洗濯する」，也能以「洗濯物」指待洗或洗好的衣物。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "サ变家务名词",
+          "takeawayZh": "形式有「服を洗濯する」「洗濯が苦手」「洗濯機」。",
+          "explanationZh": "EP4 把「掃除 洗濯」并列为能力领域，又在工作清单中与布团晾晒相邻，语义边界很具体。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "洗衣与一般清洗分工",
+          "takeawayZh": "餐具用「洗う」，浴室用「掃除する」；衣物整体处理才典型叫「洗濯」。",
+          "explanationZh": "同一个中文“洗”在日语中按对象选择谓语。洗濯还可能包含漂洗、脱水、晾晒等流程。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "家务清单映射角色分工",
+          "takeawayZh": "反复列举料理、洗濯、掃除，让能力评价成为宅邸劳动分配的一部分。",
+          "explanationZh": "角色并非在背词汇表，而是在争论谁真正擅长哪些工作；并列顺序构成吐槽节奏。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "对象选择",
+          "plainZh": "日语依据被清洗物选择「洗濯」「洗う」「掃除」等不同词。"
+        },
+        {
+          "termZh": "流程名词",
+          "plainZh": "一个名词可概括从清洗到晾干的一整套家务过程。"
+        }
+      ],
+      "historicalNoteZh": "「洗濯」与同音的「選択」字形、意义完全不同；听力中必须由衣物、家务等搭配消歧。",
+      "cautionZh": "说“选择”应写「選択」，不要因读音相同混写成「洗濯」。"
+    },
+    "review_note": "核对 occurrence：EP4 共 3 次；复查当前字幕 lines 190–194、321、365，确认家务能力、任务清单与同类并列。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-食事",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-食事",
+    "linguistic_payload": {
+      "headlineZh": "「食事」既指进食这一活动，也可指一顿饭；它关注用餐事件，不等同于具体菜肴「料理」。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词兼サ变行为",
+          "takeawayZh": "常说「食事をする／取る」「一緒に食事する」「食事中」。",
+          "explanationZh": "EP4 的「食事を一緒にしてくれる」把共同用餐作为关系变化；EP10 的「食事は中断する」则把进食过程当作可停止事件。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "用餐、饭食与捕食框架",
+          "takeawayZh": "人物正常吃饭和魔法吸取都可被概念化为「食事」，但语气不同。",
+          "explanationZh": "EP10 说「術式を介した食事」，故意用日常词描述危险摄取行为，形成冷酷比喻。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "共餐可标记接纳",
+          "takeawayZh": "愿意「一緒に食事する」不只是满足生理需求，也表示允许进入共同空间。",
+          "explanationZh": "EP4 把同桌吃饭当成人际靠近的信号；同一个词在战斗语境却可把对手降格为食物。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "事件名词",
+          "plainZh": "既可指一顿饭的内容，也能指从开始到结束的进食过程。"
+        },
+        {
+          "termZh": "框架转用",
+          "plainZh": "把魔法吸取说成“用餐”，借熟悉活动重新解释危险行为。"
+        }
+      ],
+      "historicalNoteZh": "「食事」是日常化程度很高的汉字词；礼貌邀约中「お食事」可兼指餐点和共餐活动。",
+      "cautionZh": "「料理」偏制作出的菜或烹饪，「食事」偏吃饭事件；“料理很好吃”不能换成“食事很擅长”。"
+    },
+    "review_note": "核对 occurrence：EP4 1 次、EP10 3 次，共 2 集 4 次；复查当前字幕 EP4 line 167 与 EP10 lines 51、125–126。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-maigo",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-maigo",
+    "linguistic_payload": {
+      "headlineZh": "「迷子」指与同行者失散或找不到路的人，虽字面常联想到儿童，成年人和寻找目标也能使用。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "状态名词的「になる」构式",
+          "takeawayZh": "常见「迷子になる」「迷子を捜す」「迷子センター」。",
+          "explanationZh": "EP1 的「迷子になってる」把走失视为进入并持续的状态；「迷子だったら」则把该身份设为条件。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "走失者与迷路状态",
+          "takeawayZh": "它可指儿童，也可泛指失去位置线索的人或动物。",
+          "explanationZh": "EP12 的「迷子捜し」是寻找走失者的活动。成人自嘲「迷子になった」也自然，不必真是小孩。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "判定走失会触发帮助义务",
+          "takeawayZh": "艾米莉雅说「迷子だったら何とかしてあげないと」，从类别直接推出应介入。",
+          "explanationZh": "昴正是从她不放着走失儿童不管的反应识别其性格；称谁为迷子也可能带保护者视角。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "状态身份",
+          "plainZh": "人物因暂时失去路线或同行者而被归入可改变的身份类别。"
+        },
+        {
+          "termZh": "类别触发",
+          "plainZh": "一旦认定对象是走失者，社会规范便倾向要求提供帮助。"
+        }
+      ],
+      "historicalNoteZh": "「迷子」以汉字表现“迷失的孩子”，现代语义已扩展到成人、宠物及比喻性的方向迷失。",
+      "cautionZh": "单纯问路的人未必是「迷子」；该词常暗示本人无法独立回到应在的位置。"
+    },
+    "review_note": "核对 occurrence 记录：EP1 3 次、EP12 1 次，共 2 集 4 次；另以当前字幕逐字检索，复查 EP1 lines 307、312、438 和 EP12 lines 272、275、279。occurrence 计数不当作当前字幕的穷尽索引。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-ryouri",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-ryouri",
+    "linguistic_payload": {
+      "headlineZh": "「料理」既是烹调行为，也指做好的菜；EP4 在“雷姆的料理”与“擅长料理”之间切换这两个焦点。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词、サ变与复合前项",
+          "takeawayZh": "可说「料理する」「料理が得意」「得意料理」「家庭料理」。",
+          "explanationZh": "「レムの料理」可指她做的菜；「料理が得意」把烹饪当能力领域。「料理系」则是昴的分类化口语。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "制作过程与成品共享一词",
+          "takeawayZh": "谓语和修饰语决定是在谈做饭，还是谈桌上的菜。",
+          "explanationZh": "「料理を食べる」的宾语是成品；「魚を料理する」则是处理食材。EP4 两义相邻出现，不能固定成一个中文词性。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "称赞菜肴也评价照料能力",
+          "takeawayZh": "「ちょっとしたものだ」对雷姆料理给予不低的赞许。",
+          "explanationZh": "随后姐姐的「得意料理はふかし芋」被作为反差笑点，显示“有一道拿手菜”不等于整体擅长烹饪。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "行为—产物多义",
+          "plainZh": "同一名词既能命名制作活动，也能命名活动产生的菜品。"
+        },
+        {
+          "termZh": "能力领域",
+          "plainZh": "「料理が得意」评价的是烹饪技能，不是某一道菜的味道。"
+        }
+      ],
+      "historicalNoteZh": "「料理」原有处理、安排事物的宽泛义，现代日常中心义集中在烹调与菜肴。",
+      "cautionZh": "中文“料理某人”之类特殊用法不能直接套到现代日语「料理する」；通常仍需明确食材或事务。"
+    },
+    "review_note": "核对 occurrence：EP4 3 次、EP11 1 次，共 2 集 4 次；复查当前字幕 EP4 lines 181–191、357，区分菜品、技能与拿手菜。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-shoubai",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-shoubai",
+    "linguistic_payload": {
+      "headlineZh": "「商売」指持续经营的买卖或生意，不只是一次交易；「商売敵」则把同行竞争者称为商业上的敌手。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "商业名词及复合构词",
+          "takeawayZh": "可说「商売をする／始める」「商売敵」「商売人」。",
+          "explanationZh": "EP2 的「アコギな商売」由形容性修饰评价经营手段；「商売敵」以后项「敵」指同业竞争者。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "经营活动大于单笔买卖",
+          "takeawayZh": "它可包含谋生方式、客户关系与长期获利模式。",
+          "explanationZh": "一次把徽章卖掉是「取引／売買」，反复靠类似方式赚钱才更像「商売」。EP13 还把商业成功与内心满足对照。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "评价词揭示对经营伦理的判断",
+          "takeawayZh": "「アコギな商売」指手段狠、盘剥重，并非中性介绍职业。",
+          "explanationZh": "昴用粗口批评信息和价格策略；对方则把关系说成商売敵或仇敌，夸张竞争强度。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "持续经营",
+          "plainZh": "以交换商品或服务谋生的反复活动，而非孤立的一次购买。"
+        },
+        {
+          "termZh": "同行竞争",
+          "plainZh": "「商売敵」指争夺同类客户、货源或利益的经营者。"
+        }
+      ],
+      "historicalNoteZh": "「商売」是音读汉字词，现代也进入惯用语「商売上がったり」，表示生意无法维持。",
+      "cautionZh": "「商売」可很口语；正式公司活动常用「事業」「取引」，具体层级不同。"
+    },
+    "review_note": "核对 occurrence：EP2 3 次、EP13 1 次，共 2 集 4 次；复查当前字幕 EP2 lines 327、335–336 与 EP13 line 86。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-勧める",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-勧める",
+    "linguistic_payload": {
+      "headlineZh": "「勧める」是向对方建议某项行动；莱因哈鲁特的「投降をお勧めします」形式礼貌，战斗中的选择压力却很强。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "下一段动词与敬语前缀",
+          "takeawayZh": "活用为「勧めない／勧めて／勧めた」，礼貌说法可用「お勧めします」。",
+          "explanationZh": "宾语「投降を」是被推荐的方案。「お＋连用形＋します」让建议形式郑重，并不改变行动内容。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "推荐行动而非推进进度",
+          "takeawayZh": "「勧める」劝人选择；同音「進める」使事情前进，「薦める」偏推荐人或物。",
+          "explanationZh": "字幕以投降为对象，显然是劝告义。听力相同，书写与宾语能帮助消歧。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "礼貌建议可近似最后通牒",
+          "takeawayZh": "在武器被打掉后提出投降，虽无命令形，拒绝空间实际很小。",
+          "explanationZh": "重复两次「お勧めします」维持骑士礼仪，同时展示战力优势；礼貌度不等于低强制度。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "同音异字",
+          "plainZh": "「勧める／薦める／進める」读音相同，语义对象和汉字不同。"
+        },
+        {
+          "termZh": "情境强制度",
+          "plainZh": "句式像建议，但权力差和危险后果会让它接近不得不接受。"
+        }
+      ],
+      "historicalNoteZh": "现代常用表记会把推荐人、物也写作「勧める」，但规范写作仍可用「薦める」细分。",
+      "cautionZh": "「投降を勧める」是劝对方投降；「投降を進める」会变成推进投降程序，含义不同。"
+    },
+    "review_note": "核对 occurrence：EP3 共 2 次；复查当前字幕 lines 256、292，两次均是莱因哈鲁特在战斗优势下礼貌建议投降。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-呼び出す",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-呼び出す",
+    "linguistic_payload": {
+      "headlineZh": "「呼び出す」把「呼ぶ」和向外出现的「出す」结合，可指把帕克召出，也可指权威机构通知某人到场。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "连用形复合动词",
+          "takeawayZh": "「呼ぶ→呼び」接「出す」，整体按五段变化为「呼び出して／呼び出した」。",
+          "explanationZh": "复合后不是两个独立动作，而是“通过呼唤使其出来、到场”。名词形可说「呼び出しがある」。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "召出与传唤共享到场结果",
+          "takeawayZh": "对象原本不在当前互动中，呼び出す使其进入可见或正式会面。",
+          "explanationZh": "EP3 line 123 是以魔力召出精灵；line 473 的「呼び出し」则预告艾米莉雅会被正式召见。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "名词形可隐藏召见者",
+          "takeawayZh": "「呼び出しがある」只说会收到通知，不明确是谁发出命令。",
+          "explanationZh": "被动式安排听起来制度化，也减少说话人对未来决定的直接承诺。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "致使出现",
+          "plainZh": "通过呼唤、通知或术法，让不在场对象进入当前场合。"
+        },
+        {
+          "termZh": "施事隐去",
+          "plainZh": "用名词「呼び出し」谈安排，可不点明发出召见的人或机构。"
+        }
+      ],
+      "historicalNoteZh": "复合后项「出す」常表示动作向外显现，如「思い出す」「取り出す」，但各词已形成专门意义。",
+      "cautionZh": "电话里“打给某人”一般用「電話する／呼び出す」依场景；后者更像叫到场或在系统中传呼。"
+    },
+    "review_note": "核对 occurrence：EP3 共 2 次；复查当前字幕 lines 123、473，分别确认精灵召出与制度性召见两义。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-噂",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-噂",
+    "linguistic_payload": {
+      "headlineZh": "「噂」是经人传播、来源未必可核实的信息或名声；艾尔莎用「噂どおり」起评，又立即升级为「噂以上」。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "和语名词及固定搭配",
+          "takeawayZh": "常见「噂になる／を聞く／どおり」「悪い噂」。",
+          "explanationZh": "字幕写片假名「ウワサ」是视觉风格，不改变词类和读音。与「どおり」结合时将传闻设为比较基准。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "传播内容不保证真实性",
+          "takeawayZh": "噂可以后来证实，也可以夸张或错误；词本身标示证据来源间接。",
+          "explanationZh": "艾尔莎亲自交手后发现莱因哈鲁特不只符合传闻，还超过传闻，形成二次校准。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "借公共名声承认对手",
+          "takeawayZh": "说对方“如传闻”既验证其声望，也显示自己此前已掌握相关信息。",
+          "explanationZh": "随后改口「以上」使称赞更强，同时透露她在危险中仍享受评估强敌。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "传闻证据",
+          "plainZh": "信息来自他人传播而非说话人的直接观察，可靠度需要另行判断。"
+        },
+        {
+          "termZh": "基准升级",
+          "plainZh": "先确认现实达到既有名声，再判断实际程度超过该标准。"
+        }
+      ],
+      "historicalNoteZh": "「うわさ」是古已有之的和语，现代也可表示社会口碑，不一定是恶意谣言。",
+      "cautionZh": "「噂」可中性，「デマ」更明确指虚假信息；不能把所有噂都预设成造谣。"
+    },
+    "review_note": "核对 occurrence：EP3 共 2 次；复查当前字幕 lines 277–278 的连续自我修正，确认传闻基准及超过基准。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-変",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-変",
+    "linguistic_payload": {
+      "headlineZh": "「変」作为ナ形容词表示偏离正常、奇怪；「どこか変」询问身体是否异常，「変なこと」则评价行为内容。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "ナ形容词的两种连接",
+          "takeawayZh": "谓语说「変だ」，定语说「変なN」，副词性可说「変に」。",
+          "explanationZh": "EP4 的「変なこと」必须有「な」；「どこか変だったりしない？」把「変だ」进入列举假定「だったり」。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "异常判断依赖常态",
+          "takeawayZh": "身体、行为或声音各有自己的正常基准，变在哪里需由名词说明。",
+          "explanationZh": "「体が変」可能不自然甚至有歧义，询问状况更常说「どこか変」「調子が変だ」。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "含糊表达可保护尴尬内容",
+          "takeawayZh": "昴说「変なこととかしてない」故意不点明被怀疑的行为。",
+          "explanationZh": "不具体化让他既能自我辩护，又保留喜剧性的可疑空间；「とか」进一步弱化类别边界。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "常态偏离",
+          "plainZh": "某事被拿来与预期状态比较，并被判断为不寻常。"
+        },
+        {
+          "termZh": "含糊类别",
+          "plainZh": "「変なこととか」不列具体行为，只用宽泛标签让听者推断。"
+        }
+      ],
+      "historicalNoteZh": "「変」也能作为名词表示变化或事件，如「変が起きる」，但日常「変だ」主要是异常、古怪。",
+      "cautionZh": "动词“改变”用「変える／変わる」，不能把ナ形容词「変」直接当动词活用。"
+    },
+    "review_note": "核对 occurrence：EP4 共 2 次；复查当前字幕 line 88「どこか変」与 line 327「変なこと」，确认状态询问和行为评价。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-天井",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-天井",
+    "linguistic_payload": {
+      "headlineZh": "「天井」是房间上方内表面；昴用「知らない／知ってる天井だ」以醒来首先看到的东西判断自己身在何处。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "音读地点名词",
+          "takeawayZh": "读作「てんじょう」，常接「が高い」「を見上げる」。",
+          "explanationZh": "它是可指认的空间部件，本句却省略助词，以「知らない天井だ」直接作名词谓语。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "建筑部位转为定位线索",
+          "takeawayZh": "“认识天花板”实际表示熟悉对应房间，而非与物体有人际关系。",
+          "explanationZh": "EP4 line 2 和 line 53 一陌生一熟悉，短短对照标记昴两次醒来的位置差异。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "引用类型作品的醒来惯例",
+          "takeawayZh": "「知らない天井だ」是高度可识别的动画式醒来台词，带元类型玩笑。",
+          "explanationZh": "第二次改成「知ってる」利用观众已熟悉惯例制造反转；词义普通，效果来自互文。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "场景定位物",
+          "plainZh": "人物以醒来时看到的固定建筑部位推断所在地。"
+        },
+        {
+          "termZh": "互文反转",
+          "plainZh": "先借熟悉台词套路建立期待，再改一个词制造笑点。"
+        }
+      ],
+      "historicalNoteZh": "「天井」也可比喻价格、能力等上限，如「相場が天井を打つ」。",
+      "cautionZh": "建筑外部上方通常是「屋根」，室内抬头看到的表面才是「天井」。"
+    },
+    "review_note": "核对 occurrence：EP4 共 2 次；复查当前字幕 lines 2、53 的最小对照，确认陌生／熟悉房间定位及类型梗。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-家事",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-家事",
+    "linguistic_payload": {
+      "headlineZh": "「家事」是维持家庭生活的劳动总类，包括料理、洗濯、掃除等；不是泛指“家里的任何事情”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "集合性汉字名词",
+          "takeawayZh": "常说「家事をする／分担する」「家事全般」「家事能力」。",
+          "explanationZh": "EP4 的「家事の中では」先建立总类，再比较扫除和洗濯；「家事全般」则覆盖整个领域。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "无偿日常维护劳动",
+          "takeawayZh": "中心成员是烹饪、清洁、洗衣等重复性工作。",
+          "explanationZh": "家庭财产纠纷或家族秘密虽发生在家中，却不因此叫家事；词义按劳动功能而不是地点划分。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "总类评价可掩盖内部差异",
+          "takeawayZh": "说某人「家事全般が得意」是总体判断，仍可在单项上有强弱。",
+          "explanationZh": "雷姆的总体能力与拉姆的个别强项、弱项在对话中不断对照，构成角色能力画像。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "上位范畴",
+          "plainZh": "一个总类包含料理、洗濯、掃除等多个具体成员。"
+        },
+        {
+          "termZh": "领域全称",
+          "plainZh": "「全般」把评价扩展到一个领域的大部分项目，而非逐项罗列。"
+        }
+      ],
+      "historicalNoteZh": "「家事」在现代社会讨论中常与劳动分配、育儿和照护并列，范围会随制度语境变化。",
+      "cautionZh": "「家のこと」范围更宽，可指家庭情况；「家事」通常特指日常家务劳动。"
+    },
+    "review_note": "核对 occurrence：EP4 共 2 次；复查当前字幕 lines 190、193，确认分项比较与「家事全般」总类评价。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-家系",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-家系",
+    "linguistic_payload": {
+      "headlineZh": "「家系」指跨世代延续的家族谱系；「剣聖の家系」强调能力与名号在阿斯特雷亚家族中的传承。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "音读谱系名词",
+          "takeawayZh": "读作「かけい」，常接「家系に生まれる」「家系図」「〜の家系」。",
+          "explanationZh": "「剣聖の家系」用「の」标示谱系特征；后文把家系、姓名和人物并置，完成身份识别。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "强调世代链而非同住成员",
+          "takeawayZh": "「家族」可指当前亲属，「家系」关注血缘或继承关系的纵向延续。",
+          "explanationZh": "角色不必与祖辈同住，仍属于同一家系。作品还把剑圣资格与这条传承线联系。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "家系标签快速推断身份与能力",
+          "takeawayZh": "艾尔莎听到“剑圣家系”即可把莱因哈鲁特放入著名传统。",
+          "explanationZh": "这种推断可能赋予荣耀，也会给后代施加期待；标签不等于每个成员能力相同。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "纵向谱系",
+          "plainZh": "把祖先、当前成员和后代看成跨世代延续的一条家族线。"
+        },
+        {
+          "termZh": "继承推断",
+          "plainZh": "听到家系名称后，根据家族传统推测成员身份或能力。"
+        }
+      ],
+      "historicalNoteZh": "「家系図」是表示亲缘和继承关系的谱图；「家系」也常用于遗传病史等正式语境。",
+      "cautionZh": "「家名」偏家族名号和声望，「家系」偏世代关系；二者在贵族设定中相关却不相同。"
+    },
+    "review_note": "核对 occurrence：EP3 共 2 次；复查当前字幕 lines 253、318，确认从「剣聖の家系」到莱因哈鲁特全名的身份锁定。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-展開",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-展開",
+    "linguistic_payload": {
+      "headlineZh": "「展開」可指事态逐步展开，也可直接指故事发展；昴反复把现实按游戏或动画的“剧情走向”来命名。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词兼サ变变化",
+          "takeawayZh": "可说「話が展開する」「急な展開」「物語を展開する」。",
+          "explanationZh": "EP4 的「〜的な展開」以名词指某类剧情模式；「展開になる」则把接下来事态归到该走向。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "空间铺开扩展到事件进程",
+          "takeawayZh": "核心是内容从折叠、未明状态逐步显现为结构。",
+          "explanationZh": "技术语境可指部署、展开式；故事语境则是事件如何继续。本卡字幕明确属于后者。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "元叙事命名暴露类型预期",
+          "takeawayZh": "昴说「ありがちな展開」「覚醒する展開」是在像观众一样预测自身现实。",
+          "explanationZh": "这种分类带喜剧效果，也可能让他按套路误判真实人物和风险。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "事件进程",
+          "plainZh": "关注故事或局势从当前状态向后如何发展。"
+        },
+        {
+          "termZh": "元叙事标签",
+          "plainZh": "人物使用作品分析词来描述自己正在经历的事件。"
+        }
+      ],
+      "historicalNoteZh": "「展開」从铺开、展开的字面义广泛进入数学、军事、软件和叙事评论，各领域搭配不同。",
+      "cautionZh": "中文“开展工作”通常不直接译「仕事を展開する」；需看是铺开业务、部署还是单纯开始。"
+    },
+    "review_note": "核对 occurrence：EP4 共 2 次；复查当前字幕 lines 13、206、318，均由昴以类型作品词汇预测剧情走向。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-庭",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-庭",
+    "linguistic_payload": {
+      "headlineZh": "「庭」是住宅或建筑附属的户外空间；宅邸面积过大，昴甚至说它“与其叫庭院，不如说是原野”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "和语地点名词及复合",
+          "takeawayZh": "读作「にわ」，可构成「前庭」「庭園」「庭仕事」。",
+          "explanationZh": "EP4 同时出现普通「庭」、方位复合「前庭」和较规划化的「庭園」，层级并不完全相同。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "附属空间与野地的边界",
+          "takeawayZh": "庭由与建筑的功能关系定义，不单靠面积或是否种花。",
+          "explanationZh": "昴说「庭も庭ってより原っぱだ」不是否认产权，而是用规模感把它重新比作草地。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "自我修正放大宅邸规模",
+          "takeawayZh": "「NもNってより」先沿用名称，再表示该名称已不足以描述。",
+          "explanationZh": "夸张比较传达平民视角下的惊讶，也为后续庞大工作量作铺垫。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "附属场所",
+          "plainZh": "空间因属于住宅或建筑而成为庭院，不等同于独立野地。"
+        },
+        {
+          "termZh": "范畴重估",
+          "plainZh": "说话人先接受原名称，再改用更贴近感受的另一类别。"
+        }
+      ],
+      "historicalNoteZh": "「庭」古代也可指举行活动的开阔场所，现代中心义收敛为庭院，但复合词仍很丰富。",
+      "cautionZh": "「庭園」常有规划、观赏性；普通住宅小院直接说「庭」更自然。"
+    },
+    "review_note": "核对 occurrence：EP4 共 2 次；复查当前字幕 lines 101、319，确认规模比喻与「前庭／庭園」工作区域。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-廊下",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-廊下",
+    "linguistic_payload": {
+      "headlineZh": "「廊下」是连接房间的走廊；EP4 的「ループする廊下」把普通建筑通道误读为游戏式循环迷宫。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "音读建筑名词",
+          "takeawayZh": "读作「ろうか」，常接「を歩く／走る」「廊下側」。",
+          "explanationZh": "移动经过场所时用「廊下を歩く」，这里的「を」是路径格，不是把走廊当受事物。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "通道功能与空间错觉",
+          "takeawayZh": "廊下的基本功能是连接；“循环”来自昴对找不到出口的解释。",
+          "explanationZh": "真实原因与书库空间机制相关，他先借游戏关卡模型理解重复出现的通道。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "重复短语成为回顾标签",
+          "takeawayZh": "后文「ループする廊下と…」把刚才经历压缩成两项灾难清单。",
+          "explanationZh": "普通地点名加外来语「ループ」形成轻快吐槽，使恐慌被重新包装为冒险经历。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "路径格",
+          "plainZh": "移动动词后的「を」可标示经过或离开的空间。"
+        },
+        {
+          "termZh": "关卡框架",
+          "plainZh": "人物把陌生建筑现象按游戏地图规则来解释。"
+        }
+      ],
+      "historicalNoteZh": "「廊下」原指建筑中的廊与其下部空间，现代成为室内走廊的普通称呼。",
+      "cautionZh": "西式长通道也可用外来语「コリドー」，日常住宅场景仍以「廊下」最自然。"
+    },
+    "review_note": "核对 occurrence：EP4 共 2 次；复查当前字幕 lines 12、118，确认初次判断和事后灾难清单中的重复使用。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-感覚",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-感覚",
+    "linguistic_payload": {
+      "headlineZh": "「感覚」可指身体感官、主观感觉或判断尺度；「不快な感覚だけはする」表示虽没听过，却确实产生不适感。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "体验名词的存在搭配",
+          "takeawayZh": "常说「感覚がある／ない」「感覚を失う」「〜という感覚」。",
+          "explanationZh": "本句用「感覚がする」表达感受出现；主题助词「だけは」突出至少不适这一点可以确认。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "刺激输入与整体直觉",
+          "takeawayZh": "它既可具体到触觉，也可抽象为“觉得哪里不对”的体验。",
+          "explanationZh": "贝阿特莉丝未必能说明来源，却能报告负面身体或魔法感受，故不同于明确判断「危険だ」。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "有限证据下保留结论",
+          "takeawayZh": "「だけは」承认信息不足，同时把可确定的不适单独留下。",
+          "explanationZh": "这种说法比断言原因更谨慎，也能让听者重视直觉警报而不把推测当事实。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "体验谓语",
+          "plainZh": "「感覚がする」报告某种感觉自然出现，而非主体主动制造。"
+        },
+        {
+          "termZh": "最低确证",
+          "plainZh": "「だけは」把证据范围缩到至少能够确认的一项。"
+        }
+      ],
+      "historicalNoteZh": "「感覚」是近现代常用汉字词，进入生理学、审美和日常直觉等多个领域。",
+      "cautionZh": "「感情」偏喜怒哀乐等情绪，「感覚」偏感官或主观感受；两者不宜按中文“感觉”混用。"
+    },
+    "review_note": "核对 occurrence：EP4 共 2 次；当前字幕直接命中 line 153「不快な感覚だけはする」，按有限证据的体验报告重写。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-投降",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-投降",
+    "linguistic_payload": {
+      "headlineZh": "「投降」是停止抵抗并接受对方控制；莱因哈鲁特在对手武器受损前后两次把它作为可避免继续战斗的方案。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "军事动作的サ变名词",
+          "takeawayZh": "可说「投降する」「投降を勧める」「無条件投降」。",
+          "explanationZh": "EP3 两次以「投降を」作为「勧める」宾语；若行动者作主语，则说「相手が投降する」。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "放弃抵抗与接受处置",
+          "takeawayZh": "它比单纯逃跑多了向对方承认败势、停止交战的关系。",
+          "explanationZh": "武器丢失提高继续战斗成本，因此建议投降；艾尔莎拒绝，说明她不接受对方支配。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "给退出选项也展示优势",
+          "takeawayZh": "强者提出投降可被视为减少伤亡，也同时宣告自己掌握局面。",
+          "explanationZh": "敬语「お勧めします」让话面克制，但战力差使其接近最后通牒。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "停止抵抗",
+          "plainZh": "交战一方主动终止对抗，并接受胜方接下来的控制或条件。"
+        },
+        {
+          "termZh": "退出选项",
+          "plainZh": "在继续受损前提供结束冲突的路径，但未必具有平等协商空间。"
+        }
+      ],
+      "historicalNoteZh": "「投降」是军事、政治语域的汉字词；日常比赛认输更常说「降参する」「ギブアップする」。",
+      "cautionZh": "「降伏」也可指屈服，语感更强调被压服；具体作品翻译需看正式度和场景。"
+    },
+    "review_note": "核对 occurrence：EP3 共 2 次；复查当前字幕 lines 256、292，第二次明确以前件「武器を失ったのなら」支持建议。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-抜く",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-抜く",
+    "linguistic_payload": {
+      "headlineZh": "「抜く」本义是从内部抽出，因而可说拔剑；放在动词连用形后又能表示把动作坚持到底，如「守り抜く」。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "独立五段动词与复合后项",
+          "takeawayZh": "独立活用「抜かない／抜いて／抜いた」，复合时接前一动词连用形。",
+          "explanationZh": "EP3 line 282 的「剣を抜く」是抽出；line 371「守り抜いた」和 line 396「戦い抜いて」则是彻底完成。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "移除路径发展为贯彻到底",
+          "takeawayZh": "两类用法共享越过阻碍、达到外部或终点的意象，但已形成不同构式。",
+          "explanationZh": "龙剑能否出鞘是物理限制；「戦い抜く」没有被拔出的实体，强调坚持到最后。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "完成后项强化自我评价",
+          "takeawayZh": "昴说自己「守り抜いた」带夸张自夸，完成义服务于英雄式表演。",
+          "explanationZh": "同一后项在严肃叙事也可表达韧性，褒贬由说话人和结果决定。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "趋向抽出",
+          "plainZh": "独立「抜く」表示把嵌在内部的物体拉出或移除。"
+        },
+        {
+          "termZh": "贯彻体",
+          "plainZh": "「V抜く」表示克服困难把动作一直做到终点。"
+        }
+      ],
+      "historicalNoteZh": "「抜く」的复合完成义在现代非常活跃，如「やり抜く」「生き抜く」「勝ち抜く」。",
+      "cautionZh": "「剣を抜けない」可能是能力不能，也可能受规则限制；本段属于龙剑条件未满足。"
+    },
+    "review_note": "核对 occurrence：EP3 共 2 次；复查当前字幕 line 282 的拔剑，并对照 lines 371、396 的「守り抜く／戦い抜く」完成义。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-残念",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-残念",
+    "linguistic_payload": {
+      "headlineZh": "「残念」可真诚表示遗憾，也可冷淡评价结果或委婉损人；「頭が残念」甚至把能力不足包装成“令人遗憾”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "ナ形容词兼感叹名词",
+          "takeawayZh": "形式有「残念だ」「残念なこと」「残念ながら」。",
+          "explanationZh": "EP3 的「残念だけど」作句首让步；「残念なこと」定语用「な」；EP4「頭が残念」作谓语评价。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "期待落空是共同核心",
+          "takeawayZh": "说话人原本希望另一结果，现实不符便产生遗憾或失望。",
+          "explanationZh": "艾米莉雅舍不得放弃徽章是真诚遗憾；艾尔莎说精灵消失很“遗憾”则带危险兴趣。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "表面柔和可实现侮辱",
+          "takeawayZh": "「頭が残念」避开直接说笨，却把整个人的判断力贬低。",
+          "explanationZh": "温和词形不保证友善，需结合评价对象和角色敌意判断。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "期待违背",
+          "plainZh": "原有愿望或标准未实现，是遗憾感产生的语义基础。"
+        },
+        {
+          "termZh": "委婉贬损",
+          "plainZh": "使用看似克制的评价词，间接传达对能力或人格的否定。"
+        }
+      ],
+      "historicalNoteZh": "「残念」原有念头残留、未尽之意，现代中心义发展为可惜、遗憾。",
+      "cautionZh": "对他人遭遇说「残念ですね」可合适；对其能力说「残念」往往带讽刺，不能只按字典褒贬判断。"
+    },
+    "review_note": "核对 occurrence：EP3 2 次、EP4 1 次，共 2 集 3 次；复查当前字幕 EP3 lines 9、125 与 EP4 lines 79、150，区分真遗憾、危险兴趣及讽刺。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-黙る",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-黙る",
+    "linguistic_payload": {
+      "headlineZh": "「黙る」既可停止说话，也可隐瞒信息；命令形「黙れ」是强硬“闭嘴”，「黙っている」则可能是持续沉默或保密。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "ラ行五段动词",
+          "takeawayZh": "活用为「黙らない／黙って／黙った／黙れ」。",
+          "explanationZh": "EP2 的「黙れ」是命令形；EP7「黙っているがいい」和 EP10「黙ってむさぼる」分别连接状态、方式。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "不发声与不透露",
+          "takeawayZh": "后接话题内容时可表示对某事保持缄默，而非字面全程无声。",
+          "explanationZh": "EP10「呪いのことを黙っている」是隐瞒诅咒信息；一个人仍可谈其他事情。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "沉默命令体现权力",
+          "takeawayZh": "「黙れ」直接剥夺发言权，语气远强于「静かにしてください」。",
+          "explanationZh": "亲密或敌对角色可用粗口，现实礼貌场合应改为请求，尤其不能把保密义误当安静义。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "话语停止",
+          "plainZh": "主体停止发声或不再参与当前发言。"
+        },
+        {
+          "termZh": "信息隐匿",
+          "plainZh": "对特定事实不说出口，即使仍进行其他交谈。"
+        }
+      ],
+      "historicalNoteZh": "「黙」相关词在书面语有「沈黙」「黙秘」，后者尤指拒绝陈述。",
+      "cautionZh": "「黙ってV」有时只是“不说话地做 V”，不一定要求永远闭嘴或隐藏秘密。"
+    },
+    "review_note": "核对 occurrence：EP2、EP7、EP10 共 3 集 4 次；复查当前字幕 EP2 line 174、EP7 line 202、EP10 lines 61、131。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-特徴",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-特徴",
+    "linguistic_payload": {
+      "headlineZh": "「特徴」是足以帮助识别、区分对象的显著性质；“银发半精灵”等线索越突出，就越不容易认错人。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词与派生形容词",
+          "takeawayZh": "常见「特徴がある」「特徴を捉える」「特徴的な」。",
+          "explanationZh": "EP3 先说「それだけ特徴があれば」，后说「特徴的なところ」，后者用接尾「的」转成ナ形容词式定语。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "性质必须具有区分力",
+          "takeawayZh": "所有属性不都叫特徴；能让对象从同类中显出来的才典型。",
+          "explanationZh": "杀人方式的独特之处甚至形成异名，说明特征可成为社会识别标签。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "列特征也是锁定身份",
+          "takeawayZh": "说「見間違えたりはしない」借特征强度为识别结论辩护。",
+          "explanationZh": "特征清单能提高确信，却也可能把人简化为外貌或刻板标签，需区分剧情推理与现实分类。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "区分性属性",
+          "plainZh": "能把一个对象与同类其他对象有效区别开的性质。"
+        },
+        {
+          "termZh": "接尾派生",
+          "plainZh": "「特徴＋的」把名词转为可用「な」修饰名词的表达。"
+        }
+      ],
+      "historicalNoteZh": "接尾「的」受汉文、近代翻译语影响，在现代日语中广泛生成形容动词式词语。",
+      "cautionZh": "「特長」更偏值得肯定的长处，「特徴」可正可负；二者同音但评价色彩不同。"
+    },
+    "review_note": "核对 occurrence：EP3 共 2 次；复查当前字幕 lines 247、250，确认外貌识别特征与杀法特征两种搭配。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-理不尽",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-理不尽",
+    "linguistic_payload": {
+      "headlineZh": "「理不尽」评价事情缺乏合理道理、对人不公；昴把宏大的“世间不公”迅速具体化为眼前敌人与处境。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "ナ形容词兼抽象名词",
+          "takeawayZh": "可说「理不尽だ」「理不尽な要求」「理不尽に耐える」。",
+          "explanationZh": "EP3 的「この世の理不尽」以名词出现；下一句「俺にとっての理不尽」用「にとって」限定评价者。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "不合理与不公平交叠",
+          "takeawayZh": "它可批评逻辑说不通，也可批评权力造成无法接受的待遇。",
+          "explanationZh": "本段不是抽象哲学，而是弱者面对杀戮、无力改变局面的切身评价。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "夸张宣言转为争取时间",
+          "takeawayZh": "「弾劾中だよ」把拖延战斗包装成声讨世界，带自嘲英雄腔。",
+          "explanationZh": "下一句立即把理不尽指向对手和现场，使宏大词汇服务于具体挑衅。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "规范评价",
+          "plainZh": "不是只描述结果，而是判断它不符合应有的道理或公平。"
+        },
+        {
+          "termZh": "评价者限定",
+          "plainZh": "「俺にとって」提醒同一处境对不同人物可能有不同判断。"
+        }
+      ],
+      "historicalNoteZh": "「理不尽」源于佛教、汉文词汇中道理未尽之意，现代常指蛮不讲理或不公平。",
+      "cautionZh": "单纯“不方便”不一定理不尽；该词通常包含较强的正当性批评。"
+    },
+    "review_note": "核对 occurrence：EP3 共 2 次；复查当前字幕 lines 77–78，从「この世」到「俺にとって」确认宏大声讨与具体指向。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-身柄",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-身柄",
+    "linguistic_payload": {
+      "headlineZh": "「身柄」把当事人本身作为被安置、看管、保护、拘束、移交或接手的对象来谈；它不是“身份资料”，也不等于抽象的“人身处置权”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "谈论当事人安置的固定名词",
+          "takeawayZh": "常见「身柄を預かる／拘束する／引き渡す」「身柄はどうする」。",
+          "explanationZh": "EP3 先问昴的身柄如何安排，后说由自己接管 Felt；人物由「彼／彼女の」限定。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "对象是当事人及其安置状态",
+          "takeawayZh": "重点是某人目前由谁看管、保护、拘束或接手。",
+          "explanationZh": "「身元」回答是谁、来历如何；「身柄」回答人现在交给谁。两者在调查场景可能同时出现。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "正式词汇凸显接手责任",
+          "takeawayZh": "「身柄を預かる」比“把她带走”更像承担接手看管的责任。",
+          "explanationZh": "莱因哈鲁特用自谦敬语宣布接管，形式礼貌，却明确不给 Felt 拒绝权。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "人身看管",
+          "plainZh": "把当事人本人作为暂由某机构或人物看管、保护、拘束或移交的对象来谈。"
+        },
+        {
+          "termZh": "身份—人身差",
+          "plainZh": "「身元」偏身份来历，「身柄」偏当事人身体与行动被谁控制。"
+        }
+      ],
+      "historicalNoteZh": "「身柄」在警务、司法报道中很常见，如「身柄を確保する」，语域明显正式。",
+      "cautionZh": "普通邀请同行不说「身柄を預かる」；该词会带拘留、保护责任或权力关系。"
+    },
+    "review_note": "核对 occurrence：EP3 共 2 次；复查当前字幕 lines 421、460，分别是昴后续安排和莱因哈鲁特接管 Felt。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-選出",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-選出",
+    "linguistic_payload": {
+      "headlineZh": "「選出」是从候选范围中正式选出人选，常用于职位、代表或获奖者；EP4 以它说明新王遴选进程。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "结果指向的サ变名词",
+          "takeawayZh": "可说「代表を選出する」「選出に向けて」「選出された」。",
+          "explanationZh": "「新しい王の選出」把新王作为产生结果；「王選出」则压缩成较紧的复合。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "选择动作带正式资格",
+          "takeawayZh": "相比日常「選ぶ」，它更突出从制度程序中产生被选者。",
+          "explanationZh": "王位并非私人随意挑选，选出过程会牵动国家政治，因此适合正式汉字词。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "进程名词解释社会混乱",
+          "takeawayZh": "「選出に向けて動いている」把尚未完成的政治过程作为当前背景。",
+          "explanationZh": "后句「ドタバタで混乱中」用轻松口语概括严重制度真空，形成语体落差。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "制度性选择",
+          "plainZh": "依规则从候选者中产生正式人选，而非个人偏好。"
+        },
+        {
+          "termZh": "过程名词化",
+          "plainZh": "把选人的一连串程序概括为可作背景原因的「選出」。"
+        }
+      ],
+      "historicalNoteZh": "「選出」常见于新闻和组织程序；「当選」则更强调选举中获胜这一结果。",
+      "cautionZh": "购物挑一个商品通常用「選ぶ／選択する」，不会用庄重的「選出する」。"
+    },
+    "review_note": "核对 occurrence：EP4 共 2 次；复查当前字幕 lines 211、213，确认选王进程与政治混乱背景。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-haafu-erufu",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-haafu-erufu",
+    "linguistic_payload": {
+      "headlineZh": "「ハーフエルフ」是“人类与精灵混血者”的设定身份词；艾米莉雅以它纠正自己并非完整精灵，也承受由该类别引发的偏见。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "外来语复合身份名",
+          "takeawayZh": "「ハーフ＋エルフ」均以片假名书写，长音需完整读出「はーふえるふ」。",
+          "explanationZh": "可说「ハーフエルフだ／だから」。它是名词，不按形容词变化；属性关系可用「ハーフエルフの少女」。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "混合血统不等于数学式一半能力",
+          "takeawayZh": "「half」命名父母种族来源，具体能力、文化归属由作品设定。",
+          "explanationZh": "EP3 的「エルフなのは半分だけ」说明分类比例，却不宣称所有特征都各占一半。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "类别被用于自我说明也被用于歧视",
+          "takeawayZh": "艾米莉雅主动说出身份时带谨慎，其他人却可能把所有半精灵一概而论。",
+          "explanationZh": "EP14 明确出现「ひとくくりにして」，显示身份词本身中性，社会联想会造成偏见。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "设定身份词",
+          "plainZh": "依虚构世界的种族规则命名人物身份，现实词典不能补完全部含义。"
+        },
+        {
+          "termZh": "类别偏见",
+          "plainZh": "从一个群体标签直接推断所有成员相同，忽略个体差异。"
+        }
+      ],
+      "historicalNoteZh": "日语「ハーフ」在现实中也用于混合族裔身份，但当事人偏好的称呼各异；虚构种族词需与现实身份讨论分开。",
+      "cautionZh": "不要把作品中的ハーフエルフ直接套作现实族裔隐喻；本卡只分析台词内身份与偏见机制。"
+    },
+    "review_note": "核对 occurrence 记录：EP1 2 次、EP14、EP24 各 1 次，共 3 集 4 次；另以当前字幕逐字检索，复查 EP1 lines 379、387、EP14 lines 84、92、101 及 EP24 lines 55、386。occurrence 计数不当作当前字幕的穷尽索引。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-hansei",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-hansei",
+    "linguistic_payload": {
+      "headlineZh": "「反省」是回看自己的言行并承认需要改进；但台词中两姐妹互相替对方“反省”，故意把正式认错变成机械应答。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "サ变内省名词",
+          "takeawayZh": "常说「反省する／している」「反省点」「反省を促す」。",
+          "explanationZh": "EP4 使用进行状态「反省しています／している」，形式上声称认错状态正在持续。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "回顾还需导向修正",
+          "takeawayZh": "单纯后悔结果不必然是反省；典型反省包含判断自己哪里不当。",
+          "explanationZh": "EP12 的「超反省してる」加强程度，但是否真正改变仍要看后续行动，语言声明并非充分证据。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "替他人认错产生不真诚笑点",
+          "takeawayZh": "拉姆和雷姆分别说“姐姐／雷姆也在反省”，却没有各自直接承担。",
+          "explanationZh": "对称句式像服从艾米莉雅训话，又继续姐妹的互相挖苦，削弱正式道歉的可信度。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "自我归责",
+          "plainZh": "把问题部分归因于自己的判断或行动，并承认需改进。"
+        },
+        {
+          "termZh": "表演性认错",
+          "plainZh": "话语形式完成“我反省了”，但是否真有内省需由行动验证。"
+        }
+      ],
+      "historicalNoteZh": "「反省」在近代哲学、教育语境中发展出强烈的自我审视义，现代日常也常用于训诫。",
+      "cautionZh": "「後悔」侧重为结果难受，「反省」侧重检讨自己的问题；两者可能同时出现但不等同。"
+    },
+    "review_note": "核对 occurrence：EP4 2 次、EP12 1 次，共 2 集 3 次；复查当前字幕 EP4 lines 85–86 与 EP12 line 131。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-hatsugen",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-hatsugen",
+    "linguistic_payload": {
+      "headlineZh": "「発言」把一次说出的话作为可引用、评价和追责的社会行为；它比普通「言葉」更聚焦谁在什么场合说了什么。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词兼サ变发话动作",
+          "takeawayZh": "可说「発言する」「発言を撤回する」「〜という発言」。",
+          "explanationZh": "EP4 的「穀潰しの発言」用「の」给话语贴评价标签；EP16「発言を顧みて」把先前言论作为复盘对象。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "内容与说话责任绑定",
+          "takeawayZh": "「発言」不仅是句子文本，还包括发言者在互动中的承诺和后果。",
+          "explanationZh": "EP19 说某言论不能以“找茬”带过，正是把话语视为需要承担责任的行为。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "复述标签可联合攻击",
+          "takeawayZh": "姐妹一人称「穀潰しの発言」，另一人升级为「ろくでなしの発言」。",
+          "explanationZh": "平行句式让她们共同审判昴的赖床话语，并借名词化保持一本正经的毒舌。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "言语行为",
+          "plainZh": "说话不仅传递内容，也可能作出承诺、冒犯或承担公共后果。"
+        },
+        {
+          "termZh": "可追责话语",
+          "plainZh": "发言被保留下来后，可由他人引用、评价、要求撤回。"
+        }
+      ],
+      "historicalNoteZh": "「発言」常见于会议、政治和新闻报道；日常闲聊用它会略显正式、像在记录言论。",
+      "cautionZh": "「発音」是声音读法，「発言」是说出的内容和行为；中文都含“发”字但不可混用。"
+    },
+    "review_note": "核对 occurrence 记录：EP4 2 次、EP16、EP19 各 1 次，共 3 集 4 次；另以当前字幕逐字检索，复查 EP4 lines 59–60、EP16 lines 41、93 与 EP19 line 22。occurrence 计数不当作当前字幕的穷尽索引。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-kouhei",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-kouhei",
+    "linguistic_payload": {
+      "headlineZh": "「公平」表示依同一可辩护标准对待相关各方；它不必让每个人得到完全相同结果，而要求程序和权衡不偏袒。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "ナ形容词兼价值名词",
+          "takeawayZh": "形式有「公平だ」「公平な判断」「公平に扱う」「公平さ」。",
+          "explanationZh": "EP2 的「鑑定してもらうのが公平だ」把第三方估价评为公平；EP13「公平であること」名词化为政治愿望。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "程序公平与结果平等",
+          "takeawayZh": "公平关注规则不偏，平等「平等」更直接关注地位或分配差异。",
+          "explanationZh": "让罗姆鉴定是为双方采用共同程序；建立所有民众公平的国家则把原则扩展到制度。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "诉诸公平争取接受",
+          "takeawayZh": "提出“公平”是在向对手宣称这个方案连对方也应认可。",
+          "explanationZh": "价值词可正当化程序，但说话人仍需说明标准、鉴定者是否真正中立。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "程序正义",
+          "plainZh": "各方接受同一规则和中立判断，而不预先保证相同结果。"
+        },
+        {
+          "termZh": "价值诉求",
+          "plainZh": "说话人用共同认可的原则为方案争取正当性。"
+        }
+      ],
+      "historicalNoteZh": "「公平」与「公正」相近；前者更常强调不偏袒各方，后者还强调判断符合正义。",
+      "cautionZh": "“每人一样多”可说「平等に」，是否公平还取决于需求、规则与贡献，不能只看数量。"
+    },
+    "review_note": "核对 occurrence：EP2 2 次、EP13 1 次，共 2 集 3 次；复查当前字幕 EP2 line 362 与 EP13 lines 90–91。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-medatsu",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-medatsu",
+    "linguistic_payload": {
+      "headlineZh": "「目立つ」是不及物动词，表示某人或特征从背景中凸显、容易被注意；显眼本身可好可坏。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "タ行五段的显著状态",
+          "takeawayZh": "活用为「目立たない／目立って／目立った／目立ちすぎる」。",
+          "explanationZh": "EP4「不備が目立つ」让缺陷作主语；「目立ちすぎる」以连用形接「すぎる」加强过度。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "前景化不自带褒贬",
+          "takeawayZh": "漂亮服装能显眼，错误也能显眼；评价来自突出内容和场合。",
+          "explanationZh": "昴说召唤套路的缺陷显眼是负面，酱汁溅在衣服上显眼则是视觉对比。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "自动词与使役对应",
+          "takeawayZh": "「人が目立つ」是人显眼；让某物突出说「目立たせる」。",
+          "explanationZh": "不能用「人を目立つ」表达主动突出对象，格关系需随自他变化。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "知觉前景",
+          "plainZh": "对象相对周围背景更容易进入观察者注意。"
+        },
+        {
+          "termZh": "非评价显著性",
+          "plainZh": "“被注意”是描述性核心，好坏由具体显眼特征决定。"
+        }
+      ],
+      "historicalNoteZh": "词形可直观分析为“站到眼前”，但现代已固定为视觉或社会上的显眼。",
+      "cautionZh": "「目立ちたい」是想受关注；「注目したい」是自己想关注别人，视角相反。"
+    },
+    "review_note": "核对 occurrence：EP4 2 次、EP12 1 次，共 2 集 3 次；复查当前字幕 EP4 lines 10、371–372 与 EP12 line 176。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-menjiru",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-menjiru",
+    "linguistic_payload": {
+      "headlineZh": "「Nに免じて」表示看在 N 的情面、功劳或特殊理由上减轻处罚；它不是说 N 本人执行“免除”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「免じる」的固定て形",
+          "takeawayZh": "一段活用为「免じない／免じて／免じた」，最常见构式是「Nに免じて」。",
+          "explanationZh": "EP3 的「俺の顔に免じて」让“我的面子”成为宽免依据，后件是见送冰雕处罚。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "处罚判断加入关系因素",
+          "takeawayZh": "本应执行的责罚因第三方情面而减免，法律理由不一定改变。",
+          "explanationZh": "它不是证明 Felt 无错，而是请求艾米莉雅基于昴的关系暂不处罚。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "声称有面子可能遭到质疑",
+          "takeawayZh": "昴自信说“看我面子”，艾米莉雅立即复述，显出前提不自然。",
+          "explanationZh": "EP12 再用同一构式求情，说明它常服务于中间人替他人请求宽恕。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "情面依据",
+          "plainZh": "不是按事件本身，而是因某人的关系或功劳改变处置。"
+        },
+        {
+          "termZh": "第三方求情",
+          "plainZh": "非被处罚者出面，请决定者因为自己而减轻对他人的责罚。"
+        }
+      ],
+      "historicalNoteZh": "「免ずる／免じる」带正式、旧式色彩；现代日常主要保留在「〜に免じて」这一惯用构式。",
+      "cautionZh": "该表达预设说话人的情面有价值，关系不足时会显得自以为是。"
+    },
+    "review_note": "核对 occurrence：EP3 2 次、EP12 1 次，共 2 集 3 次；复查 EP3 lines 353、355 与 EP12 lines 204、218。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-tairyoku",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-tairyoku",
+    "linguistic_payload": {
+      "headlineZh": "「体力」是身体持续活动、承受消耗的能力；它可以被削减、浪费或维持不住，不只是瞬间肌力。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "身体资源名词",
+          "takeawayZh": "常说「体力がある／もつ」「体力を削る／使う」「体力不足」。",
+          "explanationZh": "EP5「体力削られて」把其视为可消耗资源；EP10「体力がもたなかった」强调续航失败。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "耐久力区别于单次力量",
+          "takeawayZh": "「力」可指力量本身，「体力」更偏身体总体储备和耐久。",
+          "explanationZh": "一个人举重不强却可能体力好，反之也成立。病后「体力浪費状態」强调恢复不足。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "资源隐喻让身体状态可计算",
+          "takeawayZh": "角色像谈游戏数值一样说体力被削、浪费，符合昴的类型化口吻。",
+          "explanationZh": "雷姆评价拉姆「体力がもたない」则较客观，说明词可在玩笑和真实病弱间切换。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "身体储备",
+          "plainZh": "支撑持续行动、恢复和承受负荷的总体生理资源。"
+        },
+        {
+          "termZh": "资源隐喻",
+          "plainZh": "把体能说成可削减、浪费、恢复的有限数值。"
+        }
+      ],
+      "historicalNoteZh": "近现代体育、医学和教育语境使「体力」成为衡量身体能力的常用词。",
+      "cautionZh": "「筋力」专指肌肉力量，「持久力」专指耐久；「体力」范围更宽，不可完全互换。"
+    },
+    "review_note": "核对 occurrence：EP5 1 次、EP10 2 次、EP11 1 次，共 3 集 4 次；复查 EP5 line 67、EP10 lines 201、334 与 EP11 line 276。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-全力",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-全力",
+    "linguistic_payload": {
+      "headlineZh": "「全力」是把自己可用的力量全部投入；「全力で逃げろ」强调逃跑也必须以最高强度执行。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词加「で」作方式",
+          "takeawayZh": "常见「全力でV」「全力を尽くす」「全力投球」。",
+          "explanationZh": "EP3 用「全力で」修饰「逃げろ」，不是让「全力」充当动作宾语。EP19 则说「全力で手伝う」。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "上限由行动者自身决定",
+          "takeawayZh": "全力不保证成功，只说明投入达到个人当前最大程度。",
+          "explanationZh": "Felt 即使全力逃也可能有风险；词汇评价的是投入，不是结果。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "命令中的全力标记紧迫性",
+          "takeawayZh": "昴没有说普通「逃げろ」，而是要求不保留体能，显示窗口极短。",
+          "explanationZh": "在援助语境「全力で手伝う」又成为可靠承诺，强度相同，互动功能不同。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "主体上限",
+          "plainZh": "衡量标准是行动者当前全部能力，而非外部统一数值。"
+        },
+        {
+          "termZh": "方式格",
+          "plainZh": "名词后「で」把全力设为完成动作的投入方式。"
+        }
+      ],
+      "historicalNoteZh": "「全力」是音读汉字词，体育语境尤其常见，也广泛用于工作与承诺。",
+      "cautionZh": "「全力を出す」可说，但惯用承诺更常用「全力を尽くす」，强调用尽努力。"
+    },
+    "review_note": "核对 occurrence：EP3、EP19 各 1 次，共 2 集 2 次；复查当前字幕 EP3 line 170 与 EP19 line 381。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-全般",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-全般",
+    "linguistic_payload": {
+      "headlineZh": "「全般」覆盖某一领域的整体范围；「家事全般が得意」说雷姆对家务各方面普遍擅长，不是只列一个项目。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "领域名后的范围名词",
+          "takeawayZh": "常见「N全般」「N全般にわたる」「全般的に」。",
+          "explanationZh": "EP4 将「家事＋全般」紧密组合，整体由「が」标为「得意」的领域。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "概括范围而非逐项全称",
+          "takeawayZh": "它表示总体覆盖，允许个别项目存在程度差异。",
+          "explanationZh": "「家事全般」包括料理、洗濯、掃除等；不是逻辑上保证每一项都完全相同。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "总括评价提高能力定位",
+          "takeawayZh": "雷姆先纠正昴的分项猜测，再用全般作更强总体结论。",
+          "explanationZh": "该词让角色能力从“某项会做”提升为“领域型强项”，同时衬托姐姐的局限。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "领域覆盖",
+          "plainZh": "把一个范畴的主要部分统一纳入谈论范围。"
+        },
+        {
+          "termZh": "概括量化",
+          "plainZh": "给出整体倾向，不等于对每个成员逐一作绝对断言。"
+        }
+      ],
+      "historicalNoteZh": "「全般」常用于正式说明和能力概括；副词形「全般的に」与「全体的に」相近。",
+      "cautionZh": "「全部」常数具体项目是否一个不漏，「全般」更适合领域整体；不要机械互换。"
+    },
+    "review_note": "核对 occurrence：EP4 共 1 次；复查当前字幕 line 193，并连读 lines 190–194 的家务分项对照。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-前提",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-前提",
+    "linguistic_payload": {
+      "headlineZh": "「前提」是推理、计划或方案开始前先接受的条件；这些台词分别把失败、重来或牺牲设为起点，其中“牺牲前提”直接揭示方案的危险代价。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "论证条件名词",
+          "takeawayZh": "常说「前提にする／となる」「〜前提の計画」「前提を疑う」。",
+          "explanationZh": "EP2「負け犬前提」和 EP38「犠牲前提の手」都省略「を」，把前项直接设为方案基础。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "尚未论证却先被接受",
+          "takeawayZh": "前提可是真实事实，也可是不合理假设；结论质量依赖它。",
+          "explanationZh": "死亡回溯必须死才发动、计划默认有人牺牲，都是先规定代价再设计行动。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "点名前提就是挑战方案",
+          "takeawayZh": "说「犠牲前提」把隐藏代价暴露出来，使拒绝有明确理由。",
+          "explanationZh": "昴不是只说“不喜欢”，而是指出整个方案从起点就把牺牲正常化。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "推理起点",
+          "plainZh": "在论证或计划展开前暂时接受、后续结果依赖的条件。"
+        },
+        {
+          "termZh": "隐藏代价",
+          "plainZh": "方案未明说却默认必须承担的失败、牺牲或伤害。"
+        }
+      ],
+      "historicalNoteZh": "「前提」是逻辑学、论证和日常规划都常用的近代汉字词，现代也高度口语化。",
+      "cautionZh": "前提不等于已证实真相；有效讨论应区分“为了推理暂定”和“已经确认”。"
+    },
+    "review_note": "核对 occurrence：EP2、EP35、EP38 各 1 次，共 3 集 3 次；复查当前字幕 EP2 line 88、EP35 line 378、EP38 line 182。"
+  },
+  {
+    "id": "vocab-card-v1:re-zero-vocab-剣撃",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-剣撃",
+    "linguistic_payload": {
+      "headlineZh": "「剣撃」指以剑发动的斩击或剑术攻击；艾尔莎点名要看“阿斯特雷亚家的剑击”，把招式与家系传统连在一起。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "武器加攻击的音读复合",
+          "takeawayZh": "「剣（けん）＋撃（げき）」读作「けんげき」，整体是名词。",
+          "explanationZh": "EP3 的「アストレア家の剣撃を」省略后续“见せて”等请求谓语，宾格「を」仍显示它是期待看到的对象。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "一次斩击与流派技艺",
+          "takeawayZh": "可指具体攻击，也可概括某家系、剑士的剑术表现。",
+          "explanationZh": "本句以家族限定，不只是“拿剑打一下”，而是期待著名剑圣家系的技艺。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "点名招式是正式迎战",
+          "takeawayZh": "艾尔莎先报自己的异名，再要求看家系剑击，像在交换战士身份。",
+          "explanationZh": "紧接两人的称号与全名，语言把战斗升级成名号之间的对决。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "武器事件复合",
+          "plainZh": "前项标武器，后项「撃」把整体分类为攻击行为。"
+        },
+        {
+          "termZh": "谓语省略",
+          "plainZh": "宾格「を」保留，却因上下文明确而省去“让我看看”等动作。"
+        }
+      ],
+      "historicalNoteZh": "「撃」常见于「攻撃」「打撃」「砲撃」等战斗词，前项决定攻击手段。",
+      "cautionZh": "普通日常“剑术”可说「剣術」，「剣撃」更聚焦实际斩击或战斗表现。"
+    },
+    "review_note": "核对 occurrence：EP3 共 1 次；复查当前字幕 lines 315–318，确认 line 316 是省略谓语的挑战，后接双方异名与家系身份。"
+  }
+]

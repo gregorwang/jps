@@ -1,0 +1,412 @@
+[
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-023",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-023",
+    "linguistic_payload": {
+      "headlineZh": "「…って 話す隙もねえ」把昴刚要接的话直接截断：雷姆告退得太快，他连插入一句说明的空当都没有。",
+      "domains": [
+        {
+          "domain": "discourse",
+          "titleZh": "句首「…って」留下未成形回应",
+          "takeawayZh": "它记录昴想接住上一话轮却来不及完成的反应。",
+          "explanationZh": "前一行雷姆已经说「失礼します」，昴只发出「ええっ ちょ…」便被留在原地。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「Vる隙もない」表示最低机会为零",
+          "takeawayZh": "动词「話す」限定空当用途，「も」与否定把机会压到连一点都没有。",
+          "explanationZh": "被省略的比较背景是正常交谈至少应容许一句回应，但雷姆的行动节奏不提供它。"
+        },
+        {
+          "domain": "morphology",
+          "titleZh": "「ねえ」强化粗口式无奈",
+          "takeawayZh": "标准否定「ない」变成昴常用的「ねえ」。",
+          "explanationZh": "音变不改变否定范围，却让抱怨更即时、更像被晾下后的自言自语。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "被截断话轮",
+          "plainZh": "说话人已启动回应，但对方动作使其无法完成。"
+        },
+        {
+          "termZh": "极小机会否定",
+          "plainZh": "用「もない」强调连最基本的一点行动空间都不存在。"
+        }
+      ],
+      "historicalNoteZh": "「息つく暇もない」「考える隙もない」都用时间或空间名词表达“无暇做某事”；「隙」更突出可插入的缝隙。",
+      "cautionZh": "开头「って」没有足够证据恢复成某句完整引语；教学应保留其断裂性，而不是替昴编出没说出口的话。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 173–178，目标 line 177；source_line_no 181 比当前行号晚 4，前一行已显示昴只来得及说「ええっ ちょ…」。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-044",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-044",
+    "linguistic_payload": {
+      "headlineZh": "「青鬼の自己犠牲は すげえかっこいいけど―」先真诚赞叹青鬼，句末「けど」却要求连到下一行“得不到回报，蠢得要命”。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "话题「は」只框定评价对象",
+          "takeawayZh": "昴评价的是青鬼的自我牺牲这一行为，而非无条件赞美人物全部选择。",
+          "explanationZh": "后续负面判断与正面判断共享同一话题，构成复杂评价。"
+        },
+        {
+          "domain": "morphology",
+          "titleZh": "「すげえ」口语化修饰形容词",
+          "takeawayZh": "粗犷形式「すげえ」在此相当于程度很高的「すごく」。",
+          "explanationZh": "它直接加强「かっこいい」，与昴兴奋、男性化的说话风格一致。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "悬空「けど」容纳矛盾评价",
+          "takeawayZh": "转折落点跨行，不能把本行当成完整的单向称赞。",
+          "explanationZh": "“帅”与“没有回报而且很笨”同时成立，正是昴说自己既爱又恨这个故事的原因。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "双价评价",
+          "plainZh": "同一行为可以在勇气尺度上为正面、在结果尺度上为负面。"
+        },
+        {
+          "termZh": "跨行逆接",
+          "plainZh": "转折标记出现在一行末尾，真正反向内容由下一行完成。"
+        }
+      ],
+      "historicalNoteZh": "会话里的「すごい」常以「すげえ」塑造粗犷语气，也可副词式修饰后续形容词；正式表达宜用「とても／すごく」。",
+      "cautionZh": "source meaning 只保留“很帅”，漏掉「けど」尚未闭合；学习时必须连读下一行的负面续接。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 331–334，目标 line 332；line 333 明确续为「すげえ報われなくてバカだ」。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-045",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-045",
+    "linguistic_payload": {
+      "headlineZh": "「俺は頑張った分だけ 報われたいと思うタイプだし」把努力量与期望回报挂钩，并用“我是这种类型”说明自己为何无法完全认同青鬼。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "「Vた分だけ」建立比例",
+          "takeawayZh": "「頑張った分」把已经付出的努力名词化，「だけ」要求回报与其范围相应。",
+          "explanationZh": "不是只要努力就索取任意奖励，而是主张投入多少便希望得到相称回应。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "「報われる」以付出者为视角",
+          "takeawayZh": "词语表示努力、感情或牺牲得到有意义的结果。",
+          "explanationZh": "愿望形「報われたい」突出昴希望自己成为获得回报的一方。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「タイプだし」把价值观个人化",
+          "takeawayZh": "昴没有宣称人人都必须这样，只说自己属于重视对等回报的人。",
+          "explanationZh": "句末「し」还留有后续理由余地，使其成为对前面批评的解释之一。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "比例对应",
+          "plainZh": "把结果期望与已经投入的数量或程度联系起来。"
+        },
+        {
+          "termZh": "立场个人化",
+          "plainZh": "用“我是这种类型”把判断表述为个人价值倾向。"
+        }
+      ],
+      "historicalNoteZh": "「頑張った分だけ」也可接自然结果，如「上達する」；与愿望「報われたい」组合后更显主体期待。",
+      "cautionZh": "「報われる」不是简单被动“被报告”；本句也未说青鬼完全没有精神价值，而是批评其牺牲缺少实际回报。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 331–336，目标 line 334；前两行评价青鬼，后行由拉姆追问昴是否真这样看。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-046",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-046",
+    "linguistic_payload": {
+      "headlineZh": "「自分の望みに 青鬼を巻き込んで―」省略的施事是赤鬼：拉姆指责他把青鬼卷入自己的愿望，下一行才说代价全由青鬼承担。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "「Nに人を巻き込む」的参与结构",
+          "takeawayZh": "助词「に」标出被卷入的事态，「青鬼を」标出被牵连者。",
+          "explanationZh": "动词用て形停在行末，与下一行的结果评述串成一条指控。"
+        },
+        {
+          "domain": "reference",
+          "titleZh": "「自分」跟随省略施事",
+          "takeawayZh": "这里的“自己”属于被评论的赤鬼，不是当下说话人拉姆。",
+          "explanationZh": "上一段问题是为何拉姆认为赤鬼更不可救药，因而后续行动主语持续为赤鬼。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「巻き込む」预先分配责任",
+          "takeawayZh": "选这个词就把青鬼描写为受牵连者，而非完全平等的共同策划者。",
+          "explanationZh": "拉姆由此把悲剧责任更多压到提出愿望却未自行付出代价的赤鬼。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "反身指称",
+          "plainZh": "「自分」通常依附当前被描述行动的主体，而不必等于实际说话人。"
+        },
+        {
+          "termZh": "卷入框架",
+          "plainZh": "把一方描述成因他人事务而被动进入风险或责任。"
+        }
+      ],
+      "historicalNoteZh": "「巻き込む」从物理卷入扩展到「事件に人を巻き込む」，现代常用于牵连他人。",
+      "cautionZh": "不能把「自分」指给昴或拉姆；也不要在本行结束分析，受损结果明确位于下一行。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 335–340，目标 lines 337–338；上下文话题为拉姆对赤鬼的评价，后行补「青鬼に失わせただけ」。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-047",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-047",
+    "linguistic_payload": {
+      "headlineZh": "「どっちとも仲よくしたいだなんて」把昴“两个鬼都想交朋友”的回答引用出来，拉姆再故意套进恋爱框架，骂他花心又优柔寡断。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "「どっちとも」覆盖两方",
+          "takeawayZh": "疑问选择词「どっち」加「とも」，在二选语境中表示两边都。",
+          "explanationZh": "后续「仲よくしたい」的对象因此同时是赤鬼和青鬼。"
+        },
+        {
+          "domain": "morphology",
+          "titleZh": "愿望句接评价性「だなんて」",
+          "takeawayZh": "整个回答被作为令人意外或可吐槽的内容重新提出。",
+          "explanationZh": "「なんて」不只是中性引用，它让拉姆能对该愿望表示轻蔑或惊讶。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "朋友选择被重构成恋爱不忠",
+          "takeawayZh": "原问题谈想和哪个鬼亲近，拉姆却用「浮気性」故意夸大。",
+          "explanationZh": "这种框架错置是毒舌笑点，「優柔不断」则抓住昴不肯二选一的部分。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "双项全称",
+          "plainZh": "在只有两个候选时，用「どっちとも」表示两者全部。"
+        },
+        {
+          "termZh": "戏谑重构",
+          "plainZh": "把原本普通的人际选择故意解释成更夸张的关系问题。"
+        }
+      ],
+      "historicalNoteZh": "「だなんて／なんて」可引出惊讶、轻视或感叹，具体态度由后续评价决定。",
+      "cautionZh": "「浮気性」在这里是比喻式调侃，不能据此认定昴实际有恋爱背叛；原回答只是两个都想成为朋友。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 346–355，目标 line 353；前问要求在两鬼间选择，昴的无声反应被拉姆读作「どっちとも」。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-048",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-048",
+    "linguistic_payload": {
+      "headlineZh": "「王族と竜の盟約だなんて 書いてあったし―」以书中“竟写着王族与龙的盟约”为证据，支持昴把那篇故事判断为历史传说。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "「Nだなんて」引用名词判断",
+          "takeawayZh": "前项不是说话人现场缔约，而是作为书中内容进入「書いてあった」。",
+          "explanationZh": "「王族と竜の」共同限定盟约双方，关系助词不能拆成普通并列清单。"
+        },
+        {
+          "domain": "aspect",
+          "titleZh": "「書いてあった」关注文字留存状态",
+          "takeawayZh": "过去某人写下的内容在昴阅读时处于可见状态。",
+          "explanationZh": "「てある」比单纯「書いた」更适合从读者视角报告书面结果。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "句末「し」列举判据",
+          "takeawayZh": "盟约记载是他认为“更像昔话”的一项理由，而非唯一证明。",
+          "explanationZh": "前文还谈王国名称来源，后句才给出总评「おとぎ話ってより 昔話」。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "结果状态「てある」",
+          "plainZh": "从当前可见结果出发，暗含此前有人有意完成了动作。"
+        },
+        {
+          "termZh": "理由列举「し」",
+          "plainZh": "给出一项支持后续判断的依据，并暗示还可有其他依据。"
+        }
+      ],
+      "historicalNoteZh": "阅读场景常用「本に書いてある／あった」报告文字内容；时态取决于叙述观察点。",
+      "cautionZh": "「だなんて」带惊讶，但不能单凭它判断昴不相信记载；后文拉姆明确说这是事实。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 359–366，目标 line 364，line 365 才落到“与其说童话，不如说昔话”的判断。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-049",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-049",
+    "linguistic_payload": {
+      "headlineZh": "「いえ 竜のみぞ知るってところだわ」把刚出口的“只有神知道”改成“只有龙知道”，以世界观中的龙替换现实惯语的神。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "古典焦点「のみぞ」",
+          "takeawayZh": "「のみ」限定“只有”，「ぞ」强化焦点，形成保留至今的格言式表达。",
+          "explanationZh": "后面的「知る」维持简洁古雅形态，整体仿照固定句「神のみぞ知る」。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "「いえ」即时自我修正",
+          "takeawayZh": "拉姆先说到「神のみぞ」，马上否定并改用「竜」。",
+          "explanationZh": "修改不是事实反转，而是让惯用表达符合露格尼卡尊龙的文化框架。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「ってところ」控制断言尺度",
+          "takeawayZh": "它可理解为“差不多就该这么说吧”，把格言当作概括。",
+          "explanationZh": "真正命题是无人知道龙会怎样行动；“龙自己知道”是一种修辞性收束。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "古典残留焦点",
+          "plainZh": "旧式助词组合在格言与固定句中继续承担“唯有”的强调。"
+        },
+        {
+          "termZh": "文化适配改写",
+          "plainZh": "保留熟语结构，却替换核心名词使其符合另一世界的信仰。"
+        }
+      ],
+      "historicalNoteZh": "「神のみぞ知る」是现代仍通行的文语式固定句；作品改为「竜のみぞ知る」可同时显古雅并强化设定。",
+      "cautionZh": "不要把「ぞ」当普通男性终助词；它位于名词后与「のみ」组成焦点结构，也不能据修辞断言龙会公开回答。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 371–376；line 375 先出现「神のみぞ…」，目标 line 376 以「いえ」改口为龙。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-050",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-050",
+    "linguistic_payload": {
+      "headlineZh": "「レムには聞かせないでちょうだい」要求昴不要让雷姆听到赤鬼青鬼的故事；使役形把“让谁听”与“谁讲”区分开。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「聞く」的使役形「聞かせる」",
+          "takeawayZh": "动作不是禁止雷姆主动听，而是禁止他人把内容讲给她听。",
+          "explanationZh": "否定て形「聞かせないで」接请求成分，形成“请不要让她听”。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「レムには」标听者并加对比",
+          "takeawayZh": "助词「に」是使役句中的听取者，「は」突出尤其不要对雷姆做。",
+          "explanationZh": "故事内容承接前文鬼故事而省略，说话者期待昴能恢复。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "较柔请求遮住个人敏感点",
+          "takeawayZh": "拉姆用「ちょうだい」而非命令式，但下一行只含蓄说雷姆会讨厌。",
+          "explanationZh": "她没有向昴解释双胞胎过去，听者只能知道这是需要避开的内容。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "使役听者",
+          "plainZh": "在“让某人听”结构中，以「に」标出接收声音或故事的人。"
+        },
+        {
+          "termZh": "敏感信息禁传",
+          "plainZh": "限制某项内容向特定对象传播，而非禁止所有人讨论。"
+        }
+      ],
+      "historicalNoteZh": "「Vないでちょうだい」常见于带亲近感或女性角色化的请求，强度仍可很认真。",
+      "cautionZh": "不要倒译成“别听雷姆说”；动作方向是昴等人把故事说给雷姆听，拉姆要求阻止这一传播。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 378–385，目标 line 384；line 385 给出「あの子は きっと嫌がる」作为理由。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-051",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-051",
+    "linguistic_payload": {
+      "headlineZh": "独立行「“嫉妬の魔女と”」其实是后置到动词之后的命名内容：前一行先说“人人都这样称呼她”，最后才揭示称号。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "引用助词「と」连接「呼ぶ」",
+          "takeawayZh": "完整结构跨行为「彼女を 嫉妬の魔女と 呼んだ」。",
+          "explanationZh": "「彼女を」是被命名者，称号后「と」标出人们用什么名称叫她。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "「こう」先指向尚未出现的答案",
+          "takeawayZh": "前行「こう呼んだ」中的「こう」不是回指，而是预告下一行的称号。",
+          "explanationZh": "把核心名称延后可制造悬念，让叙事像逐步念出的禁忌传说。"
+        },
+        {
+          "domain": "information_structure",
+          "titleZh": "后置成分占据揭示焦点",
+          "takeawayZh": "通常位于动词前的称号被移到句末，因而获得最强的新信息位置。",
+          "explanationZh": "配合前三行“可怕、连名字都恐怖”，最后四字成为整段高潮。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "后置补语",
+          "plainZh": "本应在谓语前出现的内容被移到句尾，作为补充或焦点。"
+        },
+        {
+          "termZh": "前指「こう」",
+          "plainZh": "指示词先出现，具体所指在后续话语才揭示。"
+        }
+      ],
+      "historicalNoteZh": "日语会话与叙事允许右移、补说；字幕分行会进一步放大这种先谓语、后核心内容的节奏。",
+      "cautionZh": "source 单行只是「嫉妬の魔女と」，不能独立译成“大家都称她”；完整主语、宾语和动词来自上一行。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 386–389；line 388「誰もが彼女を こう呼んだ」，目标 line 389 才后置称号内容。"
+  },
+  {
+    "id": "sentence-card-v1:re-zero-s01e06-sentence-052",
+    "source_type": "sentence",
+    "source_id": "re-zero-s01e06-sentence-052",
+    "linguistic_payload": {
+      "headlineZh": "「息災で」是古雅而压缩的临别祝愿，意思接近“愿你平安无事”；罗兹瓦尔只留下状态成分，让祝福简短落下。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词／ナ形容词「息災」",
+          "takeawayZh": "它表示无病无灾、平安，读作「そくさい」。",
+          "explanationZh": "句尾「で」保留状态连接，可恢复为「息災でいてください」一类愿望。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "谓语省略形成告别定型句",
+          "takeawayZh": "听者无需真正听见「いて」或「ありますように」，也能识别祝愿。",
+          "explanationZh": "前面已明确昴即将离开，临别场景提供了省略成分的功能。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "古风用词匹配贵族角色声线",
+          "takeawayZh": "比普通「元気で」更庄重，也更贴合罗兹瓦尔戏剧化的说话方式。",
+          "explanationZh": "其后马上转入伴手礼和口止め料，正式祝福与现实算计并置。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "祝愿省略",
+          "plainZh": "只说期望对方保持的状态，把“请保持／愿如此”留给场景补足。"
+        },
+        {
+          "termZh": "角色语体",
+          "plainZh": "选择较古雅的词来塑造人物社会身份与独特声线。"
+        }
+      ],
+      "historicalNoteZh": "固定四字句「無病息災」仍常用于祈愿；单说「息災で」在现代日常比「元気で」少见而更古雅。",
+      "cautionZh": "这里的「で」不是原因助词“因为平安”；句子依靠告别语境省略了保持平安的愿望谓语。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 390–405，目标 line 401；罗兹瓦尔在昴乘龙车离开前说出该临别语。"
+  }
+]

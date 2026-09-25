@@ -10,6 +10,14 @@ import com.animejapaneselab.nativeapp.data.EpisodeFocus
 import com.animejapaneselab.nativeapp.data.EpisodeOption
 import com.animejapaneselab.nativeapp.data.EpisodePlan
 import com.animejapaneselab.nativeapp.data.EpisodeSelection
+import com.animejapaneselab.nativeapp.data.FoundationDomain
+import com.animejapaneselab.nativeapp.data.FoundationPackQuery
+import com.animejapaneselab.nativeapp.data.FoundationQuestion
+import com.animejapaneselab.nativeapp.data.FoundationQuestionPack
+import com.animejapaneselab.nativeapp.data.FoundationQuestionQuery
+import com.animejapaneselab.nativeapp.data.FoundationStage
+import com.animejapaneselab.nativeapp.data.FoundationTopic
+import com.animejapaneselab.nativeapp.data.FoundationTopicQuery
 import com.animejapaneselab.nativeapp.data.GrammarPoint
 import com.animejapaneselab.nativeapp.data.LabSettings
 import com.animejapaneselab.nativeapp.data.LessonExerciseKind
@@ -34,6 +42,7 @@ import com.animejapaneselab.nativeapp.data.SyncSnapshot
 import com.animejapaneselab.nativeapp.data.SyncStatus
 import com.animejapaneselab.nativeapp.data.VocabItem
 import com.animejapaneselab.nativeapp.data.WorkOption
+import com.animejapaneselab.nativeapp.data.buildFoundationProgressPayload
 import com.animejapaneselab.nativeapp.data.buildLinguisticProgressPayload
 import com.animejapaneselab.nativeapp.domain.LessonEngine
 import com.animejapaneselab.nativeapp.domain.LessonSession
@@ -42,6 +51,24 @@ import com.animejapaneselab.nativeapp.domain.buildSmartReviewPlan
 import com.animejapaneselab.nativeapp.domain.resumeLessonFromProgress
 import com.animejapaneselab.nativeapp.platform.DeviceCapabilityReader
 import com.animejapaneselab.nativeapp.platform.DeviceCapabilitySnapshot
+import com.animejapaneselab.nativeapp.ui.foundation.FoundationTrainingError
+import com.animejapaneselab.nativeapp.ui.foundation.FoundationTrainingPhase
+import com.animejapaneselab.nativeapp.ui.foundation.FoundationTrainingState
+import com.animejapaneselab.nativeapp.ui.foundation.LinguisticsTrack
+import com.animejapaneselab.nativeapp.ui.foundation.answerFoundationQuestion
+import com.animejapaneselab.nativeapp.ui.foundation.applyFoundationCatalog
+import com.animejapaneselab.nativeapp.ui.foundation.applyFoundationQuestions
+import com.animejapaneselab.nativeapp.ui.foundation.beginFoundationCatalogLoad
+import com.animejapaneselab.nativeapp.ui.foundation.failFoundationLoad
+import com.animejapaneselab.nativeapp.ui.foundation.focusFoundationReviewQuestion
+import com.animejapaneselab.nativeapp.ui.foundation.nextFoundationQuestion as reduceNextFoundationQuestion
+import com.animejapaneselab.nativeapp.ui.foundation.previousFoundationQuestion as reducePreviousFoundationQuestion
+import com.animejapaneselab.nativeapp.ui.foundation.restartFoundationQuestions as reduceRestartFoundationQuestions
+import com.animejapaneselab.nativeapp.ui.foundation.restoreFoundationAnswers
+import com.animejapaneselab.nativeapp.ui.foundation.selectFoundationDomain as reduceFoundationDomain
+import com.animejapaneselab.nativeapp.ui.foundation.selectFoundationPack as reduceFoundationPack
+import com.animejapaneselab.nativeapp.ui.foundation.selectFoundationStage as reduceFoundationStage
+import com.animejapaneselab.nativeapp.ui.foundation.selectFoundationTopic as reduceFoundationTopic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -84,6 +111,9 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     private var exerciseLabJob: Job? = null
     private var remoteRefreshJob: Job? = null
     private var reviewContentJob: Job? = null
+    private var foundationCatalogJob: Job? = null
+    private var foundationQuestionJob: Job? = null
+    private var pendingFoundationReviewTask: ProgressItem? = null
     private var pronunciationEvaluationJob: Job? = null
     private var pendingPronunciationAttempt: PendingPronunciationAttempt? = null
 
@@ -181,6 +211,323 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
+    private fun ensureFoundationCatalogLoaded() {
+        when (_uiState.value.foundation.phase) {
+            FoundationTrainingPhase.Idle,
+            FoundationTrainingPhase.Error -> refreshFoundationCatalog()
+            FoundationTrainingPhase.LoadingCatalog,
+            FoundationTrainingPhase.LoadingQuestions,
+            FoundationTrainingPhase.Ready -> Unit
+        }
+    }
+
+    fun refreshFoundationCatalog() {
+        foundationCatalogJob?.cancel()
+        foundationQuestionJob?.cancel()
+        _uiState.update { state ->
+            state.copy(foundation = beginFoundationCatalogLoad(state.foundation))
+        }
+        foundationCatalogJob = viewModelScope.launch {
+            val result = runSuspendCatching {
+                withContext(Dispatchers.IO) {
+                    val client = remoteClient()
+                    FoundationCatalogSnapshot(
+                        topics = client.fetchAllFoundationTopics(),
+                        packs = client.fetchAllFoundationPacks(),
+                    )
+                }
+            }
+            result.fold(
+                onSuccess = { snapshot ->
+                    var selectedPackId: String? = null
+                    _uiState.update { state ->
+                        val foundation = applyFoundationCatalog(
+                            state = state.foundation,
+                            topics = snapshot.topics,
+                            packs = snapshot.packs,
+                        )
+                        selectedPackId = foundation.filters.packId
+                        state.copy(foundation = foundation)
+                    }
+                    if (pendingFoundationReviewTask != null) {
+                        resolvePendingFoundationReviewTask()
+                    } else {
+                        selectedPackId?.let(::loadFoundationQuestions)
+                    }
+                },
+                onFailure = { error ->
+                    _uiState.update { state ->
+                        state.copy(
+                            foundation = failFoundationLoad(
+                                state.foundation,
+                                error.toFoundationTrainingError(),
+                            ),
+                        )
+                    }
+                },
+            )
+        }
+    }
+
+    fun selectFoundationPack(packId: String) {
+        var shouldLoad = false
+        _uiState.update { state ->
+            val foundation = reduceFoundationPack(state.foundation, packId)
+            shouldLoad = foundation !== state.foundation
+            state.copy(foundation = foundation)
+        }
+        if (shouldLoad) loadFoundationQuestions(packId)
+    }
+
+    fun selectFoundationDomain(domain: FoundationDomain?) {
+        _uiState.update { state ->
+            state.copy(foundation = reduceFoundationDomain(state.foundation, domain))
+        }
+    }
+
+    fun selectFoundationTopic(topicId: String?) {
+        _uiState.update { state ->
+            state.copy(foundation = reduceFoundationTopic(state.foundation, topicId))
+        }
+    }
+
+    fun selectFoundationStage(stage: FoundationStage?) {
+        _uiState.update { state ->
+            state.copy(foundation = reduceFoundationStage(state.foundation, stage))
+        }
+    }
+
+    fun submitFoundationAnswer(optionId: String) {
+        var syncPayload: SyncAnswer? = null
+        var persistedProgress: List<ProgressItem>? = null
+        while (syncPayload == null) {
+            val state = _uiState.value
+            val question = state.foundation.currentQuestion ?: return
+            if (state.foundation.selectedAnswers.containsKey(question.id)) return
+            val nextFoundation = answerFoundationQuestion(state.foundation, optionId)
+            val correct = question.isCorrect(optionId)
+            val candidate = SyncAnswer(
+                itemId = question.id,
+                itemType = "exercise",
+                selection = null,
+                state = if (correct) ReviewState.Good else ReviewState.Bad,
+                label = question.promptZh.take(90),
+                payload = buildFoundationProgressPayload(question, optionId),
+            )
+            val progressItem = candidate.toProgressItem()
+            val nextProgressItems = listOf(progressItem) + state.progressItems.filterNot {
+                it.sameProgressIdentity(progressItem)
+            }
+            val nextState = state.copy(
+                foundation = nextFoundation,
+                sessionXp = state.sessionXp + if (correct) 8 else 0,
+                progressItems = nextProgressItems,
+            )
+            if (_uiState.compareAndSet(state, nextState)) {
+                syncPayload = candidate
+                persistedProgress = nextProgressItems
+            }
+        }
+        val committedPayload = checkNotNull(syncPayload)
+        val committedProgress = checkNotNull(persistedProgress)
+        persistOptimisticProgress(committedProgress, listOf(committedPayload))
+        syncAnswer(committedPayload)
+    }
+
+    fun nextFoundationQuestion() {
+        _uiState.update { state ->
+            state.copy(foundation = reduceNextFoundationQuestion(state.foundation))
+        }
+    }
+
+    fun previousFoundationQuestion() {
+        _uiState.update { state ->
+            state.copy(foundation = reducePreviousFoundationQuestion(state.foundation))
+        }
+    }
+
+    fun restartFoundationQuestions() {
+        _uiState.update { state ->
+            state.copy(foundation = reduceRestartFoundationQuestions(state.foundation))
+        }
+    }
+
+    private fun loadFoundationQuestions(packId: String) {
+        val catalogState = _uiState.value.foundation
+        val pack = catalogState.packs.firstOrNull { it.id == packId } ?: return
+        val knownTopicIds = catalogState.topics.mapTo(mutableSetOf(), FoundationTopic::id)
+        foundationQuestionJob?.cancel()
+        foundationQuestionJob = viewModelScope.launch {
+            val result = runSuspendCatching {
+                withContext(Dispatchers.IO) {
+                    remoteClient().fetchAllFoundationQuestions(packId).also { questions ->
+                        require(questions.size == pack.questionCount) {
+                            "Foundation question count does not match its pack"
+                        }
+                        require(questions.map(FoundationQuestion::topicId).distinct().size == pack.topicCount) {
+                            "Foundation topic count does not match its pack"
+                        }
+                        require(questions.all { it.topicId in knownTopicIds }) {
+                            "Foundation question references an unknown topic"
+                        }
+                    }
+                }
+            }
+            _uiState.update { state ->
+                if (state.foundation.filters.packId != packId) return@update state
+                result.fold(
+                    onSuccess = { questions ->
+                        val restoredAnswers = restoreFoundationAnswers(
+                            questions = questions,
+                            progressItems = state.progressItems,
+                        )
+                        val applied = applyFoundationQuestions(
+                            state = state.foundation,
+                            packId = packId,
+                            questions = questions,
+                        )
+                        state.copy(
+                            foundation = applied.copy(
+                                selectedAnswers = applied.selectedAnswers + restoredAnswers,
+                            ),
+                        )
+                    },
+                    onFailure = { error ->
+                        state.copy(
+                            foundation = failFoundationLoad(
+                                state.foundation,
+                                error.toFoundationTrainingError(),
+                            ),
+                        )
+                    },
+                )
+            }
+            if (result.isSuccess) resolvePendingFoundationReviewTask()
+        }
+    }
+
+    private fun resolvePendingFoundationReviewTask() {
+        val task = pendingFoundationReviewTask ?: return
+        val packId = task.payload["packId"].orEmpty()
+        val topicId = task.payload["topicId"].orEmpty()
+        val stage = FoundationStage.entries.firstOrNull {
+            it.wireValue == task.payload["stage"]
+        }
+        val state = _uiState.value
+        if (packId.isBlank() || topicId.isBlank() || stage == null) {
+            pendingFoundationReviewTask = null
+            _uiState.update {
+                it.copy(sync = it.sync.copy(message = "基础语言学复习记录缺少题包、主题或阶段。"))
+            }
+            return
+        }
+        if (state.foundation.packs.isEmpty()) return
+        if (state.foundation.packs.none { it.id == packId }) {
+            pendingFoundationReviewTask = null
+            _uiState.update {
+                it.copy(sync = it.sync.copy(message = "对应的基础语言学题包尚未发布。"))
+            }
+            return
+        }
+        if (
+            state.foundation.filters.packId != packId ||
+            state.foundation.questions.none { it.packId == packId }
+        ) {
+            val nextFoundation = if (state.foundation.filters.packId == packId) {
+                state.foundation
+            } else {
+                reduceFoundationPack(state.foundation, packId)
+            }
+            _uiState.update { it.copy(foundation = nextFoundation) }
+            loadFoundationQuestions(packId)
+            return
+        }
+        val focused = focusFoundationReviewQuestion(
+            state = state.foundation,
+            questionId = task.itemId,
+            packId = packId,
+            topicId = topicId,
+            stage = stage,
+        )
+        pendingFoundationReviewTask = null
+        _uiState.update {
+            if (focused == null) {
+                it.copy(sync = it.sync.copy(message = "对应的基础语言学复习题已不存在或身份不一致。"))
+            } else {
+                it.copy(
+                    selectedTab = LabTab.Linguistics,
+                    linguisticsTrack = LinguisticsTrack.Foundation,
+                    foundation = focused,
+                )
+            }
+        }
+    }
+
+    private fun RemoteLabClient.fetchAllFoundationTopics(): List<FoundationTopic> {
+        val result = mutableListOf<FoundationTopic>()
+        val seenCursors = mutableSetOf<String>()
+        var cursor: String? = null
+        do {
+            val page = fetchFoundationTopics(FoundationTopicQuery(cursor = cursor))
+            result += page.items
+            cursor = page.page.nextCursor
+            if (page.page.hasMore) {
+                require(cursor != null && seenCursors.add(cursor)) {
+                    "Foundation topic pagination returned an invalid cursor"
+                }
+            }
+        } while (page.page.hasMore)
+        require(result.distinctBy(FoundationTopic::id).size == result.size) {
+            "Foundation topic pagination returned duplicate ids"
+        }
+        return result
+    }
+
+    private fun RemoteLabClient.fetchAllFoundationPacks(): List<FoundationQuestionPack> {
+        val result = mutableListOf<FoundationQuestionPack>()
+        val seenCursors = mutableSetOf<String>()
+        var cursor: String? = null
+        do {
+            val page = fetchFoundationPacks(FoundationPackQuery(cursor = cursor))
+            result += page.items
+            cursor = page.page.nextCursor
+            if (page.page.hasMore) {
+                require(cursor != null && seenCursors.add(cursor)) {
+                    "Foundation pack pagination returned an invalid cursor"
+                }
+            }
+        } while (page.page.hasMore)
+        require(result.distinctBy(FoundationQuestionPack::id).size == result.size) {
+            "Foundation pack pagination returned duplicate ids"
+        }
+        return result
+    }
+
+    private fun RemoteLabClient.fetchAllFoundationQuestions(packId: String): List<FoundationQuestion> {
+        val result = mutableListOf<FoundationQuestion>()
+        val seenCursors = mutableSetOf<String>()
+        var cursor: String? = null
+        do {
+            val page = fetchFoundationQuestions(
+                FoundationQuestionQuery(
+                    packId = packId,
+                    cursor = cursor,
+                ),
+            )
+            result += page.items
+            cursor = page.page.nextCursor
+            if (page.page.hasMore) {
+                require(cursor != null && seenCursors.add(cursor)) {
+                    "Foundation question pagination returned an invalid cursor"
+                }
+            }
+        } while (page.page.hasMore)
+        require(result.distinctBy(FoundationQuestion::id).size == result.size) {
+            "Foundation question pagination returned duplicate ids"
+        }
+        return result
+    }
+
     private fun fetchRemoteProgressSnapshot(client: RemoteLabClient): RemoteProgressSnapshot {
         val localProgress = store.readProgress()
         if (!_uiState.value.settings.cloudSync) {
@@ -197,11 +544,22 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     fun selectTab(tab: LabTab) {
         _uiState.update { it.copy(selectedTab = tab, activeSession = null, secondaryScreen = null) }
         when (tab) {
-            LabTab.Library,
-            LabTab.Linguistics -> ensureFallbackReadAirCatalogLoaded()
+            LabTab.Library -> ensureFallbackReadAirCatalogLoaded()
+            LabTab.Linguistics -> when (_uiState.value.linguisticsTrack) {
+                LinguisticsTrack.AnimeCorpus -> ensureFallbackReadAirCatalogLoaded()
+                LinguisticsTrack.Foundation -> ensureFoundationCatalogLoaded()
+            }
             LabTab.Today,
             LabTab.Lesson,
             LabTab.Review -> Unit
+        }
+    }
+
+    fun selectLinguisticsTrack(track: LinguisticsTrack) {
+        _uiState.update { it.copy(linguisticsTrack = track) }
+        when (track) {
+            LinguisticsTrack.AnimeCorpus -> ensureFallbackReadAirCatalogLoaded()
+            LinguisticsTrack.Foundation -> ensureFoundationCatalogLoaded()
         }
     }
 
@@ -1838,6 +2196,25 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun practiceReviewTask(task: ProgressItem) {
+        if (task.payload["track"] == "foundation") {
+            pendingFoundationReviewTask = task
+            _uiState.update {
+                it.copy(
+                    selectedTab = LabTab.Linguistics,
+                    linguisticsTrack = LinguisticsTrack.Foundation,
+                    activeSession = null,
+                    secondaryScreen = null,
+                )
+            }
+            when (_uiState.value.foundation.phase) {
+                FoundationTrainingPhase.Idle,
+                FoundationTrainingPhase.Error -> refreshFoundationCatalog()
+                FoundationTrainingPhase.LoadingCatalog,
+                FoundationTrainingPhase.LoadingQuestions -> Unit
+                FoundationTrainingPhase.Ready -> resolvePendingFoundationReviewTask()
+            }
+            return
+        }
         val targetSelection = task.selectionOrFallback(_uiState.value.selection)
         if (targetSelection != _uiState.value.selection) {
             loadRemoteReviewContent(task, targetSelection)
@@ -2398,6 +2775,8 @@ data class LabUiState(
     val scenes: List<ReadAirScene>,
     val selectedScene: ReadAirScene,
     val readAir: ReadAirTrainingState,
+    val linguisticsTrack: LinguisticsTrack = LinguisticsTrack.AnimeCorpus,
+    val foundation: FoundationTrainingState = FoundationTrainingState(),
     val lesson: LessonSession,
     val lessonMode: LessonMode,
     val lessonBatch: Int = 1,
@@ -2718,10 +3097,15 @@ enum class ReadAirMode(val label: String) {
 private data class SyncAnswer(
     val itemId: String,
     val itemType: String,
-    val selection: EpisodeSelection,
+    val selection: EpisodeSelection?,
     val state: ReviewState,
     val label: String,
     val payload: JSONObject? = null,
+)
+
+private data class FoundationCatalogSnapshot(
+    val topics: List<FoundationTopic>,
+    val packs: List<FoundationQuestionPack>,
 )
 
 private data class AnswerCommitEffects(
@@ -3253,8 +3637,8 @@ private fun SyncAnswer.toProgressItem(): ProgressItem {
     return ProgressItem(
         itemId = itemId,
         itemType = itemType,
-        workSlug = selection.workSlug,
-        episode = selection.episode,
+        workSlug = selection?.workSlug.orEmpty(),
+        episode = selection?.episode ?: 0,
         state = state,
         label = label,
         lastReviewedAt = Instant.now().toString(),
@@ -3268,7 +3652,11 @@ private fun ProgressItem.toSyncAnswer(): SyncAnswer {
     return SyncAnswer(
         itemId = itemId,
         itemType = itemType,
-        selection = EpisodeSelection(workSlug = workSlug, episode = episode),
+        selection = if (payload["track"] == "foundation") {
+            null
+        } else {
+            EpisodeSelection(workSlug = workSlug, episode = episode)
+        },
         state = state,
         label = label,
         payload = json,
@@ -3320,6 +3708,14 @@ private suspend fun <T> runSuspendCatching(block: suspend () -> T): Result<T> {
         throw error
     } catch (error: Throwable) {
         Result.failure(error)
+    }
+}
+
+private fun Throwable.toFoundationTrainingError(): FoundationTrainingError {
+    return if (this is IllegalArgumentException) {
+        FoundationTrainingError.MalformedData
+    } else {
+        FoundationTrainingError.Network
     }
 }
 

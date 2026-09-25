@@ -233,6 +233,47 @@ class RemoteLabClient(
         return parseLinguisticExercisesJson(get(path))
     }
 
+    fun fetchFoundationTopics(
+        query: FoundationTopicQuery = FoundationTopicQuery(),
+    ): FoundationCursorPage<FoundationTopic> {
+        return parseFoundationTopicPageJson(get(buildFoundationTopicsPath(query))).also { page ->
+            require(page.items.all { topic ->
+                topic.curriculumVersion == query.curriculumVersion &&
+                    (query.domain == null || topic.domain == query.domain) &&
+                    (query.moduleId == null || topic.moduleId == query.moduleId)
+            }) {
+                "Foundation topic response does not match the requested filters"
+            }
+        }
+    }
+
+    fun fetchFoundationPacks(
+        query: FoundationPackQuery = FoundationPackQuery(),
+    ): FoundationCursorPage<FoundationQuestionPack> {
+        return parseFoundationPackPageJson(get(buildFoundationPacksPath(query))).also { page ->
+            require(page.items.all { it.curriculumVersion == query.curriculumVersion }) {
+                "Foundation pack response does not match the requested curriculum"
+            }
+        }
+    }
+
+    fun fetchFoundationQuestions(
+        query: FoundationQuestionQuery = FoundationQuestionQuery(),
+    ): FoundationCursorPage<FoundationQuestion> {
+        return parseFoundationQuestionPageJson(get(buildFoundationQuestionsPath(query))).also { page ->
+            require(page.items.all { question ->
+                question.curriculumVersion == query.curriculumVersion &&
+                    (query.packId == null || question.packId == query.packId) &&
+                    (query.topicId == null || question.topicId == query.topicId) &&
+                    (query.stage == null || question.stage == query.stage) &&
+                    (query.questionType == null || question.questionType == query.questionType) &&
+                    (query.difficulty == null || question.difficulty == query.difficulty)
+            }) {
+                "Foundation question response does not match the requested filters"
+            }
+        }
+    }
+
     fun fetchProgress(deviceId: String): List<ProgressItem> {
         val json = get("/api/progress")
         return JSONArray(json).mapObjects(::progressItem)
@@ -255,7 +296,7 @@ class RemoteLabClient(
         deviceId: String,
         itemId: String,
         itemType: String,
-        selection: EpisodeSelection,
+        selection: EpisodeSelection?,
         state: ReviewState,
         label: String,
         payload: JSONObject? = null,
@@ -265,10 +306,13 @@ class RemoteLabClient(
         val body = JSONObject()
             .put("itemId", itemId)
             .put("itemType", itemType)
-            .put("workSlug", selection.workSlug)
-            .put("episode", selection.episode)
             .put("state", state.remoteValue)
             .put("payload", progressPayload)
+        if (selection != null) {
+            body
+                .put("workSlug", selection.workSlug)
+                .put("episode", selection.episode)
+        }
         val response = post("/api/progress", body)
         return progressItem(JSONObject(response))
     }
@@ -819,7 +863,8 @@ internal fun isCacheableContentPath(path: String): Boolean {
     val pathname = path.substringBefore('?')
     return pathname == "/api/works" ||
         pathname.startsWith("/api/works/") ||
-        pathname == "/api/linguistic-exercises"
+        pathname == "/api/linguistic-exercises" ||
+        pathname.startsWith("/api/linguistics/foundation/")
 }
 
 /** Catalog slug → Vectorize index slug (`re-zero` → `rezero`, everything else → `k-on`). */

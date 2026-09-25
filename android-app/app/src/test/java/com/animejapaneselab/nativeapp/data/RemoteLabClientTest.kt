@@ -3,6 +3,7 @@ package com.animejapaneselab.nativeapp.data
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -386,6 +387,43 @@ class RemoteLabClientTest {
     }
 
     @Test
+    fun fetchFoundationPacksUsesCursorEndpointAndStrictPageParser() {
+        val path = "/api/linguistics/foundation/packs" +
+            "?curriculumVersion=foundation-v1&cursor=pack_1-token&limit=20"
+        server.close()
+        server = LocalJsonServer(
+            responses = mapOf(
+                path to """
+                {
+                  "items":[{
+                    "id":"foundation-pack-2",
+                    "curriculumVersion":"foundation-v1",
+                    "batchNo":2,
+                    "titleZh":"基础语言学二",
+                    "descriptionZh":"独立于动漫语料的基础训练。",
+                    "topicCount":1,
+                    "questionCount":4,
+                    "domainQuotas":{"semantics":1},
+                    "status":"published",
+                    "qualityScore":96
+                  }],
+                  "page":{"limit":20,"hasMore":false}
+                }
+                """.trimIndent(),
+            ),
+        )
+
+        val page = RemoteLabClient(server.baseUrl, "ajl_session=session-token").fetchFoundationPacks(
+            FoundationPackQuery(cursor = "pack_1-token", limit = 20),
+        )
+
+        assertEquals("foundation-pack-2", page.items.single().id)
+        assertEquals(false, page.page.hasMore)
+        assertEquals("GET", server.requestsFor(path).single().method)
+        assertEquals("ajl_session=session-token", server.requestsFor(path).single().headers["cookie"])
+    }
+
+    @Test
     fun saveProgressPostsWorkerContractBodyAndParsesMappedProgress() {
         server.close()
         server = LocalJsonServer(
@@ -422,6 +460,50 @@ class RemoteLabClientTest {
         assertEquals("exercise-1", progress.itemId)
         assertEquals(ReviewState.Bad, progress.state)
         assertEquals("读空气错题", progress.label)
+    }
+
+    @Test
+    fun saveFoundationProgressOmitsAnimeEpisodeIdentity() {
+        server.close()
+        server = LocalJsonServer(
+            responses = mapOf(
+                "/api/progress" to """
+                {
+                  "itemId":"foundation-question-1",
+                  "itemType":"exercise",
+                  "state":"good",
+                  "payload":{
+                    "label":"基础句法题",
+                    "track":"foundation",
+                    "packId":"foundation-pack-1",
+                    "topicId":"foundation-topic-1",
+                    "stage":"F1",
+                    "questionType":"single_choice"
+                  }
+                }
+                """.trimIndent(),
+            ),
+        )
+
+        RemoteLabClient(server.baseUrl, "ajl_session=session-token").saveProgress(
+            deviceId = "device-test",
+            itemId = "foundation-question-1",
+            itemType = "exercise",
+            selection = null,
+            state = ReviewState.Good,
+            label = "基础句法题",
+            payload = JSONObject()
+                .put("track", "foundation")
+                .put("packId", "foundation-pack-1")
+                .put("topicId", "foundation-topic-1")
+                .put("stage", "F1")
+                .put("questionType", "single_choice"),
+        )
+
+        val body = JSONObject(server.requestsFor("/api/progress").last().body)
+        assertFalse(body.has("workSlug"))
+        assertFalse(body.has("episode"))
+        assertEquals("foundation", body.getJSONObject("payload").getString("track"))
     }
 
     @Test

@@ -1,0 +1,1642 @@
+[
+  {
+    "id": "enrich-vocab-re-zero-vocab-死因-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-死因",
+    "linguistic_payload": {
+      "headlineZh": "「死因」是导致死亡的原因；昴用「最初の死因は…衰弱死ってとこか」给第一次死亡作暂定诊断，并未声称已有确证。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "汉字复合「死＋因」",
+          "takeawayZh": "两个音读语素组成正式名词，读作「しいん」。",
+          "explanationZh": "它可直接作话题「死因は」，也常见于「死因を調べる」「死因不明」。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "原因而非死亡方式的全部细节",
+          "takeawayZh": "这里把睡眠期间的衰弱死视为最可能的致死机制。",
+          "explanationZh": "前文回顾寒气，后文又转向第二次遇袭，说明昴正在分类两次不同的死亡。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「ってとこか」降低断言强度",
+          "takeawayZh": "句尾可理解为“大致可以说是……吧”。",
+          "explanationZh": "说话人只有循环记忆而无检验结果，因此用粗略归纳而非医学式结论。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "致死原因",
+          "plainZh": "直接或间接造成死亡的因素，不等于凶手身份。"
+        },
+        {
+          "termZh": "暂定判断",
+          "plainZh": "证据尚不完整时，以缓和句尾提出目前最合理的解释。"
+        }
+      ],
+      "historicalNoteZh": "「死因」属于汉语系正式词，现代常见于医学、司法与新闻；普通会话谈“为什么死”也可用更直接的「死んだ原因」。",
+      "cautionZh": "不要把「死因」机械译成“杀法”；疾病、事故和衰弱都可以成为死因，本句也没有锁定施害者。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 19–25，目标 line 21；「寝てる間の衰弱死ってとこか」明确是昴对第一次死亡的推测。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-襲撃者-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-襲撃者",
+    "linguistic_payload": {
+      "headlineZh": "「襲撃者」指发动袭击的人；昴先确认“有袭击者”，随后才把查明其外形与真实身份设为本轮目标。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "动作名词加施事后缀「者」",
+          "takeawayZh": "「襲撃」说明行为，「者」把实施该行为的人类别化。",
+          "explanationZh": "读作「しゅうげきしゃ」，结构与「参加者」「侵入者」相同，但语体偏报道或叙事。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "从不定存在到调查对象",
+          "takeawayZh": "第一次出现是「襲撃者がいた」，只引入一个未知人物。",
+          "explanationZh": "到后段「襲撃者の背格好」「襲撃者の正体」，同一指称逐步获得可调查属性。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "角色由行为界定",
+          "takeawayZh": "词语只保证此人实施袭击，不自动说明动机、阵营或是否独自行动。",
+          "explanationZh": "昴甚至不确定宅邸其他人是否也是目标，所以仍以宽泛角色名保存未知信息。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "施事名词",
+          "plainZh": "依据某项动作给行动者命名的词，如“袭击者”。"
+        },
+        {
+          "termZh": "指称延续",
+          "plainZh": "同一未知人物在后续话语中被反复提及并逐渐具体化。"
+        }
+      ],
+      "historicalNoteZh": "「襲撃」比「襲う」更具书面和事件报道色彩，加「者」后适合推理、新闻及战斗叙事。",
+      "cautionZh": "袭击不必已经造成死亡；不能仅凭「襲撃者」把人物进一步定性为杀人犯或某个既定阵营。"
+    },
+    "review_note": "核对当前字幕 EP6 line 23「襲撃者がいた」及 lines 159–162 的「襲撃者の背格好／正体」；旧 occurrence 行号整体有偏移，未机械采信。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-狙う-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-狙う",
+    "linguistic_payload": {
+      "headlineZh": "「狙う」既可表示把武器瞄向目标，也可表示“盯上、图谋”；本句用被动持续形追问宅邸众人是否都遭到针对。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "实际形态「狙われていた」",
+          "takeawayZh": "五段动词「狙う」变为被动「狙われる」，再接持续过去。",
+          "explanationZh": "「屋敷のほかのやつらも」是被盯上的对象，施事则因未知而省略。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "从物理瞄准扩展到选定目标",
+          "takeawayZh": "场景关注袭击计划，不要求对方当时正用武器瞄准。",
+          "explanationZh": "自然理解是“也在袭击者的目标名单里”，范围可覆盖杀害、绑架或其他加害企图。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「も」扩大风险范围",
+          "takeawayZh": "昴由自己遇害外推：宅邸里的其他人“也”可能被针对。",
+          "explanationZh": "句末「のか」保留疑问，显示这是风险假设，而非已知事实。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "目标化",
+          "plainZh": "把人或事物选作攻击、竞争或追求的对象。"
+        },
+        {
+          "termZh": "被动施事省略",
+          "plainZh": "只说谁遭到针对，而把未知或不重要的行动者留空。"
+        }
+      ],
+      "historicalNoteZh": "现代「狙う」常与「命」「優勝」「市場」等搭配，已从射击动作广泛扩展到企图取得或加害。",
+      "cautionZh": "不要看到「狙う」就补出枪械；也不要把疑问句翻成确定陈述，昴此刻只是在推测。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 23–30，目标 line 25「屋敷のほかのやつらも みんな 狙われていたのか？」。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-未然に防ぐ-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-未然に防ぐ",
+    "linguistic_payload": {
+      "headlineZh": "「未然に防ぐ」强调在坏事真正发生前把它阻止；昴说自己既没有可说明的证据，也没有预防袭击的手段。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "「未然」锁定事前阶段",
+          "takeawayZh": "搭配整体不是事后补救，而是让预期事件不成立。",
+          "explanationZh": "被防止的对象承接上文袭击，虽未在短语内部重说，听者仍能恢复。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "连体小句修饰「手段」",
+          "takeawayZh": "「未然に防ぐ手段」即“用于事前阻止的办法”。",
+          "explanationZh": "它与「説明できる証拠」并列，两个修饰结构最后都受否定「ねえ」管辖。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "「も…も」列出双重缺口",
+          "takeawayZh": "证据不足影响说服他人，手段不足影响实际行动。",
+          "explanationZh": "两项并列让困境不只是“没人相信”，还包括即使知道危险也无法直接制止。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "预防性完成",
+          "plainZh": "在事件起点以前介入，使预期损害没有发生。"
+        },
+        {
+          "termZh": "省略宾语",
+          "plainZh": "短语未明说防什么，但可由紧邻话题“袭击”补回。"
+        }
+      ],
+      "historicalNoteZh": "「未然」也见于传统语法术语「未然形」，但「未然に防ぐ」中的日常义就是“尚未发生的状态”。",
+      "cautionZh": "不要译成“提前处理后果”；另外，本句只是昴自认没有手段，并不证明宅邸客观上毫无防卫能力。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 26–31，目标 lines 28–29；「説明できる証拠も 未然に防ぐ手段も―／俺の手の中にはねえ」跨行成句。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-追っ払う-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-追っ払う",
+    "linguistic_payload": {
+      "headlineZh": "「追っ払う」是带粗率口吻的“赶走”；碧翠丝借“赶书库里的虫”影射昴，直到后文才让这个比喻完全显露。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「追い払う」的促音化口语形",
+          "takeawayZh": "「追い払う」在会话中常收缩为「追っ払う」。",
+          "explanationZh": "复合中的「追う」与「払う」共同表达让不受欢迎的对象离开当前空间。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "比普通离开多出驱逐意志",
+          "takeawayZh": "它预设对象不肯自行离开，行动者主动把对方赶开。",
+          "explanationZh": "碧翠丝随后多次命令昴出去，和这一强制离场义一致。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "先说虫，后揭示指人",
+          "takeawayZh": "表面问题是书里是否写着赶虫方法，真正被嫌弃的“虫”是昴。",
+          "explanationZh": "昴到「さっきの虫って俺のこと？」才追上讽刺，形成延迟笑点。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "贬称隐喻",
+          "plainZh": "以虫等低价值生物代称不受欢迎的人。"
+        },
+        {
+          "termZh": "促音缩约",
+          "plainZh": "复合动词在口语中把中间音节压成小「っ」。"
+        }
+      ],
+      "historicalNoteZh": "标准书写「追い払う」和口语「追っ払う」并存；后者更随意、更有把人轰走的力度。",
+      "cautionZh": "该词对人使用容易显得粗鲁；本场景也不是中性的“送客”，而是碧翠丝明显嫌烦。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 44–62，目标 line 46「部屋に入った虫を 追っ払う方法」；lines 60–61 才由昴识破“虫”指自己。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-震え-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-震え",
+    "linguistic_payload": {
+      "headlineZh": "「震え」是「震える」名词化后的颤抖；碧翠丝从“手不再发抖”判断昴已勉强能掩住恐惧。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "连用形转成动作名词",
+          "takeawayZh": "「震える」去掉词尾形成「震え」，可由「手の」限定。",
+          "explanationZh": "这种名词既可指动作，也可指可观察到的身体症状。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「震えが止まる」的状态变化",
+          "takeawayZh": "原句用「手の震えも止まってる」描述颤抖已经停止。",
+          "explanationZh": "「も」把它加入碧翠丝观察到的多个恢复迹象，「し」则给出赶人的理由之一。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "身体线索戳破逞强",
+          "takeawayZh": "昴努力装作平静，但碧翠丝早已注意到他的恐惧。",
+          "explanationZh": "她不是温柔询问感受，而是冷静宣布“差不多能自己撑住了”。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "动作名词化",
+          "plainZh": "把动词表示的过程包装成可指称、可修饰的名词。"
+        },
+        {
+          "termZh": "身体证据",
+          "plainZh": "通过手部颤抖等非言语表现推断人物情绪。"
+        }
+      ],
+      "historicalNoteZh": "同类连用形名词还有「揺れ」「痛み」「怒り」；它们并非临时省略，已作为普通名词稳定使用。",
+      "cautionZh": "「震えが止まる」只说明外显症状缓和，不代表恐惧已消失；下一行仍说他只是能把害怕掩过去。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 49–53，目标 line 50「手の震えも止まってるし」，并连读 line 51 的恐惧掩饰判断。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-頃合い-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-頃合い",
+    "linguistic_payload": {
+      "headlineZh": "「頃合い」不是精确时刻，而是综合状态后判断的“恰当时候”；碧翠丝认为昴已到可以被赶出去的阶段。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "合适度与时间合并",
+          "takeawayZh": "它既有“差不多到时候”，也暗含“条件已经合适”。",
+          "explanationZh": "判断依据是手不抖、能掩饰恐惧，而不是钟表上的某一点。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "前置小句限定时机内容",
+          "takeawayZh": "「怖いのもごまかせるようになった」整体修饰「頃合い」。",
+          "explanationZh": "「ようになった」标出能力或状态变化，頃合い则对变化后的阶段作评价。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「かしら」包装单方面裁定",
+          "takeawayZh": "形式像轻微自问，实际是在宣布帮助到此为止。",
+          "explanationZh": "紧接着她要求昴离开，因此并非真的向他征求是否合适。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "适时判断",
+          "plainZh": "依据现场条件选择既不过早也不过晚的节点。"
+        },
+        {
+          "termZh": "修辞性自问",
+          "plainZh": "说话人用疑问尾声软化自己已经形成的决定。"
+        }
+      ],
+      "historicalNoteZh": "「頃」偏向时间范围；加上「合い」后的「頃合い」更突出与行动相配的好时机。",
+      "cautionZh": "不要把它固定换成“正好几点”；本句的“合适”也站在碧翠丝立场，并不保证昴本人觉得准备好了。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 49–53，目标 line 51「怖いのも ごまかせるようになった 頃合いかしら」。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-花壇-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-花壇",
+    "linguistic_payload": {
+      "headlineZh": "「花壇」是集中栽种花草的圃地；昴用反事实条件说，如果下面没有花坛缓冲，自己当场就会没命。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "人工整理的栽植区域",
+          "takeawayZh": "它不是一朵花，也不是一般庭院，而是划出的种植地块。",
+          "explanationZh": "柔软土壤让它在跌落场景中临时成为缓冲物。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「なかったら」构成反事实",
+          "takeawayZh": "「花壇がなかったら 即死だった」设想与现实相反的条件。",
+          "explanationZh": "现实中花坛存在、昴幸存；过去判断「だった」描写本可能发生的结果。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "获救后立刻转成恶心笑点",
+          "takeawayZh": "前一刻花坛是救命缓冲，后一刻却被告知刚撒过动物粪。",
+          "explanationZh": "同一地点从安全资源翻转为污秽来源，推动连续喜剧反应。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "反事实条件",
+          "plainZh": "假设现实中没有发生的情况，并推演相反结果。"
+        },
+        {
+          "termZh": "场景功能转换",
+          "plainZh": "同一物体在相邻话轮中先救命、后制造笑料。"
+        }
+      ],
+      "historicalNoteZh": "「花壇」是日常园艺词，常与「作る」「植える」「手入れする」搭配；比「庭」指向更局部。",
+      "cautionZh": "本句只说没有花坛就可能即死，不能反推花坛是专为接住人设计的安全设施。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 63–75；目标 line 67「花壇がなかったら 即死だったな」，line 72 补充粪便肥料。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-肥料-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-肥料",
+    "linguistic_payload": {
+      "headlineZh": "「肥料」指为植物补充养分的材料；艾米莉雅说雷姆把动物粪“作为肥料”撒在花坛里。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "「Nを肥料にまく」的角色标记",
+          "takeawayZh": "「動物のふんを」是被撒的材料，「肥料に」说明其用途。",
+          "explanationZh": "助词「に」在这里可理解为“以……身份／用途”，不是移动终点。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "材料名与功能名分开",
+          "takeawayZh": "动物粪是具体物质，肥料是它在栽培活动中的功能类别。",
+          "explanationZh": "同一物质在别的场景可能只是废物，在花坛语境则被利用为养分来源。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "安慰信息产生反效果",
+          "takeawayZh": "艾米莉雅本想说明花坛情况，却让刚摔进去的昴更加崩溃。",
+          "explanationZh": "她的说明语气平实，笑点来自知识对昴的即时身体意义。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "用途格",
+          "plainZh": "用「に」标出某材料在行动中被当作什么来使用。"
+        },
+        {
+          "termZh": "功能分类",
+          "plainZh": "根据物品在具体活动中的作用给它归类。"
+        }
+      ],
+      "historicalNoteZh": "现代园艺中可区分「有機肥料」「化学肥料」等；日常短句也常说「肥料をやる／まく」。",
+      "cautionZh": "不要倒置成“给动物粪施肥”；原句的动作对象是粪，使用目的才是肥料。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 67–75，目标 line 72「動物のふんを肥料にまいてたのよね」。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-挽回-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-挽回",
+    "linguistic_payload": {
+      "headlineZh": "「挽回」表示把已经受损的评价或局面拉回来；昴把逗笑艾米莉雅自评为“第一印象修复成功”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "可接「する」的汉语名词",
+          "takeawayZh": "完整表达可说「悪印象を挽回する」，台词只喊出名词作结果宣告。",
+          "explanationZh": "「最初の悪印象は挽回！」省掉了「できた」等谓语，靠兴奋语调补足完成感。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "修复负面结果而非抹去历史",
+          "takeawayZh": "常见对象有「信頼」「名誉」「遅れ」「失点」。",
+          "explanationZh": "此处修复的是艾米莉雅对昴的初始印象，不是把过去事件从记忆中删除。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "自我计分式的喜剧独白",
+          "takeawayZh": "昴把关系互动当成攻略进度，当场宣布自己扳回一城。",
+          "explanationZh": "这是他的乐观评价；艾米莉雅笑了并不等于双方已确认亲密关系。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "谓语省略",
+          "plainZh": "只喊结果名词，让听者从场景补出“完成了”。"
+        },
+        {
+          "termZh": "评价修复",
+          "plainZh": "通过新行为减轻先前留下的负面判断。"
+        }
+      ],
+      "historicalNoteZh": "「挽回」在比赛、工作和人际关系中都常用；搭配对象通常是已失去或已恶化的抽象价值。",
+      "cautionZh": "不要把单次成功机械等同于彻底恢复信任；本句有强烈的昴式自我庆祝色彩。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 106–120，目标 line 112「とりあえず 最初の悪印象は挽回！」。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-愛称-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-愛称",
+    "linguistic_payload": {
+      "headlineZh": "「愛称」是带亲近感的称呼；昴用这个正式标签替「エミリアたん」辩护，试图先取得命名关系再慢慢变亲近。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "称呼形式附带亲密评价",
+          "takeawayZh": "它不仅是缩短姓名，还预设说话群体对对象抱有亲近或喜爱。",
+          "explanationZh": "帕克称艾米莉雅「リア」是现成范例，昴据此类推自己的「たん」。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "定义框架「いわゆる…ってやつ」",
+          "takeawayZh": "昴先说「これは」，再把新称呼归类为所谓的爱称。",
+          "explanationZh": "口语「ってやつ」把抽象名词说得随意，也给他的自我辩护增加理所当然感。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "命名权先于关系建立",
+          "takeawayZh": "艾米莉雅指出双方还没那么熟，暴露爱称所预设的亲密并不存在。",
+          "explanationZh": "昴随后改称“关系预支”，等于承认自己是在用称呼推动未来关系。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "亲昵称谓",
+          "plainZh": "以缩略、变形或专属形式表达亲近的称呼。"
+        },
+        {
+          "termZh": "关系预设",
+          "plainZh": "使用某种称呼时，默认双方已经具有相应亲疏关系。"
+        }
+      ],
+      "historicalNoteZh": "「愛称」偏说明性，可用于人物、球队或产品；日常谈具体人的外号也常用「ニックネーム」「あだ名」。",
+      "cautionZh": "称呼者觉得可爱，不代表被称呼者已经接受；爱称使用是否得体取决于双方关系与同意。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 121–135，目标 line 124；lines 125–131 展开帕克范例、亲密预设与“关系前借”。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-表現-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-表現",
+    "linguistic_payload": {
+      "headlineZh": "「表現」可指语言形式，也可指情感的外显方式；本集分别出现「愛情表現」与对“吸玛那”说法的负面评价。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "从措辞到情感呈现",
+          "takeawayZh": "「愛情表現」把爱意如何表现出来作为整体概念。",
+          "explanationZh": "后来碧翠丝说「その表現は心外」，那里则具体指昴使用的粗俗说法。"
+        },
+        {
+          "domain": "morphology",
+          "titleZh": "名词与サ变用法",
+          "takeawayZh": "可说「表現だ」「表現する」，也能组成「言語表現」「感情表現」。",
+          "explanationZh": "本集两处都用名词，前一处嵌入复合词，后一处由指示词「その」回指。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "给行为贴标签会改变评价",
+          "takeawayZh": "昴称爱称为“爱意表达”，是在把越界称呼包装成正面行为。",
+          "explanationZh": "碧翠丝反过来批评他的“表达”，说明措辞本身也会影响人际反应。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "多义名词",
+          "plainZh": "同一词可指具体说法，也可指让思想感情显现的方式。"
+        },
+        {
+          "termZh": "元语言评价",
+          "plainZh": "不只回应事情内容，还直接评价对方用了怎样的说法。"
+        }
+      ],
+      "historicalNoteZh": "语言学习里「表現」常泛指一个可用说法；艺术语境则可指创作表现，范围比中文单一的“表达”更宽。",
+      "cautionZh": "不能把本集两处都译成同一种狭义：“愛情表現”是行为类别，「その表現」则针对刚才的措辞。"
+    },
+    "review_note": "核对当前字幕 EP6 line 126「一種の愛情表現」与 line 226「その表現は 心外に尽きる」；两处语义侧重点不同。"
+  },
+  {
+    "id": "enrich-vocab-vocab-re-zero-aidagara-v1",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-aidagara",
+    "linguistic_payload": {
+      "headlineZh": "「間柄」把两人之间形成的社会关系当作一个整体；昴说爱称可以显示“亲密两人的关系”。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "关系属于双方之间",
+          "takeawayZh": "它描述人际联系，如亲子、朋友或长期交往，不是某个人单独的性格。",
+          "explanationZh": "「２人の間柄」要求至少两个关系参与者，语义天然具有相互性。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「間柄を示す」把关系当作被显示对象",
+          "takeawayZh": "前面的「親しい２人の」限定关系性质与参与者。",
+          "explanationZh": "爱称在昴的论证中充当证据：听到称呼即可推断双方亲近。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "描述关系也能建构关系",
+          "takeawayZh": "昴表面解释现状，实际想借称呼促使未来变成那种关系。",
+          "explanationZh": "艾米莉雅以“我不记得我们那么熟”反驳，说明双方对间柄的认定并不一致。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "相互关系",
+          "plainZh": "必须由两方或多方共同构成的社会联系。"
+        },
+        {
+          "termZh": "关系建构",
+          "plainZh": "称呼等语言选择不只反映亲疏，也可能主动推动亲疏变化。"
+        }
+      ],
+      "historicalNoteZh": "「間柄」比普通「関係」更偏人际和身份纽带，常见「親しい間柄」「仕事上の間柄」。",
+      "cautionZh": "它通常不用来谈机器零件等纯物理关系；本句也只是昴的主张，不证明两人已经共同承认亲密。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 124–131，目标 line 126「親しい２人の間柄を示す 一種の愛情表現だな」。"
+  },
+  {
+    "id": "enrich-vocab-vocab-re-zero-shitashii-v1",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-shitashii",
+    "linguistic_payload": {
+      "headlineZh": "「親しい」表示关系亲近、交往熟；台词先用它修饰两人关系，后来又以「親しくしたい」表达昴想继续拉近距离。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "イ形容词的两种连接方式",
+          "takeawayZh": "连体形「親しい」修饰名词，连用形「親しく」接「する」。",
+          "explanationZh": "「親しくしたい」在这里是“想亲近交往”，不是简单把形容词翻成副词。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "熟悉与情感距离较近",
+          "takeawayZh": "它通常涉及持续交往形成的亲近，不等同于一次友善举动。",
+          "explanationZh": "艾米莉雅正因相识时间短，质疑昴是否有资格把关系说成「親しい」。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "从虚构现状改成未来愿望",
+          "takeawayZh": "被反驳后，昴不再坚持已经亲密，而说自己“想变得亲近”。",
+          "explanationZh": "这一改口把错误事实陈述转成较可接受的关系意图。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "形容词连用形",
+          "plainZh": "用「く」形连接后续动词，使性质进入动作表达。"
+        },
+        {
+          "termZh": "关系尺度",
+          "plainZh": "把人际距离理解为可由陌生逐步走向熟悉亲近的连续变化。"
+        }
+      ],
+      "historicalNoteZh": "「親しい」既可用于「親しい友人」，也可说「外国語に親しい」表示熟悉某领域；后者不含人际亲密。",
+      "cautionZh": "不要与「親切」混同：前者主要说关系近或熟悉，后者主要评价待人友善。"
+    },
+    "review_note": "核对当前字幕 EP6 line 126「親しい２人」及 line 131「親しくしたいと思ってる」；两处分别为连体与连用。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-解説-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-解説",
+    "linguistic_payload": {
+      "headlineZh": "「解説」是把背景、机制或看点讲清楚；昴在看不懂艾米莉雅反应时，半开玩笑地把帕克点名为“解说员”。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词可直接担当角色标签",
+          "takeawayZh": "通常说「解説する」，这里却用「解説のパックさん」临时给人分工。",
+          "explanationZh": "「の」把“负责解说”与帕克连接，像节目中的职位称号。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "补充理解所需的组织说明",
+          "takeawayZh": "它比单给答案更强调梳理缘由，使听者看懂正在发生什么。",
+          "explanationZh": "昴问的是艾米莉雅为何反应良好，帕克随后从她朋友少解释心理背景。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "节目化称呼制造轻松感",
+          "takeawayZh": "「どゆこと？ 解説のパックさん」把私密关系困惑说成现场转播。",
+          "explanationZh": "这种角色分配让昴可以迅速索取第三方解释，也延续他的戏谑语气。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "临时角色名",
+          "plainZh": "在当下互动中依据任务给参与者安上非正式称号。"
+        },
+        {
+          "termZh": "背景阐释",
+          "plainZh": "为表面反应补上成因，使事件变得可理解。"
+        }
+      ],
+      "historicalNoteZh": "体育、新闻、展览常设「解説者／解説員」；会话中也能把善于说明的人戏称为「解説役」。",
+      "cautionZh": "这里不是要求逐字翻译一句话，而是请帕克解释艾米莉雅的心理与反应。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 133–143，目标 line 139「どゆこと？ 解説のパックさん」，后续 lines 140–142 给出解释。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-汚い-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-汚い",
+    "linguistic_payload": {
+      "headlineZh": "「汚い」可以评价物理污秽，也能骂手段卑鄙；雷姆说「汚いボロ雑巾」时，指刚从花坛和水洗中出来的昴外表很脏。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "イ形容词直接连体",
+          "takeawayZh": "「汚い」原形不变地修饰「ボロ雑巾」。",
+          "explanationZh": "后面的破布比喻已经带贬义，形容词进一步强调污秽状态。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "本场景选择物理义",
+          "takeawayZh": "昴浑身狼狈，语境支持“肮脏”，而不是“做法不光彩”。",
+          "explanationZh": "拉姆随后改说「ドブネズミ」，两姐妹都围绕他的湿脏外观进行毒舌命名。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "人被降格为脏旧物品",
+          "takeawayZh": "不是礼貌描述衣服，而是把客人整体比作破抹布。",
+          "explanationZh": "夸张侮辱显示双胞胎的固定吐槽节奏，昴也以“我知道”接住玩笑。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "语义选择",
+          "plainZh": "多义词在具体场景中由周围物体和行动确定所用义项。"
+        },
+        {
+          "termZh": "降格比喻",
+          "plainZh": "把人比成低价值物品，以强化嘲讽和嫌弃。"
+        }
+      ],
+      "historicalNoteZh": "「汚い」还可说「汚い字」「やり方が汚い」；从视觉脏乱扩展到难看、卑劣等评价。",
+      "cautionZh": "不能脱离上下文固定译成“卑鄙”；本句没有指责昴作弊或耍手段。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 144–151，目标 line 147「お客様が汚いボロ雑巾だわ」，前文明确昴全身湿脏。"
+  },
+  {
+    "id": "enrich-vocab-vocab-re-zero-toushu-v1",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-toushu",
+    "linguistic_payload": {
+      "headlineZh": "「当主」是家族、家门或宅邸权力结构中的现任首领；拉姆用它介绍归来的罗兹瓦尔，而不只是说房屋所有人。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "家门领导身份",
+          "takeawayZh": "词义重心是代表并统领一个“家”，可包含领地、家臣与继承关系。",
+          "explanationZh": "罗兹瓦尔在宅邸拥有命令与奖赏权，符合当主而非普通住户。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "同位称号先行",
+          "takeawayZh": "「当主 ロズワール様」以身份名词直接放在人名前。",
+          "explanationZh": "后接敬称「様」与尊敬表达「お戻りになられました」，共同抬高人物地位。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "女仆通告切换正式场域",
+          "takeawayZh": "拉姆的完整礼貌通告让昴从闲谈立刻进入再次初见的仪式。",
+          "explanationZh": "身份词在此不仅传递人物关系，也重设接下来会面的礼仪等级。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "身份同位语",
+          "plainZh": "把职位名与人名并置，说明两者指向同一人物。"
+        },
+        {
+          "termZh": "家门首领",
+          "plainZh": "在延续性的家族或家业组织中居领导位置的人。"
+        }
+      ],
+      "historicalNoteZh": "「当主」在历史家族、传统企业和虚构贵族题材中常见；现代普通家庭较少这样称家长。",
+      "cautionZh": "不要直接等同「家主」：后者常指房东或房屋主人，「当主」更突出家系与统领身份。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 144–153，目标 line 150「当主 ロズワール様が お戻りになられました」。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-疑う-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-疑う",
+    "linguistic_payload": {
+      "headlineZh": "「疑う」在「刺客の一味と疑われかねない」中不是昴怀疑别人，而是他担心自己可能被当成刺客同伙。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "被动形接风险表达",
+          "takeawayZh": "「疑う→疑われる→疑われかねない」层层加入被怀疑与负面可能。",
+          "explanationZh": "主语昴省略，怀疑者也不明说；句子把焦点放在他会承受的判断。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「と」标出被认定身份",
+          "takeawayZh": "「刺客の一味と疑う」表示怀疑某人“是刺客同伙”。",
+          "explanationZh": "这里的「と」不是共同动作伙伴，而是认知判断的内容补语。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "无法说明消息来源引发自证风险",
+          "takeawayZh": "昴知道未来袭击，却不能解释自己为何知道，异常知识反而会使他可疑。",
+          "explanationZh": "「下手すると」把最坏后果作为现实风险提出，促使他改为暗中调查。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "判断补语",
+          "plainZh": "用「と」引出被认为、被怀疑成什么身份。"
+        },
+        {
+          "termZh": "受事被动",
+          "plainZh": "从遭受他人怀疑的一方来组织句子。"
+        }
+      ],
+      "historicalNoteZh": "「疑う」可针对事实、人品或身份；较轻的“觉得可疑”还常用「怪しむ」。",
+      "cautionZh": "不要漏掉被动方向，也不要把「かねない」译成“不可能”；它恰恰表示不希望发生的事有可能发生。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 154–162，目标 line 158「下手すると 刺客の一味と疑われかねない」。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-背格好-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-背格好",
+    "linguistic_payload": {
+      "headlineZh": "「背格好」把身高与整体体格合在一起描述；昴认为哪怕只知道袭击者的大致身形，也会更容易说明情况。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "轮廓级人物特征",
+          "takeawayZh": "它关注高矮、胖瘦与体态的综合印象，不包含脸部细节。",
+          "explanationZh": "袭击发生在昴没看清对方的情况下，身形是最低限度可用的目击线索。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「だけでも」设定最低门槛",
+          "takeawayZh": "「背格好だけでも分かれば」意为即使只知道身形也好。",
+          "explanationZh": "条件句后件「話も違う」表示有这点信息，说明局面就会有所不同。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "从完整证据退让到最小证据",
+          "takeawayZh": "「せめて」显示昴已降低调查期待。",
+          "explanationZh": "他无法提供面容、武器或消息来源，所以试图先取得一种不必解释循环的可验证特征。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "外形轮廓",
+          "plainZh": "不依赖面部识别、由身高和体型构成的大体形象。"
+        },
+        {
+          "termZh": "最低充分线索",
+          "plainZh": "虽不完整，但足以让调查或说明比目前更进一步的信息。"
+        }
+      ],
+      "historicalNoteZh": "「背格好」常用于寻人、目击描述和人物回忆，语感比逐项说「身長と体格」更整体。",
+      "cautionZh": "不能把它扩成完整“长相”；发型、五官和服装原则上都不是这个词本身保证的内容。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 157–162，目标 line 160「襲撃者の背格好だけでも分かれば」。"
+  },
+  {
+    "id": "enrich-vocab-vocab-re-zero-abaku-v1",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-abaku",
+    "linguistic_payload": {
+      "headlineZh": "「暴く」表示揭开被隐藏的事实；昴用「正体を暴いてみせる」宣告自己一定要查出袭击者是谁。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "隐藏信息被强制显露",
+          "takeawayZh": "常见宾语有「秘密」「不正」「正体」，带有调查或揭穿的力度。",
+          "explanationZh": "这里不是单纯“知道”身份，而是与主动隐藏身份的对手对抗。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "他动词由「を」标宾语",
+          "takeawayZh": "「襲撃者の正体を暴く」中，被揭开的内容是身份真相。",
+          "explanationZh": "前接「情報収集に徹して」，说明揭露将由持续调查实现。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「てみせる」把计划升级为誓言",
+          "takeawayZh": "昴不是邀请别人观看表演，而是在强调无论如何也会做到。",
+          "explanationZh": "连续失败后使用强意志形式，有自我鼓舞和向未知敌人叫阵的双重作用。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "揭露动词",
+          "plainZh": "以调查或行动让原本被遮蔽的事实公开。"
+        },
+        {
+          "termZh": "意志性补助",
+          "plainZh": "「てみせる」附在动作后，表达一定完成给人看。"
+        }
+      ],
+      "historicalNoteZh": "「暴く」也可写于揭露社会问题的报道，通常比中性的「明らかにする」更有冲突性。",
+      "cautionZh": "不要把它误作物理上的“暴打”；汉字「暴」在此关联揭露隐情，具体宾语是「正体」。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 159–163，目标 line 162「情報収集に徹して 襲撃者の正体を暴いてみせる」。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-褒美-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-褒美",
+    "linguistic_payload": {
+      "headlineZh": "「褒美」是上位者为功劳给予的奖赏；罗兹瓦尔说「褒美は思いのまま」，让昴自行开条件。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "以功绩换取上位者赏赐",
+          "takeawayZh": "它比普通礼物更突出“做得好所以被奖励”的制度关系。",
+          "explanationZh": "罗兹瓦尔拥有宅邸资源和许可权，能以主人身份宣布奖赏。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "话题句省略判断成分",
+          "takeawayZh": "「褒美は思いのまま」可理解为奖赏可随你心意选择。",
+          "explanationZh": "下一行「何でも望みを言いたまえ」补足允许自由提出愿望的具体含义。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "庄重承诺引出荒唐要求",
+          "takeawayZh": "罗兹瓦尔用夸张贵族腔抬高奖赏，昴却要求吃睡自由。",
+          "explanationZh": "语体反差把可能严肃的报酬谈判转成角色喜剧。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "功绩奖赏",
+          "plainZh": "因完成任务或作出贡献而由有权者授予的回报。"
+        },
+        {
+          "termZh": "语体反差",
+          "plainZh": "高雅正式的铺垫与低俗日常的回答并置，制造笑点。"
+        }
+      ],
+      "historicalNoteZh": "现代会话常说「ご褒美」用于奖励孩子或自我犒赏；无前缀「褒美」在古风、主从场景中更自然。",
+      "cautionZh": "它不是任何无条件赠礼；本场景也不能据“任你选”推断所有要求都已自动生效。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 164–167，目标 line 164「褒美は思いのまま」，line 165 明说可提出任何愿望。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-食客-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-食客",
+    "linguistic_payload": {
+      "headlineZh": "「食客」本是受有力者供养、寄居门下的人；昴拿它美化吃住请求，拉姆后来则拆成「食客という名の居候」。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "受供养的寄居身份",
+          "takeawayZh": "词语比「居候」体面，历史上还可暗示才艺、谋略或门客关系。",
+          "explanationZh": "昴选择这个称号，是为了让“在宅邸白吃白住”听起来像正式待遇。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "同一身份的两次重命名",
+          "takeawayZh": "昴自称食客，拉姆却说那只是名为食客的寄居者。",
+          "explanationZh": "后一表达保留他的华丽标签，同时用更寒酸的核心名词改写社会评价。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "称号争夺体现立场",
+          "takeawayZh": "昴用自我抬高争取合法性，拉姆用毒舌降格拒绝他的体面叙事。",
+          "explanationZh": "两人并非在查词典，而是在借命名重新分配客人与寄生者的面子。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "自我美化标签",
+          "plainZh": "选择较体面的名称来描述对自己有利的身份。"
+        },
+        {
+          "termZh": "讽刺性释义",
+          "plainZh": "表面解释名称，实际用更难听的近义词削弱其体面。"
+        }
+      ],
+      "historicalNoteZh": "「食客」源于东亚古代门客制度，现代日常较少；历史作品或戏谑表达中仍能见到。",
+      "cautionZh": "不能只按“来吃饭的客人”逐字理解；它涉及持续寄居和受人供养，也不必等同现代职业。"
+    },
+    "review_note": "核对当前字幕 EP6 line 167 的自我请求，以及 lines 273–275 的「食客という名の居候／そう認識している」。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-聞き込み-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-聞き込み",
+    "linguistic_payload": {
+      "headlineZh": "「聞き込み」是向相关人员逐一打听、汇集线索；昴打算不露痕迹地向宅邸众人询问袭击信息。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "动词来源的调查名词",
+          "takeawayZh": "「聞き込む」形成名词「聞き込み」，常与「する」搭配。",
+          "explanationZh": "复合后不只是“听进去”，而是带目的地向多人询问并收集材料。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「みんなから」标信息来源",
+          "takeawayZh": "助词「から」指出回答和线索来自宅邸各人。",
+          "explanationZh": "「聞き込みをしてみる」中的「てみる」表示先尝试这种调查办法。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「それとなく」要求隐藏调查意图",
+          "takeawayZh": "昴不能暴露循环知识，所以询问方式必须像闲聊。",
+          "explanationZh": "这使“打听”同时承担获取信息和避免自身遭怀疑两项任务。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "信息源标记",
+          "plainZh": "用「から」指出消息是从谁那里获得的。"
+        },
+        {
+          "termZh": "非公开调查",
+          "plainZh": "不直接揭示真实目的，通过分散询问拼合线索。"
+        }
+      ],
+      "historicalNoteZh": "「聞き込み」常见于警察、记者和侦探语境；普通人也能用来表示四处打听。",
+      "cautionZh": "不要与语言学习的“听力输入”混同；本句核心是向人发问，且未保证对方一定提供可靠信息。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 170–177，目标 line 171「それとなく みんなから聞き込みをしてみるか」。"
+  },
+  {
+    "id": "vocab-card-v1:vocab-re-zero-suki",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-suki",
+    "linguistic_payload": {
+      "headlineZh": "「隙」在「話す隙もねえ」中是能插话的空当；雷姆动作利落地离开，让昴连一句话都塞不进去。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "从空间缝隙到行动机会",
+          "takeawayZh": "这里不是可见裂缝，而是对方节奏中可供自己开口的短暂空档。",
+          "explanationZh": "同一扩展义还见于「攻撃する隙」「隙を見せる」，都涉及可利用的机会。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "动词原形修饰机会名词",
+          "takeawayZh": "「話す」限定这道空当具体能用来做什么。",
+          "explanationZh": "「もねえ」是「もない」的粗口形式，表示连最低限度的机会都不存在。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "省略开头记录反应延迟",
+          "takeawayZh": "「…って」显示昴刚要接话，雷姆已经完成告退。",
+          "explanationZh": "短句不只报告没机会，也用断裂节奏现场重演他被晾下的感觉。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "机会隐喻",
+          "plainZh": "把时间与互动中的可用空当理解为空间缝隙。"
+        },
+        {
+          "termZh": "极项「も」",
+          "plainZh": "与否定连用，强调连最小的一点都没有。"
+        }
+      ],
+      "historicalNoteZh": "「隙」读「すき」，与形容动词词干「好き」同音；书写与搭配能帮助区分。",
+      "cautionZh": "不要译成“没有喜欢说话”；此处汉字和「話す隙」搭配明确表示插话机会。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 173–178，目标 line 177「…って 話す隙もねえ」；前一行雷姆已告退并离开。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-異常-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-異常",
+    "linguistic_payload": {
+      "headlineZh": "「異常」表示偏离正常状态的异常；昴检查坠落地点后说「特に異常はない」，判断眼前没有明显问题。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词与ナ形容词两用",
+          "takeawayZh": "可说「異常がある／ない」，也可说「異常な状態」。",
+          "explanationZh": "本句用名词作话题，否定存在；不是把它直接当副词。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "依赖基准的偏离判断",
+          "takeawayZh": "何为异常取决于检查对象和预期状态。",
+          "explanationZh": "昴盯着自己曾坠落的位置寻找循环或袭击线索，基准是他认为应留下的可疑痕迹。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "自言自语引来误会式追问",
+          "takeawayZh": "罗兹瓦尔听见后问“什么没有”，暴露昴的检查缺乏公开解释。",
+          "explanationZh": "一句普通诊断在隐瞒信息的语境里反而显得可疑。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "基准依赖",
+          "plainZh": "只有先设定正常状态，才有办法判断某处是否异常。"
+        },
+        {
+          "termZh": "否定存在句",
+          "plainZh": "用「Nはない」说明所检查的现象没有被发现。"
+        }
+      ],
+      "historicalNoteZh": "设备、医疗和组织报告中常说「異常なし」，是高度压缩的检查结论。",
+      "cautionZh": "「特に異常はない」只覆盖当前能看出的范围，不能推导出袭击风险已经不存在。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 173–184，目标 line 178「うん… 特に異常はないな」，随后罗兹瓦尔追问。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-気安く-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-気安く",
+    "linguistic_payload": {
+      "headlineZh": "「気安く」可表示不拘礼地、随意亲近地；昴希望雷姆别太客套，拉姆后来正用这句话为自己公开偷懒辩护。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「気安い」的连用形",
+          "takeawayZh": "イ形容词变为「気安く」，修饰「接する」。",
+          "explanationZh": "它不是“心情容易”，而是人与人相处时少拘束、敢亲近。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "亲切与冒失只隔一条边界",
+          "takeawayZh": "正面可指随和，负面也可指不够尊重、过分套近乎。",
+          "explanationZh": "昴原意是降低女仆礼节，拉姆却把“随意”扩张成在客人面前堂堂正正休息。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "原话回收形成责任反转",
+          "takeawayZh": "拉姆引用「もっと気安く」提醒：最初提出要求的人就是昴。",
+          "explanationZh": "她把对方的话按字面最大化执行，使昴难以批评自己的请求所产生的结果。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "语用边界",
+          "plainZh": "同一“不拘谨”行为在亲密与失礼之间由关系和场合决定。"
+        },
+        {
+          "termZh": "话语回收",
+          "plainZh": "在后续场景重提对方原话，用来为当前行为辩护或反击。"
+        }
+      ],
+      "historicalNoteZh": "常见搭配「気安く話す／声をかける」；否定命令「気安く呼ぶな」则常表示“不许随便套近乎”。",
+      "cautionZh": "不能固定译成“亲切”；若身份差距大或未经允许，「気安い」也可能带冒犯感。"
+    },
+    "review_note": "核对当前字幕 EP6 line 191「もっと気安く接して」及 lines 280–284；拉姆明确引用该请求为自己的态度辩护。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-無礼極まりない-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-無礼極まりない",
+    "linguistic_payload": {
+      "headlineZh": "「無礼極まりない」表示“无礼到了极点”；形式里虽有「ない」，整句却是最强烈的肯定评价之一。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "名词性质词接「極まりない」",
+          "takeawayZh": "「無礼＋極まりない」组成固定的程度强化结构。",
+          "explanationZh": "这里的「ない」不能单独管辖「無礼」，整个后项表示程度没有边界。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "极端负面评价",
+          "takeawayZh": "它不只是“有点没礼貌”，而是说行为失礼至极。",
+          "explanationZh": "碧翠丝具体指昴每天不敲门就闯入禁书库。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "书面强化式配角色毒舌",
+          "takeawayZh": "较正式的极端表达与她娇小外表、固定句尾并置，塑造强势语气。",
+          "explanationZh": "随后“消失才对你有好处”继续升级威胁，说明这不是温和提醒。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "极度构式",
+          "plainZh": "用「極まりない」把前项性质推到最高程度。"
+        },
+        {
+          "termZh": "伪否定表面",
+          "plainZh": "字面出现否定成分，但整体功能并非否定前面的评价。"
+        }
+      ],
+      "historicalNoteZh": "同类常见「失礼極まりない」「危険極まりない」；语体较硬，不适合轻微抱怨。",
+      "cautionZh": "绝不能译成“不太无礼”；另外，它评价的是昴不敲门闯入的行为，不是对其全部人格作客观结论。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 191–198，目标 line 194「毎日 ノックもせずに入ってきて 本当に無礼極まりない」。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-身のため-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-身のため",
+    "linguistic_payload": {
+      "headlineZh": "「身のため」意为对本人有利、尤其有助于保全自身；碧翠丝把“赶快消失”包装成替昴安全着想的建议。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "「身」指当事人自身",
+          "takeawayZh": "这里不是身体某一部位，而是人的安全、处境与利益整体。",
+          "explanationZh": "省略的所有者由听话人恢复，即“为了你自己好”。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "建议型「ほうが」与利益理由",
+          "takeawayZh": "「消えたほうが身のため」比较行动方案并推荐离开。",
+          "explanationZh": "前一行给出被吹飞的风险，后项则把离开定义为较安全的选择。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "威胁伪装成忠告",
+          "takeawayZh": "说话人正是可能把昴吹飞的人，却用“为你好”减轻自身施压表面。",
+          "explanationZh": "这种表达既能是真诚提醒，也能像本句一样暗含“不走就承担后果”。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "利益受益者",
+          "plainZh": "某个行动最终保护或有利于谁，此处为听话人昴。"
+        },
+        {
+          "termZh": "间接威胁",
+          "plainZh": "不直接说要伤害，而以安全建议暗示拒绝后的后果。"
+        }
+      ],
+      "historicalNoteZh": "固定说法「〜したほうが身のためだ」常用于严厉劝告；语气可从关心到威吓，需看权力关系。",
+      "cautionZh": "不要把「身」误认成碧翠丝自己；也不能仅凭句型判定善意，本场景的前提是她威胁吹飞昴。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 194–198，目标 lines 195–196「吹き飛ばされる前に―／とっとと消えたほうが 身のため」。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-衰弱させる-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-衰弱させる",
+    "linguistic_payload": {
+      "headlineZh": "「衰弱させる」是“使对方逐渐虚弱”；昴用它描述一种先夺走体力、再让人像睡着般死亡的效果。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "サ变动词的使役",
+          "takeawayZh": "「衰弱する」去「する」接「させる」，形成致使表达。",
+          "explanationZh": "「相手を」标出进入虚弱状态的人，施事则是被询问是否存在的魔法。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "过程性状态恶化",
+          "takeawayZh": "「衰弱」强调力量、生命机能逐步降低，不等同一次打击。",
+          "explanationZh": "后文以持续吸出玛那说明这种过程如何最终可能造成衰弱死。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "以效果反向寻找手段",
+          "takeawayZh": "昴不知道凶器，便把自己经历的死亡症状描述给碧翠丝。",
+          "explanationZh": "她先回答类似效果属于诅咒，再补充吸取玛那也能造成同类结果。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "致使结构",
+          "plainZh": "表示某因素让另一参与者进入特定状态。"
+        },
+        {
+          "termZh": "结果导向提问",
+          "plainZh": "先描述观察到的效果，再询问可能产生该效果的手段。"
+        }
+      ],
+      "historicalNoteZh": "「衰弱」偏医疗或书面语；日常轻微疲劳通常不会直接用这个强度较高的词。",
+      "cautionZh": "「させる」只编码致使关系，不保证施害者有主观故意；本句还是询问，并未确认魔法确实存在于案发现场。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 198–219，目标 line 199；line 219 另出现更强结果「衰弱死させる」。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-発祥-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-発祥",
+    "linguistic_payload": {
+      "headlineZh": "「発祥」表示某种文化、技法或制度最初兴起的地方；碧翠丝说诅咒术法发源于北方的古斯提科。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "文化事物的起源地点",
+          "takeawayZh": "比一般「始まり」更适合谈传统、产业、流派与习俗。",
+          "explanationZh": "对象是魔法与精灵术的亚种，不是一次偶然事件的发生。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「国が発祥のX」压缩关系",
+          "takeawayZh": "古斯提科是发祥地，后面的「亜種」是从那里起源的事物。",
+          "explanationZh": "可展开理解为「その国を発祥とする亜種」或「その国で発祥した亜種」。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "地理出处增加设定权威感",
+          "takeawayZh": "碧翠丝不只回答“有无”，还给出地域和术法分类。",
+          "explanationZh": "这让她的话听来像专业知识，也凸显昴对异世界体系的陌生。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "发祥地",
+          "plainZh": "某项文化实践或体系最早形成并传播的地点。"
+        },
+        {
+          "termZh": "关系压缩",
+          "plainZh": "用短名词结构代替较完整的“在某地发源的”从句。"
+        }
+      ],
+      "historicalNoteZh": "现实表达常见「発祥の地」「日本発祥」；若只说某件事发生，可用更普通的「発生」。",
+      "cautionZh": "不要把「発祥」译成眼前突然“发动”；它定位的是历史源头，本句也没有说明该术法只存在于该国。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 201–209，目标 line 207「北方のグステコって国が発祥の 魔法や精霊術の亜種」。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-出来損ない-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-出来損ない",
+    "linguistic_payload": {
+      "headlineZh": "「出来損ない」指没能做成合格品的失败品，也可恶毒地骂人“不成器”；碧翠丝用它贬低现存诅咒术法。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「出来る＋損なう」的名词化残留",
+          "takeawayZh": "后项表示动作未成功完成，整体成为对失败产物的称呼。",
+          "explanationZh": "本句用作名词并接「ばかり」，指一批品质不合格的术法或成果。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "偏离预期成品标准",
+          "takeawayZh": "它预设本应成为完整可用之物，却在制作或成长上失败。",
+          "explanationZh": "下一行说“根本无法正常操控”，给出碧翠丝判为失败品的理由。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "专家式轻蔑压低威胁等级",
+          "takeawayZh": "她承认术法类别存在，同时蔑称其现状多半不堪用。",
+          "explanationZh": "这种毒舌评价体现她的知识优位，不代表所有相关术法客观上都无危险。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "失败产物",
+          "plainZh": "没有达到设计、制作或成长目标的对象。"
+        },
+        {
+          "termZh": "贬义人称化",
+          "plainZh": "原可指物的失败品称呼，转用于人时会成为强烈侮辱。"
+        }
+      ],
+      "historicalNoteZh": "「V損なう」可表示做错或没做成，如「書き損なう」；「出来損ない」已词汇化为稳定名词。",
+      "cautionZh": "对人使用非常伤人，不能当成轻微的“做得不太好”；本句指术法，并非直接辱骂昴。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 204–210，目标 lines 208–209「出来損ないばかりで―／とてもまともに 扱えたもんじゃない」。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-身をもって-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-身をもって",
+    "linguistic_payload": {
+      "headlineZh": "「身をもって知る」是用自身经历、甚至身体代价亲自懂得；碧翠丝提醒昴已经体验过玛那被强行吸走。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "亲历构成知识来源",
+          "takeawayZh": "它比「自分で知る」更突出经验直接落在本人身上。",
+          "explanationZh": "昴曾遭强制玛那抽取，身体反应就是碧翠丝认为他理应知道的证据。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "惯用副词组修饰认知动词",
+          "takeawayZh": "「身をもって」整体修饰「知ってる」，不能逐词拆成“拿着身体”。",
+          "explanationZh": "句末「はず」基于既有经历推断他应该已经明白。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "不直说答案的提醒",
+          "takeawayZh": "碧翠丝先让昴回忆亲身事件，再由他自己问出玛那抽取是否致死。",
+          "explanationZh": "这种提示既展示知识差距，也保留她不耐烦、让对方动脑的说话方式。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "体验证据",
+          "plainZh": "把亲身遭遇当作形成判断和知识的根据。"
+        },
+        {
+          "termZh": "惯用副词组",
+          "plainZh": "多个词固定组合，整体在句中说明动作方式。"
+        }
+      ],
+      "historicalNoteZh": "常见「身をもって示す／知る／体験する」，多用于代价较重、印象深刻的亲历。",
+      "cautionZh": "不是一般的“自己查到”，也不等于主动自残；本人可能被动经历后才“以身”理解。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 210–217，目标 line 212「お前は それを 身をもって知ってるはず」。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-生命力-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-生命力",
+    "linguistic_payload": {
+      "headlineZh": "「生命力」是维持生命、恢复和活动的力量；碧翠丝说玛那“也是生命力本身”，解释持续抽取为何可能致死。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "「生命＋力」构成能力名词",
+          "takeawayZh": "后缀性「力」把生命概念转成可强弱、可消耗的力量。",
+          "explanationZh": "类似「体力」「集中力」，在句中能作判断项或数量化资源。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「そのものでもある」保留并列身份",
+          "takeawayZh": "「も」表示玛那不只具有别的属性，同时也就是生命力本身。",
+          "explanationZh": "「そのもの」加强同一性，力度高于仅说“与生命力有关”。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "设定说明连接症状与因果",
+          "takeawayZh": "上一段询问衰弱魔法，这句把玛那抽取纳入可能机制。",
+          "explanationZh": "后续「吸い出し続ければ」再明确持续耗损可导致衰弱死。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "资源隐喻",
+          "plainZh": "把维持生命的能力理解成可储存、抽取和耗尽的量。"
+        },
+        {
+          "termZh": "同一性强化",
+          "plainZh": "用「そのもの」强调不是相似，而是直接归为同一性质。"
+        }
+      ],
+      "historicalNoteZh": "现实中「生命力が強い」常比喻生存与恢复能力；作品则可把它具体化为世界观资源。",
+      "cautionZh": "这是作品内的玛那设定，不能当作现实生理学结论；「も」也提示玛那不只被定义为生命力这一面。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 214–219，目标 line 217「マナは生命力そのものでもあるのよ」。"
+  },
+  {
+    "id": "enrich-vocab-vocab-re-zero-giri-v1",
+    "source_type": "vocab",
+    "source_id": "vocab-re-zero-giri",
+    "linguistic_payload": {
+      "headlineZh": "「義理」在「そこまでやってやる義理はない」中指关系或道义上欠下的义务；碧翠丝说自己没有责任连失血也替昴恢复。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "由关系产生的应做之事",
+          "takeawayZh": "它不是法律强制，而是人情、立场或受惠关系带来的社会责任。",
+          "explanationZh": "碧翠丝承认治好了致命伤，却划定“我不欠你更多”的帮助边界。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「Vる義理はない」否认义务",
+          "takeawayZh": "前面的「そこまでやってやる」具体说明被否认的责任范围。",
+          "explanationZh": "「やってやる」带从上向下施惠色彩，更强化她不愿被当作理所当然。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "嘴硬式功劳承认",
+          "takeawayZh": "她一面否认情分，一面亲口透露自己确实参与了救治。",
+          "explanationZh": "否定义务保护她的距离感，却也让昴发现此前不知道的恩情。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "关系义务",
+          "plainZh": "因人情与身份而觉得应当回报或帮忙的社会压力。"
+        },
+        {
+          "termZh": "施惠边界",
+          "plainZh": "帮助者明确自己愿意做到哪里、哪里不属于责任。"
+        }
+      ],
+      "historicalNoteZh": "「義理」可见于「義理を果たす」「義理がある／ない」；「義理チョコ」则是由社交惯例而非恋爱感情赠送。",
+      "cautionZh": "不要只译成抽象“正义”；本句核心是碧翠丝与昴之间是否存在必须继续照顾的情分。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 227–244，目标 line 234「ベティーも そこまでやってやる義理はない」。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-突破-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-突破",
+    "linguistic_payload": {
+      "headlineZh": "「突破」原本是冲破阻挡，亦可比喻跨过难关；昴说王都循环在第四次终于闯过，把时间循环当作关卡。",
+      "domains": [
+        {
+          "domain": "semantics",
+          "titleZh": "从物理防线到抽象难关",
+          "takeawayZh": "本句没有真的撞破墙，而是成功摆脱反复死亡的失败局面。",
+          "explanationZh": "被突破的对象省略，由「王都のループ」和“三次死、第四次”恢复。"
+        },
+        {
+          "domain": "morphology",
+          "titleZh": "サ变词的可能形",
+          "takeawayZh": "「突破する」变为「突破できた」，说明实现了突破。",
+          "explanationZh": "助词「で」在「４度目で」标出成功发生于第几次尝试。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "游戏化框架支持继续尝试",
+          "takeawayZh": "昴用“第几次通关”的方式整理残酷死亡经验。",
+          "explanationZh": "紧接着他否认把当前一轮当作可丢弃回合，显示比喻并未让生命价值消失。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "抽象障碍隐喻",
+          "plainZh": "把问题看成挡路防线，从而用“突破”描述解决。"
+        },
+        {
+          "termZh": "尝试计数",
+          "plainZh": "用「N度目で」标记多次行动中达成结果的那一次。"
+        }
+      ],
+      "historicalNoteZh": "现代常见「難関を突破する」「売上が大台を突破する」，既可指克服阻碍，也可指超过数值界线。",
+      "cautionZh": "不要把「突破できた」理解为已解决本轮宅邸危机；昴只在回顾先前王都循环的成功经验。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 257–263，目标 line 260「王都のループでは３度死んで ４度目で突破できた」。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-曖昧-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-曖昧",
+    "linguistic_payload": {
+      "headlineZh": "「曖昧」可指界线、内容或根据不够明确；帕克评价昴的说明“各方面都含糊”，但仍看出他确实担心艾米莉雅。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "ナ形容词修饰名词",
+          "takeawayZh": "原句是「曖昧な話」，连接名词时需要「な」。",
+          "explanationZh": "前置「いろいろと」扩大模糊所在，说明不清楚的不止一处。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "模糊不必等于双重含义",
+          "takeawayZh": "它既可说有多个解释，也可只表示细节和依据不充分。",
+          "explanationZh": "昴不能讲出死亡回归，导致请求保护的理由、时间与危险来源都不完整。"
+        },
+        {
+          "domain": "discourse",
+          "titleZh": "让步后提取可靠核心",
+          "takeawayZh": "「だけど」承认话很含糊，下一句仍确认担忧是真实的。",
+          "explanationZh": "帕克没有因信息不足全盘拒绝，而是把可疑事实和可信情感分开判断。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "信息欠定",
+          "plainZh": "话语没有给出足够细节，使听者难以确定完整情形。"
+        },
+        {
+          "termZh": "让步评估",
+          "plainZh": "先承认一项缺陷，再保留其中仍可接受的部分。"
+        }
+      ],
+      "historicalNoteZh": "工作沟通里「曖昧な指示」「基準が曖昧」很常见；反义可依语境用「明確」「はっきりしている」。",
+      "cautionZh": "不能把帕克的评价扩大成“昴在撒谎”；他只说说明含糊，并明确认可担心艾米莉雅的心意。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 264–267，目标 line 266「いろいろと曖昧な話だけど」，line 267 保留正面判断。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-案じる-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-案じる",
+    "linguistic_payload": {
+      "headlineZh": "「案じる」在这里是挂念、担忧，不是制定方案；帕克从昴含糊的请求中确认他真正在意艾米莉雅的安危。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "担忧对象以「を」标记",
+          "takeawayZh": "「リアを案じてる」表示把艾米莉雅作为挂念对象。",
+          "explanationZh": "体验者昴没有在从句内明说，由前面向帕克提出保护请求恢复。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "带预防性色彩的关心",
+          "takeawayZh": "「心配する」与它相近，但「案じる」稍显书面、沉着。",
+          "explanationZh": "关切面向尚未发生的危险，与昴想提前防备袭击相吻合。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "动机比叙述细节更可信",
+          "takeawayZh": "帕克无法验证昴的危险情报，却判断其担忧“看来是真的”。",
+          "explanationZh": "「確かみたい」把确信程度控制在推断，而非读心式断言。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "情感对象",
+          "plainZh": "引发担忧、牵挂等心理状态的人或事物。"
+        },
+        {
+          "termZh": "动机推断",
+          "plainZh": "根据请求和表现判断对方行动背后的真实关切。"
+        }
+      ],
+      "historicalNoteZh": "「案ずる／案じる」两形并存，固定句「案ずるより産むが易し」保留较旧的「ずる」形。",
+      "cautionZh": "不要因汉字「案」译成“策划艾米莉雅”；本句由保护请求和「を」格明确选择担忧义。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 264–268，目标 line 267「リアを案じてるのは 確かみたいだからね」。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-認識-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-認識",
+    "linguistic_payload": {
+      "headlineZh": "「認識する」是把对象理解、归类成某种状态；拉姆用「そう認識している」冷静确认自己把昴视为“名为食客的寄居者”。",
+      "domains": [
+        {
+          "domain": "syntax",
+          "titleZh": "指示副词「そう」承接整项分类",
+          "takeawayZh": "「そう」回指前一行完整的「食客という名の居候」。",
+          "explanationZh": "它不是模糊的“那样”，而是压缩重复，避免再说一次身份标签。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "稳定持有的理解框架",
+          "takeawayZh": "「認識している」描述当前持续采用的看法或分类。",
+          "explanationZh": "比瞬间“认出来”更接近“我的认定就是如此”。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "正式措辞放大冷面讽刺",
+          "takeawayZh": "拉姆用像报告结论般的词确认一个贬低称呼。",
+          "explanationZh": "末尾继续叫「お客様」，礼貌表面与“寄居者”评价形成反差。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "命题回指",
+          "plainZh": "用「そう」代替前句已经说出的整项判断。"
+        },
+        {
+          "termZh": "分类立场",
+          "plainZh": "说话人选择用哪一种身份框架理解对象。"
+        }
+      ],
+      "historicalNoteZh": "「認識」在工作与学术语境常表示理解、共同看法，如「認識を共有する」「認識が違う」。",
+      "cautionZh": "不要译成单纯“认识这个人”；拉姆不是第一次见昴，而是在说明她如何界定他的宅邸身份。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 271–276，目标 lines 274–275「食客という名の居候／そう認識しているわ」。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-要望-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-要望",
+    "linguistic_payload": {
+      "headlineZh": "「要望」是希望对方采取某种做法的较正式请求；拉姆把自己的随意态度说成只是在回应昴先前的要求。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "敬语前缀「ご」抬高对方请求",
+          "takeawayZh": "「ご要望」形式尊重请求的提出者，即使话语实际带讽刺。",
+          "explanationZh": "汉语名词常接「ご」，并与「応える」形成固定搭配。"
+        },
+        {
+          "domain": "syntax",
+          "titleZh": "「要望に応える」用「に」标对应项",
+          "takeawayZh": "助词指出拉姆的行动所回应的是哪一项要求。",
+          "explanationZh": "「だけ」把责任压缩为“仅照办”，暗示后果应由提出要求的昴承担。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "礼貌形式服务于反击",
+          "takeawayZh": "她越正式地说“您的要求”，越像在拿昴的原话堵住他的抱怨。",
+          "explanationZh": "这不是客服式顺从，而是双胞胎毒舌互动中的有理有据。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "敬意前缀",
+          "plainZh": "用「ご」提升与对方相关的事项，形式礼貌不保证态度友善。"
+        },
+        {
+          "termZh": "责任归还",
+          "plainZh": "把当前结果追溯到对方先前要求，以减轻自己的责任。"
+        }
+      ],
+      "historicalNoteZh": "组织沟通常见「ご要望にお応えする」；个人轻量请求则往往直接用「お願い」「希望」。",
+      "cautionZh": "「要望」不等于强制命令；本句也不是拉姆真的完全服从，而是她对“気安く”的策略性解释。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 280–285，目标 line 284「ラムは ご要望に応えただけよ」，并回看 line 191 的原始请求。"
+  },
+  {
+    "id": "enrich-vocab-re-zero-vocab-異文化交流-v1",
+    "source_type": "vocab",
+    "source_id": "re-zero-vocab-異文化交流",
+    "linguistic_payload": {
+      "headlineZh": "「異文化交流」是不同文化背景之间的接触与互相认识；昴读完异世界童话后，用这个正式词轻松总结自己的体验。",
+      "domains": [
+        {
+          "domain": "morphology",
+          "titleZh": "复合名词直接サ变动词化",
+          "takeawayZh": "「異文化交流する」把制度性名词转成一次交流体验。",
+          "explanationZh": "过去形「した」再修饰「感じ」，整句并非正式活动报告。"
+        },
+        {
+          "domain": "semantics",
+          "titleZh": "借故事接触另一套常识",
+          "takeawayZh": "“异文化”在此既是故乡与露格尼卡的差异，也包括童话所承载的价值观。",
+          "explanationZh": "昴前一句说享受“微妙的常识感差异”，为这一概括提供具体内容。"
+        },
+        {
+          "domain": "pragmatics",
+          "titleZh": "「感じ？」保持玩笑式试探",
+          "takeawayZh": "他没有郑重宣布完成文化项目，只是问“算是跨文化交流的感觉？”",
+          "explanationZh": "轻松上扬语气随即引出把故乡故事“进口”到这里的想法。"
+        }
+      ],
+      "terms": [
+        {
+          "termZh": "文化框架",
+          "plainZh": "一个群体用来理解礼俗、故事与价值判断的共享背景。"
+        },
+        {
+          "termZh": "体验概括",
+          "plainZh": "用较正式概念给刚发生的轻量个人经历命名。"
+        }
+      ],
+      "historicalNoteZh": "现实中「異文化交流」常用于留学、国际活动与社区项目；作品把它缩小到共读童话的个人场景。",
+      "cautionZh": "不能把一句阅读感想夸成双方文化已被全面理解；问号式「感じ」明确保留随口概括的程度。"
+    },
+    "review_note": "核对当前字幕 EP6 lines 285–294，目标 line 289「まさに異文化交流した感じ？」；前行明确提到常识差异。"
+  }
+]

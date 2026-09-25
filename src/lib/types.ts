@@ -149,6 +149,185 @@ export type LinguisticExerciseDraft = {
   phenomenonDefinitionZh?: string
 }
 
+declare const foundationTopicIdBrand: unique symbol
+declare const foundationPackIdBrand: unique symbol
+declare const foundationQuestionIdBrand: unique symbol
+
+export type FoundationTopicId = string & { readonly [foundationTopicIdBrand]: 'FoundationTopicId' }
+export type FoundationPackId = string & { readonly [foundationPackIdBrand]: 'FoundationPackId' }
+export type FoundationQuestionId = string & { readonly [foundationQuestionIdBrand]: 'FoundationQuestionId' }
+
+export const foundationDomains = [
+  'phonology_writing',
+  'morphology',
+  'syntax',
+  'semantics',
+  'pragmatics_discourse',
+  'sociolinguistics',
+  'historical_grammaticalization',
+] as const
+
+export type FoundationDomain = (typeof foundationDomains)[number]
+
+export const foundationStages = ['F1', 'F2', 'F3', 'F4'] as const
+export type FoundationStage = (typeof foundationStages)[number]
+
+export const foundationQuestionTypes = [
+  'single_choice',
+  'morphology_analysis',
+  'syntax_relation',
+  'contrast_choice',
+  'kuuki_yomi',
+] as const
+
+export type FoundationQuestionType = (typeof foundationQuestionTypes)[number]
+
+export const foundationSourceKinds = [
+  'original_sentence',
+  'minimal_pair',
+  'constructed_dialogue',
+  'metalinguistic',
+] as const
+
+export type FoundationSourceKind = (typeof foundationSourceKinds)[number]
+
+export type FoundationLearningObjectives = {
+  F1Zh: string
+  F2Zh: string
+  F3Zh: string
+  F4Zh: string
+}
+
+export type FoundationExampleSpec = {
+  formZh: string
+  contrastZh: string
+  constraintsZh: string
+}
+
+export type FoundationTopic = {
+  id: FoundationTopicId
+  curriculumVersion: string
+  domain: FoundationDomain
+  moduleId: string
+  sortOrder: number
+  titleJa: string
+  titleZh: string
+  shortDefinitionZh: string
+  beginnerExplanationZh: string
+  deepExplanationZh: string
+  cautionNoteZh: string
+  prerequisiteTopicIds: FoundationTopicId[]
+  learningObjectives: FoundationLearningObjectives
+  exampleSpec: FoundationExampleSpec
+  tags: string[]
+  status: 'published'
+  qualityScore: number
+}
+
+export type FoundationQuestionPack = {
+  id: FoundationPackId
+  curriculumVersion: string
+  batchNo: number
+  titleZh: string
+  descriptionZh: string
+  topicCount: number
+  questionCount: number
+  domainQuotas: Partial<Record<FoundationDomain, number>>
+  status: 'published'
+  qualityScore: number
+}
+
+export type FoundationStimulusTurn = {
+  speaker?: string
+  jaText: string
+  zhText?: string
+}
+
+export type FoundationStimulusItem = {
+  label?: string
+  text: string
+  noteZh?: string
+}
+
+export type FoundationStimulus =
+  | { kind: 'sentence'; jaText: string; zhContext?: string }
+  | { kind: 'dialogue'; turns: FoundationStimulusTurn[]; zhContext?: string }
+  | { kind: 'contrast'; items: FoundationStimulusItem[]; zhContext?: string }
+  | { kind: 'metalinguistic'; form?: string; descriptionZh: string }
+
+export type FoundationQuestionOption = {
+  id: string
+  text: string
+}
+
+export type FoundationQuestion = {
+  id: FoundationQuestionId
+  packId: FoundationPackId
+  topicId: FoundationTopicId
+  curriculumVersion: string
+  stage: FoundationStage
+  questionType: FoundationQuestionType
+  sourceKind: FoundationSourceKind
+  stimulus: FoundationStimulus
+  promptZh: string
+  options: FoundationQuestionOption[]
+  answer: {
+    optionId: string
+  }
+  hintZh: string
+  explanationZh: string
+  deepExplanationZh: string
+  cautionNoteZh: string
+  wrongExplanations: Record<string, string>
+  transferExampleJa?: string
+  transferExplanationZh?: string
+  difficulty: 1 | 2 | 3 | 4
+  tags: string[]
+  sortOrder: number
+  status: 'published'
+  qualityScore: number
+  contentVersion: number
+  contentHash: string
+}
+
+export type FoundationQuestionTrack =
+  | { track: 'foundation'; question: FoundationQuestion }
+  | { track: 'corpus'; exercise: LinguisticExerciseDraft }
+
+export type CursorPage<T> = {
+  items: T[]
+  page: {
+    limit: number
+    hasMore: boolean
+    nextCursor: string | null
+  }
+}
+
+export type FoundationTopicListParams = {
+  curriculumVersion?: string
+  domain?: FoundationDomain
+  moduleId?: string
+  cursor?: string
+  limit?: number
+}
+
+export type FoundationPackListParams = {
+  curriculumVersion?: string
+  cursor?: string
+  limit?: number
+}
+
+export type FoundationQuestionListParams = {
+  curriculumVersion?: string
+  packId?: FoundationPackId | string
+  topicId?: FoundationTopicId | string
+  stage?: FoundationStage
+  questionType?: FoundationQuestionType
+  difficulty?: 1 | 2 | 3 | 4
+  cursor?: string
+  limit?: number
+}
+
 export type SubtitleLine = {
   lineNo: number
   startTime: string

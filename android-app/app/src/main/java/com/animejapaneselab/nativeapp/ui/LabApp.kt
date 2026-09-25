@@ -82,6 +82,8 @@ import com.animejapaneselab.nativeapp.ui.screens.SubtitleBrowserScreen
 import com.animejapaneselab.nativeapp.ui.screens.TodayScreen
 import com.animejapaneselab.nativeapp.ui.feedback.FeedbackSettings
 import com.animejapaneselab.nativeapp.ui.feedback.ProvideFeedbackEngine
+import com.animejapaneselab.nativeapp.ui.foundation.FoundationTrainingScreen
+import com.animejapaneselab.nativeapp.ui.foundation.LinguisticsTrackScreen
 import com.animejapaneselab.nativeapp.ui.motion.MotionTokens
 import com.animejapaneselab.nativeapp.ui.motion.rememberReducedMotion
 import com.animejapaneselab.nativeapp.platform.LearningSessionNotifier
@@ -272,26 +274,45 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
                         onStartExercise = viewModel::startExerciseLab,
                         onStartExerciseMix = viewModel::startExerciseLabMix,
                         onStartReadAir = viewModel::startReadAirPathBatch,
-                        onOpenReadAir = { viewModel.selectTab(LabTab.Linguistics) },
                         onStartReview = viewModel::openSmartReviewQueue,
                         onWorkSelected = viewModel::selectWork,
                         onEpisodeSelected = viewModel::selectEpisode,
                     )
 
-                    LabTab.Linguistics -> ReadAirScreen(
-                        uiState = uiState,
-                        onRefresh = viewModel::refreshReadAirExercises,
-                        onWorkSelected = viewModel::selectReadAirWork,
-                        onDomainSelected = viewModel::selectReadAirDomain,
-                        onQuestionTypeSelected = viewModel::selectReadAirQuestionType,
-                        onDifficultySelected = viewModel::selectReadAirDifficulty,
-                        onTopicSelected = viewModel::selectReadAirTopic,
-                        onEpisodeSelected = viewModel::selectReadAirEpisode,
-                        onModeSelected = viewModel::selectReadAirMode,
-                        onResetFilters = viewModel::resetReadAirFilters,
-                        onResetQueue = viewModel::resetReadAirQueue,
-                        onStartSession = viewModel::startReadAirSession,
-                        onBrowseAnswer = viewModel::selectReadAirBrowseAnswer,
+                    LabTab.Linguistics -> LinguisticsTrackScreen(
+                        selectedTrack = uiState.linguisticsTrack,
+                        onTrackSelected = viewModel::selectLinguisticsTrack,
+                        animeCorpusContent = {
+                            ReadAirScreen(
+                                uiState = uiState,
+                                onRefresh = viewModel::refreshReadAirExercises,
+                                onWorkSelected = viewModel::selectReadAirWork,
+                                onDomainSelected = viewModel::selectReadAirDomain,
+                                onQuestionTypeSelected = viewModel::selectReadAirQuestionType,
+                                onDifficultySelected = viewModel::selectReadAirDifficulty,
+                                onTopicSelected = viewModel::selectReadAirTopic,
+                                onEpisodeSelected = viewModel::selectReadAirEpisode,
+                                onModeSelected = viewModel::selectReadAirMode,
+                                onResetFilters = viewModel::resetReadAirFilters,
+                                onResetQueue = viewModel::resetReadAirQueue,
+                                onStartSession = viewModel::startReadAirSession,
+                                onBrowseAnswer = viewModel::selectReadAirBrowseAnswer,
+                            )
+                        },
+                        foundationContent = {
+                            FoundationTrainingScreen(
+                                state = uiState.foundation,
+                                onRefresh = viewModel::refreshFoundationCatalog,
+                                onPackSelected = viewModel::selectFoundationPack,
+                                onDomainSelected = viewModel::selectFoundationDomain,
+                                onTopicSelected = viewModel::selectFoundationTopic,
+                                onStageSelected = viewModel::selectFoundationStage,
+                                onAnswerSelected = viewModel::submitFoundationAnswer,
+                                onPrevious = viewModel::previousFoundationQuestion,
+                                onNext = viewModel::nextFoundationQuestion,
+                                onRestart = viewModel::restartFoundationQuestions,
+                            )
+                        },
                     )
 
                     LabTab.Library -> LibraryScreen(

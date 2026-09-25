@@ -1,0 +1,641 @@
+{
+  "generator_agent": "/root/foundation_schema_v1",
+  "reviewer_agent": "/root/audit_foundation_wave2_publish",
+  "quality_score": 96,
+  "reviewed_count": 80,
+  "generation_sha256": "de56068d9be648ae0f83dbd74b31e8b24b9053f620290a5f56ec03929a44a9f6",
+  "decisions": [
+    {
+      "id": "foundation-v1-phw_mora_syllable-f1",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「きゃ」作为拗音占一拍、「く」另占一拍；切分不把字符数、词数与拍数混同。"
+    },
+    {
+      "id": "foundation-v1-phw_mora_syllable-f2",
+      "decision": "keep",
+      "quality_score": 97,
+      "note": "题面先声明采用拨音作前一音节特殊拍的分析，四拍、两音节结论在该体系内一致。"
+    },
+    {
+      "id": "foundation-v1-phw_mora_syllable-f3",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「きょ」不拆拍，「う」作为长音拍增加一拍；两项只差一个拍位，诊断唯一。"
+    },
+    {
+      "id": "foundation-v1-phw_mora_syllable-f4",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「りゅ｜う｜が｜く」同时保留拗音单位与长音拍，朗读提示和四拍计数准确。"
+    },
+    {
+      "id": "foundation-v1-phw_special_morae-f1",
+      "decision": "keep",
+      "quality_score": 99,
+      "note": "促音均占一拍，并分别以闭塞时长和摩擦时长实现；没有把摩擦音前促音误写成静默闭塞。"
+    },
+    {
+      "id": "foundation-v1-phw_special_morae-f2",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "/p/ 前拨音的双唇同化、三拍结构与规范拼写三个层次区分清楚，且保留语速和个体变异。"
+    },
+    {
+      "id": "foundation-v1-phw_special_morae-f3",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「かこ／かっこ」只以促音拍形成时长和词形对立，词义未被当作语音证据。"
+    },
+    {
+      "id": "foundation-v1-phw_special_morae-f4",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「コ｜ー｜チ」三拍与长音符延长前元音的说明准确，也未把片假名长音机械改写为重复元音。"
+    },
+    {
+      "id": "foundation-v1-phw_pitch_accent-f1",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "限定东京式抽象标注后，第二拍后的下降确实把第二拍标为重音核，未以响度替代音高。"
+    },
+    {
+      "id": "foundation-v1-phw_pitch_accent-f2",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "三拍词到后接助词均无下降的给定轮廓支持平板型，助词高音被正确用作词末诊断。"
+    },
+    {
+      "id": "foundation-v1-phw_pitch_accent-f3",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "同一拍串下音高下降与单纯响度突出被置于同一比较层级，甲才实现目标东京式有核轮廓。"
+    },
+    {
+      "id": "foundation-v1-phw_pitch_accent-f4",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "头高型在第一拍后立即下降并使后续拍与助词保持低音，其他三项分别对应不同核型。"
+    },
+    {
+      "id": "foundation-v1-phw_vowel_devoicing-f1",
+      "decision": "revise",
+      "quality_score": 98,
+      "note": "原「くさ」会引入东京式词汇重音对清化的干扰；改用首拍不承载重音的「くつ」，保留两个清辅音夹高元音的单一诊断。"
+    },
+    {
+      "id": "foundation-v1-phw_vowel_devoicing-f2",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "句末「です」的 /u/ 清化只改变语音实现，未删除系词、拍位、礼貌体或规范拼写。"
+    },
+    {
+      "id": "foundation-v1-phw_vowel_devoicing-f3",
+      "decision": "keep",
+      "quality_score": 97,
+      "note": "同一「きく」在自然语速和纠正性慢读中的清化程度差异可由语速与突出度解释，词形和极性不变。"
+    },
+    {
+      "id": "foundation-v1-phw_vowel_devoicing-f4",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「すこし」首拍 /u/ 的局部清辅音环境判断准确，同时明确词末 /i/ 和重音、边界等仍可带来变异。"
+    },
+    {
+      "id": "foundation-v1-phw_rendaku-f1",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「ほん＋たな→ほんだな」把连浊定位于后部词基词首 /t/→/d/，没有误改前部或拍数。"
+    },
+    {
+      "id": "foundation-v1-phw_rendaku-f2",
+      "decision": "keep",
+      "quality_score": 97,
+      "note": "给定「て＋かみ」后，复合中 /k/→/g/ 的形态音系对应与整体词汇化可以并存，边界说明成立。"
+    },
+    {
+      "id": "foundation-v1-phw_rendaku-f3",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "后部「かざり」含 /z/ 被作为莱曼定律类阻断线索而非绝对算法，且虚构候选未冒充词典事实。"
+    },
+    {
+      "id": "foundation-v1-phw_rendaku-f4",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "预测后部「ふくろ」词首 /f/ 对应 /b/ 并要求词典核对，兼顾规则依据和词汇例外。"
+    },
+    {
+      "id": "foundation-v1-phw_kana_orthography-f1",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "主题助词「は」和方向助词「へ」的固定拼写、实际读音及词汇内部同形边界均说明准确。"
+    },
+    {
+      "id": "foundation-v1-phw_kana_orthography-f2",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「パン／を／かいました」分别展示借词、格助词与动词礼貌过去形，文字种没有被误当句法角色。"
+    },
+    {
+      "id": "foundation-v1-phw_kana_orthography-f3",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "甲保留平假名长音、促音及助词规范拼写，乙仅作为特殊表音文体候选而不被误判为中性正字法。"
+    },
+    {
+      "id": "foundation-v1-phw_kana_orthography-f4",
+      "decision": "keep",
+      "quality_score": 97,
+      "note": "片假名借词「バス」、平假名普通词和方向助词「へ」的组合自然；汉字替代方案也在边界说明中承认。"
+    },
+    {
+      "id": "foundation-v1-phw_script_choice-f1",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "汉字词汇部分与假名送假名、助词、礼貌成分的分工准确，并提醒这不是绝对一字一功能。"
+    },
+    {
+      "id": "foundation-v1-phw_script_choice-f2",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "汉字版和假名版命题、活用和句法一致，差异被限制在词界可读性、柔和度和受众设计。"
+    },
+    {
+      "id": "foundation-v1-phw_script_choice-f3",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「柔らかい／やわらかい」均能自然修饰「布」，没有从文字种虚构时态或字面／抽象义强制分工。"
+    },
+    {
+      "id": "foundation-v1-phw_script_choice-f4",
+      "decision": "keep",
+      "quality_score": 97,
+      "note": "儿童向假名提示的否定请求形、现场指示「ここ」和礼貌程度一致，且没有把方案说成真实标识的唯一形式。"
+    },
+    {
+      "id": "foundation-v1-phw_kanji_reading_okurigana-f1",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「書」取训读「か」，书写层面的送假名为「いた」；形态音便与过去成分的进一步切分没有混入送假名边界。"
+    },
+    {
+      "id": "foundation-v1-phw_kanji_reading_okurigana-f2",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「高＋く＋なかっ＋た」明确保留词干、连接、否定和过去层级，不把「かった」误作独立单位。"
+    },
+    {
+      "id": "foundation-v1-phw_kanji_reading_okurigana-f3",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「行く→行った」的特殊促音便、送假名「った」及不能推广至所有「く」结尾动词的限制均正确。"
+    },
+    {
+      "id": "foundation-v1-phw_kanji_reading_okurigana-f4",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "已指定「深める」为规则一段动词，过去形「深めた」及送假名「めた」没有音便或词干脱落错误。"
+    },
+    {
+      "id": "foundation-v1-morph_word_morpheme_classes-f1",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "い形容词、名词、黏着格助词和动词均由活用与分布诊断，不依赖中文词性或逐假名切分。"
+    },
+    {
+      "id": "foundation-v1-morph_word_morpheme_classes-f2",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「小さ＋さ」正确区分词基内的「さ」与派生名词化成分，整体名词分布说明充分。"
+    },
+    {
+      "id": "foundation-v1-morph_word_morpheme_classes-f3",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「必要」的名词性／な形容词性词干加系词与五段动词「要る」通过否定和过去范式清楚区分。"
+    },
+    {
+      "id": "foundation-v1-morph_word_morpheme_classes-f4",
+      "decision": "keep",
+      "quality_score": 97,
+      "note": "「読み＋手」的替换、组合意义和整体名词分布构成多重证据，同时保留「手」能产性的词汇限制。"
+    },
+    {
+      "id": "foundation-v1-morph_verb_conjugation-f1",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "五段 /g/ 结尾「泳いで」与サ变「確認して」的范式、浊性和词汇核心均分析正确。"
+    },
+    {
+      "id": "foundation-v1-morph_verb_conjugation-f2",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「急いだ」还原「急ぐ」，/g/ 结尾た形用「いだ」；有意志主体、过去与主动语态自然。"
+    },
+    {
+      "id": "foundation-v1-morph_verb_conjugation-f3",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「見る」一段与「切る」五段虽同以「る」结尾，て形分别为「見て／切って」，诊断没有表面字符偏误。"
+    },
+    {
+      "id": "foundation-v1-morph_verb_conjugation-f4",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「運ばない／運んだ」正确展示五段 a 行与鼻音便；可能形选项被明确排除为情态改变。"
+    },
+    {
+      "id": "foundation-v1-morph_adjective_inflection-f1",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「静か」作な形容词词干，连体位置用「な」，地点格由后续「部屋で」承担，边界无混淆。"
+    },
+    {
+      "id": "foundation-v1-morph_adjective_inflection-f2",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「高＋く＋なかっ＋た」按连接、否定、过去逐层形成，未把礼貌、时态或否定作用域错置。"
+    },
+    {
+      "id": "foundation-v1-morph_adjective_inflection-f3",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「きれい」的表面末尾「い」没有被当作词类充分条件，定语形「きれいな水」唯一自然。"
+    },
+    {
+      "id": "foundation-v1-morph_adjective_inflection-f4",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「便利な」与中性礼貌否定过去「便利ではありませんでした」使用同一な形容词／系词系列，语体自洽。"
+    },
+    {
+      "id": "foundation-v1-morph_copula-f1",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「でした」作为名词性判断的礼貌过去系词，未被误切成地点格「で」或复数、进行标记。"
+    },
+    {
+      "id": "foundation-v1-morph_copula-f2",
+      "decision": "keep",
+      "quality_score": 97,
+      "note": "「休館＋で＋は＋なかっ＋た」保留名词谓语、否定和过去层级，同时承认不同理论可细分「では」。"
+    },
+    {
+      "id": "foundation-v1-morph_copula-f3",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「だ／です／である」的命题内容相同，普通、礼貌、说明文体差异被写成倾向而非绝对禁令。"
+    },
+    {
+      "id": "foundation-v1-morph_copula-f4",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「です／ではありません／でした」依次满足礼貌肯定非过去、否定非过去和肯定过去，未混搭系列。"
+    },
+    {
+      "id": "foundation-v1-morph_auxiliary_chain-f1",
+      "decision": "revise",
+      "quality_score": 98,
+      "note": "原题孤立形式的「られ」也可能是使役谓语的可能形式，无法无条件标为被动；现明确指定使役被动目标后再考层级。"
+    },
+    {
+      "id": "foundation-v1-morph_auxiliary_chain-f2",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "钥匙损坏、箱子对象和说话人尝试共同消歧「開けられ」为可能，外层否定过去表达当时没能打开。"
+    },
+    {
+      "id": "foundation-v1-morph_auxiliary_chain-f3",
+      "decision": "keep",
+      "quality_score": 97,
+      "note": "题面明确目标为否定使役被动整体，「書かせられなかった」顺序合法；并保留孤立形式的可能歧义警告。"
+    },
+    {
+      "id": "foundation-v1-morph_auxiliary_chain-f4",
+      "decision": "revise",
+      "quality_score": 99,
+      "note": "原「使われていなかった」可优先表示当时未在使用，未必是清楚的结果状态；改为完成点明确的「まだ設置されていなかった」。"
+    },
+    {
+      "id": "foundation-v1-morph_negation_forms-f1",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「読まない／高くない／学生ではない」分别匹配五段动词、い形容词和名词性谓语的现代普通否定。"
+    },
+    {
+      "id": "foundation-v1-morph_negation_forms-f2",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「静かではありませんでした」准确实现な形容词性质判断的礼貌否定过去，否定未错落在主题名词。"
+    },
+    {
+      "id": "foundation-v1-morph_negation_forms-f3",
+      "decision": "keep",
+      "quality_score": 97,
+      "note": "简单性质句中い形容词用「おもしろくない」，题目也明确保留引用或元语言「Xではない」的边界环境。"
+    },
+    {
+      "id": "foundation-v1-morph_negation_forms-f4",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "名词「休み」的礼貌否定过去与动词「休む」的「休みませんでした」被按事件结构严格区分。"
+    },
+    {
+      "id": "foundation-v1-morph_tense_forms-f1",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「歩く」形态为非过去，「毎朝」建立习惯框架；没有把非过去误说成正在进行或未来专用。"
+    },
+    {
+      "id": "foundation-v1-morph_tense_forms-f2",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「来週」把自动变化事件定位于未来，非过去形与计划解释相容；有生性未被误当时态条件。"
+    },
+    {
+      "id": "foundation-v1-morph_tense_forms-f3",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "两句「読む」形态相同，「毎日／明日」分别提供习惯和未来时间框架，比较层级一致。"
+    },
+    {
+      "id": "foundation-v1-morph_tense_forms-f4",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "叙事发现构式「ドアを開けると、猫がいた」自然，前件非过去与主句过去状态的时间关系准确。"
+    },
+    {
+      "id": "foundation-v1-morph_derivation_nominalization-f1",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「再＋利用」透明表达重复并形成名词／サ变词干，接辞能产性被限制而非无限推广。"
+    },
+    {
+      "id": "foundation-v1-morph_derivation_nominalization-f2",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「静か＋さ」形成可带格助词的名词，派生后的词类、性质／程度语义与搭配限制说明准确。"
+    },
+    {
+      "id": "foundation-v1-morph_derivation_nominalization-f3",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "词汇名词「休み」与保留谓语小句结构的「休むこと」处于不同层级，未由中文名词译法抹平。"
+    },
+    {
+      "id": "foundation-v1-morph_derivation_nominalization-f4",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「細かい→細かさ」规则形态正确，并明确形态合法性不保证所有搭配和具体义项同等通行。"
+    },
+    {
+      "id": "foundation-v1-morph_compounding-f1",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「木＋箱」以后部「箱」为名词中心、前部给材料关系，且未将后部中心倾向绝对化。"
+    },
+    {
+      "id": "foundation-v1-morph_compounding-f2",
+      "decision": "keep",
+      "quality_score": 97,
+      "note": "目标被放物为完整「木箱」，再与「置き場」组合的括号与释义匹配；真实词汇自然度另行保留核对。"
+    },
+    {
+      "id": "foundation-v1-morph_compounding-f3",
+      "decision": "keep",
+      "quality_score": 97,
+      "note": "「紙」先限制被回收的「容器」而非最外层箱子，目标括号和材料范围一致，并承认真实标识可改写。"
+    },
+    {
+      "id": "foundation-v1-morph_compounding-f4",
+      "decision": "keep",
+      "quality_score": 97,
+      "note": "「予備鍵保管箱」只作为结构透明候选，明确标出[[备用钥匙][保管箱]]及需核对通行度，未伪造词典词。"
+    },
+    {
+      "id": "foundation-v1-morph_transitivity_pairs-f1",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "自动词「開く」与他动词「開ける」的变化主体、施事、受事和格框架均映射正确。"
+    },
+    {
+      "id": "foundation-v1-morph_transitivity_pairs-f2",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「消える」只断言灯的变化，「消す」增加工作人员施事；未从自动句虚构特定零致使者。"
+    },
+    {
+      "id": "foundation-v1-morph_transitivity_pairs-f3",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「閉める」已有他动结构，「閉めさせる」再增加监督者和被使役者；强制／许可留给语境判断。"
+    },
+    {
+      "id": "foundation-v1-morph_transitivity_pairs-f4",
+      "decision": "keep",
+      "quality_score": 97,
+      "note": "「風でドアが開いた」以前景化结果的自动词框架表达非意志原因，且承认他动原因句在别的视角可成立。"
+    },
+    {
+      "id": "foundation-v1-syn_constituent_order-f1",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「学生が／図書館で／資料を／読んだ」按带助词名词短语和句末谓语划分，未把词内活用当主句法边界。"
+    },
+    {
+      "id": "foundation-v1-syn_constituent_order-f2",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「新しい资料」与「静かな部屋」先构成内部名词短语，再由「を／で」接入小句，修饰无跨挂。"
+    },
+    {
+      "id": "foundation-v1-syn_constituent_order-f3",
+      "decision": "keep",
+      "quality_score": 97,
+      "note": "乙完整前置「荷物を」而仍依赖显著性或对比语境，丙拆散定语名词短语；语法性与中性度区分清楚。"
+    },
+    {
+      "id": "foundation-v1-syn_constituent_order-f4",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "A 保持三个格成分完整并以有限谓语收尾；同时未宣称该顺序是日语唯一合法排序。"
+    },
+    {
+      "id": "foundation-v1-syn_case_particles-f1",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「置く」的放置者、被放物和结果位置分别以「が／を／に」实现，「に」未被笼统称为间接宾语。"
+    },
+    {
+      "id": "foundation-v1-syn_case_particles-f2",
+      "decision": "keep",
+      "quality_score": 97,
+      "note": "在“查验词典”义下，学生与词典为施事和对象，图书馆为活动地点；未把「で」误作方向终点。"
+    },
+    {
+      "id": "foundation-v1-syn_case_particles-f3",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "「公園で」活动场所与「公園を」穿行路径的构式差异准确，路径「を」没有把「走る」改成他动词。"
+    },
+    {
+      "id": "foundation-v1-syn_case_particles-f4",
+      "decision": "keep",
+      "quality_score": 98,
+      "note": "施事、起点、工具、受事和方向目标依次由「が／から／で／を／へ」标记，且「まで」另作终界说明。"
+    }
+  ],
+  "replacements": [
+    {
+      "id": "foundation-v1-phw_vowel_devoicing-f1",
+      "topic_id": "phw_vowel_devoicing",
+      "stage": "F1",
+      "question_type": "single_choice",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "在自然语速的东京式标准语候选中，目标拍不承载重音；判断高元音位于两个清辅音之间的典型环境。"
+      },
+      "prompt_zh": "哪一个形式中的目标元音最符合典型清化环境？",
+      "options": [
+        {
+          "id": "A",
+          "text": "「かぜ」中的「あ」，位于 /k/ 与 /z/ 之间"
+        },
+        {
+          "id": "B",
+          "text": "「みず」中的「い」，位于 /m/ 与 /z/ 之间"
+        },
+        {
+          "id": "C",
+          "text": "「すぐ」中的「う」，位于 /s/ 与 /g/ 之间"
+        },
+        {
+          "id": "D",
+          "text": "「くつ」第一拍的「う」，位于 /k/ 与 /ts/ 之间"
+        }
+      ],
+      "answer": {
+        "option_id": "D"
+      },
+      "hint_zh": "目标通常是高元音 /i, u/，且相邻辅音均为清音。",
+      "explanation_zh": "「くつ」第一拍的 /u/ 位于清辅音 /k/ 与 /ts/ 之间，是典型清化候选。",
+      "deep_explanation_zh": "高元音在两个清辅音之间且不承载重音时常倾向清化。其余候选或不是高元音，或相邻含浊辅音，缺少这一典型组合。",
+      "caution_note_zh": "清化仍受语速、重音、说话人和地域影响；题目问的是典型候选，不是绝对发音命令。",
+      "wrong_explanations": {
+        "A": "「あ」不是通常参与该规则的高元音，且后续 /z/ 为浊辅音。",
+        "B": "目标虽为高元音 /i/，但相邻 /m/ 与 /z/ 都不是题目要求的两个清辅音。",
+        "C": "后续 /g/ 是浊辅音，不构成两个清辅音夹持的典型环境。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "vowel_devoicing",
+        "high_vowel",
+        "environment"
+      ],
+      "sort_order": 12
+    },
+    {
+      "id": "foundation-v1-morph_auxiliary_chain-f1",
+      "topic_id": "morph_auxiliary_chain",
+      "stage": "F1",
+      "question_type": "morphology_analysis",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "form": "読ませられなかった",
+        "description_zh": "题面明确指定使役被动读法：“当时没有被要求阅读”。只识别从词汇动词向外的形态层级。"
+      },
+      "prompt_zh": "在给定使役被动读法下，哪项层级顺序最合理？",
+      "options": [
+        {
+          "id": "A",
+          "text": "読ま＋せ（使役）＋られ（被动）＋なかっ（否定）＋た（过去）"
+        },
+        {
+          "id": "B",
+          "text": "読む＋た（过去）＋ない（否定）＋せる（使役）"
+        },
+        {
+          "id": "C",
+          "text": "読ませられ＋だ（系词）；整体只是名词判断"
+        },
+        {
+          "id": "D",
+          "text": "読＋ませ（礼貌）＋られなかった（一个无内部结构的词）"
+        }
+      ],
+      "answer": {
+        "option_id": "A"
+      },
+      "hint_zh": "题面已固定为“被要求阅读”，从最接近词汇动作的使役、被动向外寻找否定和过去。",
+      "explanation_zh": "在指定读法下，该形式可逐层分析为使役、被动、否定、过去，外层成分对内层复合谓语取作用域。",
+      "deep_explanation_zh": "「せ」先建立致使结构，「られ」在题面目标中再构成使役被动，否定和过去位于更外层，因此整体表示当时没有处于被要求阅读的事件中。",
+      "caution_note_zh": "若只给孤立字符串而不指定论元和目标意义，「られ」还可能被分析为使役谓语的可能形式；不能脱离语境一律判为被动。",
+      "wrong_explanations": {
+        "B": "把过去和否定放到使役内部，既不匹配表面顺序，也不能形成目标词形。",
+        "C": "末尾「た」是过去成分，不是系词「だ」，整体也不是名词判断。",
+        "D": "「ませ」跨越动词词干与使役边界，不能在这里误判为礼貌「ます」。"
+      },
+      "difficulty": 1,
+      "tags": [
+        "auxiliary_chain",
+        "causative_passive",
+        "negation",
+        "past"
+      ],
+      "sort_order": 48
+    },
+    {
+      "id": "foundation-v1-morph_auxiliary_chain-f4",
+      "topic_id": "morph_auxiliary_chain",
+      "stage": "F4",
+      "question_type": "morphology_analysis",
+      "source_kind": "metalinguistic",
+      "stimulus": {
+        "kind": "metalinguistic",
+        "description_zh": "构造“这个装置在检查时仍未安装”这一过去结果状态；要求包含被动、结果状态和否定过去。"
+      },
+      "prompt_zh": "哪一项谓语链最合适？",
+      "options": [
+        {
+          "id": "A",
+          "text": "この装置は設置しなくさせた。"
+        },
+        {
+          "id": "B",
+          "text": "この装置はまだ設置されていなかった。"
+        },
+        {
+          "id": "C",
+          "text": "この装置は設置するられないた。"
+        },
+        {
+          "id": "D",
+          "text": "この装置は設置させていたない。"
+        }
+      ],
+      "answer": {
+        "option_id": "B"
+      },
+      "hint_zh": "依次组合「安装」的被动、变化后的状态「ている」、否定和过去。",
+      "explanation_zh": "「まだ設置されていなかった」按被动「設置される」＋结果状态「ている」＋否定过去组织。",
+      "deep_explanation_zh": "安装事件有明确完成点；被动使装置成为受事，「ている」呈现安装完成后的状态，外层否定过去断言检查时该结果状态仍未成立。",
+      "caution_note_zh": "「ている」的读法会随基础谓语和语境改变；这里由完成点明确的「設置する」、状态基准“检查时”和「まだ」共同支持结果状态。",
+      "wrong_explanations": {
+        "A": "该形式含不合目标的使役，且「しなくさせた」改变了事件结构。",
+        "C": "辞书形不能直接接「られないた」，否定过去的形态也错误。",
+        "D": "使役改变了参与者结构，末尾「いたない」也不是合法否定过去。"
+      },
+      "difficulty": 4,
+      "tags": [
+        "auxiliary_chain",
+        "passive",
+        "result_state",
+        "negative_past"
+      ],
+      "sort_order": 51
+    }
+  ]
+}
