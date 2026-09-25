@@ -1,0 +1,19 @@
+{
+  "name": "anime-japanese-lab-vector-ingest",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "upload:chunks": "tsx scripts/upload-chunks.ts",
+    "probe:embedding": "tsx scripts/probe-embedding-dims.ts"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250409.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "wrangler": "^4.19.1"
+  }
+}

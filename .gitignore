@@ -3,7 +3,7 @@ dist/
 .wrangler/
 test-results/
 vite-dev.*.log
-srt/
+__pycache__/
 .dev.vars
 .env
 .env.*

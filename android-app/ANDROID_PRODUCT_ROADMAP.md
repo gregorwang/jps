@@ -9,9 +9,9 @@
 - 每一条机会都是独立可执行的最小单元,按「价值 → 数据/接口 → Android 落点 → 步骤 → 测试 → 工作量」写。
 - 标签含义:
   - **[仅Android]** 后端接口/数据已就绪,只改 `android-app/`,当前会话即可授权执行。
-  - **[需后端]** 需要改 Worker 或数据库,按 AGENTS.md 需用户明确授权后才能动 `android-app/` 以外的代码。
+  - **[需后端]** 需要改 Worker 或数据库,需用户明确授权后才能动 `android-app/` 以外的代码。
   - **[需决策]** 涉及产品边界(如手写禁区的邻近功能),先问用户再做。
-- 硬约束不变(见 `AGENTS.md` / `ANDROID_ENVIRONMENT.md`):不做手写/书写练习;Web 前端不是 Android 规范;默认只写 `android-app/`;保留脏工作区。
+- 硬约束不变(见 `ANDROID_ENVIRONMENT.md`):不做手写/书写练习;Web 前端不是 Android 规范;默认只写 `android-app/`;保留脏工作区。
 - 每完成一步跑:`.\gradlew.bat testDebugUnitTest --no-daemon --console=plain --max-workers=2`,UI 改动另跑 `lintDebug`、`assembleLocalSlim`。
 - **安全纪律:Supabase access token 只存在于会话/环境变量中,绝不写进源码、Gradle、文档或提交历史。** Android 客户端只与 Worker 通信,不直连 Supabase。
 
@@ -171,7 +171,7 @@ Worker(`src/worker.ts`)全部业务路由与 Android(`RemoteLabClient.kt`)对照
 
 ## 6. 工程与架构优化(支撑以上一切的地基)
 
-按 `ANDROID_PROJECT_GUIDE.md` §12-13 的既有判断,落成执行顺序:
+按既有判断,落成执行顺序:
 
 1. **新功能一律 feature-owned state**:本文档所有 P0 新页面/新弹层(搜索、深挖、历史、角色、批改)都建独立 `XxxState.kt` + 小 state-holder,只通过窄接口用 `RemoteLabClient`;`LabViewModel`/`LabUiState` 最多加一个入口字段。这是不再膨胀的执行标准。
 2. **死代码处置**:`MineScreen.kt`(224 行,无路由引用)+ 四屏中 32 个未引用私有函数(约 1,496 行,guide §9.3)→ 建一次「删除 PR」:先 `testDebugUnitTest` + `assembleLocalSlim` + 模拟器冒烟,绿了就删。**逐文件删,不批量 reset。**

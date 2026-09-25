@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import wave1Document from '../foundation/questions_wave1_effective.json'
-import wave2Document from '../foundation/questions_wave2_effective.json'
-import wave3Document from '../foundation/questions_wave3_effective.json'
+import wave1Document from '../archive-content-sources/foundation-question-bank-v1-2026-07-27/questions_wave1_effective.json'
+import wave2Document from '../archive-content-sources/foundation-question-bank-v1-2026-07-27/questions_wave2_effective.json'
+import wave3Document from '../archive-content-sources/foundation-question-bank-v1-2026-07-27/questions_wave3_effective.json'
 import {
   buildFoundationListPlan,
   decodeFoundationCursor,

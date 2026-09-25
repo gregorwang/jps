@@ -5,7 +5,7 @@ Project: `AnimeJapaneseLabAndroid`
 Android project root: `C:\Users\汪家俊\jps\android-app`  
 Repository root: `C:\Users\汪家俊\jps`
 
-This is the first document a new AI session should read after `android-app/AGENTS.md`. It is a dated environment snapshot plus a working contract, not a substitute for checking the current diff.
+This is the first document a new AI session should read. It is a dated environment snapshot plus a working contract, not a substitute for checking the current diff.
 
 ## Five-Minute Startup Checklist
 
@@ -22,7 +22,7 @@ git -c safe.directory='C:/Users/汪家俊/jps' status --short
 
 Then:
 
-1. Read `AGENTS.md`, this file, and `ANDROID_PROJECT_GUIDE.md` completely.
+1. Read this file and `ANDROID_PRODUCT_ROADMAP.md` completely.
 2. Preserve the dirty worktree. Do not reset, clean, delete, or overwrite existing modified/untracked files.
 3. Confirm whether the task is Android-only. Do not use the Web/PWA frontend as the Android behavior or UI reference. Read backend contracts only when remote data integration requires them; writing outside `android-app/` requires explicit user scope.
 4. Use the existing emulator only after source-level logic and unit tests are in shape.
@@ -182,9 +182,7 @@ An emulator log proving that TTS was invoked is not proof that a human heard aud
 
 ```text
 android-app/
-  AGENTS.md                       Android-specific agent rules
   ANDROID_ENVIRONMENT.md          this handoff
-  ANDROID_PROJECT_GUIDE.md        Android architecture, runtime/data flow, code-size explanation
   app/build.gradle.kts            variants, dependencies, signing/release gates
   app/src/main/AndroidManifest.xml
   app/src/main/java/com/animejapaneselab/nativeapp/
@@ -329,9 +327,8 @@ Do not add secrets. Record variable names and locations, not values.
 ## Suggested Prompt for a New AI Session
 
 ```text
-请先完整阅读 C:\Users\汪家俊\jps\android-app\AGENTS.md 和
-C:\Users\汪家俊\jps\android-app\ANDROID_ENVIRONMENT.md，以及
-C:\Users\汪家俊\jps\android-app\ANDROID_PROJECT_GUIDE.md。
+请先完整阅读 C:\Users\汪家俊\jps\android-app\ANDROID_ENVIRONMENT.md 和
+C:\Users\汪家俊\jps\android-app\ANDROID_PRODUCT_ROADMAP.md。
 Android 是独立产品，不要把 Web/PWA 前端作为行为、学习流程或 UI 规范。
 然后只做文档里的 Five-Minute Startup Checklist 和与本次任务直接相关的增量检查。
 保留当前脏工作区，不要 reset/clean，不要重新从头探测整台机器。
