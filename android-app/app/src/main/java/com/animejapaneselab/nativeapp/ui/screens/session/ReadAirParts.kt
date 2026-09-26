@@ -130,17 +130,6 @@ internal fun ReadAirScenePanel(
             lines.forEach { line ->
                 ReadAirLine(line, emphasis = emphasisFor(line), emphasisVisible = emphasisVisible)
             }
-            if (lines.any { it.unfinished }) {
-                Text(
-                    "虚线气泡 = 话没说完",
-                    style = AjlTheme.type.caption.copy(fontSize = 11.sp, lineHeight = 14.sp),
-                    color = AjlTheme.colors.ink3,
-                    modifier = Modifier
-                        .align(Alignment.End)
-                        .padding(top = 0.dp)
-                        .graphicsLayer { translationY = -8.dp.toPx() },
-                )
-            }
             footer?.invoke(this)
         }
     }

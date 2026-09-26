@@ -149,12 +149,6 @@ fun LoginScreen(
                             )
                         }
                     }
-                    Text(
-                        "ようこそ、学園へ。",
-                        style = type.jpDisplay,
-                        color = colors.ink,
-                        modifier = Modifier.padding(horizontal = 24.dp).padding(top = 4.dp),
-                    )
                 }
                 Column(
                     modifier = Modifier
