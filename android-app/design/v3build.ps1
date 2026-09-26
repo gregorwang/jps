@@ -24,6 +24,15 @@ if ($app -ne $main) {
     if (-not (Test-Path (Join-Path $app 'local-fusion-assets'))) {
         cmd /c mklink /J (Join-Path $app 'local-fusion-assets') (Join-Path $main 'local-fusion-assets') | Out-Null
     }
+    # Character art (drawable-nodpi) and a few legacy vectors are gitignored too.
+    $res = 'app\src\main\res'
+    if (-not (Test-Path (Join-Path $app "$res\drawable-nodpi"))) {
+        cmd /c mklink /J (Join-Path $app "$res\drawable-nodpi") (Join-Path $main "$res\drawable-nodpi") | Out-Null
+    }
+    Get-ChildItem (Join-Path $main "$res\drawable") -File | ForEach-Object {
+        $dst = Join-Path $app "$res\drawable\$($_.Name)"
+        if (-not (Test-Path $dst)) { Copy-Item $_.FullName $dst }
+    }
 }
 
 # Acquire the global lock (mkdir is atomic). Stale locks (>25 min) are broken.
