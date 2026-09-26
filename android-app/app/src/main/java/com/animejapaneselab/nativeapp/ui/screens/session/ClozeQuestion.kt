@@ -57,7 +57,7 @@ internal fun SceneDialogue(
         DialogueBox(
             speaker = speaker,
             state = typewriter,
-            modifier = Modifier.padding(top = panelHeight - 64.dp),
+            modifier = Modifier.padding(top = panelHeight - 40.dp),
             onAdvance = {},
             body = body,
         )
