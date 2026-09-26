@@ -30,7 +30,12 @@ import com.animejapaneselab.nativeapp.ui.design.TextTabs
 import com.animejapaneselab.nativeapp.ui.foundation.LinguisticsTrack
 import com.animejapaneselab.nativeapp.ui.screens.FoundationActions
 import com.animejapaneselab.nativeapp.ui.screens.ReadAirHomeActions
+import com.animejapaneselab.nativeapp.ui.screens.session.ConjugationSession
+import com.animejapaneselab.nativeapp.ui.screens.session.ConjugationSessionActions
 import com.animejapaneselab.nativeapp.ui.screens.session.FoundationSession
+import com.animejapaneselab.nativeapp.ui.drill.ConjugationDrillViewModel
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 
 /**
@@ -63,6 +68,27 @@ fun LearnScreen(
     val onFoundationVolume = uiState.learnSection == LearnSection.Linguistics &&
         uiState.linguisticsTrack == LinguisticsTrack.Foundation
     LaunchedEffect(onFoundationVolume) { if (!onFoundationVolume) foundationOpen = false }
+    val drill: ConjugationDrillViewModel = viewModel()
+    val drillState by drill.state.collectAsState()
+    val onDrillVolume = uiState.learnSection == LearnSection.Linguistics &&
+        uiState.linguisticsTrack == LinguisticsTrack.Conjugation
+    LaunchedEffect(onDrillVolume) {
+        if (onDrillVolume) drill.ensureLoaded() else drill.exitSession()
+    }
+    if (onDrillVolume && drillState.session.isNotEmpty()) {
+        ConjugationSession(
+            state = drillState,
+            actions = ConjugationSessionActions(
+                onAnswer = drill::answer,
+                onNext = drill::next,
+                onRestart = drill::startSession,
+                onExit = drill::exitSession,
+            ),
+            ttsWorkerUrl = uiState.settings.ttsWorkerUrl,
+            modifier = modifier,
+        )
+        return
+    }
     if (foundationOpen && onFoundationVolume) {
         FoundationSession(
             state = uiState.foundation,
@@ -118,6 +144,14 @@ fun LearnScreen(
                 readAir = readAir,
                 foundation = foundation,
                 onOpenFoundation = { foundationOpen = true },
+                drill = drillState,
+                drillActions = DrillVolumeActions(
+                    onGroup = drill::selectGroup,
+                    onPoint = drill::selectPoint,
+                    onReset = drill::resetFilters,
+                    onRefresh = drill::refresh,
+                    onStart = drill::startSession,
+                ),
                 filtersOpen = filtersOpen,
                 onFiltersDismiss = { filtersOpen = false },
                 modifier = Modifier.weight(1f),

@@ -80,6 +80,28 @@ class LocalLabStore(context: Context) {
         preferences.edit { putString(EyecatchPlayedOnKey, json.toString()) }
     }
 
+    /** 活用道場 progress: item id → [DrillProgress]. */
+    fun readDrillProgress(): Map<String, DrillProgress> {
+        val raw = preferences.getString(DrillProgressKey, "{}").orEmpty()
+        return runCatching {
+            val json = JSONObject(raw)
+            buildMap {
+                val keys = json.keys()
+                while (keys.hasNext()) {
+                    val key = keys.next()
+                    val row = json.optJSONArray(key) ?: continue
+                    put(key, DrillProgress(row.optInt(0), row.optLong(1), row.optInt(2), row.optInt(3)))
+                }
+            }
+        }.getOrElse { emptyMap() }
+    }
+
+    fun writeDrillProgress(progress: Map<String, DrillProgress>) {
+        val json = JSONObject()
+        progress.forEach { (id, p) -> json.put(id, JSONArray().put(p.box).put(p.dueDay).put(p.seen).put(p.wrong)) }
+        preferences.edit { putString(DrillProgressKey, json.toString()) }
+    }
+
     fun readSessionCookie(): String = preferences.getString(SessionCookieKey, "").orEmpty()
 
     fun writeSessionCookie(cookie: String) {
@@ -219,6 +241,7 @@ class LocalLabStore(context: Context) {
         const val CloudSyncKey = "cloud-sync"
         const val ShowFuriganaKey = "show-furigana"
         const val ShowRomajiKey = "show-romaji"
+        const val DrillProgressKey = "conjugation-drill-progress"
         const val MistakesKey = "mistakes"
         const val ProgressKey = "progress"
         const val PendingProgressKey = "pending-progress"

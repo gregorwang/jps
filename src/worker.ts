@@ -302,6 +302,10 @@ async function handleApi(request: Request, env: Env, url: URL) {
     return handleLinguisticExercises(request, env, url)
   }
 
+  if (url.pathname === '/api/conjugation-drill/items' && request.method === 'GET') {
+    return handleConjugationDrillItems(env)
+  }
+
   if (url.pathname === '/api/auth/register-owner' && request.method === 'POST') {
     return handleRegisterOwner(request, env)
   }
@@ -536,6 +540,34 @@ async function handleLinguisticExercises(request: Request, env: Env, url: URL) {
     : await supabase<unknown[]>(env, path)
   const phenomena = await listLinguisticPhenomena(env, rows)
   return json(rows.map((row) => mapLinguisticExercise(row, phenomena)))
+}
+
+const CONJUGATION_DRILL_COLUMNS = [
+  'id', 'point_id', 'point_title_zh', 'group_zh', 'sentence_id', 'episode_label', 'start_time',
+  'ja_text', 'reading', 'span_start', 'span_end', 'target', 'head_json', 'zh', 'formula', 'sense',
+  'note', 'audio_url', 'sort_order',
+].join(',')
+
+/** 活用道場: every published drill item (~1k rows), paged past PostgREST's 1000-row cap. */
+async function handleConjugationDrillItems(env: Env) {
+  const pageSize = 1000
+  const rows: unknown[] = []
+  for (let offset = 0; offset < 20_000; offset += pageSize) {
+    const query = new URLSearchParams({
+      select: CONJUGATION_DRILL_COLUMNS,
+      status: 'eq.published',
+      order: 'sort_order.asc,id.asc',
+      limit: String(pageSize),
+      offset: String(offset),
+    })
+    const page = await supabase<unknown[]>(env, `/rest/v1/conjugation_drill_items?${query.toString()}`)
+    if (!Array.isArray(page)) throw new HttpError(500, 'Conjugation drill response is not an array')
+    rows.push(...page)
+    if (page.length < pageSize) break
+  }
+  return new Response(JSON.stringify(rows), {
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=300' },
+  })
 }
 
 export function matchFoundationApiRoute(method: string, pathname: string): FoundationApiResource | null {

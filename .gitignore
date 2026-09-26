@@ -20,3 +20,6 @@ archive-content-sources/android-drawables/drawable/path_bea_*.xml
 archive-content-sources/android-drawables/drawable/common_level_chest_locked_v2.xml
 archive-content-sources/android-drawables/drawable/in_challenge_junior.xml
 archive-content-sources/android-drawables/drawable/guidebook_white.xml
+
+# Conjugation drill P1 data (Re:Zero subtitle text; local only)
+archive-content-sources/conjugation-drill-p1/

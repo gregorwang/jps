@@ -10,6 +10,7 @@ import com.animejapaneselab.nativeapp.data.ProgressItem
 enum class LinguisticsTrack {
     AnimeCorpus,
     Foundation,
+    Conjugation,
 }
 
 enum class FoundationTrainingPhase {

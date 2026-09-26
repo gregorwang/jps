@@ -568,6 +568,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         when (track) {
             LinguisticsTrack.AnimeCorpus -> ensureFallbackReadAirCatalogLoaded()
             LinguisticsTrack.Foundation -> ensureFoundationCatalogLoaded()
+            LinguisticsTrack.Conjugation -> Unit
         }
     }
 
@@ -576,6 +577,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         when (track) {
             LinguisticsTrack.AnimeCorpus -> ensureFallbackReadAirCatalogLoaded()
             LinguisticsTrack.Foundation -> ensureFoundationCatalogLoaded()
+            LinguisticsTrack.Conjugation -> Unit
         }
     }
 

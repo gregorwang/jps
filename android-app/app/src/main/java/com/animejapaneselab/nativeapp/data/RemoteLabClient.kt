@@ -222,6 +222,9 @@ class RemoteLabClient(
         return tasks.mapObjects(::progressItem)
     }
 
+    fun fetchConjugationDrillItems(): List<ConjugationDrillItem> =
+        parseConjugationDrillItems(get("/api/conjugation-drill/items"))
+
     fun fetchLinguisticExercises(selection: EpisodeSelection? = null): List<LinguisticExercise> {
         val query = buildList {
             if (selection != null) {
@@ -864,6 +867,7 @@ internal fun isCacheableContentPath(path: String): Boolean {
     return pathname == "/api/works" ||
         pathname.startsWith("/api/works/") ||
         pathname == "/api/linguistic-exercises" ||
+        pathname == "/api/conjugation-drill/items" ||
         pathname.startsWith("/api/linguistics/foundation/")
 }
 
