@@ -291,6 +291,8 @@ class RemoteLabClient(
                 endTime = item.string("endTime", item.string("end_time")),
                 jaText = item.string("jaText", item.string("ja_text")),
                 zhText = item.string("zhText", item.string("zh_text")),
+                audioUrl = item.string("audioUrl"),
+                storagePath = item.string("storagePath"),
             )
         }
     }

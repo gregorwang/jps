@@ -56,6 +56,8 @@ import com.animejapaneselab.nativeapp.ui.design.Hairline
 import com.animejapaneselab.nativeapp.ui.design.IconButton44
 import com.animejapaneselab.nativeapp.ui.design.VoiceBars
 import com.animejapaneselab.nativeapp.data.NotebookEntry
+import com.animejapaneselab.nativeapp.data.AudioKind
+import com.animejapaneselab.nativeapp.data.ShadowingSentence
 import com.animejapaneselab.nativeapp.data.NotebookKind
 import com.animejapaneselab.nativeapp.data.NotebookRules
 import com.animejapaneselab.nativeapp.data.promptAudioForSentence
@@ -246,8 +248,21 @@ fun SubtitlesScreen(
             if (selectedLine != null) {
                 val spoken = remember(selectedLine.jaText) { parseSpokenLine(selectedLine.jaText) }
                 // The voice actor's line when this subtitle is one of the episode's sentences.
-                val sentence = remember(selectedLine.lineNo, uiState.shadowing) {
+                val sentence = remember(selectedLine, uiState.shadowing) {
                     uiState.shadowing.firstOrNull { selectedLine.lineNo > 0 && it.sourceLineNo == selectedLine.lineNo }
+                        ?: selectedLine.takeIf { it.hasSourceAudio }?.let { line ->
+                            ShadowingSentence(
+                                id = "${normalizeWorkSlug(workSlug)}-$episode-L${line.lineNo}",
+                                ja = spoken.text,
+                                reading = "",
+                                meaningZh = line.zhText,
+                                sourceLabel = "",
+                                audioKind = AudioKind.Source,
+                                sourceLineNo = line.lineNo,
+                                audioUrl = line.audioUrl,
+                                storagePath = line.storagePath,
+                            )
+                        }
                 }
                 val entry = remember(selectedLine, sentence, workSlug, episode) {
                     sentence?.toNotebookEntry(workSlug, episode)?.copy(headline = spoken.text)
@@ -440,6 +455,16 @@ private fun SubtitleLineRow(
             if (line.zhText.isNotBlank()) {
                 Text(line.zhText, style = type.caption.copy(fontSize = 13.sp, lineHeight = 19.sp), color = colors.ink3)
             }
+        }
+        if (line.hasSourceAudio) {
+            // 声 — this line has the voice actor's clip.
+            Box(
+                Modifier
+                    .padding(top = 9.dp)
+                    .size(5.dp)
+                    .clip(CircleShape)
+                    .background(AjlTheme.work.accent),
+            )
         }
     }
 }

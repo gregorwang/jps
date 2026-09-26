@@ -117,7 +117,12 @@ data class SubtitleLine(
     val endTime: String,
     val jaText: String,
     val zhText: String = "",
-)
+    /** Source clip of the matching sentence, when the Worker found one for this line. */
+    val audioUrl: String = "",
+    val storagePath: String = "",
+) {
+    val hasSourceAudio: Boolean get() = audioUrl.isNotBlank() || storagePath.isNotBlank()
+}
 
 /**
  * Nerd-lite linguistics addendum attached by the Worker to vocab/grammar/sentence rows
