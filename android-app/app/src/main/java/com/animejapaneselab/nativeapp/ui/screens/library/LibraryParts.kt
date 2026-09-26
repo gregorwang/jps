@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -400,6 +401,7 @@ internal fun LinguisticNote(payload: LinguisticCardPayload?, modifier: Modifier 
 // ---------------------------------------------------------------------------
 
 /** v3 rendering of [SentenceDeepDiveController]; render once per screen. */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DeepDiveSheet(controller: SentenceDeepDiveController) {
     val state = controller.state
@@ -445,7 +447,7 @@ internal fun characterOptionFor(workSlug: String, speaker: String?): CharacterOp
 }
 
 /** v3 rendering of [CharacterProfileController]; render once per screen. */
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 internal fun CharacterSheet(controller: CharacterProfileController) {
     val state = controller.state
@@ -535,7 +537,7 @@ internal fun workTitle(uiState: LabUiState): String {
  * season (Re:ゼロ 一期/二期/三期) as mono number cells, the current one ink-filled.
  * [actions] renders under the grid (library: この話を学ぶ / 読空気 / 登場人物).
  */
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 internal fun EpisodePickerSheet(
     works: List<WorkOption>,

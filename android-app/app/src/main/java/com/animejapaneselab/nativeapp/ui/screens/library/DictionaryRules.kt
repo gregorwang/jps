@@ -185,3 +185,58 @@ internal fun exampleSource(line: ShadowingSentence): String {
     val number = line.sourceLineNo.takeIf { it > 0 }?.let { "L$it" }
     return listOfNotNull(number, speaker).joinToString(" ")
 }
+
+// ---------------------------------------------------------------------------
+// AI 講解 prompts
+// ---------------------------------------------------------------------------
+
+internal fun VocabItem.aiKey(): String = "vocab:$id"
+internal fun GrammarPoint.aiKey(): String = "grammar:$id"
+internal fun ShadowingSentence.aiKey(): String = "sentence:$id"
+
+internal fun VocabItem.aiContext(episodeLabel: String): String = buildString {
+    append("辞書 AI 精讲。章节：").append(episodeLabel)
+    append("\n词：").append(surface)
+    append("\n读音：").append(reading)
+    append("\n罗马音：").append(romanization)
+    append("\n中文：").append(meaningZh)
+    append("\n词性：").append(partOfSpeech)
+    append("\n难度：").append(level)
+    append("\n出现：").append(occurrence)
+    append("\n请解释核心意思、语气、现实可用性、常见误解，并给出一个短记忆点。")
+}
+
+internal fun GrammarPoint.aiContext(episodeLabel: String): String = buildString {
+    append("辞書 AI 精讲。章节：").append(episodeLabel)
+    append("\n语法：").append(pattern)
+    append("\n标题：").append(titleZh)
+    append("\n日文例句：").append(exampleJa)
+    append("\n中文：").append(exampleZh)
+    append("\n说明：").append(explanationZh)
+    append("\n语气：").append(pragmaticsNote)
+    append("\n现实使用：").append(realWorldNote)
+    append("\n请解释这句里的用法、口语语气、相近表达差异，并给出训练提示。")
+}
+
+internal fun ShadowingSentence.aiContext(episodeLabel: String): String = buildString {
+    append("辞書 AI 精讲。章节：").append(episodeLabel)
+    append("\n日文台词：").append(ja)
+    append("\n读音：").append(reading)
+    append("\n中文：").append(meaningZh)
+    append("\n来源：").append(sourceLabel)
+    append("\n请解释字面意思、句子结构、语气、跟读重点和现实可用性。")
+}
+
+/** Short part-of-speech tag for the entry head: 名詞 → 名, 動詞・五段 → 動・五. Blank stays blank. */
+internal fun shortPartOfSpeech(raw: String): String {
+    val trimmed = raw.trim()
+    if (trimmed.isEmpty()) return ""
+    return trimmed
+        .replace("詞", "")
+        .replace("段", "")
+        .replace("动词", "動")
+        .replace("形容动", "形動")
+        .replace("形容", "形")
+        .replace("词", "")
+        .take(6)
+}
