@@ -26,7 +26,7 @@ v3 重写派了 6 个页面包、7 个子代理，合计约 120 万 token。钱�
 - **验证只做编译**：用 `design/v3build.ps1 -Mode compile`，约 1 分钟。发布前才跑一次 `-Mode full`。
 - **大文件只用 grep 定位、分段读。** `ui/LabViewModel.kt` 约 3900 行，绝对不要整读。
 - **小事自己拍板，不要问。** 文案、次要入口留不留、和画布的小偏差都自己定，做完在汇报里一句带过。只有删数据、改后端、偏离设计主线这类事才需要问用户。
-- **用户说"推送更新"，就是跑发布脚本**（第 6 节），用户会在手机设置页点"检查更新"安装。不要让用户自己打包、装 APK。
+- **用户说"推送更新"，就是跑发布脚本**（第 6 节），用户会在手机设置页点"检查更新"安装。不要让用户自己打包、装 APK。**一批改动做完、编译和 `-Mode full` 都过了，默认直接发布**，不用再问要不要推。
 - **额度可能中途用完。** 做完一块能编译的内容就 commit 一次，这样中断了也能从 git 里接着做。
 - **直接在 main 上提交并 push，不开分支、不开 PR、不用 worktree。** 用户一个人开发，分支是多余的。
 
@@ -43,10 +43,14 @@ v3 重写派了 6 个页面包、7 个子代理，合计约 120 万 token。钱�
   - `Buttons`：InkButton、OutlineButton、QuietButton、IconButton44、WordTile
   - `Navigation`：TopBar、BottomTabBar、TextTabs、VolumeSwitch
   - `Gakuen`：Seal、StampMark、StudentCard、TimetableRow、TextbookCover、AttendanceCard
-  - `Anime`：DialogueBox、SpeechBubble、Avatar、OptionRow、FeedbackSheet
+  - `Anime`：DialogueBox、SpeechBubble、Avatar、OptionRow、FeedbackSheet、PortraitPanel（`speaking` 时头像点头）
+  - `Voice`：VoiceBars（声波条）、`Modifier.speechLines`（漫画效果线）、`rememberVoicePhase`；「正在说话」类动效都从这里取
   - `Text`：VerticalText、EmphasisText
   - `WorkIdentity`：`workSlug` 到作品色、角色和头像的映射
 - `ui/theme/Theme.kt`：`AjlTheme.colors`、`.type`、`.shape`、`WorkTheme`（按作品切换颜色）。`ui/motion/MotionTokens.kt`：Ease、Dur 等动效令牌。
+- `ui/study/StudyLog.kt`：全局学习日志（每天答题数、正确数、时长），喂给 Today 的「最近 12 週」格点（`screens/today/StudyHeatmap.kt`）。**新增任何答题型 session，判定对错的地方都要调 `StudyLog.record(...)`**，否则格点和时长不计。
+- `platform/LearningSessionNotifier.kt`：学习中的常驻通知（Android 16 ProgressStyle 分段、作品色、角色头像、计时）；内容来自 `ui/LearningSessionStatus.kt`。
+- 登录：`LocalLabStore.readCachedUser()` 有值就直接进 App，`refreshAuthState()` 在后台校验，遇到 401 才退回登录页。不要改回「先等网络再放行」。
 - `update/`：App 自更新，包括下载、校验、交给系统安装器。
 - 调试时 `src/debug` 里有 `DesignGalleryActivity`（组件画廊）。
 
@@ -56,6 +60,8 @@ v3 重写派了 6 个页面包、7 个子代理，合计约 120 万 token。钱�
 - 颜色只用 `AjlTheme.colors` 的令牌，不写硬编码色，浅色和深色都要能用。作品色（K-ON 桜、Re:ゼロ 菫、默认 藍）只用在播出线、进度线、当前项、印章、网点、名牌上。
 - 形状：剧情和内容用 **1.5px 墨线、4px 圆角**（漫画框）；工具和设置用 **1px 细线、12px 圆角**。不用阴影，只有字块和当前教科書允许 2–3px 墨色实投影。
 - **每屏最多一个墨色主按钮（InkButton）**。不写问候语，不写解释性小字。
+- **顶部作品色「播出线」（BroadcastLine）已按用户要求去掉**，别再加回主页面。
+- **重做界面前，先对照旧版画布（v2 的 `Today`、`TodayDark` 等画板）列出用户喜欢的元素**，不能默默删掉。v3 重写就丢了「最近 12 周」格点和学习时长，用户专门要回来。
 - 字体：日语原文用 `FontFamily.Serif`，界面文字用系统黑体，元数据（集数、计数、时间码）用 IBM Plex Mono。
 - XP 和连胜只从界面上去掉了，`learningXp` / `learningStreakDays` 的计算还在，不要删。
 - 已移除、不要再引回来：DuolingoSans、Rive、Lottie、hla 触觉、吉祥物、路径节点。音效只在判定对错时响，用的是 Kenney CC0 音效。
@@ -97,3 +103,18 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 - **删除 worktree 之前，先用 `cmd /c rmdir` 拆掉里面的目录链接。** 否则递归删除会顺着链接，把主仓库的素材也删掉。Windows 路径过长删不掉时，用 `Remove-Item -LiteralPath "\\?\<完整路径>" -Recurse -Force`。
 - 素材许可证记录写在仓库根目录的 `docs/assets-license.md`。改动素材打包方式时，要同步更新这里。
 - 登录是必须的，不做手写功能，Web 前端不是规范；默认只改 `android-app/` 下的文件。
+
+## 8. 经验记录（每次会话结束补几条）
+
+**2026-09-26 · 0.5.1（按用户手机截图的红字批注逐条修）**
+- 用户的反馈方式是：手机截图，用红字标出问题，放进 `android-app/photo/`（不提交）。按「读完全部截图 → 每张图对应一处改动 → 汇报里逐条对上」的流程处理。
+- **题目构造的通病：先打乱再截断会把正确答案截掉，`.distinct()` 会吞掉重复的正确词块**（例如「やばい…これは本気でやばい」里有两个「やばい」）。在 `SampleLearningRepository` 里构造选项或词块时：正确项一个不少、重复的也保留，干扰项只用来补足空位。新题型也照这个规矩写。
+- 「点了 A 还要再点 B 才能开始」这种两步操作，用户会认为交互不合理：点入口就应该直接开始。
+- 动效要让人看出「有东西在发生」：用户对静态的播放按钮不满意。播放、录音、加载这类状态都要有可见的动效，同时照顾 reduced motion。
+- 工具坑：
+  - PowerShell 5.1 的 `Set-Content -Encoding UTF8` 会给文件加 BOM（`build.gradle.kts` 首行被污染）。改版本号用 Edit 工具或 `sed`。
+  - Bash 里用 heredoc 塞「Python 脚本 + 含引号和正则的 Kotlin」容易引号失配而报错；长替换脚本先写进 scratchpad 的 `.py` 文件再运行。
+- 待办（本次没做）：
+  - 辞書词条补动词活用形（未然形、連用形等），需要补数据。
+  - 服务端会话固定 30 天、不续期；要改成滑动续期得动后端（`src/worker.ts` 里的 `sessionMaxAgeSeconds`），先问用户。
+

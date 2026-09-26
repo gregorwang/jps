@@ -26,3 +26,6 @@ app/src/main/res/drawable/path_bea_*.xml
 app/src/main/res/drawable/common_level_chest_locked_v2.xml
 app/src/main/res/drawable/in_challenge_junior.xml
 app/src/main/res/drawable/guidebook_white.xml
+
+# 用户的截图批注，只本地看
+photo/
