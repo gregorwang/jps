@@ -28,7 +28,7 @@ import com.animejapaneselab.nativeapp.ui.fusion.AnimeLabFusionAssetResolver
 import com.animejapaneselab.nativeapp.ui.fusion.FusionMotionHost
 import com.animejapaneselab.nativeapp.ui.fusion.FusionVisualKey
 import com.animejapaneselab.nativeapp.ui.theme.AnimeJapaneseLabTheme
-import com.animejapaneselab.nativeapp.ui.screens.LessonScreen
+import com.animejapaneselab.nativeapp.ui.screens.session.LessonSessionScreen
 
 /** Debug-only Asset Lab entry. It is absent from the release manifest and dependency graph. */
 class FusionPreviewActivity : ComponentActivity() {
@@ -42,7 +42,7 @@ class FusionPreviewActivity : ComponentActivity() {
         setContent {
             AnimeJapaneseLabTheme(darkTheme = false) {
                 if (preview == "pronunciation") {
-                    LessonScreen(
+                    LessonSessionScreen(
                         uiState = PronunciationPreviewState,
                         onExit = ::finish,
                         onSubmitAnswer = {},

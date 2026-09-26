@@ -2,7 +2,6 @@ package com.animejapaneselab.nativeapp.ui
 
 import com.animejapaneselab.nativeapp.data.LinguisticExercise
 import com.animejapaneselab.nativeapp.data.LinguisticExerciseAnswer
-import com.animejapaneselab.nativeapp.ui.screens.linguisticPromptForDisplay
 import com.animejapaneselab.nativeapp.data.AiCoachState
 import com.animejapaneselab.nativeapp.data.ProgressItem
 import com.animejapaneselab.nativeapp.data.ReviewState
@@ -83,24 +82,6 @@ class ReadAirTrainingStateTest {
         assertEquals(listOf(cognitive.id), state.scopedExercises.map { it.id })
         assertEquals(listOf(ReadAirAllFilter, ReadAirCognitiveTopic), state.topicOptions)
         assertEquals("pragmatics", state.scopedExercises.single().domain)
-    }
-
-    @Test
-    fun linguisticPromptForDisplayRemovesInternalCueAndTimestampPrefix() {
-        assertEquals(
-            "「無知蒙昧にして天下不滅の無一文」里的「にして」为什么会显得夸张、有修辞感？",
-            linguisticPromptForDisplay(
-                "【cue 277 / 00:14:09,098-00:14:11,809】「無知蒙昧にして天下不滅の無一文」里的「にして」为什么会显得夸张、有修辞感？",
-            ),
-        )
-    }
-
-    @Test
-    fun linguisticPromptForDisplayRemovesParenthesizedSourceMetadata() {
-        assertEquals(
-            "为什么这里使用省略？",
-            linguisticPromptForDisplay("(【cue 25/00:01:02,000-00:01:04,000】Re:Zero · EP01 · 第25句) 为什么这里使用省略？"),
-        )
     }
 
     @Test

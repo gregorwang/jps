@@ -314,14 +314,14 @@ private fun ReadAirSetEnd(
         domain = filters.domain,
     )
     var restarting by remember { mutableStateOf(false) }
-    ReadAirTsuzuku(
+    TsuzukuScreen(
         eyebrow = "读空气 · $scope",
         tally = ReadAirRules.tally(answered, correct),
         meta = ReadAirRules.accuracy(answered, correct),
         noted = missed.take(6).map { item ->
             val line = ReadAirRules.sceneLines(item).firstOrNull { it.isTarget }?.ja ?: item.jaText
             val text = line.ifBlank { ReadAirRules.promptForDisplay(item.prompt) }
-            ReadAirNotedLine(text, ReadAirRules.looksJapanese(text), "错题本")
+            TsuzukuLine(text, ReadAirRules.looksJapanese(text), "错题本")
         },
         primaryLabel = "再来一组",
         onPrimary = {

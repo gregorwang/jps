@@ -406,13 +406,13 @@ private fun FoundationSetEnd(
         state.filters.stage?.let(FoundationRules::stageLabel),
     ).joinToString(" · ")
     var moving by remember { mutableStateOf(false) }
-    ReadAirTsuzuku(
+    TsuzukuScreen(
         eyebrow = listOf("基礎", scope).filter { it.isNotBlank() }.joinToString(" · "),
         tally = ReadAirRules.tally(answered, correct),
         meta = ReadAirRules.accuracy(answered, correct),
         noted = missed.take(6).map { q ->
             val text = FoundationRules.summaryText(q)
-            ReadAirNotedLine(text, ReadAirRules.looksJapanese(text), q.stage.name)
+            TsuzukuLine(text, ReadAirRules.looksJapanese(text), q.stage.name)
         },
         notedTitle = "这次答错的 ${missed.size.coerceAtMost(6)} 题",
         primaryLabel = "重新练习",
