@@ -13,6 +13,7 @@ Anime Japanese Lab 的原生 Android App（Kotlin + Jetpack Compose）。**私�
 | 动效 | `design/MOTION_SPEC.md` |
 | 已知缺数据、还能补的字段 | `design/v3-requests/*.md` |
 | 发布更新 | 本文第 6 节；细节看 `APP_UPDATE_GUIDE.md` |
+| 活用道場（第三巻 活用）继续做 P3 | `CONJUGATION_DRILL_HANDOFF.md` |
 
 设计画布：https://claude.ai/artifact/9x3RkMeAtAYTN64i8T8HN4 （用 Artifact 工具的 `read` 读取，只看 `V3*`、`X*` 开头的画板）。**只在要实现画布上某一屏时才读，且只读那一屏**：`path=project/<画板>.dc.html`。
 
