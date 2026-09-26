@@ -54,6 +54,18 @@ import com.animejapaneselab.nativeapp.ui.design.Avatar
 import com.animejapaneselab.nativeapp.ui.design.EmptyNote
 import com.animejapaneselab.nativeapp.ui.design.Hairline
 import com.animejapaneselab.nativeapp.ui.design.IconButton44
+import com.animejapaneselab.nativeapp.ui.design.VoiceBars
+import com.animejapaneselab.nativeapp.data.NotebookEntry
+import com.animejapaneselab.nativeapp.data.NotebookKind
+import com.animejapaneselab.nativeapp.data.NotebookRules
+import com.animejapaneselab.nativeapp.data.promptAudioForSentence
+import com.animejapaneselab.nativeapp.data.toNotebookEntry
+import com.animejapaneselab.nativeapp.ui.notebook.Notebook
+import com.animejapaneselab.nativeapp.ui.notebook.rememberNotebookEntries
+import com.animejapaneselab.nativeapp.ui.theme.normalizeWorkSlug
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material.icons.rounded.Bookmark
+import androidx.compose.material.icons.rounded.BookmarkBorder
 import com.animejapaneselab.nativeapp.ui.design.LoadingDots
 import com.animejapaneselab.nativeapp.ui.design.OutlineButton
 import com.animejapaneselab.nativeapp.ui.design.TextRules
@@ -94,6 +106,8 @@ fun SubtitlesScreen(
 
     val audio = rememberLessonAudioController()
     val deepDive = rememberSentenceDeepDive(uiState.settings)
+    val notebook = rememberNotebookEntries()
+    val context = LocalContext.current
     val characterProfile = rememberCharacterProfile(uiState.settings, workSlug)
     val annotator = rememberFuriganaAnnotator(uiState.settings)
     val reduced = rememberReducedMotion()
@@ -231,11 +245,41 @@ fun SubtitlesScreen(
             }
             if (selectedLine != null) {
                 val spoken = remember(selectedLine.jaText) { parseSpokenLine(selectedLine.jaText) }
+                // The voice actor's line when this subtitle is one of the episode's sentences.
+                val sentence = remember(selectedLine.lineNo, uiState.shadowing) {
+                    uiState.shadowing.firstOrNull { selectedLine.lineNo > 0 && it.sourceLineNo == selectedLine.lineNo }
+                }
+                val entry = remember(selectedLine, sentence, workSlug, episode) {
+                    sentence?.toNotebookEntry(workSlug, episode)?.copy(headline = spoken.text)
+                        ?: NotebookEntry(
+                            key = NotebookRules.key(NotebookKind.Line, "${normalizeWorkSlug(workSlug)}-$episode-${selectedLine.lineNo}"),
+                            kind = NotebookKind.Line,
+                            headline = spoken.text,
+                            meaning = selectedLine.zhText,
+                            workSlug = workSlug,
+                            episode = episode,
+                            lineNo = selectedLine.lineNo,
+                        )
+                }
+                val saved = notebook.any { it.key == entry.key }
                 PlayerDock(
                     text = spoken.text,
-                    meta = listOfNotNull(clockLabel(selectedLine.startTime).takeIf { it.isNotBlank() }, spoken.speaker).joinToString(" · "),
+                    meta = listOfNotNull(
+                        clockLabel(selectedLine.startTime).takeIf { it.isNotBlank() },
+                        spoken.speaker,
+                        "原声".takeIf { sentence?.hasSourceAudio == true },
+                    ).joinToString(" · "),
                     loading = audio.playbackState.phase == AudioPlaybackPhase.Loading,
-                    onPlay = { audio.speakText(spoken.text, uiState.settings.ttsWorkerUrl) },
+                    playing = audio.playbackState.phase == AudioPlaybackPhase.Playing,
+                    saved = saved,
+                    onToggleSaved = { Notebook.toggle(context, entry) },
+                    onPlay = {
+                        if (sentence != null) {
+                            audio.play(promptAudioForSentence(workSlug, sentence, autoPlay = false), uiState.settings.ttsWorkerUrl)
+                        } else {
+                            audio.speakText(spoken.text, uiState.settings.ttsWorkerUrl)
+                        }
+                    },
                     onDeepDive = {
                         deepDive.request(
                             DeepDiveTarget(
@@ -409,6 +453,9 @@ private fun PlayerDock(
     onPlay: () -> Unit,
     onDeepDive: () -> Unit,
     modifier: Modifier = Modifier,
+    playing: Boolean = false,
+    saved: Boolean = false,
+    onToggleSaved: () -> Unit = {},
 ) {
     val colors = AjlTheme.colors
     val shape = RoundedCornerShape(12.dp)
@@ -433,6 +480,8 @@ private fun PlayerDock(
         ) {
             if (loading) {
                 LoadingDots(delayMillis = 0, color = colors.onInk, dotSize = 4.dp)
+            } else if (playing) {
+                VoiceBars(active = true, color = colors.onInk)
             } else {
                 Icon(Icons.Rounded.PlayArrow, null, tint = colors.onInk, modifier = Modifier.size(18.dp))
             }
@@ -447,6 +496,12 @@ private fun PlayerDock(
             )
             if (meta.isNotBlank()) Text(meta, style = AjlTheme.type.metaSmall, color = colors.ink3, maxLines = 1)
         }
+        IconButton44(
+            icon = if (saved) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder,
+            contentDescription = if (saved) "取下栞" else "夹进栞",
+            onClick = onToggleSaved,
+            tint = if (saved) AjlTheme.work.accent else colors.ink3,
+        )
         OutlineButton("精読", onDeepDive, compact = true)
     }
 }
