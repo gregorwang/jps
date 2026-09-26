@@ -4,60 +4,107 @@ import android.content.Context
 import android.provider.Settings
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 
+/**
+ * v3 motion tokens — design/MOTION_SPEC.md §1. Everyday motion is 90–240ms with no bounce;
+ * only the eight anime moments (§3) perform. Reduced motion (animator scale 0) snaps to the
+ * final state while haptics and sound still fire.
+ */
 object MotionTokens {
-    object Duration {
-        const val TapDown = 70
-        const val TapUp = 140
-        const val Micro = 160
-        const val CardEnter = 240
-        const val PageTransition = 280
-        const val AnswerFeedback = 420
-        const val AnswerWrongShake = 360
-        const val NodeUnlock = 700
-        const val XpCount = 900
-        const val LessonComplete = 1600
-    }
-
-    object Scale {
-        const val ButtonPressed = 0.97f
-        const val OptionPressed = 0.98f
-        const val PopOvershoot = 1.12f
-        const val NodeActive = 1.04f
-    }
-
-    object Curve {
+    object Ease {
+        /** Most state changes. */
         val Standard: Easing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
+        /** Entrances, sheets sliding in. */
         val Decelerate: Easing = CubicBezierEasing(0f, 0f, 0f, 1f)
-        val Shake: Easing = CubicBezierEasing(0.36f, 0f, 0.66f, -0.56f)
+        /** Exits. */
+        val Accelerate: Easing = CubicBezierEasing(0.3f, 0f, 1f, 1f)
     }
 
-    fun duration(baseMillis: Int, reducedMotion: Boolean): Int {
-        return if (reducedMotion) 1 else baseMillis
+    object Dur {
+        const val Press = 90
+        const val Release = 180
+        const val State = 180
+        const val Sheet = 240
+        const val Scrim = 200
+        const val Page = 260
+        const val Stamp = 220
+        const val Progress = 300
+        const val PaletteOpen = 160
+        const val PaletteClose = 120
+        const val TypeChar = 35
+        const val TypeCommaPause = 120
+        const val TypePeriodPause = 200
+        const val TileFly = 240
+        const val TileReturn = 180
+        const val CardFlip = 320
+        const val CardRise = 200
+        const val LoadingDotStep = 300
+        const val LoadingDelay = 2_000
     }
 
-    fun microSpec(reducedMotion: Boolean) = tween<Float>(
-        durationMillis = duration(Duration.Micro, reducedMotion),
-        easing = Curve.Standard,
-    )
+    /** Critically damped settle after a drag release — never overshoots. */
+    fun <T> settle(): FiniteAnimationSpec<T> = spring(dampingRatio = 1f, stiffness = 600f)
 
-    fun softSpring(reducedMotion: Boolean) = if (reducedMotion) {
-        tween<Float>(durationMillis = 1)
-    } else {
-        spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)
+    fun <T> standard(durationMillis: Int, reducedMotion: Boolean = false): FiniteAnimationSpec<T> =
+        if (reducedMotion) snap() else tween(durationMillis, easing = Ease.Standard)
+
+    fun <T> decelerate(durationMillis: Int, reducedMotion: Boolean = false): FiniteAnimationSpec<T> =
+        if (reducedMotion) snap() else tween(durationMillis, easing = Ease.Decelerate)
+
+    fun <T> accelerate(durationMillis: Int, reducedMotion: Boolean = false): FiniteAnimationSpec<T> =
+        if (reducedMotion) snap() else tween(durationMillis, easing = Ease.Accelerate)
+
+    /** Duration collapsed to 0 under reduced motion. */
+    fun duration(baseMillis: Int, reducedMotion: Boolean): Int = if (reducedMotion) 0 else baseMillis
+
+    // ---- v2 compatibility — removed in stage 3 -------------------------------------------
+
+    @Deprecated("v2 token; use Dur")
+    object Duration {
+        const val TapDown = Dur.Press
+        const val TapUp = Dur.Release
+        const val Micro = Dur.State
+        const val CardEnter = Dur.Sheet
+        const val PageTransition = Dur.Page
+        const val AnswerFeedback = Dur.Sheet
+        const val AnswerWrongShake = 220
+        const val NodeUnlock = Dur.Sheet
+        const val XpCount = Dur.Sheet
+        const val LessonComplete = Dur.Page
     }
 
-    fun popSpring(reducedMotion: Boolean) = if (reducedMotion) {
-        tween<Float>(durationMillis = 1)
-    } else {
-        spring(dampingRatio = 0.58f, stiffness = Spring.StiffnessMedium)
+    @Deprecated("v2 token; press scale is fixed at 0.98")
+    object Scale {
+        const val ButtonPressed = 0.98f
+        const val OptionPressed = 0.98f
+        const val PopOvershoot = 1f
+        const val NodeActive = 1f
     }
+
+    @Deprecated("v2 token; use Ease")
+    object Curve {
+        val Standard: Easing = Ease.Standard
+        val Decelerate: Easing = Ease.Decelerate
+        val Shake: Easing = Ease.Standard
+    }
+
+    @Deprecated("v2 helper; use standard(Dur.State, reducedMotion)")
+    fun microSpec(reducedMotion: Boolean): FiniteAnimationSpec<Float> = standard(Dur.State, reducedMotion)
+
+    @Deprecated("v2 helper; use settle()")
+    fun softSpring(reducedMotion: Boolean): FiniteAnimationSpec<Float> =
+        if (reducedMotion) snap() else spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = 600f)
+
+    @Deprecated("v2 bounce is gone; use settle()")
+    fun popSpring(reducedMotion: Boolean): FiniteAnimationSpec<Float> = softSpring(reducedMotion)
 }
 
 @Composable

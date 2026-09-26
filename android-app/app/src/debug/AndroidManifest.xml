@@ -5,6 +5,10 @@
             android:name=".debug.FusionPreviewActivity"
             android:exported="true"
             android:theme="@style/Theme.AnimeJapaneseLab" />
+        <activity
+            android:name=".debug.DesignGalleryActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AnimeJapaneseLab" />
     </application>
 </manifest>
 

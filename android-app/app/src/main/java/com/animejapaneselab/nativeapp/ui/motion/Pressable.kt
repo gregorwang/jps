@@ -1,32 +1,34 @@
 package com.animejapaneselab.nativeapp.ui.motion
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import com.animejapaneselab.nativeapp.ui.feedback.FeedbackEvent
-import com.animejapaneselab.nativeapp.ui.feedback.LocalFeedbackEngine
+import com.animejapaneselab.nativeapp.ui.design.LoadingDots
+import com.animejapaneselab.nativeapp.ui.design.pressScale
+import com.animejapaneselab.nativeapp.ui.theme.AjlShape
+import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 
+/**
+ * Legacy primary button kept for v2 screens during the rewrite; it now renders the v3 ink
+ * button (scale 0.98 press, no bounce, no haptic). New code uses `ui.design.InkButton`.
+ */
 @Composable
 fun PressablePrimaryButton(
     text: String,
@@ -34,8 +36,8 @@ fun PressablePrimaryButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     loading: Boolean = false,
-    containerColor: Color = MaterialTheme.colorScheme.primary,
-    contentColor: Color = MaterialTheme.colorScheme.onPrimary,
+    containerColor: Color = AjlTheme.colors.ink,
+    contentColor: Color = AjlTheme.colors.onInk,
 ) {
     PressablePrimaryButton(
         onClick = onClick,
@@ -45,7 +47,7 @@ fun PressablePrimaryButton(
         containerColor = containerColor,
         contentColor = contentColor,
     ) {
-        Text(text = text, fontWeight = FontWeight.Black)
+        Text(text = text, style = AjlTheme.type.label)
     }
 }
 
@@ -55,64 +57,28 @@ fun PressablePrimaryButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     loading: Boolean = false,
-    containerColor: Color = MaterialTheme.colorScheme.primary,
-    contentColor: Color = MaterialTheme.colorScheme.onPrimary,
+    containerColor: Color = AjlTheme.colors.ink,
+    contentColor: Color = AjlTheme.colors.onInk,
     contentPadding: PaddingValues = PaddingValues(horizontal = 18.dp, vertical = 12.dp),
     content: @Composable RowScope.() -> Unit,
 ) {
-    val feedback = LocalFeedbackEngine.current
-    val reducedMotion = rememberReducedMotion()
-    val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
+    val interaction = remember { MutableInteractionSource() }
     val active = enabled && !loading
-    val scale by animateFloatAsState(
-        targetValue = if (pressed && active && !reducedMotion) 0.992f else 1f,
-        animationSpec = if (pressed) {
-            MotionTokens.microSpec(reducedMotion)
-        } else {
-            MotionTokens.popSpring(reducedMotion)
-        },
-        label = "pressable-primary-scale",
-    )
-    val disabledContainer = MaterialTheme.colorScheme.surfaceVariant
-    val disabledContent = MaterialTheme.colorScheme.onSurfaceVariant
-    val activeContainer = if (active) containerColor else disabledContainer
-    val activeContent = if (active) contentColor else disabledContent
-    Surface(
-        onClick = {
-            feedback?.emit(FeedbackEvent.TapPrimary)
-            onClick()
-        },
-        enabled = active,
-        interactionSource = interactionSource,
+    val fill = if (enabled) containerColor else AjlTheme.colors.line2
+    val fg = if (enabled) contentColor else AjlTheme.colors.ink3
+    Row(
         modifier = modifier
             .heightIn(min = 52.dp)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            },
-        shape = MaterialTheme.shapes.large,
-        color = activeContainer,
-        contentColor = activeContent,
-        shadowElevation = 0.dp,
+            .pressScale(interaction, active)
+            .clip(AjlShape.Button)
+            .background(fill)
+            .clickable(interaction, indication = null, enabled = active, role = Role.Button, onClick = onClick)
+            .padding(contentPadding),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(contentPadding),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (loading) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .padding(end = 10.dp)
-                        .size(18.dp),
-                    color = activeContent,
-                    strokeWidth = 2.dp,
-                )
-            }
-            content()
+        CompositionLocalProvider(LocalContentColor provides fg) {
+            if (loading) LoadingDots(delayMillis = 0, color = fg) else content()
         }
     }
 }
