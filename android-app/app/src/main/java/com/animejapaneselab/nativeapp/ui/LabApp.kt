@@ -266,6 +266,7 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
                             uiState = uiState,
                             onDismiss = closePalette,
                             onOpenSubtitleLine = viewModel::openSubtitlesAt,
+                            onOpenLibrary = { viewModel.selectTab(LabTab.Library) },
                         )
                     }
                 }

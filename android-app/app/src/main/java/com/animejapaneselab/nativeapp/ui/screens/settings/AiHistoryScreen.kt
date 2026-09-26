@@ -262,6 +262,7 @@ private fun HistoryRow(entry: AiHistoryEntry, onClick: () -> Unit) {
     }
 }
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 private fun HistoryDetailSheet(
     entry: AiHistoryEntry,

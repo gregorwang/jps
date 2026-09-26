@@ -77,6 +77,8 @@ import com.animejapaneselab.nativeapp.data.LocalLabStore
 import com.animejapaneselab.nativeapp.data.RagSearchResult
 import com.animejapaneselab.nativeapp.data.RemoteLabClient
 import com.animejapaneselab.nativeapp.ui.LabUiState
+import com.animejapaneselab.nativeapp.data.GrammarPoint
+import com.animejapaneselab.nativeapp.data.VocabItem
 import com.animejapaneselab.nativeapp.ui.design.FilterPill
 import com.animejapaneselab.nativeapp.ui.design.Hairline
 import com.animejapaneselab.nativeapp.ui.design.IconButton44
@@ -120,6 +122,7 @@ fun CommandPalette(
     uiState: LabUiState,
     onDismiss: () -> Unit,
     onOpenSubtitleLine: (workSlug: String, episode: Int, lineNo: Int) -> Unit,
+    onOpenLibrary: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val reduced = rememberReducedMotion()
@@ -166,7 +169,7 @@ fun CommandPalette(
                 .windowInsetsPadding(WindowInsets.safeDrawing)
                 .padding(start = 10.dp, end = 10.dp, top = 8.dp, bottom = 16.dp),
         ) {
-            PalettePanel(uiState = uiState, onOpenSubtitleLine = onOpenSubtitleLine)
+            PalettePanel(uiState = uiState, onOpenSubtitleLine = onOpenSubtitleLine, onOpenLibrary = onOpenLibrary)
         }
     }
 }
@@ -175,6 +178,7 @@ fun CommandPalette(
 private fun PalettePanel(
     uiState: LabUiState,
     onOpenSubtitleLine: (workSlug: String, episode: Int, lineNo: Int) -> Unit,
+    onOpenLibrary: () -> Unit,
 ) {
     val colors = AjlTheme.colors
     val context = LocalContext.current.applicationContext
@@ -213,6 +217,11 @@ private fun PalettePanel(
                 SearchState.Failed(error.message.orEmpty().ifBlank { "搜索失败" })
             },
         )
+    }
+
+    // 词汇 / 语法 of the current episode match while typing; subtitles wait for the IME search.
+    val localHits = remember(query, uiState.vocab, uiState.grammar) {
+        localEntryHits(query, uiState.vocab, uiState.grammar)
     }
 
     val submit: (String) -> Unit = submit@{ raw ->
@@ -303,6 +312,12 @@ private fun PalettePanel(
             modifier = Modifier.weight(1f, fill = false),
             contentPadding = PaddingValues(start = 6.dp, end = 6.dp, bottom = 8.dp),
         ) {
+            if (localHits.isNotEmpty()) {
+                sectionLabel("entries", "词汇")
+                items(localHits, key = { "entry-${it.key}" }) { hit ->
+                    EntryHitRow(hit = hit, query = query.trim(), onClick = onOpenLibrary)
+                }
+            }
             when (val s = state) {
                 SearchState.Idle -> suggestionSection("试试", onPick = submit)
                 SearchState.Loading -> item(key = "loading") { Box(Modifier.fillMaxWidth().height(64.dp)) }
@@ -446,6 +461,70 @@ private fun LineHit(ja: String, zh: String, meta: String, query: String, onClick
             }
         }
         Text(meta, style = AjlTheme.type.meta, color = colors.ink3, maxLines = 1)
+    }
+}
+
+internal data class EntryHit(val key: String, val head: String, val gloss: String, val meta: String)
+
+/** Literal matches in the loaded 词汇 / 语法 (surface, reading, pattern or Chinese gloss). */
+internal fun localEntryHits(
+    query: String,
+    vocab: List<VocabItem>,
+    grammar: List<GrammarPoint>,
+    limit: Int = 4,
+): List<EntryHit> {
+    val q = query.trim()
+    if (q.isEmpty()) return emptyList()
+    val words = vocab.asSequence()
+        .filter { it.surface.contains(q) || it.reading.contains(q) || it.meaningZh.contains(q) }
+        .map { v ->
+            EntryHit(
+                key = "v-${v.id}",
+                head = v.surface,
+                gloss = v.meaningZh,
+                meta = listOf(v.partOfSpeech, v.level).filter { it.isNotBlank() }.joinToString(" · "),
+            )
+        }
+    val patterns = grammar.asSequence()
+        .filter { it.pattern.contains(q) || it.titleZh.contains(q) }
+        .map { g ->
+            EntryHit(
+                key = "g-${g.id}",
+                head = g.pattern,
+                gloss = g.titleZh,
+                meta = listOf("文法", g.difficulty).filter { it.isNotBlank() }.joinToString(" · "),
+            )
+        }
+    return (words + patterns).take(limit).toList()
+}
+
+@Composable
+private fun EntryHitRow(hit: EntryHit, query: String, onClick: () -> Unit) {
+    val colors = AjlTheme.colors
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val accent = AjlTheme.work.accent
+    val head = remember(hit.head, query, accent) { highlight(hit.head, query, SpanStyle(color = accent, fontWeight = FontWeight.SemiBold)) }
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .background(if (pressed) colors.sunken else colors.surface, RoundedCornerShape(8.dp))
+            .clickable(interaction, indication = null, role = Role.Button, onClickLabel = "在辞書里查看", onClick = onClick)
+            .padding(horizontal = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Text(head, style = AjlTheme.type.jpBody.copy(fontSize = 17.sp, lineHeight = 24.sp), color = colors.ink, maxLines = 1)
+        Text(
+            hit.gloss,
+            style = AjlTheme.type.body.copy(fontSize = 14.sp),
+            color = colors.ink2,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
+        )
+        if (hit.meta.isNotBlank()) Text(hit.meta, style = AjlTheme.type.meta, color = colors.ink3, maxLines = 1)
     }
 }
 

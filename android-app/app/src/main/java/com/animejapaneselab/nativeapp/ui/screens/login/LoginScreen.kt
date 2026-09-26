@@ -212,6 +212,7 @@ fun LoginScreen(
 
 /** 接続設定: server addresses and a manual auth re-check (everything the v2 gate offered). */
 @Composable
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 private fun ConnectionSheet(
     settings: LabSettings,
     refreshing: Boolean,

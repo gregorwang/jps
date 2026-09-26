@@ -6,26 +6,28 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.SystemUpdate
-import androidx.compose.material.icons.rounded.VerifiedUser
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.animejapaneselab.nativeapp.R
-import com.animejapaneselab.nativeapp.ui.components.LabCard
-import com.animejapaneselab.nativeapp.ui.components.PrimaryButton
+import com.animejapaneselab.nativeapp.ui.design.Hairline
+import com.animejapaneselab.nativeapp.ui.design.LoadingDots
+import com.animejapaneselab.nativeapp.ui.design.OutlineButton
+import com.animejapaneselab.nativeapp.ui.design.ProgressLine
+import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 
+/**
+ * 設定 ·「更新」group body: 1px hairline rows like the rest of V3Settings. The action is an
+ * outline button — the settings screen has no ink primary.
+ */
 @Composable
 internal fun AppUpdateSettingsSection(
     state: AppUpdateUiState,
@@ -33,107 +35,79 @@ internal fun AppUpdateSettingsSection(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val colors = AjlTheme.colors
     val release = state.release
     val busy = state.phase == AppUpdatePhase.Checking ||
         state.phase == AppUpdatePhase.Downloading ||
         state.phase == AppUpdatePhase.PreparingInstall
+    val newer = release != null && isNewerRelease(state.currentVersionCode, release)
 
-    LabCard(modifier = modifier.fillMaxWidth()) {
+    Column(modifier.fillMaxWidth()) {
         Row(
+            Modifier.fillMaxWidth().heightIn(min = 48.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("版本", style = AjlTheme.type.body, color = colors.ink, modifier = Modifier.weight(1f))
+            Text(
+                "${state.currentVersionName} · ${state.currentVersionCode}",
+                style = AjlTheme.type.meta.copy(fontSize = 12.sp),
+                color = colors.ink2,
+                maxLines = 1,
+            )
+        }
+        Hairline()
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth(),
         ) {
-            Surface(
-                color = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                shape = MaterialTheme.shapes.large,
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.SystemUpdate,
-                    contentDescription = null,
-                    modifier = Modifier.size(48.dp),
-                )
-            }
-            Column(
+            Text(
+                updateStatusText(state),
+                style = AjlTheme.type.body,
+                color = if (state.phase == AppUpdatePhase.Error) colors.bad else colors.ink2,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
-            ) {
-                Text(
-                    text = stringResource(R.string.app_update_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Black,
-                )
-                Text(
-                    text = stringResource(
-                        R.string.app_update_current_version,
-                        state.currentVersionName,
-                        state.currentVersionCode,
-                    ),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
+            )
+            if (state.phase == AppUpdatePhase.Checking || state.phase == AppUpdatePhase.PreparingInstall) {
+                LoadingDots(delayMillis = 0)
             }
         }
-
-        Text(
-            text = updateStatusText(state),
-            color = if (state.phase == AppUpdatePhase.Error) {
-                MaterialTheme.colorScheme.error
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            },
-            style = MaterialTheme.typography.bodyMedium,
-        )
-
         if (state.phase == AppUpdatePhase.Downloading) {
-            LinearProgressIndicator(
-                progress = { (state.progressPercent ?: 0).coerceIn(0, 100) / 100f },
-                modifier = Modifier.fillMaxWidth(),
+            ProgressLine(
+                progress = (state.progressPercent ?: 0).coerceIn(0, 100) / 100f,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                contentDescription = updateStatusText(state),
             )
         }
-
-        if (release != null && isNewerRelease(state.currentVersionCode, release)) {
-            Text(
-                text = stringResource(
-                    R.string.app_update_release_summary,
-                    release.versionName,
-                    Formatter.formatShortFileSize(context, release.sizeBytes),
-                ),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-            )
-            if (release.releaseNotes.isNotBlank()) {
+        if (newer && release != null) {
+            Hairline()
+            Column(Modifier.fillMaxWidth().padding(vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
-                    text = release.releaseNotes,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium,
+                    stringResource(
+                        R.string.app_update_release_summary,
+                        release.versionName,
+                        Formatter.formatShortFileSize(context, release.sizeBytes),
+                    ),
+                    style = AjlTheme.type.meta.copy(fontSize = 12.sp),
+                    color = colors.ink,
                 )
+                if (release.releaseNotes.isNotBlank()) {
+                    Text(
+                        release.releaseNotes,
+                        style = AjlTheme.type.caption.copy(lineHeight = 20.sp),
+                        color = colors.ink2,
+                        maxLines = 8,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         }
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.VerifiedUser,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(20.dp),
-            )
-            Text(
-                text = stringResource(R.string.app_update_security_note),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-
-        PrimaryButton(
+        OutlineButton(
             text = updateButtonText(state),
             onClick = onPrimaryAction,
             enabled = !busy,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         )
     }
 }
