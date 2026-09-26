@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.animejapaneselab.nativeapp.data.AiExplainResult
 import com.animejapaneselab.nativeapp.data.EpisodeOption
+import com.animejapaneselab.nativeapp.data.CardEnrichment
 import com.animejapaneselab.nativeapp.data.LinguisticCardPayload
 import com.animejapaneselab.nativeapp.data.SyncStatus
 import com.animejapaneselab.nativeapp.data.WorkOption
@@ -370,6 +371,40 @@ internal fun LibraryAiNote(targetKey: String, uiState: LabUiState, modifier: Mod
 // ---------------------------------------------------------------------------
 
 /** Linguistics addendum (语言学加餐) — shown inside an opened entry, never collapsible itself. */
+@Composable
+internal fun EnrichmentNote(card: CardEnrichment?, modifier: Modifier = Modifier) {
+    if (card == null || !card.hasContent) return
+    val colors = AjlTheme.colors
+    val type = AjlTheme.type
+    val accent = AjlTheme.work.accent
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Eyebrow(listOfNotNull("要点", card.toneZh.ifBlank { null }).joinToString(" · "))
+        if (card.structureZh.isNotBlank()) {
+            Text(card.structureZh, style = type.jpBody.copy(fontSize = 15.sp, lineHeight = 22.sp), color = accent)
+        }
+        if (card.coreZh.isNotBlank()) Text(card.coreZh, style = type.body, color = colors.ink)
+        if (card.chunks.size > 1) {
+            Text(card.chunks.joinToString("  ／  "), style = type.jpBody.copy(fontSize = 15.sp, lineHeight = 24.sp), color = colors.ink2)
+        }
+        if (card.naturalZh.isNotBlank()) Text("意译 · ${card.naturalZh}", style = type.caption, color = colors.ink2)
+        if (card.usageScenes.isNotEmpty()) {
+            Text("场面 · ${card.usageScenes.joinToString("、")}", style = type.caption, color = colors.ink2)
+        }
+        card.breakdown.forEach { part ->
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(part.ja, style = type.jpBody.copy(fontSize = 14.sp, lineHeight = 20.sp), color = colors.ink)
+                Text(
+                    listOf(part.zh, part.noteZh).filter { it.isNotBlank() }.joinToString(" · "),
+                    style = type.caption,
+                    color = colors.ink3,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+        card.mistakes.forEach { Text("易错 · $it", style = type.caption, color = colors.bad) }
+    }
+}
+
 @Composable
 internal fun LinguisticNote(payload: LinguisticCardPayload?, modifier: Modifier = Modifier) {
     if (payload == null || !payload.hasContent) return

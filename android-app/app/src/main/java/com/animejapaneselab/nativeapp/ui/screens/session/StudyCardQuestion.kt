@@ -34,6 +34,7 @@ import com.animejapaneselab.nativeapp.ui.design.MangaPanel
 import com.animejapaneselab.nativeapp.ui.design.ToolPanel
 import com.animejapaneselab.nativeapp.ui.design.rememberVoicePhase
 import com.animejapaneselab.nativeapp.ui.design.screentone
+import com.animejapaneselab.nativeapp.ui.screens.library.EnrichmentNote
 import com.animejapaneselab.nativeapp.ui.motion.MotionTokens
 import com.animejapaneselab.nativeapp.ui.reading.RubyText
 import com.animejapaneselab.nativeapp.ui.reading.rememberFuriganaAnnotator
@@ -131,6 +132,7 @@ internal fun StudyCardQuestion(
                 }
             }
         }
+        EnrichmentNote(node.enrichment)
         LinguisticNote(node.linguistic)
     }
 }

@@ -487,6 +487,7 @@ private fun VocabEntry(
             Column(Modifier.fillMaxWidth().padding(bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (item.romanization.isNotBlank()) Text(item.romanization, style = type.meta, color = colors.ink3)
                 if (item.realWorldNote.isNotBlank()) Text(item.realWorldNote, style = type.body, color = colors.ink2)
+                EnrichmentNote(item.enrichment)
                 LinguisticNote(item.linguistic)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlineButton("発音", onSpeak, compact = true, leadingIcon = Icons.AutoMirrored.Rounded.VolumeUp)
@@ -624,6 +625,7 @@ private fun GrammarEntry(
                 if (item.explanationZh.isNotBlank()) Text(item.explanationZh, style = type.body, color = colors.ink)
                 if (item.pragmaticsNote.isNotBlank()) Note("語気", item.pragmaticsNote)
                 if (item.realWorldNote.isNotBlank()) Note("実際", item.realWorldNote)
+                EnrichmentNote(item.enrichment)
                 LinguisticNote(item.linguistic)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlineButton("講解", onAsk, compact = true)
@@ -722,6 +724,7 @@ private fun LinesPage(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         if (line.romaji.isNotBlank()) Text(line.romaji, style = type.meta, color = colors.ink3)
+                        EnrichmentNote(line.enrichment)
                         LinguisticNote(line.linguistic)
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlineButton("聞く", { onPlay(line) }, compact = true, leadingIcon = Icons.AutoMirrored.Rounded.VolumeUp)

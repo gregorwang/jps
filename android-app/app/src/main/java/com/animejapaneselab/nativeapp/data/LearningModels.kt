@@ -73,6 +73,7 @@ data class VocabItem(
     val toneTags: List<String>,
     val realWorldNote: String = "",
     val linguistic: LinguisticCardPayload? = null,
+    val enrichment: CardEnrichment? = null,
 )
 
 data class GrammarPoint(
@@ -87,6 +88,7 @@ data class GrammarPoint(
     val difficulty: String = "",
     val sourceLineNo: Int = 0,
     val linguistic: LinguisticCardPayload? = null,
+    val enrichment: CardEnrichment? = null,
 )
 
 data class ShadowingSentence(
@@ -103,6 +105,7 @@ data class ShadowingSentence(
     val difficulty: String = "",
     val toneTags: List<String> = emptyList(),
     val linguistic: LinguisticCardPayload? = null,
+    val enrichment: CardEnrichment? = null,
 ) {
     /** True when the sentence ships a playable source-audio URL (voice-actor line). */
     val hasSourceAudio: Boolean get() = audioUrl.isNotBlank() || storagePath.isNotBlank()
@@ -542,6 +545,7 @@ data class StudyCardNode(
     override val sourceId: String = id,
     override val audio: PromptAudio = PromptAudio.Tts(japanese, autoPlay = false, label = "播放语音"),
     val linguistic: LinguisticCardPayload? = null,
+    val enrichment: CardEnrichment? = null,
 ) : LessonNode {
     override val typeLabel = "学习卡"
     override val expectedAnswer = "studied"

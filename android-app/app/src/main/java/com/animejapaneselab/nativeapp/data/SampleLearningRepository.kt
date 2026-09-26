@@ -801,6 +801,7 @@ class SampleLearningRepository {
                 sourceId = item.id,
                 audio = PromptAudio.Tts(item.surface, autoPlay = false, label = "播放语音"),
                 linguistic = item.linguistic,
+                enrichment = item.enrichment,
             )
         }
     }
@@ -839,6 +840,7 @@ class SampleLearningRepository {
                 sourceId = point.id,
                 audio = grammarPromptAudio(selection, point, sentences, autoPlay = false),
                 linguistic = point.linguistic,
+                enrichment = point.enrichment,
             )
         }
     }
@@ -859,6 +861,7 @@ class SampleLearningRepository {
                 sourceId = sentence.id,
                 audio = promptAudioForSentence(selection.workSlug, sentence, autoPlay = false),
                 linguistic = sentence.linguistic,
+                enrichment = sentence.enrichment,
             )
         }
     }

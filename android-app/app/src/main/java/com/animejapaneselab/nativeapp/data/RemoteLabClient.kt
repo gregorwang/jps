@@ -443,6 +443,11 @@ class RemoteLabClient(
                 linguistic = parseLinguisticCardPayload(
                     item.optJSONObject("linguisticPayload") ?: item.optJSONObject("linguistic_payload"),
                 ),
+                enrichment = parseCardEnrichment(
+                    item.optJSONObject("cardPayload"),
+                    ownGloss = item.string("meaningZh", item.string("meaning_zh")),
+                    headword = item.string("surface"),
+                ),
             )
         }
     }
@@ -463,6 +468,11 @@ class RemoteLabClient(
                 sourceLineNo = item.optInt("sourceLineNo", item.optInt("source_line_no", 0)),
                 linguistic = parseLinguisticCardPayload(
                     item.optJSONObject("linguisticPayload") ?: item.optJSONObject("linguistic_payload"),
+                ),
+                enrichment = parseCardEnrichment(
+                    item.optJSONObject("cardPayload"),
+                    ownGloss = item.string("functionZh", item.string("titleZh")),
+                    headword = item.string("pattern"),
                 ),
             )
         }
@@ -496,6 +506,11 @@ class RemoteLabClient(
                     ?.mapStrings().orEmpty(),
                 linguistic = parseLinguisticCardPayload(
                     item.optJSONObject("linguisticPayload") ?: item.optJSONObject("linguistic_payload"),
+                ),
+                enrichment = parseCardEnrichment(
+                    item.optJSONObject("cardPayload"),
+                    ownGloss = item.string("meaningZh", item.string("meaning_zh")),
+                    headword = item.string("jaText", item.string("ja")),
                 ),
             )
         }
