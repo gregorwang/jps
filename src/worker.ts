@@ -133,6 +133,8 @@ type PlanRow = {
 
 type LearningCardEnrichmentRow = {
   source_id: string
+  payload?: unknown
+  status?: string
   linguistic_payload?: unknown
   linguistic_prompt_version?: string
   linguistic_quality_score?: number
@@ -3615,10 +3617,10 @@ async function attachLinguisticPayloads(
   const enrichments = await supabase<LearningCardEnrichmentRow[]>(
     env,
     [
-      '/rest/v1/learning_card_enrichments?select=source_id,linguistic_payload,linguistic_prompt_version,linguistic_quality_score,linguistic_status',
+      '/rest/v1/learning_card_enrichments?select=source_id,payload,status,linguistic_payload,linguistic_prompt_version,linguistic_quality_score,linguistic_status',
       `work_slug=eq.${encodeURIComponent(workSlug)}`,
       `source_type=eq.${sourceType}`,
-      'linguistic_status=eq.ready',
+      'or=(linguistic_status.eq.ready,status.eq.ready)',
       `source_id=${encodeURIComponent(`in.(${sourceIds.map(quotePostgrestString).join(',')})`)}`,
       `limit=${sourceIds.length}`,
     ].join('&'),
@@ -3626,20 +3628,26 @@ async function attachLinguisticPayloads(
     console.error('Failed to load learning card linguistic enrichments', error)
     return []
   })
-  const bySourceId = new Map(enrichments
-    .filter((row) => row.linguistic_payload && typeof row.linguistic_payload === 'object')
-    .map((row) => [row.source_id, row]))
+  const bySourceId = new Map(enrichments.map((row) => [row.source_id, row]))
 
   return rows.map((input) => {
     const row = input as Record<string, unknown>
     const enrichment = bySourceId.get(readString(row, 'id'))
     if (!enrichment) return input
+    const linguisticReady = enrichment.linguistic_status === 'ready' &&
+      !!enrichment.linguistic_payload && typeof enrichment.linguistic_payload === 'object'
+    const cardReady = enrichment.status === 'ready' && !!enrichment.payload && typeof enrichment.payload === 'object'
     return {
       ...row,
-      linguistic_payload: enrichment.linguistic_payload,
-      linguistic_prompt_version: enrichment.linguistic_prompt_version,
-      linguistic_quality_score: enrichment.linguistic_quality_score,
-      linguistic_status: enrichment.linguistic_status,
+      ...(linguisticReady
+        ? {
+            linguistic_payload: enrichment.linguistic_payload,
+            linguistic_prompt_version: enrichment.linguistic_prompt_version,
+            linguistic_quality_score: enrichment.linguistic_quality_score,
+            linguistic_status: enrichment.linguistic_status,
+          }
+        : {}),
+      ...(cardReady ? { card_payload: enrichment.payload } : {}),
     }
   })
 }
@@ -3970,6 +3978,7 @@ function mapVocab(input: unknown) {
     totalOccurrences: readNumber(row, 'total_occurrences'),
     episodeCount: readNumber(row, 'episode_count'),
     linguisticPayload: readLinguisticPayload(row),
+    cardPayload: readCardPayload(row),
   }
 }
 
@@ -3986,6 +3995,7 @@ function mapGrammar(input: unknown) {
     difficulty: readLearningText(row, 'difficulty'),
     sourceLineNo: readNumber(row, 'source_line_no'),
     linguisticPayload: readLinguisticPayload(row),
+    cardPayload: readCardPayload(row),
   }
 }
 
@@ -4003,7 +4013,13 @@ function mapSentence(input: unknown) {
     audioUrl: readString(row, 'audio_url'),
     storagePath: readString(row, 'storage_path'),
     linguisticPayload: readLinguisticPayload(row),
+    cardPayload: readCardPayload(row),
   }
+}
+
+function readCardPayload(row: Record<string, unknown>) {
+  const payload = row.card_payload
+  return payload && typeof payload === 'object' ? payload : undefined
 }
 
 function readLinguisticPayload(row: Record<string, unknown>) {
