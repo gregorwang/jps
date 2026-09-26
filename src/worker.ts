@@ -53,6 +53,7 @@ const defaultGatewayModel = 'gemini-3.1-flash-lite'
 const cacheSchemaVersion = 'v6'
 const sessionCookieName = 'ajl_session'
 const sessionMaxAgeSeconds = 60 * 60 * 24 * 30
+const sessionRenewIntervalMs = 24 * 60 * 60 * 1000
 const passwordIterations = 100_000
 const foundationDefaultCurriculumVersion = 'foundation-v1'
 const foundationDefaultPageLimit = 40
@@ -3246,8 +3247,13 @@ async function getAuthContext(request: Request, env: Env): Promise<AuthContext> 
   ).catch(() => [])
   const user = users[0]
   if (!user) return { user: null, sessionTokenHash: null }
+  // Sliding expiry: an active session is pushed back to a full 30 days, at most once a day,
+  // so the app is only signed out after a month of not being opened.
+  const now = Date.now()
+  const renew = expiresAt - now < sessionMaxAgeSeconds * 1000 - sessionRenewIntervalMs
   await supabaseAdmin(env, 'PATCH', `/rest/v1/app_sessions?session_token_hash=eq.${encodeURIComponent(tokenHash)}`, {
-    last_seen_at: new Date().toISOString(),
+    last_seen_at: new Date(now).toISOString(),
+    ...(renew ? { expires_at: new Date(now + sessionMaxAgeSeconds * 1000).toISOString() } : {}),
   }).catch(() => undefined)
   return { user: publicUser(user), sessionTokenHash: tokenHash }
 }
