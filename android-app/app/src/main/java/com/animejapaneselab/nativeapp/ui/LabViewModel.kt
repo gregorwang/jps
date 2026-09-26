@@ -50,6 +50,7 @@ import com.animejapaneselab.nativeapp.domain.SmartReviewPlan
 import com.animejapaneselab.nativeapp.domain.buildSmartReviewPlan
 import com.animejapaneselab.nativeapp.domain.resumeLessonFromProgress
 import com.animejapaneselab.nativeapp.platform.DeviceCapabilityReader
+import com.animejapaneselab.nativeapp.platform.StudyReminder
 import com.animejapaneselab.nativeapp.platform.DeviceCapabilitySnapshot
 import com.animejapaneselab.nativeapp.ui.foundation.FoundationTrainingError
 import com.animejapaneselab.nativeapp.ui.foundation.fetchAllFoundationTopics
@@ -2371,7 +2372,10 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateSettings(settings: LabSettings) {
+        val reminderChanged = settings.studyReminder != _uiState.value.settings.studyReminder ||
+            settings.studyReminderHour != _uiState.value.settings.studyReminderHour
         store.writeSettings(settings)
+        if (reminderChanged) StudyReminder.sync(getApplication())
         _uiState.update { it.copy(settings = settings) }
         if (settings.cloudSync) {
             val progress = store.readProgress()

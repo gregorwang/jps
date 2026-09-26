@@ -31,6 +31,8 @@ class LocalLabStore(context: Context) {
             cloudSync = preferences.getBoolean(CloudSyncKey, true),
             showFurigana = preferences.getBoolean(ShowFuriganaKey, true),
             showRomaji = preferences.getBoolean(ShowRomajiKey, false),
+            studyReminder = preferences.getBoolean(StudyReminderKey, true),
+            studyReminderHour = preferences.getInt(StudyReminderHourKey, 21),
         )
     }
 
@@ -48,6 +50,8 @@ class LocalLabStore(context: Context) {
             putBoolean(CloudSyncKey, settings.cloudSync)
             putBoolean(ShowFuriganaKey, settings.showFurigana)
             putBoolean(ShowRomajiKey, settings.showRomaji)
+            putBoolean(StudyReminderKey, settings.studyReminder)
+            putInt(StudyReminderHourKey, settings.studyReminderHour)
         }
     }
 
@@ -297,6 +301,8 @@ class LocalLabStore(context: Context) {
         const val CloudSyncKey = "cloud-sync"
         const val ShowFuriganaKey = "show-furigana"
         const val ShowRomajiKey = "show-romaji"
+        const val StudyReminderKey = "study-reminder"
+        const val StudyReminderHourKey = "study-reminder-hour"
         const val StudyLogKey = "study-log"
         const val NotebookKey = "notebook"
         const val TodayWidgetLineKey = "today-widget-line"

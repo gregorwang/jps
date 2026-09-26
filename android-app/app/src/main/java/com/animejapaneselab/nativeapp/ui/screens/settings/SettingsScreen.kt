@@ -201,6 +201,28 @@ fun SettingsScreen(
                 ToggleRow("进场アイキャッチ", settings.richAnimationsEnabled) {
                     onSettingsChange(settings.copy(richAnimationsEnabled = it))
                 }
+                ToggleRow(
+                    "放課後チャイム",
+                    settings.studyReminder,
+                    value = if (settings.studyReminder) "${settings.studyReminderHour}:00" else null,
+                ) { enabled ->
+                    onSettingsChange(settings.copy(studyReminder = enabled))
+                    if (enabled && capabilities?.notificationsEnabled != true) onRequestNotificationPermission()
+                }
+                if (settings.studyReminder) {
+                    LineRow(minHeight = 52.dp) {
+                        RowLabel("提醒时间", Modifier.weight(1f))
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            ReminderHours.forEach { hour ->
+                                FilterPill(
+                                    text = "$hour",
+                                    selected = settings.studyReminderHour == hour,
+                                    onClick = { onSettingsChange(settings.copy(studyReminderHour = hour)) },
+                                )
+                            }
+                        }
+                    }
+                }
                 DisclosureRow("试听音效", open == Open.SoundTest, onClick = { toggle(Open.SoundTest) })
                 if (open == Open.SoundTest) {
                     InlinePanel {
@@ -704,6 +726,9 @@ internal fun studentCardInfo(uiState: LabUiState): StudentCardInfo {
 }
 
 /** `2026-09-24T12:00:00Z` → `2026-09-24`; anything unparseable → null. */
+/** 放課後チャイム hours on offer: after school through late evening. */
+private val ReminderHours = listOf(18, 20, 21, 22, 23)
+
 internal fun dayOf(timestamp: String): String? {
     val day = timestamp.trim().take(10)
     return day.takeIf { Regex("""\d{4}-\d{2}-\d{2}""").matches(it) }
