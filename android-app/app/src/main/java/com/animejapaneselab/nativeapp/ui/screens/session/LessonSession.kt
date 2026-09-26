@@ -37,6 +37,7 @@ import com.animejapaneselab.nativeapp.ui.feedback.FeedbackEvent
 import com.animejapaneselab.nativeapp.ui.feedback.LocalFeedbackEngine
 import com.animejapaneselab.nativeapp.ui.screens.learn.SceneKind
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
+import java.time.LocalDate
 
 /**
  * Lesson session: アイキャッチ → questions in the 会話窓 language → feedback sheet with the
@@ -54,6 +55,8 @@ fun LessonSessionScreen(
     onRetryPronunciation: () -> Unit,
     onResetPronunciation: () -> Unit,
     modifier: Modifier = Modifier,
+    onSkip: (() -> Unit)? = null,
+    onEyecatchPlayed: (workSlug: String, episode: Int, date: String) -> Unit = { _, _, _ -> },
 ) {
     val session = uiState.lesson
     val workSlug = uiState.selection.workSlug
@@ -75,10 +78,15 @@ fun LessonSessionScreen(
             missed = emptyList()
         }
     }
+    // 进场アイキャッチ can be switched off in settings; the full version plays once per episode per day.
     var showEyecatch by rememberSaveable(setKey) {
-        mutableStateOf(atStart && !session.isComplete && session.nodes.isNotEmpty())
+        mutableStateOf(uiState.settings.richAnimationsEnabled && atStart && !session.isComplete && session.nodes.isNotEmpty())
     }
-    val shortEyecatch = remember(setKey) { !EyecatchMemory.firstToday(workSlug, episode) }
+    val today = remember(setKey) { LocalDate.now().toString() }
+    val shortEyecatch = remember(setKey) { uiState.eyecatchPlayedOn["$workSlug:$episode"] == today }
+    LaunchedEffect(setKey, showEyecatch) {
+        if (showEyecatch && !shortEyecatch) onEyecatchPlayed(workSlug, episode, today)
+    }
 
     if (session.isComplete) {
         LaunchedEffect(setKey) { if (finishedAt == 0L) finishedAt = android.os.SystemClock.elapsedRealtime() }
@@ -173,6 +181,7 @@ fun LessonSessionScreen(
         onSpeak = { text -> audio.speakText(text, settings.ttsWorkerUrl) },
         onSubmit = onSubmitAnswer,
         onWrongTap = { feedbackEngine?.emit(FeedbackEvent.AnswerWrong) },
+        onSkip = onSkip?.takeIf { feedback == null },
     )
 
     Column(modifier.fillMaxSize().background(AjlTheme.colors.bg)) {

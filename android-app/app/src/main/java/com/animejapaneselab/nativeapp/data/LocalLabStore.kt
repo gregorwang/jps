@@ -51,6 +51,35 @@ class LocalLabStore(context: Context) {
         }
     }
 
+    /** ISO date (yyyy-MM-dd) on which 今日の一句 last played its reveal. */
+    fun readTodayLineRevealedOn(): String? = preferences.getString(TodayLineRevealedOnKey, null)
+
+    fun writeTodayLineRevealedOn(date: String) {
+        preferences.edit { putString(TodayLineRevealedOnKey, date) }
+    }
+
+    /** `workSlug:episode` → ISO date on which that episode's full アイキャッチ last played. */
+    fun readEyecatchPlayedOn(): Map<String, String> {
+        val raw = preferences.getString(EyecatchPlayedOnKey, "{}").orEmpty()
+        return runCatching {
+            val json = JSONObject(raw)
+            buildMap {
+                val keys = json.keys()
+                while (keys.hasNext()) {
+                    val key = keys.next()
+                    val date = json.optString(key)
+                    if (key.isNotBlank() && date.isNotBlank()) put(key, date)
+                }
+            }
+        }.getOrElse { emptyMap() }
+    }
+
+    fun writeEyecatchPlayedOn(playedOn: Map<String, String>) {
+        val json = JSONObject()
+        playedOn.forEach { (key, date) -> json.put(key, date) }
+        preferences.edit { putString(EyecatchPlayedOnKey, json.toString()) }
+    }
+
     fun readSessionCookie(): String = preferences.getString(SessionCookieKey, "").orEmpty()
 
     fun writeSessionCookie(cookie: String) {
@@ -196,5 +225,7 @@ class LocalLabStore(context: Context) {
         const val WorkSlugKey = "work-slug"
         const val EpisodeKey = "episode"
         const val LastEpisodesByWorkKey = "last-episodes-by-work"
+        const val TodayLineRevealedOnKey = "today-line-revealed-on"
+        const val EyecatchPlayedOnKey = "eyecatch-played-on"
     }
 }

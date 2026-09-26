@@ -141,6 +141,8 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
             hasNextLessonBatch = false,
             mistakes = store.readMistakes(),
             progressItems = store.readProgress(),
+            todayLineRevealedOn = store.readTodayLineRevealedOn(),
+            eyecatchPlayedOn = store.readEyecatchPlayedOn(),
         ),
     )
     val uiState: StateFlow<LabUiState> = _uiState.asStateFlow()
@@ -575,6 +577,26 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
             LinguisticsTrack.AnimeCorpus -> ensureFallbackReadAirCatalogLoaded()
             LinguisticsTrack.Foundation -> ensureFoundationCatalogLoaded()
         }
+    }
+
+    /** 今日の一句 played its once-a-day reveal on [date] (ISO yyyy-MM-dd). */
+    fun markTodayLineRevealed(date: String) {
+        if (_uiState.value.todayLineRevealedOn == date) return
+        store.writeTodayLineRevealedOn(date)
+        _uiState.update { it.copy(todayLineRevealedOn = date) }
+    }
+
+    /** The full アイキャッチ for [workSlug]/[episode] played on [date]; older days are dropped. */
+    fun markEyecatchPlayed(workSlug: String, episode: Int, date: String) {
+        val key = "$workSlug:$episode"
+        var written: Map<String, String>? = null
+        _uiState.update { state ->
+            if (state.eyecatchPlayedOn[key] == date) return@update state
+            val next = state.eyecatchPlayedOn.filterValues { it == date } + (key to date)
+            written = next
+            state.copy(eyecatchPlayedOn = next)
+        }
+        written?.let(store::writeEyecatchPlayedOn)
     }
 
     fun openSettings() {
@@ -1360,6 +1382,19 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** 跳过: leave the current question unanswered and move on (nothing is recorded). */
+    fun skipLessonNode() {
+        clearPronunciationAttempt()
+        _uiState.update { state ->
+            val lesson = state.lesson
+            if (lesson.feedback != null || lesson.isComplete) return@update state
+            state.copy(
+                lesson = lesson.copy(index = (lesson.index + 1).coerceAtMost(lesson.nodes.size)),
+                pronunciationEvaluation = PronunciationEvaluationState(),
+            )
+        }
+    }
+
     fun restartLesson() {
         clearPronunciationAttempt()
         _uiState.update {
@@ -1774,6 +1809,13 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     fun nextReadAirExercise() {
         _uiState.update { state ->
             state.copy(readAir = state.readAir.advanceAfterCurrentAnswer())
+        }
+    }
+
+    /** 跳过: leave the current read-air question unanswered and show the next one in the queue. */
+    fun skipReadAirExercise() {
+        _uiState.update { state ->
+            state.copy(readAir = state.readAir.skipCurrentExercise())
         }
     }
 
@@ -2771,6 +2813,10 @@ data class LabUiState(
     val secondaryScreen: SecondaryScreen? = null,
     val deviceCapabilities: DeviceCapabilitySnapshot? = null,
     val deviceCapabilitiesRefreshing: Boolean = false,
+    /** ISO date on which 今日の一句 already played its reveal (persisted). */
+    val todayLineRevealedOn: String? = null,
+    /** `workSlug:episode` → ISO date of the last full アイキャッチ (persisted, today's entries only). */
+    val eyecatchPlayedOn: Map<String, String> = emptyMap(),
     val works: List<WorkOption>,
     val episodes: List<EpisodeOption>,
     val selection: EpisodeSelection,
@@ -3006,6 +3052,18 @@ internal fun ReadAirTrainingState.advanceAfterCurrentAnswer(): ReadAirTrainingSt
     return copy(
         pinnedExerciseId = null,
         currentIndex = currentIndex.coerceAtMost((size - 2).coerceAtLeast(0)),
+        aiCoach = aiCoach.copy(status = SyncStatus.Idle, answer = "", result = null),
+    )
+}
+
+/** Moves to the next unanswered exercise (wrapping); the skipped one stays in the queue. */
+internal fun ReadAirTrainingState.skipCurrentExercise(): ReadAirTrainingState {
+    val size = filteredExercises.size
+    val exercise = currentExercise ?: return this
+    if (size <= 1 || selectedAnswerFor(exercise.id).isNotBlank()) return this
+    return copy(
+        pinnedExerciseId = null,
+        currentIndex = (currentIndex.coerceIn(0, size - 1) + 1) % size,
         aiCoach = aiCoach.copy(status = SyncStatus.Idle, answer = "", result = null),
     )
 }

@@ -49,16 +49,6 @@ import com.animejapaneselab.nativeapp.ui.motion.MotionTokens
 import com.animejapaneselab.nativeapp.ui.screens.today.TodayRules
 import com.animejapaneselab.nativeapp.ui.motion.rememberReducedMotion
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
-import java.time.LocalDate
-
-/** Which episodes already played the full eyecatch today (process memory; see D1.md #2). */
-internal object EyecatchMemory {
-    private val seen = mutableSetOf<String>()
-
-    /** True the first time [workSlug]/[episode] opens today; later calls return false. */
-    fun firstToday(workSlug: String, episode: Int, today: LocalDate = LocalDate.now()): Boolean =
-        seen.add("$workSlug:$episode:$today")
-}
 
 /**
  * アイキャッチ (MOTION §3-01, XEyecatch): a work-colour screentone band slides in tilted 12°,

@@ -104,6 +104,9 @@ internal fun TileOrderQuestion(
                         env.onSubmit(placed.joinToString("") { bank[it] })
                     }
                 },
+                quietLabel = "跳过".takeIf { env.onSkip != null },
+                onQuiet = env.onSkip,
+                quietEnabled = !checking,
             )
         },
         overlay = { TileFlightOverlay(flight) },

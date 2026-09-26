@@ -347,6 +347,8 @@ private fun ShellPage(
                 onEvaluatePronunciation = viewModel::evaluatePronunciation,
                 onRetryPronunciation = viewModel::retryPronunciationEvaluation,
                 onResetPronunciation = viewModel::resetPronunciationEvaluation,
+                onSkip = viewModel::skipLessonNode,
+                onEyecatchPlayed = viewModel::markEyecatchPlayed,
             )
 
             TrainingSessionKind.ReadAir -> ReadAirSessionScreen(
@@ -355,6 +357,7 @@ private fun ShellPage(
                 onAnswerSelected = viewModel::selectReadAirAnswer,
                 onNext = viewModel::nextReadAirExercise,
                 onRestart = viewModel::restartReadAirSession,
+                onSkip = viewModel::skipReadAirExercise.takeIf { uiState.readAir.filteredExercises.size > 1 },
             )
         }
 
@@ -369,6 +372,7 @@ private fun ShellPage(
                 onOpenSubtitles = viewModel::openSubtitles,
                 onOpenSearch = viewModel::openSearch,
                 onOpenSettings = viewModel::openSettings,
+                onTodayLineRevealed = viewModel::markTodayLineRevealed,
             )
 
             LabTab.Learn -> LearnScreen(

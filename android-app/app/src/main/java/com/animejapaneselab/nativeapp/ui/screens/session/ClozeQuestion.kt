@@ -156,6 +156,9 @@ internal fun ClozeQuestion(
                         env.onSubmit(choices[index])
                     }
                 },
+                quietLabel = "跳过".takeIf { env.onSkip != null },
+                onQuiet = env.onSkip,
+                quietEnabled = !checking,
             )
         },
         overlay = { TileFlightOverlay(flight) },

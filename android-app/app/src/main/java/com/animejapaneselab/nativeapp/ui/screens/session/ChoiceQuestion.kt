@@ -62,6 +62,9 @@ internal fun ChoiceQuestion(
                         env.onSubmit(choice)
                     }
                 },
+                quietLabel = "跳过".takeIf { env.onSkip != null },
+                onQuiet = env.onSkip,
+                quietEnabled = !checking,
             )
         },
     ) {

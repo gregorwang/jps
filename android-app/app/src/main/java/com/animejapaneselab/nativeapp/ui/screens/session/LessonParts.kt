@@ -87,6 +87,8 @@ internal class LessonQuestionEnv(
     val onSpeak: (String) -> Unit,
     val onSubmit: (String) -> Unit,
     val onWrongTap: () -> Unit,
+    /** 跳过 on the bottom bar's left; null hides it. */
+    val onSkip: (() -> Unit)? = null,
 ) {
     val answered: Boolean get() = feedback != null
 }

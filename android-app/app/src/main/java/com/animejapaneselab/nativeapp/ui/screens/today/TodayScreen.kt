@@ -20,6 +20,7 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,6 +72,7 @@ fun TodayScreen(
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
     today: LocalDate = LocalDate.now(),
+    onTodayLineRevealed: (date: String) -> Unit = {},
 ) {
     val colors = AjlTheme.colors
     val workSlug = uiState.selection.workSlug
@@ -160,6 +162,8 @@ fun TodayScreen(
                 TodayLinePanel(
                     line = line,
                     today = today,
+                    revealedOn = uiState.todayLineRevealedOn,
+                    onRevealed = onTodayLineRevealed,
                     workSlug = workSlug,
                     episodeLabel = episodeLabel,
                     height = panelHeight,
@@ -213,6 +217,8 @@ fun TodayScreen(
 private fun TodayLinePanel(
     line: TodayLine?,
     today: LocalDate,
+    revealedOn: String?,
+    onRevealed: (date: String) -> Unit,
     workSlug: String,
     episodeLabel: String,
     height: Dp,
@@ -261,9 +267,9 @@ private fun TodayLinePanel(
         val perColumn = (available / glyphDp).toInt().coerceIn(4, 12)
         val text = line?.ja ?: episodeLabel
         val layout = remember(text, perColumn) { TodayRules.verticalLayout(text, perColumn) }
-        val firstOpen = remember(line, today) {
-            line != null && TodayLineRevealMemory.markFirstOpen(TodayRules.revealKey(today, line))
-        }
+        // Decided once per line/day so the persisted mark below doesn't cut the reveal short.
+        val firstOpen = remember(line != null, today) { line != null && revealedOn != today.toString() }
+        LaunchedEffect(firstOpen, today) { if (firstOpen) onRevealed(today.toString()) }
         VerticalText(
             text = layout,
             style = type.jpDisplay.copy(fontSize = fontSize, fontWeight = FontWeight.Bold),

@@ -145,13 +145,6 @@ class TodayRulesTest {
         assertEquals("9.25 金", TodayRules.dateMeta(LocalDate.of(2026, 9, 25)))
     }
 
-    @Test
-    fun revealPlaysOncePerKey() {
-        val key = "test|" + System.nanoTime()
-        assertTrue(TodayLineRevealMemory.markFirstOpen(key))
-        assertFalse(TodayLineRevealMemory.markFirstOpen(key))
-    }
-
     // ---- 本日の時間割 -------------------------------------------------------------------
 
     private fun input(

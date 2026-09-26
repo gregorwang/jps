@@ -178,9 +178,6 @@ object TodayRules {
             .maxByOrNull { it.value }
             ?.key
 
-    /** Key for "first open of the day" — the reveal plays once per day per line. */
-    fun revealKey(date: LocalDate, line: TodayLine): String = "${date}|${line.ja}"
-
     private val Weekdays = mapOf(
         DayOfWeek.MONDAY to "月",
         DayOfWeek.TUESDAY to "火",
@@ -193,15 +190,6 @@ object TodayRules {
 
     /** 「9.25 木」 */
     fun dateMeta(date: LocalDate): String = "${date.monthValue}.${date.dayOfMonth} ${Weekdays.getValue(date.dayOfWeek)}"
-}
-
-/** In-process memory of which 今日の一句 already played its reveal (first open of the day). */
-object TodayLineRevealMemory {
-    private val seen = mutableSetOf<String>()
-
-    /** True the first time [key] is seen in this process. */
-    @Synchronized
-    fun markFirstOpen(key: String): Boolean = seen.add(key)
 }
 
 // ---------------------------------------------------------------------------
