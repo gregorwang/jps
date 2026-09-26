@@ -42,7 +42,7 @@ while ($true) {
 }
 try {
     Set-Location $app
-    $tasks = if ($Mode -eq 'full') { @('testDebugUnitTest', 'assembleDebug') } else { @('compileDebugKotlin') }
+    $tasks = @(if ($Mode -eq 'full') { 'testDebugUnitTest'; 'assembleDebug' } else { 'compileDebugKotlin' })
     & .\gradlew.bat @tasks --no-daemon --console=plain --max-workers=2 '-Pkotlin.compiler.execution.strategy=in-process' *> $log
     $code = $LASTEXITCODE
 } finally {

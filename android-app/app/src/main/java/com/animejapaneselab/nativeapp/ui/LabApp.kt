@@ -69,6 +69,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.animejapaneselab.nativeapp.ui.design.BottomTabBar
 import com.animejapaneselab.nativeapp.ui.design.TabItem
+import com.animejapaneselab.nativeapp.ui.theme.ProvideWorkTheme
 import com.animejapaneselab.nativeapp.ui.screens.AiHistoryScreen
 import com.animejapaneselab.nativeapp.ui.screens.FoundationActions
 import com.animejapaneselab.nativeapp.ui.screens.ReadAirHomeActions
@@ -147,6 +148,7 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
         return
     }
 
+    ProvideWorkTheme(uiState.selection.workSlug) {
     ProvideFeedbackEngine(
         settings = FeedbackSettings(
             soundEnabled = uiState.settings.feedbackSounds,
@@ -342,6 +344,7 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
                 }
             }
         }
+    }
     }
 }
 
