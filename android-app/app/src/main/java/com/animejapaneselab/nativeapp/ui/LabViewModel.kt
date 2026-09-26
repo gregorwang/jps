@@ -455,7 +455,8 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 it.copy(sync = it.sync.copy(message = "对应的基础语言学复习题已不存在或身份不一致。"))
             } else {
                 it.copy(
-                    selectedTab = LabTab.Linguistics,
+                    selectedTab = LabTab.Learn,
+                    learnSection = LearnSection.Linguistics,
                     linguisticsTrack = LinguisticsTrack.Foundation,
                     foundation = focused,
                 )
@@ -545,13 +546,26 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         _uiState.update { it.copy(selectedTab = tab, activeSession = null, secondaryScreen = null) }
         when (tab) {
             LabTab.Library -> ensureFallbackReadAirCatalogLoaded()
-            LabTab.Linguistics -> when (_uiState.value.linguisticsTrack) {
-                LinguisticsTrack.AnimeCorpus -> ensureFallbackReadAirCatalogLoaded()
-                LinguisticsTrack.Foundation -> ensureFoundationCatalogLoaded()
+            LabTab.Learn -> if (_uiState.value.learnSection == LearnSection.Linguistics) {
+                ensureLinguisticsTrackLoaded(_uiState.value.linguisticsTrack)
             }
             LabTab.Today,
-            LabTab.Lesson,
             LabTab.Review -> Unit
+        }
+    }
+
+    /** 学ぶ top text tabs: 課程 / 言語学. Also switches to the 学ぶ tab. */
+    fun selectLearnSection(section: LearnSection) {
+        _uiState.update {
+            it.copy(selectedTab = LabTab.Learn, learnSection = section, activeSession = null, secondaryScreen = null)
+        }
+        if (section == LearnSection.Linguistics) ensureLinguisticsTrackLoaded(_uiState.value.linguisticsTrack)
+    }
+
+    private fun ensureLinguisticsTrackLoaded(track: LinguisticsTrack) {
+        when (track) {
+            LinguisticsTrack.AnimeCorpus -> ensureFallbackReadAirCatalogLoaded()
+            LinguisticsTrack.Foundation -> ensureFoundationCatalogLoaded()
         }
     }
 
@@ -631,7 +645,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 mistakes = state.mistakes,
             )
             if (plan.entries.isEmpty()) {
-                state.copy(selectedTab = LabTab.Lesson, activeSession = null, secondaryScreen = null)
+                state.copy(selectedTab = LabTab.Learn, learnSection = LearnSection.Course, activeSession = null, secondaryScreen = null)
             } else {
                 state.copy(
                     selectedTab = LabTab.Review,
@@ -859,7 +873,8 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         clearPronunciationAttempt()
         _uiState.update {
             it.copy(
-                selectedTab = LabTab.Lesson,
+                selectedTab = LabTab.Learn,
+                learnSection = LearnSection.Course,
                 activeSession = TrainingSessionKind.Lesson,
                 isExerciseLabSession = false,
                 activeExerciseLabKind = null,
@@ -2120,7 +2135,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     fun practiceLocalMistake(itemId: String) {
         val mistake = _uiState.value.mistakes.firstOrNull { it.itemId == itemId }
         if (mistake == null) {
-            selectTab(LabTab.Lesson)
+            selectLearnSection(LearnSection.Course)
             return
         }
         if (mistake.typeLabel == "语言学题" || mistake.typeLabel == "读空气") {
@@ -2146,7 +2161,8 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         if (reviewNode == null) {
             _uiState.update {
                 it.copy(
-                    selectedTab = LabTab.Lesson,
+                    selectedTab = LabTab.Learn,
+                learnSection = LearnSection.Course,
                     sync = it.sync.copy(message = "这条错题还没有本机训练卡；请先更新资料。"),
                 )
             }
@@ -2176,7 +2192,8 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         if (target == null) {
             _uiState.update {
                 it.copy(
-                    selectedTab = LabTab.Lesson,
+                    selectedTab = LabTab.Learn,
+                learnSection = LearnSection.Course,
                     sync = it.sync.copy(message = "这条错题暂时只能从普通训练里复习。"),
                 )
             }
@@ -2200,7 +2217,8 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
             pendingFoundationReviewTask = task
             _uiState.update {
                 it.copy(
-                    selectedTab = LabTab.Linguistics,
+                    selectedTab = LabTab.Learn,
+                    learnSection = LearnSection.Linguistics,
                     linguisticsTrack = LinguisticsTrack.Foundation,
                     activeSession = null,
                     secondaryScreen = null,
@@ -2249,7 +2267,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                     startReviewReadAir(task)
                 }
             }
-            else -> selectTab(LabTab.Lesson)
+            else -> selectLearnSection(LearnSection.Course)
         }
     }
 
@@ -2751,6 +2769,7 @@ data class LabUiState(
     val deviceId: String,
     val settings: LabSettings,
     val selectedTab: LabTab = LabTab.Today,
+    val learnSection: LearnSection = LearnSection.Course,
     val activeSession: TrainingSessionKind? = null,
     val exerciseLabLoading: Boolean = false,
     val isExerciseLabSession: Boolean = false,
@@ -3068,13 +3087,16 @@ data class ReadAirFilters(
     val episode: Int? = null,
 )
 
-enum class LabTab(val label: String) {
-    Today("今日"),
-    Lesson("训练"),
-    Linguistics("语言学"),
-    Library("资料"),
-    Review("复盘"),
+/** v3 bottom tabs: Japanese label + Chinese caption. */
+enum class LabTab(val jp: String, val label: String) {
+    Today("今日", "今日"),
+    Learn("学ぶ", "学习"),
+    Library("辞書", "资料"),
+    Review("復習", "复盘"),
 }
+
+/** Sub-state of [LabTab.Learn]: the 課程 / 言語学 text tabs. */
+enum class LearnSection { Course, Linguistics }
 
 enum class TrainingSessionKind {
     Lesson,

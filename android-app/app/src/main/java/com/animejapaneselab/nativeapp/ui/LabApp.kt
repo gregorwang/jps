@@ -67,23 +67,24 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.animejapaneselab.nativeapp.ui.design.BottomTabBar
+import com.animejapaneselab.nativeapp.ui.design.TabItem
 import com.animejapaneselab.nativeapp.ui.screens.AiHistoryScreen
-import com.animejapaneselab.nativeapp.ui.screens.LessonHubScreen
-import com.animejapaneselab.nativeapp.ui.screens.LessonScreen
-import com.animejapaneselab.nativeapp.ui.screens.LibraryScreen
+import com.animejapaneselab.nativeapp.ui.screens.FoundationActions
+import com.animejapaneselab.nativeapp.ui.screens.ReadAirHomeActions
+import com.animejapaneselab.nativeapp.ui.screens.learn.LearnScreen
+import com.animejapaneselab.nativeapp.ui.screens.library.LibraryScreen
+import com.animejapaneselab.nativeapp.ui.screens.library.SubtitlesScreen
+import com.animejapaneselab.nativeapp.ui.screens.review.ReviewScreen
+import com.animejapaneselab.nativeapp.ui.screens.review.SmartReviewQueueScreen
+import com.animejapaneselab.nativeapp.ui.screens.session.LessonSessionScreen
+import com.animejapaneselab.nativeapp.ui.screens.session.ReadAirSessionScreen
+import com.animejapaneselab.nativeapp.ui.screens.today.TodayScreen
 import com.animejapaneselab.nativeapp.ui.screens.LoginGateScreen
-import com.animejapaneselab.nativeapp.ui.screens.ReadAirSessionScreen
-import com.animejapaneselab.nativeapp.ui.screens.ReadAirScreen
-import com.animejapaneselab.nativeapp.ui.screens.ReviewScreen
 import com.animejapaneselab.nativeapp.ui.screens.SearchScreen
 import com.animejapaneselab.nativeapp.ui.screens.SettingsScreen
-import com.animejapaneselab.nativeapp.ui.screens.SmartReviewQueueScreen
-import com.animejapaneselab.nativeapp.ui.screens.SubtitleBrowserScreen
-import com.animejapaneselab.nativeapp.ui.screens.TodayScreen
 import com.animejapaneselab.nativeapp.ui.feedback.FeedbackSettings
 import com.animejapaneselab.nativeapp.ui.feedback.ProvideFeedbackEngine
-import com.animejapaneselab.nativeapp.ui.foundation.FoundationTrainingScreen
-import com.animejapaneselab.nativeapp.ui.foundation.LinguisticsTrackScreen
 import com.animejapaneselab.nativeapp.ui.motion.MotionTokens
 import com.animejapaneselab.nativeapp.ui.motion.rememberReducedMotion
 import com.animejapaneselab.nativeapp.platform.LearningSessionNotifier
@@ -220,7 +221,7 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
                     onOpenSubtitleLine = viewModel::openSubtitlesAt,
                 )
 
-                secondaryScreen == SecondaryScreen.Subtitles -> SubtitleBrowserScreen(
+                secondaryScreen == SecondaryScreen.Subtitles -> SubtitlesScreen(
                     uiState = uiState,
                     onBack = viewModel::closeSecondaryScreen,
                     onRefresh = viewModel::refreshSubtitleLines,
@@ -236,7 +237,7 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
                     onStartItem = viewModel::startSmartReviewItem,
                 )
 
-                activeSession == TrainingSessionKind.Lesson -> LessonScreen(
+                activeSession == TrainingSessionKind.Lesson -> LessonSessionScreen(
                     uiState = uiState,
                     onExit = viewModel::exitTrainingSession,
                     onSubmitAnswer = viewModel::submitAnswer,
@@ -260,59 +261,55 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
                     LabTab.Today -> TodayScreen(
                         uiState = uiState,
                         onStartLesson = viewModel::startLessonFromCurrentTab,
+                        onStartModeLesson = { mode -> viewModel.startLessonModeFromCurrentTab(mode) },
                         onStartReadAir = viewModel::startReadAirForCurrentEpisode,
                         onStartReview = viewModel::openSmartReviewQueue,
+                        onOpenLearn = { viewModel.selectLearnSection(LearnSection.Course) },
                         onOpenSubtitles = viewModel::openSubtitles,
+                        onOpenSearch = viewModel::openSearch,
+                        onOpenSettings = viewModel::openSettings,
                     )
 
-                    LabTab.Lesson -> LessonHubScreen(
+                    LabTab.Learn -> LearnScreen(
                         uiState = uiState,
+                        onSectionSelected = viewModel::selectLearnSection,
                         onStartLesson = viewModel::startLesson,
                         onStartModeLesson = { mode, batch, pathNodeKey ->
                             viewModel.startLessonModeFromCurrentTab(mode, batch, pathNodeKey)
                         },
                         onStartExercise = viewModel::startExerciseLab,
                         onStartExerciseMix = viewModel::startExerciseLabMix,
-                        onStartReadAir = viewModel::startReadAirPathBatch,
+                        onStartReadAirBatch = viewModel::startReadAirPathBatch,
                         onStartReview = viewModel::openSmartReviewQueue,
                         onWorkSelected = viewModel::selectWork,
                         onEpisodeSelected = viewModel::selectEpisode,
-                    )
-
-                    LabTab.Linguistics -> LinguisticsTrackScreen(
-                        selectedTrack = uiState.linguisticsTrack,
                         onTrackSelected = viewModel::selectLinguisticsTrack,
-                        animeCorpusContent = {
-                            ReadAirScreen(
-                                uiState = uiState,
-                                onRefresh = viewModel::refreshReadAirExercises,
-                                onWorkSelected = viewModel::selectReadAirWork,
-                                onDomainSelected = viewModel::selectReadAirDomain,
-                                onQuestionTypeSelected = viewModel::selectReadAirQuestionType,
-                                onDifficultySelected = viewModel::selectReadAirDifficulty,
-                                onTopicSelected = viewModel::selectReadAirTopic,
-                                onEpisodeSelected = viewModel::selectReadAirEpisode,
-                                onModeSelected = viewModel::selectReadAirMode,
-                                onResetFilters = viewModel::resetReadAirFilters,
-                                onResetQueue = viewModel::resetReadAirQueue,
-                                onStartSession = viewModel::startReadAirSession,
-                                onBrowseAnswer = viewModel::selectReadAirBrowseAnswer,
-                            )
-                        },
-                        foundationContent = {
-                            FoundationTrainingScreen(
-                                state = uiState.foundation,
-                                onRefresh = viewModel::refreshFoundationCatalog,
-                                onPackSelected = viewModel::selectFoundationPack,
-                                onDomainSelected = viewModel::selectFoundationDomain,
-                                onTopicSelected = viewModel::selectFoundationTopic,
-                                onStageSelected = viewModel::selectFoundationStage,
-                                onAnswerSelected = viewModel::submitFoundationAnswer,
-                                onPrevious = viewModel::previousFoundationQuestion,
-                                onNext = viewModel::nextFoundationQuestion,
-                                onRestart = viewModel::restartFoundationQuestions,
-                            )
-                        },
+                        readAir = ReadAirHomeActions(
+                            onRefresh = viewModel::refreshReadAirExercises,
+                            onWorkSelected = viewModel::selectReadAirWork,
+                            onDomainSelected = viewModel::selectReadAirDomain,
+                            onQuestionTypeSelected = viewModel::selectReadAirQuestionType,
+                            onDifficultySelected = viewModel::selectReadAirDifficulty,
+                            onTopicSelected = viewModel::selectReadAirTopic,
+                            onEpisodeSelected = viewModel::selectReadAirEpisode,
+                            onModeSelected = viewModel::selectReadAirMode,
+                            onResetFilters = viewModel::resetReadAirFilters,
+                            onResetQueue = viewModel::resetReadAirQueue,
+                            onStartSession = viewModel::startReadAirSession,
+                            onBrowseAnswer = viewModel::selectReadAirBrowseAnswer,
+                        ),
+                        foundation = FoundationActions(
+                            onRefresh = viewModel::refreshFoundationCatalog,
+                            onPackSelected = viewModel::selectFoundationPack,
+                            onDomainSelected = viewModel::selectFoundationDomain,
+                            onTopicSelected = viewModel::selectFoundationTopic,
+                            onStageSelected = viewModel::selectFoundationStage,
+                            onAnswerSelected = viewModel::submitFoundationAnswer,
+                            onPrevious = viewModel::previousFoundationQuestion,
+                            onNext = viewModel::nextFoundationQuestion,
+                            onRestart = viewModel::restartFoundationQuestions,
+                        ),
+                        onOpenSearch = viewModel::openSearch,
                     )
 
                     LabTab.Library -> LibraryScreen(
@@ -321,7 +318,7 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
                         onEpisodeSelected = viewModel::selectEpisode,
                         onStartLesson = viewModel::startLessonFromCurrentTab,
                         onStartModeLesson = { mode -> viewModel.startLessonModeFromCurrentTab(mode) },
-                        onStartReadAir = { viewModel.selectTab(LabTab.Linguistics) },
+                        onStartReadAir = { viewModel.selectLearnSection(LearnSection.Linguistics) },
                         onOpenSubtitles = viewModel::openSubtitles,
                         onOpenSettings = viewModel::openSettings,
                         onTargetLesson = viewModel::startTargetLesson,
@@ -331,15 +328,16 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
 
                     LabTab.Review -> ReviewScreen(
                         uiState = uiState,
-                        onOpenLesson = { viewModel.selectTab(LabTab.Lesson) },
+                        onOpenLesson = { viewModel.selectLearnSection(LearnSection.Course) },
                         onOpenSmartReviewQueue = viewModel::openSmartReviewQueue,
                         onMistakeReviewed = viewModel::markMistakeReviewed,
                         onPracticeMistake = viewModel::practiceLocalMistake,
                         onPracticeRemoteTask = viewModel::practiceReviewTask,
                         onExplainMistake = viewModel::askAiAboutMistake,
                         onViewSource = viewModel::openSubtitlesAt,
+                        onOpenSearch = viewModel::openSearch,
+                        onOpenSettings = viewModel::openSettings,
                     )
-
                 }
                 }
             }
@@ -395,117 +393,9 @@ private fun BottomNavigation(
     selectedTab: LabTab,
     onTabSelected: (LabTab) -> Unit,
 ) {
-    val reducedMotion = rememberReducedMotion()
-    Column(modifier = Modifier.fillMaxWidth()) {
-        HorizontalDivider(
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.55f),
-        )
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.surface,
-            shape = RectangleShape,
-            tonalElevation = 0.dp,
-            shadowElevation = 0.dp,
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding()
-                    .height(68.dp)
-                    .padding(horizontal = 12.dp, vertical = 5.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                LabTab.entries.forEach { tab ->
-                    BottomNavigationItem(
-                        tab = tab,
-                        isSelected = selectedTab == tab,
-                        reducedMotion = reducedMotion,
-                        onClick = { onTabSelected(tab) },
-                        modifier = Modifier.weight(1f),
-                    )
-                }
-            }
-        }
-    }
+    BottomTabBar(
+        items = LabTab.entries.map { TabItem(it.jp, it.label) },
+        selectedIndex = LabTab.entries.indexOf(selectedTab),
+        onSelect = { onTabSelected(LabTab.entries[it]) },
+    )
 }
-
-@Composable
-private fun BottomNavigationItem(
-    tab: LabTab,
-    isSelected: Boolean,
-    reducedMotion: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val pillColor by animateColorAsState(
-        targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-        label = "nav-pill-color",
-    )
-    val contentColor by animateColorAsState(
-        targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-        label = "nav-content-color",
-    )
-    val iconScale by animateFloatAsState(
-        targetValue = if (isSelected) 1.08f else 1f,
-        animationSpec = MotionTokens.popSpring(reducedMotion),
-        label = "nav-icon-scale",
-    )
-    Surface(
-        modifier = modifier
-            .height(56.dp)
-            .clickable(
-                role = Role.Tab,
-                onClickLabel = tab.label,
-                onClick = onClick,
-            )
-            .semantics(mergeDescendants = true) {
-                selected = isSelected
-            },
-        color = Color.Transparent,
-        shape = MaterialTheme.shapes.small,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically),
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(width = 44.dp, height = 30.dp)
-                    .clip(CircleShape)
-                    .background(pillColor),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = tab.icon,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(22.dp)
-                        .graphicsLayer {
-                            scaleX = iconScale
-                            scaleY = iconScale
-                        },
-                    tint = contentColor,
-                )
-            }
-            Text(
-                text = tab.label,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                color = contentColor,
-            )
-        }
-    }
-}
-
-private val LabTab.icon: ImageVector
-    get() = when (this) {
-        LabTab.Today -> Icons.Rounded.Home
-        LabTab.Lesson -> Icons.Rounded.School
-        LabTab.Linguistics -> Icons.Rounded.Psychology
-        LabTab.Library -> Icons.Rounded.AutoStories
-        LabTab.Review -> Icons.Rounded.BarChart
-    }
