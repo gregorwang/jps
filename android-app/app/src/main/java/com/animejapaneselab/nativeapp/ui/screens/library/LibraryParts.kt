@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.sp
 import com.animejapaneselab.nativeapp.data.AiExplainResult
 import com.animejapaneselab.nativeapp.data.EpisodeOption
 import com.animejapaneselab.nativeapp.data.CardEnrichment
+import com.animejapaneselab.nativeapp.data.ConjugationTable
 import com.animejapaneselab.nativeapp.data.LinguisticCardPayload
 import com.animejapaneselab.nativeapp.data.SyncStatus
 import com.animejapaneselab.nativeapp.data.WorkOption
@@ -371,6 +372,35 @@ internal fun LibraryAiNote(targetKey: String, uiState: LabUiState, modifier: Mod
 // ---------------------------------------------------------------------------
 
 /** Linguistics addendum (语言学加餐) — shown inside an opened entry, never collapsible itself. */
+/** 活用表: a two-column grid of forms; tapping a form reads it aloud. */
+@Composable
+internal fun ConjugationGrid(table: ConjugationTable?, onSpeak: (String) -> Unit, modifier: Modifier = Modifier) {
+    if (table == null) return
+    val colors = AjlTheme.colors
+    val type = AjlTheme.type
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Eyebrow("活用 · ${table.typeLabel}")
+        table.forms.chunked(2).forEach { pair ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                pair.forEach { form ->
+                    Row(
+                        Modifier
+                            .weight(1f)
+                            .clickableNoRipple(onClick = { onSpeak(form.value.substringBefore('（').removeSuffix("〜")) })
+                            .padding(vertical = 5.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(form.label, style = type.metaSmall, color = colors.ink3, modifier = Modifier.width(44.dp))
+                        Text(form.value, style = type.jpBody.copy(fontSize = 15.sp, lineHeight = 20.sp), color = colors.ink)
+                    }
+                }
+                if (pair.size == 1) Spacer(Modifier.weight(1f))
+            }
+        }
+    }
+}
+
 @Composable
 internal fun EnrichmentNote(card: CardEnrichment?, modifier: Modifier = Modifier) {
     if (card == null || !card.hasContent) return

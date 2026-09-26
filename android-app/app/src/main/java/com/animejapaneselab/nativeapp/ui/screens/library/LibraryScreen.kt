@@ -48,6 +48,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.animejapaneselab.nativeapp.data.GrammarPoint
+import com.animejapaneselab.nativeapp.data.Conjugator
 import com.animejapaneselab.nativeapp.data.LessonMode
 import com.animejapaneselab.nativeapp.data.NotebookKind
 import com.animejapaneselab.nativeapp.data.NotebookRules
@@ -366,6 +367,7 @@ private fun VocabPage(
                 expanded = expanded == item.id,
                 onToggle = { expanded = if (expanded == item.id) null else item.id },
                 onSpeak = { onSpeak(item.surface) },
+                onSpeakText = onSpeak,
                 onAsk = { onAsk(item) },
                 onLearn = { onLearn(item) },
                 uiState = uiState,
@@ -427,6 +429,7 @@ private fun VocabEntry(
     expanded: Boolean,
     onToggle: () -> Unit,
     onSpeak: () -> Unit,
+    onSpeakText: (String) -> Unit,
     onAsk: () -> Unit,
     onLearn: () -> Unit,
     uiState: LabUiState,
@@ -487,6 +490,10 @@ private fun VocabEntry(
             Column(Modifier.fillMaxWidth().padding(bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (item.romanization.isNotBlank()) Text(item.romanization, style = type.meta, color = colors.ink3)
                 if (item.realWorldNote.isNotBlank()) Text(item.realWorldNote, style = type.body, color = colors.ink2)
+                val conjugation = remember(item.surface, item.reading, item.partOfSpeech) {
+                    Conjugator.tableFor(item.surface, item.reading, item.partOfSpeech)
+                }
+                ConjugationGrid(conjugation, onSpeak = onSpeakText)
                 EnrichmentNote(item.enrichment)
                 LinguisticNote(item.linguistic)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
