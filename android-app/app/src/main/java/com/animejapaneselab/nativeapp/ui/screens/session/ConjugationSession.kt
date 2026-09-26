@@ -153,7 +153,7 @@ private fun ConjugationQuestionBody(
                                 listOf(item.spanStart until item.spanEnd),
                                 style = AjlTheme.type.jpBody.copy(fontSize = 22.sp, lineHeight = 40.sp),
                             )
-                            if (answered && item.reading.isNotBlank()) {
+                            if (answered && item.reading.isNotBlank() && item.reading.filterNot(Char::isWhitespace) != item.jaText.filterNot(Char::isWhitespace)) {
                                 Text(item.reading, style = AjlTheme.type.caption, color = AjlTheme.colors.ink3)
                             }
                         }
