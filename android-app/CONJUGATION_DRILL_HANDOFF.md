@@ -14,9 +14,8 @@
 | P3 数据 | `CAP` 20→40、`PER_EP` 2→3；修了 7 条误判规则（见下）；放宽 のに／ながら／てから／らしい／ければ／なくては；重跑时**已发布的句子优先保留、被拒过的不再重选**，所以 Leitner 进度不丢 | `extract.py`（旧版和 P2 数据备份在 `p2_backup/`） |
 | P3 App | 答题反馈里的「深入讲解 · <主题>」：切换显示 `linguistic_foundation_topics` 的讲解，映射在 `ConjugationDrillRules.topicIdFor`；Review 页「活用 復習 · 到期 N 句」，点了直接跳到第三巻开一组 | commit `4fb1738` |
 
-**数据还差最后一步**：扩充后新增的 839 句还没校对，已切成 `pending/batch_*.md`，交给 Antigravity 跑，提示词是存档目录里的 `ANTIGRAVITY_PROMPT.md`（逐批写 `batch_*.json` → `python merge.py` → `build_preview.py` → `import.mjs`）。线上目前仍是 P2 的 906 句。
-
-**还没推送到手机**。用户要测试时先"推送更新"（CLAUDE.md 第 6 节）。
+**线上 1104 句**（P2 的 905 句 + 新审的 199 句），App 0.5.0（versionCode 6）已推送。
+**还剩 723 句待审**，在 `pending/batch_*.md`（37 批）。Antigravity 第一次跑时没真审：用脚本照抄字幕中文、把形态素原样当公式、402 句的 note 都是同一句占位，已撤下，产物隔离在 `antigravity_rejected/`。再交给它跑，要用加严后的 `ANTIGRAVITY_PROMPT.md`，导入前先用本文件的抽查脚本思路检查（zh 不能等于字幕原文，公式里不能有 `·*`、`-一般`）。
 
 ## P3 做了什么
 
