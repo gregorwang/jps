@@ -41,6 +41,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.animejapaneselab.nativeapp.ui.foundation.LinguisticsTrack
+import com.animejapaneselab.nativeapp.ui.drill.ConjugationDrillViewModel
 import com.animejapaneselab.nativeapp.platform.LearningSessionNotifier
 import com.animejapaneselab.nativeapp.ui.design.BottomTabBar
 import com.animejapaneselab.nativeapp.ui.design.TabItem
@@ -431,18 +433,28 @@ private fun ShellPage(
                 onOpenSearch = viewModel::openSearch,
             )
 
-            LabTab.Review -> ReviewScreen(
-                uiState = uiState,
-                onOpenLesson = { viewModel.selectLearnSection(LearnSection.Course) },
-                onOpenSmartReviewQueue = viewModel::openSmartReviewQueue,
-                onMistakeReviewed = viewModel::markMistakeReviewed,
-                onPracticeMistake = viewModel::practiceLocalMistake,
-                onPracticeRemoteTask = viewModel::practiceReviewTask,
-                onExplainMistake = viewModel::askAiAboutMistake,
-                onViewSource = viewModel::openSubtitlesAt,
-                onOpenSearch = viewModel::openSearch,
-                onOpenSettings = viewModel::openSettings,
-            )
+            LabTab.Review -> {
+                val drill: ConjugationDrillViewModel = viewModel()
+                val drillState by drill.state.collectAsStateWithLifecycle()
+                ReviewScreen(
+                    uiState = uiState,
+                    onOpenLesson = { viewModel.selectLearnSection(LearnSection.Course) },
+                    onOpenSmartReviewQueue = viewModel::openSmartReviewQueue,
+                    onMistakeReviewed = viewModel::markMistakeReviewed,
+                    onPracticeMistake = viewModel::practiceLocalMistake,
+                    onPracticeRemoteTask = viewModel::practiceReviewTask,
+                    onExplainMistake = viewModel::askAiAboutMistake,
+                    onViewSource = viewModel::openSubtitlesAt,
+                    onOpenSearch = viewModel::openSearch,
+                    onOpenSettings = viewModel::openSettings,
+                    drillDue = drillState.dueToday,
+                    onStartDrillReview = {
+                        viewModel.selectLinguisticsTrack(LinguisticsTrack.Conjugation)
+                        viewModel.selectLearnSection(LearnSection.Linguistics)
+                        drill.startReview()
+                    },
+                )
+            }
         }
     }
 }

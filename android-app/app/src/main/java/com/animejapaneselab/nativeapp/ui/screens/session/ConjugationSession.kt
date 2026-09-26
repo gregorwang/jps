@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.animejapaneselab.nativeapp.data.AudioReliability
+import com.animejapaneselab.nativeapp.data.FoundationTopic
 import com.animejapaneselab.nativeapp.data.PromptAudio
 import com.animejapaneselab.nativeapp.ui.audio.LessonAudioController
 import com.animejapaneselab.nativeapp.ui.audio.rememberLessonAudioController
@@ -91,6 +92,7 @@ fun ConjugationSession(
             key(question.item.id, state.index) {
                 ConjugationQuestionBody(
                     question = question,
+                    topic = state.topicFor(question.item),
                     committed = state.answers[state.index],
                     isLast = state.index >= state.session.lastIndex,
                     audio = audio,
@@ -106,6 +108,7 @@ fun ConjugationSession(
 @Composable
 private fun ConjugationQuestionBody(
     question: DrillQuestion,
+    topic: FoundationTopic?,
     committed: String?,
     isLast: Boolean,
     audio: LessonAudioController,
@@ -189,6 +192,7 @@ private fun ConjugationQuestionBody(
         if (answered) {
             ConjugationFeedback(
                 question = question,
+                topic = topic,
                 committed = committed.orEmpty(),
                 correct = correct,
                 continueLabel = if (isLast) "完成" else "继续",
@@ -209,6 +213,7 @@ private fun ConjugationQuestionBody(
 @Composable
 private fun ConjugationFeedback(
     question: DrillQuestion,
+    topic: FoundationTopic?,
     committed: String,
     correct: Boolean,
     continueLabel: String,
@@ -228,6 +233,15 @@ private fun ConjugationFeedback(
         if (item.note.isNotBlank()) add("说明" to item.note.trim())
         if (item.zh.isNotBlank()) add("译文" to item.zh.trim())
     }
+    var deep by rememberSaveable(item.id) { mutableStateOf(false) }
+    val deepNotes = topic?.let { t ->
+        buildList {
+            add(t.titleJa to listOf(t.titleZh, t.shortDefinitionZh).filter { it.isNotBlank() }.joinToString("：").trim())
+            if (t.beginnerExplanationZh.isNotBlank()) add("讲解" to t.beginnerExplanationZh.trim())
+            if (t.deepExplanationZh.isNotBlank()) add("深入" to t.deepExplanationZh.trim())
+            if (t.cautionNoteZh.isNotBlank()) add("注意" to t.cautionNoteZh.trim())
+        }
+    }
     FeedbackSheet(
         correct = correct,
         onContinue = onContinue,
@@ -237,7 +251,12 @@ private fun ConjugationFeedback(
         lineGloss = reaction.zh,
         explanation = if (correct) null else "正确答案是「$answerText」。",
         continueLabel = continueLabel,
-        extra = { ReadAirNotes(notes) },
+        extra = {
+            key(deep) { ReadAirNotes(if (deep && deepNotes != null) deepNotes else notes) }
+            if (deepNotes != null) {
+                QuietButton(if (deep) "回到拆解" else "深入讲解 · ${topic?.titleZh.orEmpty()}", { deep = !deep })
+            }
+        },
     )
 }
 

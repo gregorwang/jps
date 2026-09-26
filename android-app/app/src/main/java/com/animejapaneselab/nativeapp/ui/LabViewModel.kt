@@ -17,7 +17,6 @@ import com.animejapaneselab.nativeapp.data.FoundationQuestionPack
 import com.animejapaneselab.nativeapp.data.FoundationQuestionQuery
 import com.animejapaneselab.nativeapp.data.FoundationStage
 import com.animejapaneselab.nativeapp.data.FoundationTopic
-import com.animejapaneselab.nativeapp.data.FoundationTopicQuery
 import com.animejapaneselab.nativeapp.data.GrammarPoint
 import com.animejapaneselab.nativeapp.data.LabSettings
 import com.animejapaneselab.nativeapp.data.LessonExerciseKind
@@ -52,6 +51,7 @@ import com.animejapaneselab.nativeapp.domain.resumeLessonFromProgress
 import com.animejapaneselab.nativeapp.platform.DeviceCapabilityReader
 import com.animejapaneselab.nativeapp.platform.DeviceCapabilitySnapshot
 import com.animejapaneselab.nativeapp.ui.foundation.FoundationTrainingError
+import com.animejapaneselab.nativeapp.ui.foundation.fetchAllFoundationTopics
 import com.animejapaneselab.nativeapp.ui.foundation.FoundationTrainingPhase
 import com.animejapaneselab.nativeapp.ui.foundation.FoundationTrainingState
 import com.animejapaneselab.nativeapp.ui.foundation.LinguisticsTrack
@@ -464,26 +464,6 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
         }
-    }
-
-    private fun RemoteLabClient.fetchAllFoundationTopics(): List<FoundationTopic> {
-        val result = mutableListOf<FoundationTopic>()
-        val seenCursors = mutableSetOf<String>()
-        var cursor: String? = null
-        do {
-            val page = fetchFoundationTopics(FoundationTopicQuery(cursor = cursor))
-            result += page.items
-            cursor = page.page.nextCursor
-            if (page.page.hasMore) {
-                require(cursor != null && seenCursors.add(cursor)) {
-                    "Foundation topic pagination returned an invalid cursor"
-                }
-            }
-        } while (page.page.hasMore)
-        require(result.distinctBy(FoundationTopic::id).size == result.size) {
-            "Foundation topic pagination returned duplicate ids"
-        }
-        return result
     }
 
     private fun RemoteLabClient.fetchAllFoundationPacks(): List<FoundationQuestionPack> {

@@ -229,4 +229,35 @@ object ConjugationDrillRules {
     fun groupTitle(group: String) = group.substringAfter(' ').substringBefore('（').trim()
 
     fun groupGloss(group: String) = group.substringAfter('（', "").removeSuffix("）").trim()
+
+    // ---------------------------------------------------------------- 基础题库 links
+
+    private val TopicByPoint = mapOf(
+        "c_teiru" to "sem_teiru_readings", "g_teru" to "sem_teiru_readings",
+        "c_teageru" to "prag_viewpoint_empathy", "c_tekureru" to "prag_viewpoint_empathy",
+        "c_temorau" to "prag_viewpoint_empathy", "c_teitadaku" to "prag_viewpoint_empathy",
+        "c_tekudasai" to "prag_viewpoint_empathy",
+        "c_temoii" to "sem_modality", "c_tewa_dame" to "sem_modality", "g_nakereba" to "sem_modality",
+        "d_kanou_doushi" to "sem_modality", "d_hazu" to "sem_modality", "d_beki" to "sem_modality",
+        "d_darou" to "sem_modality",
+        "d_reru" to "syn_passive", "d_seru" to "syn_causative", "d_nu" to "morph_negation_forms",
+        "d_sou_youtai" to "sem_evidentiality", "d_sou_denbun" to "sem_evidentiality",
+        "d_you_mitai" to "sem_evidentiality", "d_rashii" to "sem_evidentiality",
+        "e_tara" to "syn_conditionals", "e_nara" to "syn_conditionals", "e_to" to "syn_conditionals",
+        "a_katei_ba" to "syn_conditionals",
+        "g_tte" to "syn_complement_quotation",
+        "g_chau" to "prag_register_style", "g_toku" to "prag_register_style",
+    )
+
+    private val TopicByGroup = mapOf(
+        "A" to "morph_verb_conjugation", "B" to "morph_verb_conjugation", "C" to "syn_te_clause_linking",
+        "D" to "morph_auxiliary_chain", "E" to "prag_connectives_coherence", "F" to "morph_adjective_inflection",
+        "G" to "morph_auxiliary_chain", "H" to "prag_politeness_honorifics",
+    )
+
+    /** The `linguistic_foundation_topics` id that explains [item]'s grammar point in depth. */
+    fun topicIdFor(item: ConjugationDrillItem): String? =
+        TopicByPoint[item.pointId] ?: TopicByGroup[groupKey(item.group)]
+
+    val linkedTopicIds: Set<String> get() = TopicByPoint.values.toSet() + TopicByGroup.values
 }

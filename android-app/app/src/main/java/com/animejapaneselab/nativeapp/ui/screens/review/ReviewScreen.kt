@@ -80,6 +80,9 @@ fun ReviewScreen(
     onOpenSearch: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
+    /** 活用道場 lines due today and the entry that starts a set of them. */
+    drillDue: Int = 0,
+    onStartDrillReview: () -> Unit = {},
     today: LocalDate = LocalDate.now(),
 ) {
     val colors = AjlTheme.colors
@@ -154,6 +157,22 @@ fun ReviewScreen(
                         )
                     } else {
                         InkButton(text = "去学ぶ", trailingArrow = true, onClick = onOpenLesson)
+                    }
+                }
+            }
+            if (drillDue > 0) {
+                item(key = "drill", contentType = "toggle") {
+                    Row(
+                        Modifier
+                            .padding(top = 20.dp)
+                            .heightIn(min = 44.dp)
+                            .clickableNoRipple(onStartDrillReview),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Text("活用 復習", style = AjlTheme.type.body.copy(fontSize = 14.sp), color = colors.ink2)
+                        Text("· 到期 $drillDue 句", style = AjlTheme.type.body.copy(fontSize = 14.sp), color = colors.ink3)
+                        Icon(Icons.Rounded.ChevronRight, contentDescription = "开始活用复习", tint = colors.ink2, modifier = Modifier.size(16.dp))
                     }
                 }
             }
