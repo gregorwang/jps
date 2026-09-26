@@ -281,7 +281,7 @@ private fun CardFront(card: ReviewCard) {
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
-        Text("轻点翻面", style = AjlTheme.type.caption, color = colors.ink3)
+        Box(Modifier.height(0.dp))
     }
 }
 

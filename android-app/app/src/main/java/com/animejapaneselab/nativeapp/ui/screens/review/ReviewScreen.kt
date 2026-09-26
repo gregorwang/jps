@@ -147,7 +147,7 @@ fun ReviewScreen(
                     Spacer(Modifier.height(14.dp))
                     if (plan.entries.isNotEmpty()) {
                         InkButton(
-                            text = "开始复习",
+                            text = "开始翻卡",
                             jpText = "めくる",
                             trailingArrow = true,
                             onClick = onOpenSmartReviewQueue,
