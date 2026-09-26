@@ -12,7 +12,7 @@ import com.animejapaneselab.nativeapp.R
 class SoundFx(context: Context) {
     private val appContext = context.applicationContext
     private val soundPool = SoundPool.Builder()
-        .setMaxStreams(8)
+        .setMaxStreams(4)
         .setAudioAttributes(
             AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_GAME)
@@ -23,45 +23,24 @@ class SoundFx(context: Context) {
     private val sampleByRawId = mutableMapOf<Int, Int>()
     private val loadedSamples = mutableSetOf<Int>()
     private val pendingBySample = mutableMapOf<Int, SoundAsset>()
-    private val fallbackBySample = mutableMapOf<Int, Int>()
     private var released = false
 
     init {
         soundPool.setOnLoadCompleteListener { _, sampleId, status ->
             if (released) return@setOnLoadCompleteListener
+            val pending = pendingBySample.remove(sampleId)
             if (status == 0) {
                 loadedSamples += sampleId
-                fallbackBySample.remove(sampleId)
-                pendingBySample.remove(sampleId)?.let { asset ->
-                    playLoaded(sampleId, asset)
-                }
-            } else {
-                val asset = pendingBySample.remove(sampleId)
-                val fallbackRawId = fallbackBySample.remove(sampleId)
-                if (asset != null && fallbackRawId != null) {
-                    val fallbackSample = sampleByRawId.getOrPut(fallbackRawId) {
-                        soundPool.load(appContext, fallbackRawId, 1)
-                    }
-                    if (fallbackSample in loadedSamples) {
-                        playLoaded(fallbackSample, asset.copy(volume = asset.volume.coerceAtLeast(0.72f)))
-                    } else {
-                        pendingBySample[fallbackSample] = asset.copy(volume = asset.volume.coerceAtLeast(0.72f))
-                    }
-                }
+                pending?.let { playLoaded(sampleId, it) }
             }
         }
     }
 
     fun play(asset: SoundAsset) {
         if (released) return
-        val fallbackRawId = fallbackRawId(asset.rawName)
-        val requestedRawId = appContext.soundRawResourceId(asset.rawName)
-        val rawId = requestedRawId ?: fallbackRawId ?: return
+        val rawId = rawIdFor(asset.rawName)
         val sample = sampleByRawId.getOrPut(rawId) {
             soundPool.load(appContext, rawId, 1)
-        }
-        if (requestedRawId != null && fallbackRawId != null && requestedRawId != fallbackRawId) {
-            fallbackBySample[sample] = fallbackRawId
         }
         if (sample in loadedSamples) {
             playLoaded(sample, asset)
@@ -75,14 +54,6 @@ class SoundFx(context: Context) {
         soundPool.play(sample, asset.volume, asset.volume, 1, 0, asset.rate)
     }
 
-    private fun fallbackRawId(rawName: String): Int? {
-        return if (rawName.contains("incorrect") || rawName.contains("wrong")) {
-            R.raw.feedback_error
-        } else {
-            R.raw.feedback_success
-        }
-    }
-
     fun release() {
         if (released) return
         released = true
@@ -90,16 +61,14 @@ class SoundFx(context: Context) {
         sampleByRawId.clear()
         loadedSamples.clear()
         pendingBySample.clear()
-        fallbackBySample.clear()
         soundPool.release()
     }
 }
 
-private fun Context.soundRawResourceId(rawName: String): Int? {
+private fun rawIdFor(rawName: String): Int {
     return when (rawName) {
-        "right_answer" -> R.raw.right_answer
-        "wrong_answer" -> R.raw.wrong_answer
-        else -> rawResourceId(rawName)
+        SoundAsset.Error -> R.raw.feedback_error
+        else -> R.raw.feedback_success
     }
 }
 

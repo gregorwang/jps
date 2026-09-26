@@ -8,4 +8,4 @@
 # Okio carries this compile-time-only annotation in its bytecode; it is never loaded at runtime.
 -dontwarn javax.annotation.Nullable
 
-# Compose, Rive and Lottie provide their own consumer rules. Do not add package-wide keeps.
+# Compose and AndroidX libraries provide their own consumer rules. Do not add package-wide keeps.

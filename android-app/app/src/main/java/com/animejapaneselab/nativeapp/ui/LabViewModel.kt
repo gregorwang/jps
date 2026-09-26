@@ -893,8 +893,6 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 activeExerciseLabKind = null,
                 activeLessonPathKey = null,
                 pronunciationEvaluation = PronunciationEvaluationState(),
-                libraryRevealEpisodeActionsRequest = state.libraryRevealEpisodeActionsRequest +
-                    if (state.selectedTab == LabTab.Library) 1 else 0,
             )
         }
     }
@@ -932,8 +930,6 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 sessionXp = 0,
                 aiCoach = AiCoachState(),
                 pronunciationEvaluation = PronunciationEvaluationState(),
-                libraryRevealEpisodeActionsRequest = state.libraryRevealEpisodeActionsRequest +
-                    if (state.selectedTab == LabTab.Library) 1 else 0,
             )
         }
     }
@@ -1180,8 +1176,6 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 activeLessonPathKey = null,
                 sessionXp = 0,
                 readAir = readAir,
-                libraryRevealEpisodeActionsRequest = state.libraryRevealEpisodeActionsRequest +
-                    if (state.selectedTab == LabTab.Library) 1 else 0,
             )
         }
     }
@@ -2777,7 +2771,6 @@ data class LabUiState(
     val secondaryScreen: SecondaryScreen? = null,
     val deviceCapabilities: DeviceCapabilitySnapshot? = null,
     val deviceCapabilitiesRefreshing: Boolean = false,
-    val libraryRevealEpisodeActionsRequest: Int = 0,
     val works: List<WorkOption>,
     val episodes: List<EpisodeOption>,
     val selection: EpisodeSelection,

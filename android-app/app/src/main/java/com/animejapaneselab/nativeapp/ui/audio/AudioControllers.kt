@@ -3,9 +3,6 @@ package com.animejapaneselab.nativeapp.ui.audio
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
-import android.media.SoundPool
-import android.os.Handler
-import android.os.Looper
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import androidx.compose.runtime.Composable
@@ -15,7 +12,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import com.animejapaneselab.nativeapp.R
 import com.animejapaneselab.nativeapp.data.PromptAudio
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -368,113 +364,10 @@ private data class TtsRequest(
     val workerUrl: String,
 )
 
-class FeedbackSoundController(context: Context) {
-    private val rewardHandler = Handler(Looper.getMainLooper())
-    private val soundPool = SoundPool.Builder()
-        .setMaxStreams(3)
-        .setAudioAttributes(
-            AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build(),
-        )
-        .build()
-    private val success = soundPool.load(context, R.raw.feedback_success, 1)
-    private val error = soundPool.load(context, R.raw.feedback_error, 1)
-    private var successLoaded = false
-    private var errorLoaded = false
-    private var pendingFeedback: Boolean? = null
-    private var pendingCompletion = false
-    private var released = false
-
-    init {
-        soundPool.setOnLoadCompleteListener { _, sampleId, status ->
-            if (released) return@setOnLoadCompleteListener
-            if (status == 0) {
-                if (sampleId == success) successLoaded = true
-                if (sampleId == error) errorLoaded = true
-                if (sampleId == success && pendingCompletion) {
-                    pendingCompletion = false
-                    playCompletion()
-                }
-                pendingFeedback?.let { pending ->
-                    val pendingLoaded = if (pending) successLoaded else errorLoaded
-                    if (pendingLoaded) {
-                        pendingFeedback = null
-                        play(pending)
-                    }
-                }
-            } else if ((sampleId == success && pendingFeedback == true) || (sampleId == error && pendingFeedback == false)) {
-                pendingFeedback = null
-            } else if (sampleId == success && pendingCompletion) {
-                pendingCompletion = false
-            }
-        }
-    }
-
-    fun play(correct: Boolean) {
-        if (released) return
-        val loaded = if (correct) successLoaded else errorLoaded
-        if (!loaded) {
-            pendingFeedback = correct
-            return
-        }
-        val sampleId = if (correct) success else error
-        val volume = if (correct) 0.78f else 0.72f
-        val rate = if (correct) 1.06f else 0.92f
-        playSample(sampleId, volume, rate)
-    }
-
-    fun playCompletion() {
-        if (released) return
-        if (!successLoaded) {
-            pendingCompletion = true
-            return
-        }
-        rewardHandler.removeCallbacksAndMessages(null)
-        playSample(success, volume = 0.50f, rate = 1.06f)
-        postCompletionTone(delayMillis = 86L, volume = 0.44f, rate = 1.24f)
-        postCompletionTone(delayMillis = 174L, volume = 0.36f, rate = 1.42f)
-    }
-
-    private fun playSample(sampleId: Int, volume: Float, rate: Float) {
-        soundPool.play(sampleId, volume, volume, 1, 0, rate)
-    }
-
-    private fun postCompletionTone(delayMillis: Long, volume: Float, rate: Float) {
-        rewardHandler.postDelayed(
-            {
-                if (!released) {
-                    playSample(success, volume, rate)
-                }
-            },
-            delayMillis,
-        )
-    }
-
-    fun release() {
-        released = true
-        rewardHandler.removeCallbacksAndMessages(null)
-        pendingFeedback = null
-        pendingCompletion = false
-        soundPool.release()
-    }
-}
-
 @Composable
 fun rememberLessonAudioController(): LessonAudioController {
     val context = LocalContext.current
     val controller = remember(context) { LessonAudioController(context) }
-    DisposableEffect(controller) {
-        onDispose { controller.release() }
-    }
-    return controller
-}
-
-@Composable
-fun rememberFeedbackSoundController(): FeedbackSoundController {
-    val context = LocalContext.current
-    val controller = remember(context) { FeedbackSoundController(context) }
     DisposableEffect(controller) {
         onDispose { controller.release() }
     }

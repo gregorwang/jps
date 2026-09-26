@@ -76,10 +76,10 @@ Do not commit `local.properties`, keystores, passwords, session cookies, or mach
 | `targetSdk` | 36 |
 | `minSdk` | 26 |
 | Application ID | `com.animejapaneselab.nativeapp` |
-| App version | `0.2.0` / versionCode 2 |
+| App version | `0.4.0` / versionCode 5 |
 | ABIs | `x86_64`, `arm64-v8a` |
 | UI | Jetpack Compose / Material 3 |
-| Motion | Compose animation, Rive `11.7.1`, Lottie `6.7.1` |
+| Motion | Compose animation only (Rive/Lottie removed in v3, see `design/MOTION_SPEC.md`) |
 | Local tests | JUnit 4 plus `org.json` |
 
 Gradle is configured with a 4 GiB heap. On this machine, Kotlin compilation, Lint, and R8 can remain quiet for one to four minutes while consuming CPU. Use a realistic timeout (three to six minutes), and do not interpret buffered/no output as success or failure.
@@ -92,7 +92,7 @@ Gradle is configured with a 4 GiB heap. On this machine, Kotlin compilation, Lin
 | `localSlim` | Personal installable, minified build | Inherits Release minification/resource shrinking, uses debug signing, internal reference assets enabled |
 | `release` | Public/distribution build only | Internal reference assets disabled at runtime; packaging is blocked unless secure signing and asset-clearance gates are supplied |
 
-The main source set currently adds `../local-fusion-assets/res`. Those assets are not cleared for public redistribution. Public Release tasks deliberately fail unless all of the following are configured outside source control:
+Since v3 (0.4.0) the main source set no longer adds `../local-fusion-assets/res`; that Duolingo-era pack (DuolingoSans, Rive, Lottie, `.hla`, sounds) is archived under `../archive-content-sources/local-fusion-assets/`. The character art in `res/drawable-nodpi/` is still not cleared for public redistribution. Public Release tasks deliberately fail unless all of the following are configured outside source control:
 
 ```text
 AJL_RELEASE_STORE_FILE
@@ -174,7 +174,7 @@ Check startup crashes:
 | Transition animation scale | `0` |
 | Animator duration scale | `0` |
 
-The last known emulator animation scales were zero. When this emulator is connected, it is suitable for functional smoke tests but **not** for validating motion quality, durations, Lottie/Rive behavior, or reduced-motion fallbacks. For motion testing, temporarily set all three scales to `1`, record that change in the test report, and restore the user's preferred values afterwards.
+The last known emulator animation scales were zero. When this emulator is connected, it is suitable for functional smoke tests but **not** for validating motion quality, durations, or reduced-motion fallbacks. For motion testing, temporarily set all three scales to `1`, record that change in the test report, and restore the user's preferred values afterwards.
 
 An emulator log proving that TTS was invoked is not proof that a human heard audio. Verify host/emulator audio routing before describing playback as audible.
 
@@ -196,18 +196,14 @@ android-app/
       LabApp.kt                   root navigation/composition
       LabViewModel.kt             main state holder and orchestration
       audio/                       source audio, platform TTS, Worker TTS, recording
-      completion/                 completion UI/state mapping
-      components/                 reusable Compose components
-      feedback/                   sound/haptic/visual feedback contracts
-      fusion/                     internal visual rollout/resolution
+      design/                     v3 component library
+      feedback/                   sound (Kenney) and platform-haptic feedback
       motion/                     motion tokens and transition helpers
-      rive/                       Rive/Lottie runtime hosts
       screens/                    feature screens
       theme/                      colors, typography and shapes
     update/                        app-owned update state, download, verification, and installer handoff
   app/src/test/                   JVM tests
-  app/src/debug/                  debug-only manifest/preview activity
-  local-fusion-assets/res/        local/internal reference resources
+  app/src/debug/                  debug-only manifest/design gallery activity
 ```
 
 There are currently 24 JVM `*Test.kt` files and no `app/src/androidTest` suite. Prefer pure JVM tests for business rules and parsing. Add device/Compose instrumentation tests only when platform behavior genuinely needs them.
@@ -256,13 +252,12 @@ Do not print session cookies, passwords, authorization headers, release password
 - Platform Japanese `TextToSpeech` is attempted before the configured Worker. Worker audio cache keys include endpoint, voice, and text; downloads use a temporary file before final rename.
 - Pronunciation recording is 16 kHz WAV and uses short-lived ticket/evaluation APIs. Assessment failure must always leave a self-assessment route so a lesson cannot dead-end.
 
-## Assets, Rive, Lottie, and Debug Preview
+## Assets and Debug Preview
 
 - Read `..\docs\assets-license.md` and `..\docs\TARGET-ASSET-WHITELIST.json` before adding or redistributing assets.
 - Internal assets are enabled in `debug` and `localSlim`, and disabled through `BuildConfig.ALLOW_INTERNAL_REFERENCE_ASSETS` in `release`.
-- `app/src/debug/AndroidManifest.xml` exposes `debug.FusionPreviewActivity` only in the Debug source set.
+- `app/src/debug/AndroidManifest.xml` exposes `debug.DesignGalleryActivity` only in the Debug source set.
 - Reduced-motion/rich-animation switches must provide a static Compose/vector fallback rather than leaving empty UI.
-- Resource-name lookup is used by the dynamic feedback asset registry; this currently accounts for one non-blocking Lint `DiscouragedApi` warning.
 
 ## Last Known Verification Baseline
 
@@ -315,7 +310,7 @@ Rules for every future session:
 
 Update this file when any of these change:
 
-- JDK, Android Studio, SDK platforms/build tools, Gradle, AGP, Kotlin, Compose, Rive, or Lottie versions.
+- JDK, Android Studio, SDK platforms/build tools, Gradle, AGP, Kotlin, or Compose versions.
 - Emulator serial/API/resolution/density/animation scales.
 - Build variants, signing variable names, release gates, application ID, or ABI list.
 - Default endpoints, auth contract, source/TTS order, persistence backend, or backup behavior.

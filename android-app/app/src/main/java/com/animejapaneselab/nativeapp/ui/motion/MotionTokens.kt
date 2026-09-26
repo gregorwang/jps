@@ -5,7 +5,6 @@ import android.provider.Settings
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -64,47 +63,6 @@ object MotionTokens {
 
     /** Duration collapsed to 0 under reduced motion. */
     fun duration(baseMillis: Int, reducedMotion: Boolean): Int = if (reducedMotion) 0 else baseMillis
-
-    // ---- v2 compatibility — removed in stage 3 -------------------------------------------
-
-    @Deprecated("v2 token; use Dur")
-    object Duration {
-        const val TapDown = Dur.Press
-        const val TapUp = Dur.Release
-        const val Micro = Dur.State
-        const val CardEnter = Dur.Sheet
-        const val PageTransition = Dur.Page
-        const val AnswerFeedback = Dur.Sheet
-        const val AnswerWrongShake = 220
-        const val NodeUnlock = Dur.Sheet
-        const val XpCount = Dur.Sheet
-        const val LessonComplete = Dur.Page
-    }
-
-    @Deprecated("v2 token; press scale is fixed at 0.98")
-    object Scale {
-        const val ButtonPressed = 0.98f
-        const val OptionPressed = 0.98f
-        const val PopOvershoot = 1f
-        const val NodeActive = 1f
-    }
-
-    @Deprecated("v2 token; use Ease")
-    object Curve {
-        val Standard: Easing = Ease.Standard
-        val Decelerate: Easing = Ease.Decelerate
-        val Shake: Easing = Ease.Standard
-    }
-
-    @Deprecated("v2 helper; use standard(Dur.State, reducedMotion)")
-    fun microSpec(reducedMotion: Boolean): FiniteAnimationSpec<Float> = standard(Dur.State, reducedMotion)
-
-    @Deprecated("v2 helper; use settle()")
-    fun softSpring(reducedMotion: Boolean): FiniteAnimationSpec<Float> =
-        if (reducedMotion) snap() else spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = 600f)
-
-    @Deprecated("v2 bounce is gone; use settle()")
-    fun popSpring(reducedMotion: Boolean): FiniteAnimationSpec<Float> = softSpring(reducedMotion)
 }
 
 @Composable

@@ -2,42 +2,23 @@ package com.animejapaneselab.nativeapp.ui.feedback
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.remember
-import com.animejapaneselab.nativeapp.ui.rive.RiveMascotController
+import androidx.compose.runtime.staticCompositionLocalOf
 
 class FeedbackEngine(
     private val settings: FeedbackSettings,
     private val soundFx: SoundFx,
     private val haptics: Haptics,
-    private val mascot: RiveMascotController,
 ) {
     fun emit(event: FeedbackEvent) {
-        val variant = LearningFeedbackRegistry.variantFor(event)
         if (processFeedbackSoundPlaybackGate.shouldPlay(event, settings.soundEnabled)) {
-            variant.sound?.let(soundFx::play)
+            event.sound()?.let(soundFx::play)
         }
-        if (settings.hapticsEnabled) haptics.perform(event.hapticKind(), variant.haptic)
-        mascot.trigger(
-            name = event.mascotTrigger() ?: "idle",
-            visual = variant.visual.takeIf { settings.richAnimationsEnabled },
-        )
+        if (settings.hapticsEnabled) haptics.perform(event.hapticKind())
     }
 }
 
 val LocalFeedbackEngine = staticCompositionLocalOf<FeedbackEngine?> { null }
-val LocalRiveMascotController = staticCompositionLocalOf<RiveMascotController?> { null }
-
-@Composable
-fun rememberFeedbackEngine(settings: FeedbackSettings): FeedbackEngine {
-    val soundFx = rememberSoundFx()
-    val haptics = rememberHaptics()
-    val mascot = remember { RiveMascotController() }
-    return remember(settings, soundFx, haptics, mascot) {
-        FeedbackEngine(settings, soundFx, haptics, mascot)
-    }
-}
 
 @Composable
 fun ProvideFeedbackEngine(
@@ -46,25 +27,29 @@ fun ProvideFeedbackEngine(
 ) {
     val soundFx = rememberSoundFx()
     val haptics = rememberHaptics()
-    val mascot = remember { RiveMascotController() }
-    val engine = remember(settings, soundFx, haptics, mascot) {
-        FeedbackEngine(settings, soundFx, haptics, mascot)
-    }
-    DisposableEffect(Unit) {
-        mascot.trigger("idle")
-        onDispose { }
+    val engine = remember(settings, soundFx, haptics) {
+        FeedbackEngine(settings, soundFx, haptics)
     }
     CompositionLocalProvider(
         LocalFeedbackEngine provides engine,
-        LocalRiveMascotController provides mascot,
         content = content,
     )
+}
+
+/** v3 sound map (MOTION_SPEC section 4): only judgments make a sound, using the Kenney CC0 pack. */
+private fun FeedbackEvent.sound(): SoundAsset? {
+    return when (this) {
+        is FeedbackEvent.AnswerCorrect -> SoundAsset(SoundAsset.Success, volume = 0.8f)
+        FeedbackEvent.AnswerWrong -> SoundAsset(SoundAsset.Error, volume = 0.8f)
+        FeedbackEvent.LessonComplete -> SoundAsset(SoundAsset.Success, volume = 0.6f)
+        else -> null
+    }
 }
 
 private fun FeedbackEvent.hapticKind(): HapticKind? {
     return when (this) {
         FeedbackEvent.TapPrimary,
-        FeedbackEvent.TapSecondary,
+        FeedbackEvent.TapSecondary -> null
         FeedbackEvent.OptionSelect,
         FeedbackEvent.LessonStepComplete,
         FeedbackEvent.LessonNodeUnlock,
@@ -75,17 +60,5 @@ private fun FeedbackEvent.hapticKind(): HapticKind? {
         is FeedbackEvent.StreakExtend,
         FeedbackEvent.LessonComplete -> HapticKind.Confirm
         FeedbackEvent.AnswerWrong -> HapticKind.Reject
-    }
-}
-
-private fun FeedbackEvent.mascotTrigger(): String? {
-    return when (this) {
-        is FeedbackEvent.AnswerCorrect -> "correct"
-        FeedbackEvent.AnswerWrong -> "wrong"
-        is FeedbackEvent.Combo -> "combo"
-        FeedbackEvent.LessonNodeUnlock -> "unlock"
-        is FeedbackEvent.StreakExtend -> "streak"
-        FeedbackEvent.LessonComplete -> "complete"
-        else -> null
     }
 }

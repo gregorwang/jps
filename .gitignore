@@ -11,3 +11,12 @@ __pycache__/
 .agents/
 .codex-remote-attachments/
 verification-*/
+
+# Duolingo-era reference assets archived in v3 (personal/local-use only; repo is public)
+archive-content-sources/local-fusion-assets/
+archive-content-sources/android-drawables/drawable/duo_*.xml
+archive-content-sources/android-drawables/drawable/duoradio_*.xml
+archive-content-sources/android-drawables/drawable/path_bea_*.xml
+archive-content-sources/android-drawables/drawable/common_level_chest_locked_v2.xml
+archive-content-sources/android-drawables/drawable/in_challenge_junior.xml
+archive-content-sources/android-drawables/drawable/guidebook_white.xml

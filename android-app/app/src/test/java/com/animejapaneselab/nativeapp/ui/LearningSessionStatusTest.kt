@@ -39,19 +39,18 @@ class LearningSessionStatusTest {
         val status = buildLessonSessionStatus(
             focus = focus,
             lesson = LessonSession(nodes = nodes, index = 2, answered = 2),
-            sessionXp = 18,
         )!!
 
         assertEquals(2, status.completed)
         assertEquals(3, status.position)
         assertEquals(5, status.total)
         assertEquals("3/5", status.chipText)
-        assertEquals("Re:Zero · EP01 · XP 18", status.subtitle)
+        assertEquals("Re:Zero · EP01", status.subtitle)
     }
 
     @Test
     fun readAirStatusClampsCompletedCountAndMarksFinalPosition() {
-        val status = buildReadAirSessionStatus(focus, completed = 9, total = 7, sessionXp = 12)!!
+        val status = buildReadAirSessionStatus(focus, completed = 9, total = 7)!!
 
         assertEquals(7, status.completed)
         assertEquals(7, status.position)
@@ -60,7 +59,7 @@ class LearningSessionStatusTest {
 
     @Test
     fun emptySessionsDoNotCreateNotifications() {
-        assertNull(buildLessonSessionStatus(focus, LessonSession(emptyList()), 0))
-        assertNull(buildReadAirSessionStatus(focus, completed = 0, total = 0, sessionXp = 0))
+        assertNull(buildLessonSessionStatus(focus, LessonSession(emptyList())))
+        assertNull(buildReadAirSessionStatus(focus, completed = 0, total = 0))
     }
 }

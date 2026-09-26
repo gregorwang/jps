@@ -13,7 +13,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.PlatformTextStyle
@@ -419,14 +418,10 @@ fun AnimeJapaneseLabTheme(
 ) {
     val colors = if (darkTheme) DarkAjlColors else LightAjlColors
     val materialColors = remember(darkTheme) { colors.toMaterial() }
-    @Suppress("DEPRECATION")
-    val legacy = if (darkTheme) DarkExtendedColors else LightExtendedColors
-    @Suppress("DEPRECATION")
     CompositionLocalProvider(
         LocalAjlColors provides colors,
         LocalAjlType provides DefaultAjlType,
         LocalWorkTheme provides WorkThemes.of(WorkHue.Ai, darkTheme),
-        LocalLabExtendedColors provides legacy,
     ) {
         MaterialTheme(
             colorScheme = materialColors,
@@ -449,93 +444,3 @@ object LabSpacing {
     val Screen = 20.dp
 }
 
-val AppSpacing = LabSpacing.Medium
-
-// ---------------------------------------------------------------------------
-// v2 compatibility layer — removed in stage 3 once every screen is v3.
-// ---------------------------------------------------------------------------
-
-@Deprecated("v2 palette; use AjlTheme.colors / AjlTheme.work")
-object LabPalette {
-    val Green = LightAjlColors.ok
-    val GreenDark = Color(0xFF1F5E41)
-    val GreenSoft = LightAjlColors.okSoft
-    val Blue = Color(0xFF3A4FCB)
-    val BlueSoft = Color(0xFFECEEFB)
-    val Yellow = Color(0xFF8A6A1E)
-    val YellowSoft = Color(0xFFF3EEDF)
-    val Coral = LightAjlColors.bad
-    val CoralSoft = LightAjlColors.badSoft
-    val Sakura = Color(0xFFC4466F)
-    val SakuraDark = Color(0xFFAA3C64)
-    val SakuraSoft = Color(0xFFF8E6EC)
-    val Violet = LightAjlColors.ink
-    val VioletDark = LightAjlColors.ink
-    val VioletBright = LightAjlColors.ink2
-    val Orange = LightAjlColors.stamp
-    val OrangeSoft = LightAjlColors.badSoft
-    val Gold = LightAjlColors.ink2
-    val Ink = LightAjlColors.ink
-    val Muted = LightAjlColors.ink3
-    val Paper = LightAjlColors.bg
-    val Panel = LightAjlColors.surface
-    val BluePanel = LightAjlColors.sunken
-    val VioletPanel = LightAjlColors.sunken
-    val Outline = LightAjlColors.line
-}
-
-@Deprecated("v2 semantic colours; use AjlTheme.colors")
-@Immutable
-data class LabExtendedColors(
-    val success: Color,
-    val onSuccess: Color,
-    val successContainer: Color,
-    val onSuccessContainer: Color,
-    val warning: Color,
-    val onWarning: Color,
-    val warningContainer: Color,
-    val onWarningContainer: Color,
-    val info: Color,
-    val onInfo: Color,
-    val infoContainer: Color,
-    val onInfoContainer: Color,
-    val streak: Color,
-    val streakContainer: Color,
-    val xp: Color,
-    val xpContainer: Color,
-    val heroGradientStart: Color,
-    val heroGradientEnd: Color,
-    val onHero: Color,
-)
-
-@Suppress("DEPRECATION")
-private fun AjlColors.legacy() = LabExtendedColors(
-    success = ok, onSuccess = onInk, successContainer = okSoft, onSuccessContainer = ok,
-    warning = ink2, onWarning = onInk, warningContainer = sunken, onWarningContainer = ink,
-    info = ink2, onInfo = onInk, infoContainer = sunken, onInfoContainer = ink,
-    streak = ink2, streakContainer = sunken, xp = ink2, xpContainer = sunken,
-    heroGradientStart = ink, heroGradientEnd = ink, onHero = onInk,
-)
-
-@Suppress("DEPRECATION")
-private val LightExtendedColors = LightAjlColors.legacy()
-
-@Suppress("DEPRECATION")
-private val DarkExtendedColors = DarkAjlColors.legacy()
-
-@Suppress("DEPRECATION")
-@Deprecated("v2 semantic colours; use AjlTheme.colors")
-val LocalLabExtendedColors = staticCompositionLocalOf { LightExtendedColors }
-
-@Deprecated("v2 accessor; use AjlTheme")
-object LabTheme {
-    @Suppress("DEPRECATION")
-    val colors: LabExtendedColors
-        @Composable get() = LocalLabExtendedColors.current
-
-    @Composable
-    fun heroBrush(): Brush {
-        val ink = LocalAjlColors.current.ink
-        return Brush.linearGradient(colors = listOf(ink, ink))
-    }
-}

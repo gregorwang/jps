@@ -21,9 +21,6 @@ if ($app -ne $main) {
     if (-not (Test-Path (Join-Path $app 'local.properties'))) {
         Copy-Item (Join-Path $main 'local.properties') (Join-Path $app 'local.properties')
     }
-    if (-not (Test-Path (Join-Path $app 'local-fusion-assets'))) {
-        cmd /c mklink /J (Join-Path $app 'local-fusion-assets') (Join-Path $main 'local-fusion-assets') | Out-Null
-    }
     # Character art (drawable-nodpi) and a few legacy vectors are gitignored too.
     $res = 'app\src\main\res'
     if (-not (Test-Path (Join-Path $app "$res\drawable-nodpi"))) {

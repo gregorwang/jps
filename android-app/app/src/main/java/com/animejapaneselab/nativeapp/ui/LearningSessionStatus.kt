@@ -17,14 +17,13 @@ data class LearningSessionStatus(
 internal fun LabUiState.learningSessionStatus(): LearningSessionStatus? {
     return when (activeSession) {
         TrainingSessionKind.Lesson -> {
-            buildLessonSessionStatus(focus, lesson, sessionXp)
+            buildLessonSessionStatus(focus, lesson)
         }
         TrainingSessionKind.ReadAir -> {
             buildReadAirSessionStatus(
                 focus = focus,
                 completed = readAir.answeredScopedCount,
                 total = readAir.scopedExercises.size,
-                sessionXp = sessionXp,
             )
         }
         null -> null
@@ -34,7 +33,6 @@ internal fun LabUiState.learningSessionStatus(): LearningSessionStatus? {
 internal fun buildLessonSessionStatus(
     focus: EpisodeFocus,
     lesson: LessonSession,
-    sessionXp: Int,
 ): LearningSessionStatus? {
     val total = lesson.nodes.size
     if (total <= 0) return null
@@ -42,7 +40,7 @@ internal fun buildLessonSessionStatus(
     return LearningSessionStatus(
         kind = TrainingSessionKind.Lesson,
         title = focus.lessonTitle.ifBlank { "日语学习训练" },
-        subtitle = "${focus.workTitle} · ${focus.episodeLabel} · XP $sessionXp",
+        subtitle = "${focus.workTitle} · ${focus.episodeLabel}",
         completed = completed,
         position = if (lesson.isComplete) total else (lesson.index + 1).coerceIn(1, total),
         total = total,
@@ -53,14 +51,13 @@ internal fun buildReadAirSessionStatus(
     focus: EpisodeFocus,
     completed: Int,
     total: Int,
-    sessionXp: Int,
 ): LearningSessionStatus? {
     if (total <= 0) return null
     val safeCompleted = completed.coerceIn(0, total)
     return LearningSessionStatus(
         kind = TrainingSessionKind.ReadAir,
         title = "语感专项训练",
-        subtitle = "${focus.workTitle} · ${focus.episodeLabel} · XP $sessionXp",
+        subtitle = "${focus.workTitle} · ${focus.episodeLabel}",
         completed = safeCompleted,
         position = if (safeCompleted >= total) total else (safeCompleted + 1).coerceIn(1, total),
         total = total,
