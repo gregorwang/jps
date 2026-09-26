@@ -11,36 +11,24 @@
 | P2 后端 | 表 `conjugation_drill_items`，线上 **906 条已发布**；Worker `GET /api/conjugation-drill/items` 已部署 | `supabase/migrations/20260926120000_*.sql`、`src/worker.ts` |
 | P2 App | 言語学 第三巻 活用：8 本教科書（按大类）、筛选到语法点、每组 15 题（先复习后新句）、4 种题型（行＋活用形 / 原形倒推 / 语法点辨认 / 句意）、答后播原声并显示拆解；进度是本地 Leitner（1/2/4/8/16 天） | `ui/drill/`、`ui/screens/session/ConjugationSession.kt`、`data/ConjugationDrill.kt`；commit `8b324e1`、`a5b11e4` |
 
+| P3 数据 | `CAP` 20→40、`PER_EP` 2→3；修了 7 条误判规则（见下）；放宽 のに／ながら／てから／らしい／ければ／なくては；重跑时**已发布的句子优先保留、被拒过的不再重选**，所以 Leitner 进度不丢 | `extract.py`（旧版和 P2 数据备份在 `p2_backup/`） |
+| P3 App | 答题反馈里的「深入讲解 · <主题>」：切换显示 `linguistic_foundation_topics` 的讲解，映射在 `ConjugationDrillRules.topicIdFor`；Review 页「活用 復習 · 到期 N 句」，点了直接跳到第三巻开一组 | commit `4fb1738` |
+
+**数据还差最后一步**：扩充后新增的 839 句还没校对，已切成 `pending/batch_*.md`，交给 Antigravity 跑，提示词是存档目录里的 `ANTIGRAVITY_PROMPT.md`（逐批写 `batch_*.json` → `python merge.py` → `build_preview.py` → `import.mjs`）。线上目前仍是 P2 的 906 句。
+
 **还没推送到手机**。用户要测试时先"推送更新"（CLAUDE.md 第 6 节）。
 
-## P3 待做（按性价比排序）
+## P3 做了什么
 
-1. **多出题**：用户要"多找点"。抽取阶段每个语法点上限是 20 句（`extract.py` 里的 `CAP`），而候选有 6577 条：する 602、促音便 506、ている 484、んだ 396、可能动词 342……把 `CAP` 提到 40，再跑校对和导入，大概能到 1800 条。
-2. **修误判规则**（`extract.py`），这些是校对时发现的：
-   - `d_sou_youtai`：会误抓副词「そう」
-   - `e_to`：会误抓引用的「だと」
-   - `h_sonkei`：会误抓「ごめんなさい」
-   - `c_tewa_dame`：混进了「なくてはならない」，这应该归到 `g_nakereba`
-   - `a_trap_ru`：会误抓「お帰り」
-   - `e_noni`：会误抓表目的的「のに」
-   - `d_kanou_doushi`：偶尔误判
-3. **补条数少的语法点**：ので、のに、ながら、てから、てある 各只有 4 句，らしい 2 句。原因可能是规则写窄了，也可能是带原声的语料确实少。先放宽规则试试，不够就接受现状。
-4. **关联基础题库**：每个语法点链接到 `linguistic_foundation_topics` 对应的主题，在答题反馈里加"深入讲解"。对应关系：
-   - 動詞活用：`morph_verb_conjugation`
-   - て形：`syn_te_clause_linking`
-   - ている：`sem_teiru_readings`
-   - 助動成分：`morph_auxiliary_chain`
-   - 条件：`syn_conditionals`
-   - 被动：`syn_passive`
-   - 使役：`syn_causative`
-   - 敬语：`prag_politeness_honorifics`
-   - 形容词：`morph_adjective_inflection`
-5. （可选）在 Today 或 Review 页显示「活用 复习 N」的入口。
-6. 有 40 条没校对到，用户说不用补了。
+- **误判修正**：`d_sou_youtai` 要求词干和そう紧贴且是连用形/语干；`e_to` 排除 だと、といい、ようと、引用动词，并改名「终止形＋と（一…就・条件）」；`h_sonkei` 排除 なさい 命令形；`c_tewa_dame` 排除 ない＋て（归 `g_nakereba`，后者新增 なくては＋ならない/いけない/だめ）；`a_trap_ru` 排除接头辞「お」后的；`e_noni` 的 の＋に 只认 助動詞/形容詞 后、且后面不是动词/邪魔/必要；`d_kanou_doushi` 要求 lemma 本身是五段（用 fugashi 查）、排除命令形和句末的连用形。
+- **单一动词的点**（する、来る、行く、ございます、なさい）按活用形轮换，不再被 lemma 上限卡住。
+- **语料确实少**：ので 1、そうだ(传闻) 2、てある 3、ございます 3、てはいけない 4——带原声的 Re:ゼロ S2 就这么多，接受现状。要更多只能等别的作品有原声。
+- **校对模型**：DeepSeek 余额用完（402 Insufficient Balance），`verify.mjs` 支持 `MODEL=gemini-3.5-flash`（走 AI Gateway 的 `compat` 端点）。Gemini 偏宽松，几乎全 keep，拆解偶有小错。
+- **基础题库映射**：大类默认 A/B→`morph_verb_conjugation`、C→`syn_te_clause_linking`、D/G→`morph_auxiliary_chain`、E→`prag_connectives_coherence`、F→`morph_adjective_inflection`、H→`prag_politeness_honorifics`；按点覆盖：ている→`sem_teiru_readings`、授受→`prag_viewpoint_empathy`、可能/义务/许可/推测→`sem_modality`、そう/よう/らしい→`sem_evidentiality`、れる→`syn_passive`、せる→`syn_causative`、ず→`morph_negation_forms`、条件→`syn_conditionals`、って→`syn_complement_quotation`、ちゃう/とく→`prag_register_style`。
 
 ## 怎么跑（都在 `archive-content-sources/conjugation-drill-p1/`）
 
-- **准备素材**：`audio_sentences.json` 当时放在 scratchpad，没有存档。重新导出用这条 SQL：
+- **准备素材**：`audio_sentences.json` 已存档在该目录。要重新导出，不用 token：learning_sentences 和 subtitle_lines 用 `.dev.vars` 的 `SUPABASE_PUBLISHABLE_KEY` 走 PostgREST 就能读（分页 1000）。等价 SQL：
   ```sql
   select s.id, s.episode, s.source_line_no, s.ja_text, s.reading, s.meaning_zh, s.difficulty, s.audio_url, l.start_time, l.end_time
   from learning_sentences s
@@ -52,7 +40,7 @@
 - **执行顺序**：
   1. `python extract.py`：生成 `selected.json`。
   2. `node verify.mjs`：做 AI 校对。
-     - 走项目自己的 AI Gateway，调 `deepseek-v4-pro`，token 从 `jps/.dev.vars` 的 `CF_AIG_TOKEN` 读取。
+     - 走项目自己的 AI Gateway，默认 `deepseek-v4-pro`（余额已用完），可用 `MODEL=gemini-3.5-flash node verify.mjs`；token 从 `jps/.dev.vars` 的 `CF_AIG_TOKEN` 读取。
      - 运行时会跳过已经校对过的条目，所以中断后直接重跑就能接着来。
      - `max_tokens` 必须设大（24000），否则推理过程会把 token 吃光，返回空内容。
   3. `python build_preview.py <输出目录>`：生成 `drill_items.json` 和 `preview.md`。
