@@ -404,11 +404,29 @@ async function handleApi(request: Request, env: Env, url: URL) {
     }
 
     if (parts[5] === 'subtitles') {
-      const rows = await supabase<unknown[]>(
-        env,
-        `/rest/v1/subtitle_lines?select=line_no,start_time,end_time,ja_text,zh_text&work_slug=eq.${encodeURIComponent(workSlug)}&episode=eq.${episodeNo}&order=line_no.asc&limit=500`,
-      )
-      return json(rows.map(mapSubtitle))
+      const [rows, voiced] = await Promise.all([
+        supabase<unknown[]>(
+          env,
+          `/rest/v1/subtitle_lines?select=line_no,start_time,end_time,ja_text,zh_text&work_slug=eq.${encodeURIComponent(workSlug)}&episode=eq.${episodeNo}&order=line_no.asc&limit=500`,
+        ),
+        // Source-audio clips cut for this episode's sentences, keyed back to their subtitle line.
+        supabase<Record<string, unknown>[]>(
+          env,
+          `/rest/v1/learning_sentences?select=source_line_no,audio_url,storage_path&work_slug=eq.${encodeURIComponent(workSlug)}&episode=eq.${episodeNo}&or=(audio_url.neq.,storage_path.neq.)&limit=1000`,
+        ).catch(() => []),
+      ])
+      const audioByLine = new Map<number, { audioUrl: string; storagePath: string }>()
+      for (const row of voiced) {
+        const lineNo = readNumber(row, 'source_line_no')
+        const audioUrl = readString(row, 'audio_url')
+        const storagePath = readString(row, 'storage_path')
+        if (lineNo > 0 && (audioUrl || storagePath) && !audioByLine.has(lineNo)) audioByLine.set(lineNo, { audioUrl, storagePath })
+      }
+      return json(rows.map((row) => {
+        const line = mapSubtitle(row)
+        const audio = audioByLine.get(line.lineNo)
+        return audio ? { ...line, ...audio } : line
+      }))
     }
   }
 
