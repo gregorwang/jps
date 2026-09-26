@@ -10,6 +10,8 @@ data class LearningSessionStatus(
     val completed: Int,
     val position: Int,
     val total: Int,
+    val workSlug: String = "",
+    val episode: Int = 0,
 ) {
     val chipText: String get() = "$position/$total"
 }
@@ -44,6 +46,8 @@ internal fun buildLessonSessionStatus(
         completed = completed,
         position = if (lesson.isComplete) total else (lesson.index + 1).coerceIn(1, total),
         total = total,
+        workSlug = focus.workSlug,
+        episode = focus.episodeNumber,
     )
 }
 
@@ -56,10 +60,12 @@ internal fun buildReadAirSessionStatus(
     val safeCompleted = completed.coerceIn(0, total)
     return LearningSessionStatus(
         kind = TrainingSessionKind.ReadAir,
-        title = "语感专项训练",
+        title = "读空气",
         subtitle = "${focus.workTitle} · ${focus.episodeLabel}",
         completed = safeCompleted,
         position = if (safeCompleted >= total) total else (safeCompleted + 1).coerceIn(1, total),
         total = total,
+        workSlug = focus.workSlug,
+        episode = focus.episodeNumber,
     )
 }

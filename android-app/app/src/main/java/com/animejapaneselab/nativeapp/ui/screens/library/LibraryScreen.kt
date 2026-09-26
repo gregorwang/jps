@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,9 +37,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -347,28 +352,45 @@ private fun VocabPage(
     )
 }
 
+/**
+ * 級 ruler: one hairline strip split evenly (全部 · N5 … N1), so it never scrolls sideways or
+ * crowds the kana rail. The selected level sits on the work-soft tint in work colour.
+ */
 @Composable
 private fun LevelPills(buckets: List<LevelBucket>, selected: String, onSelect: (String) -> Unit) {
     val colors = AjlTheme.colors
+    val work = AjlTheme.work
+    val shape = RoundedCornerShape(10.dp)
     Row(
-        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        Modifier
+            .fillMaxWidth()
+            .height(36.dp)
+            .clip(shape)
+            .border(AjlStroke.Hair, colors.line2, shape),
     ) {
-        buckets.forEach { bucket ->
+        buckets.forEachIndexed { index, bucket ->
             val on = bucket.key == selected
-            val shape = RoundedCornerShape(6.dp)
-            Row(
+            if (index > 0) Box(Modifier.fillMaxHeight().width(AjlStroke.Hair).background(colors.line))
+            Box(
                 Modifier
-                    .height(30.dp)
-                    .background(if (on) colors.ink else colors.surface, shape)
-                    .border(AjlStroke.Hair, if (on) colors.ink else colors.line2, shape)
+                    .weight(if (bucket.key == Jlpt.All) 1.25f else 1f)
+                    .fillMaxHeight()
+                    .background(if (on) work.soft else colors.surface)
                     .clickableNoRipple(onClick = { onSelect(bucket.key) })
-                    .padding(horizontal = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    .semantics { contentDescription = "${bucket.label} ${bucket.count} 个" },
+                contentAlignment = Alignment.Center,
             ) {
-                Text(bucket.label, style = AjlTheme.type.caption, color = if (on) colors.onInk else colors.ink)
-                Text(bucket.count.toString(), style = AjlTheme.type.metaSmall, color = if (on) colors.onInk2 else colors.ink3)
+                Text(
+                    buildAnnotatedString {
+                        append(bucket.label)
+                        withStyle(SpanStyle(fontSize = 9.sp, baselineShift = BaselineShift(0.45f), color = if (on) work.accent else colors.ink3)) {
+                            append(" ${bucket.count}")
+                        }
+                    },
+                    style = AjlTheme.type.meta.copy(fontSize = 12.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal),
+                    color = if (on) work.accent else colors.ink2,
+                    maxLines = 1,
+                )
             }
         }
     }
@@ -394,7 +416,8 @@ private fun VocabEntry(
             Modifier.fillMaxWidth().clickableNoRipple(onToggle).padding(top = 16.dp, bottom = 14.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Headword + plain reading; the level sits right as a small work-colour tag.
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(
                     item.surface,
                     style = type.jpDisplay.copy(fontSize = 25.sp, lineHeight = 32.sp, fontWeight = FontWeight.Bold),
@@ -402,19 +425,38 @@ private fun VocabEntry(
                     modifier = Modifier.alignByBaseline(),
                 )
                 if (item.reading.isNotBlank() && item.reading != item.surface) {
-                    Text("【${item.reading}】", style = type.jpBody.copy(fontSize = 14.sp), color = colors.ink2, modifier = Modifier.alignByBaseline())
-                }
-                val pos = shortPartOfSpeech(item.partOfSpeech)
-                if (pos.isNotEmpty()) {
-                    Text("〔$pos〕", style = type.jpBody.copy(fontSize = 13.sp), color = colors.ink3, modifier = Modifier.alignByBaseline())
+                    Text(item.reading, style = type.jpBody.copy(fontSize = 14.sp), color = colors.ink3, modifier = Modifier.alignByBaseline())
                 }
                 Spacer(Modifier.weight(1f))
-                val level = item.level.trim()
-                if (level.isNotEmpty()) {
-                    Text(level.uppercase(), style = type.meta, color = accent, modifier = Modifier.alignByBaseline())
+                val level = Jlpt.normalize(item.level).takeIf { it in Jlpt.Levels }
+                if (level != null) {
+                    Text(
+                        level,
+                        style = type.metaSmall.copy(fontSize = 10.sp),
+                        color = accent,
+                        modifier = Modifier
+                            .alignByBaseline()
+                            .background(AjlTheme.work.soft, RoundedCornerShape(4.dp))
+                            .padding(horizontal = 6.dp, vertical = 1.dp),
+                    )
                 }
             }
-            Meaning(item.meaningZh)
+            // Part of speech in plain Chinese (名词 / 五段动词 / な形容词) ahead of the meaning.
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Top) {
+                val pos = partOfSpeechLabel(item.partOfSpeech)
+                if (pos.isNotEmpty()) {
+                    Text(
+                        pos,
+                        style = type.caption.copy(fontSize = 11.sp, lineHeight = 14.sp),
+                        color = colors.ink2,
+                        modifier = Modifier
+                            .padding(top = 3.dp)
+                            .border(AjlStroke.Hair, colors.line2, RoundedCornerShape(4.dp))
+                            .padding(horizontal = 5.dp, vertical = 1.dp),
+                    )
+                }
+                Box(Modifier.weight(1f)) { Meaning(item.meaningZh) }
+            }
             if (example != null) ExampleLine(parseSpokenLine(example.ja).text, exampleSource(example))
         }
         if (expanded) {

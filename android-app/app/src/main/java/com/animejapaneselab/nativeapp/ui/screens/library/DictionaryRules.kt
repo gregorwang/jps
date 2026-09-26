@@ -227,16 +227,48 @@ internal fun ShadowingSentence.aiContext(episodeLabel: String): String = buildSt
     append("\n请解释字面意思、句子结构、语气、跟读重点和现实可用性。")
 }
 
-/** Short part-of-speech tag for the entry head: 名詞 → 名, 動詞・五段 → 動・五. Blank stays blank. */
-internal fun shortPartOfSpeech(raw: String): String {
+/**
+ * Part of speech in plain Chinese for the entry: 名詞 → 名词, 動詞・五段 → 五段动词,
+ * 形容動詞 → な形容词, 名/動 → 名词 · 动词. Unknown tags pass through; blank stays blank.
+ */
+internal fun partOfSpeechLabel(raw: String): String {
     val trimmed = raw.trim()
     if (trimmed.isEmpty()) return ""
-    return trimmed
-        .replace("詞", "")
-        .replace("段", "")
-        .replace("动词", "動")
-        .replace("形容动", "形動")
-        .replace("形容", "形")
-        .replace("词", "")
-        .take(6)
+    // 動詞・五段 is one verb with a subtype, not two categories.
+    if (VerbWithType.containsMatchIn(trimmed)) return posPart(trimmed.replace(PosSeparators, ""))
+    return trimmed.split(PosSeparators)
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+        .map(::posPart)
+        .distinct()
+        .joinToString(" · ")
+}
+
+private val VerbWithType = Regex("^(動|动)(詞|词)?[・·\\s]*(五段|一段|サ変|カ変|する)")
+private val PosSeparators = Regex("[/／、,，・·\\s]+")
+
+private fun posPart(part: String): String {
+    val p = part.replace("詞", "").replace("词", "").replace("动", "動")
+    return when {
+        p.startsWith("形容動") || p.startsWith("形動") || p.startsWith("な形") -> "な形容词"
+        p.startsWith("形容") || p == "形" || p.startsWith("い形") -> "い形容词"
+        p.startsWith("助動") -> "助动词"
+        p.startsWith("動") || p.startsWith("自動") || p.startsWith("他動") -> when {
+            "五" in p -> "五段动词"
+            "一" in p -> "一段动词"
+            "サ" in p || "する" in p -> "サ变动词"
+            "カ" in p -> "カ变动词"
+            else -> "动词"
+        }
+        p.startsWith("名") -> "名词"
+        p.startsWith("副") -> "副词"
+        p.startsWith("代") -> "代词"
+        p.startsWith("連体") || p.startsWith("连体") -> "连体词"
+        p.startsWith("接続") || p.startsWith("连") || p.startsWith("接") -> "接续词"
+        p.startsWith("感") || p.startsWith("叹") || p.startsWith("嘆") -> "感叹词"
+        p.startsWith("助") -> "助词"
+        p.startsWith("数") -> "数词"
+        p.startsWith("表現") || p.startsWith("表达") || p.startsWith("慣用") -> "惯用表达"
+        else -> part
+    }
 }
