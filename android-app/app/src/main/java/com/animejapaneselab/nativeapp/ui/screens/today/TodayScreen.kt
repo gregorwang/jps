@@ -44,6 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.animejapaneselab.nativeapp.data.LessonMode
 import com.animejapaneselab.nativeapp.data.promptAudioForSentence
+import com.animejapaneselab.nativeapp.data.AudioKind
+import com.animejapaneselab.nativeapp.data.ShadowingSentence
 import com.animejapaneselab.nativeapp.ui.audio.AudioPlaybackPhase
 import com.animejapaneselab.nativeapp.ui.audio.rememberLessonAudioController
 import com.animejapaneselab.nativeapp.ui.design.VoiceBars
@@ -139,10 +141,23 @@ fun TodayScreen(
     }
     val audio = rememberLessonAudioController()
     val speaking = audio.playbackState.phase.let { it == AudioPlaybackPhase.Playing || it == AudioPlaybackPhase.Loading }
-    val lineSentence = remember(line, uiState.shadowing) {
+    val lineSentence = remember(line, uiState.shadowing, uiState.subtitles) {
         line?.let { l ->
             uiState.shadowing.firstOrNull { l.lineNo > 0 && it.sourceLineNo == l.lineNo }
                 ?: uiState.shadowing.firstOrNull { TodayRules.splitSpeakerPrefix(it.ja).second == l.ja }
+                ?: uiState.subtitles.firstOrNull { l.lineNo > 0 && it.lineNo == l.lineNo && it.hasSourceAudio }?.let { sub ->
+                    ShadowingSentence(
+                        id = "${normalizeWorkSlug(workSlug)}-$episode-${sub.lineNo}",
+                        ja = l.ja,
+                        reading = "",
+                        meaningZh = l.zh,
+                        sourceLabel = "",
+                        audioKind = AudioKind.Source,
+                        sourceLineNo = sub.lineNo,
+                        audioUrl = sub.audioUrl,
+                        storagePath = sub.storagePath,
+                    )
+                }
         }
     }
     val lineEntry = remember(line, lineSentence, workSlug, episode) {

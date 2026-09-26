@@ -252,7 +252,7 @@ fun SubtitlesScreen(
                     uiState.shadowing.firstOrNull { selectedLine.lineNo > 0 && it.sourceLineNo == selectedLine.lineNo }
                         ?: selectedLine.takeIf { it.hasSourceAudio }?.let { line ->
                             ShadowingSentence(
-                                id = "${normalizeWorkSlug(workSlug)}-$episode-L${line.lineNo}",
+                                id = "${normalizeWorkSlug(workSlug)}-$episode-${line.lineNo}",
                                 ja = spoken.text,
                                 reading = "",
                                 meaningZh = line.zhText,
