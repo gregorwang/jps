@@ -51,7 +51,6 @@ import com.animejapaneselab.nativeapp.data.promptAudioForSentence
 import com.animejapaneselab.nativeapp.ui.LabUiState
 import com.animejapaneselab.nativeapp.ui.audio.rememberLessonAudioController
 import com.animejapaneselab.nativeapp.ui.design.Avatar
-import com.animejapaneselab.nativeapp.ui.design.BroadcastLine
 import com.animejapaneselab.nativeapp.ui.design.EmptyNote
 import com.animejapaneselab.nativeapp.ui.design.Hairline
 import com.animejapaneselab.nativeapp.ui.design.IconButton44
@@ -100,7 +99,6 @@ fun LibraryScreen(
     )
 
     Column(modifier.fillMaxSize().background(colors.bg)) {
-        BroadcastLine()
         TopBar(
             nav = TopBarNav.None,
             title = "辞書",

@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -594,12 +595,30 @@ fun FeedbackSheet(
     }
 }
 
-/** Fills the box with a manga-filtered portrait (dialogue scene stand-in); kanji circle if none. */
+/**
+ * Fills the box with a manga-filtered portrait (dialogue scene stand-in); kanji circle if none.
+ * While [speaking] the portrait bobs and the screentone darkens a touch, like a talking head.
+ */
 @Composable
-fun PortraitPanel(character: CharacterRef?, modifier: Modifier = Modifier) {
+fun PortraitPanel(character: CharacterRef?, modifier: Modifier = Modifier, speaking: Boolean = false) {
     val work = AjlTheme.work
+    val phase by rememberVoicePhase(speaking, periodMillis = 420)
+    val tone by animateFloatAsState(if (speaking) 0.34f else 0.22f, tween(MotionTokens.Dur.State), label = "portrait-tone")
     MangaPanel(modifier) {
-        Box(Modifier.fillMaxSize().screentone(work.tone(0.22f)))
-        Avatar(character, size = 120.dp, highlighted = false, modifier = Modifier.align(Alignment.Center))
+        Box(Modifier.fillMaxSize().screentone(work.tone(tone)))
+        Avatar(
+            character,
+            size = 120.dp,
+            highlighted = false,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .graphicsLayer {
+                    val bounce = kotlin.math.abs(kotlin.math.sin(phase * 2 * Math.PI)).toFloat()
+                    translationY = -bounce * 3.dp.toPx()
+                    val s = 1f + bounce * 0.015f
+                    scaleX = s
+                    scaleY = s
+                },
+        )
     }
 }

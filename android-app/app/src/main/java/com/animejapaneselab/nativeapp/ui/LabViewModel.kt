@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.animejapaneselab.nativeapp.data.AiCoachState
 import com.animejapaneselab.nativeapp.data.AuthUser
+import com.animejapaneselab.nativeapp.ui.study.StudyLog
 import com.animejapaneselab.nativeapp.data.EpisodeContentCache
 import com.animejapaneselab.nativeapp.data.EpisodeFocus
 import com.animejapaneselab.nativeapp.data.EpisodeOption
@@ -121,6 +122,9 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         LabUiState(
             deviceId = deviceId,
             settings = initialSettings,
+            // A cached, server-confirmed user skips the login gate on launch; the
+            // background refreshAuthState() below re-validates and signs out on 401.
+            auth = AuthState(user = store.readCachedUser()),
             works = initialWorks,
             episodes = initialEpisodes,
             selection = initialSelection,
@@ -694,6 +698,11 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                     user to snapshot
                 }
             }
+            val sessionRejected = result.exceptionOrNull()?.message?.startsWith("HTTP 401") == true
+            when {
+                result.isSuccess -> store.writeCachedUser(result.getOrNull()?.first)
+                sessionRejected -> store.writeCachedUser(null)
+            }
             _uiState.update { state ->
                 result.fold(
                     onSuccess = { (user, snapshot) ->
@@ -719,7 +728,11 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                     onFailure = { error ->
                         val message = "账号状态读取失败：${error.message ?: "网络不可用"}"
                         state.copy(
-                            auth = state.auth.copy(status = SyncStatus.Error, message = message),
+                            auth = state.auth.copy(
+                                status = SyncStatus.Error,
+                                user = if (sessionRejected) null else state.auth.user,
+                                message = message,
+                            ),
                             sync = state.sync.copy(status = SyncStatus.Error, message = message),
                         )
                     },
@@ -744,6 +757,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 withContext(Dispatchers.IO) {
                     val login = RemoteLabClient(_uiState.value.settings.apiBaseUrl).loginOwner(trimmedEmail, password, deviceId)
                     store.writeSessionCookie(login.sessionCookie)
+                    store.writeCachedUser(login.user)
                     val snapshot = fetchRemoteProgressSnapshot(remoteClient())
                     login to snapshot
                 }
@@ -2676,6 +2690,10 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         syncPayloads: List<SyncAnswer>,
     ) {
         store.writeProgress(progressItems)
+        if (syncPayloads.isNotEmpty()) {
+            val wrong = syncPayloads.any { it.state == ReviewState.Bad || it.state == ReviewState.Unknown }
+            StudyLog.record(getApplication(), answers = 1, correct = if (wrong) 0 else 1)
+        }
         if (!_uiState.value.settings.cloudSync) return
         val pending = mergeProgressItems(
             syncPayloads.map(SyncAnswer::toProgressItem),

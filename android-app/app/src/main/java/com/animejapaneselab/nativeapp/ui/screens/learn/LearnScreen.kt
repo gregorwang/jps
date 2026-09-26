@@ -24,7 +24,6 @@ import com.animejapaneselab.nativeapp.data.LessonExerciseKind
 import com.animejapaneselab.nativeapp.data.LessonMode
 import com.animejapaneselab.nativeapp.ui.LabUiState
 import com.animejapaneselab.nativeapp.ui.LearnSection
-import com.animejapaneselab.nativeapp.ui.design.BroadcastLine
 import com.animejapaneselab.nativeapp.ui.design.IconButton44
 import com.animejapaneselab.nativeapp.ui.design.TextTabs
 import com.animejapaneselab.nativeapp.ui.foundation.LinguisticsTrack
@@ -102,7 +101,6 @@ fun LearnScreen(
     var filtersOpen by rememberSaveable { mutableStateOf(false) }
     val course = uiState.learnSection == LearnSection.Course
     Column(modifier.fillMaxSize().background(AjlTheme.colors.bg)) {
-        BroadcastLine()
         Row(
             Modifier
                 .fillMaxWidth()

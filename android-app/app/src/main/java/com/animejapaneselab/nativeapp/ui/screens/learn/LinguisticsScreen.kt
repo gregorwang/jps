@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import com.animejapaneselab.nativeapp.data.FoundationDomain
 import com.animejapaneselab.nativeapp.data.SyncStatus
 import com.animejapaneselab.nativeapp.ui.LabUiState
-import com.animejapaneselab.nativeapp.ui.ReadAirAllFilter
 import com.animejapaneselab.nativeapp.ui.design.AjlBottomSheet
 import com.animejapaneselab.nativeapp.ui.design.Eyebrow
 import com.animejapaneselab.nativeapp.ui.design.FilterPill
@@ -215,7 +214,10 @@ private fun drillVolume(state: ConjugationDrillState, actions: DrillVolumeAction
         startLabel = if (due > 0) "活用 · 复习 $due · 共 $count 句" else "活用 · $count 句",
         startCount = count,
         onStart = actions.onStart,
-        onBook = { actions.onGroup(it.key) },
+        onBook = {
+            actions.onGroup(it.key)
+            actions.onStart()
+        },
         onRefresh = actions.onRefresh,
         onResetFilters = actions.onReset,
         filterGroups = groups,
@@ -286,8 +288,10 @@ private fun readAirVolume(uiState: LabUiState, actions: ReadAirHomeActions): Vol
         startLabel = "读空气 · $count 问",
         startCount = count,
         onStart = actions.onStartSession,
+        // Tapping a textbook opens it straight away; the ink button keeps "continue the current one".
         onBook = { book ->
-            actions.onDomainSelected(if (book.key == filters.domain) ReadAirAllFilter else book.key)
+            actions.onDomainSelected(book.key)
+            actions.onStartSession()
         },
         onRefresh = actions.onRefresh,
         onResetFilters = actions.onResetFilters,
@@ -367,8 +371,8 @@ private fun foundationVolume(
         startCount = count,
         onStart = onOpen,
         onBook = { book ->
-            val domain = FoundationDomain.valueOf(book.key)
-            actions.onDomainSelected(if (domain == filters.domain) null else domain)
+            actions.onDomainSelected(FoundationDomain.valueOf(book.key))
+            onOpen()
         },
         onRefresh = actions.onRefresh,
         onResetFilters = {

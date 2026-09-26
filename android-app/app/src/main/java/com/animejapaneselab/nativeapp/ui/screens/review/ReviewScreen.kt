@@ -46,7 +46,6 @@ import com.animejapaneselab.nativeapp.data.SyncStatus
 import com.animejapaneselab.nativeapp.domain.SmartReviewEntry
 import com.animejapaneselab.nativeapp.domain.buildSmartReviewPlan
 import com.animejapaneselab.nativeapp.ui.LabUiState
-import com.animejapaneselab.nativeapp.ui.design.BroadcastLine
 import com.animejapaneselab.nativeapp.ui.design.EmptyNote
 import com.animejapaneselab.nativeapp.ui.design.Eyebrow
 import com.animejapaneselab.nativeapp.ui.design.Hairline
@@ -107,7 +106,6 @@ fun ReviewScreen(
     }
 
     Column(modifier.fillMaxSize().background(colors.bg)) {
-        BroadcastLine()
         TopBar(
             nav = TopBarNav.None,
             title = "復習",

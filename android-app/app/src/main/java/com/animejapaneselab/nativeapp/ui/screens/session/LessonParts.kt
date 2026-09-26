@@ -1,5 +1,6 @@
 package com.animejapaneselab.nativeapp.ui.screens.session
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
@@ -65,6 +66,8 @@ import com.animejapaneselab.nativeapp.ui.design.ProgressLine
 import com.animejapaneselab.nativeapp.ui.design.QuietButton
 import com.animejapaneselab.nativeapp.ui.design.TopBar
 import com.animejapaneselab.nativeapp.ui.design.TopBarNav
+import com.animejapaneselab.nativeapp.ui.design.VoiceBars
+import com.animejapaneselab.nativeapp.ui.design.speechLines
 import com.animejapaneselab.nativeapp.ui.motion.MotionTokens
 import com.animejapaneselab.nativeapp.ui.motion.rememberReducedMotion
 import com.animejapaneselab.nativeapp.ui.theme.AjlStroke
@@ -238,11 +241,16 @@ internal fun AudioChip(
         else -> "朗读"
     }
     val shape = RoundedCornerShape(18.dp)
+    // While the line is voiced the chip turns ink, bars bounce and 効果線 burst from its corner.
+    val speaking = playback.phase == AudioPlaybackPhase.Playing
+    val fill by animateColorAsState(if (speaking) colors.ink else colors.surface, tween(MotionTokens.Dur.State), label = "chip-fill")
+    val content by animateColorAsState(if (speaking) colors.onInk else colors.ink, tween(MotionTokens.Dur.State), label = "chip-ink")
     Row(
         modifier = modifier
             .height(36.dp)
+            .speechLines(speaking, AjlTheme.work.accent)
             .clip(shape)
-            .background(colors.surface)
+            .background(fill)
             .border(AjlStroke.Ink, colors.ink, shape)
             .clickable(remember { MutableInteractionSource() }, indication = null, role = Role.Button) { onPlay(audio) }
             .semantics { contentDescription = audio.label.ifBlank { "播放" } }
@@ -250,12 +258,12 @@ internal fun AudioChip(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        if (playback.phase == AudioPlaybackPhase.Loading) {
-            LoadingDots(delayMillis = 0, modifier = Modifier.size(width = 18.dp, height = 14.dp))
-        } else {
-            Icon(Icons.Rounded.PlayArrow, contentDescription = null, tint = colors.ink, modifier = Modifier.size(16.dp))
+        when (playback.phase) {
+            AudioPlaybackPhase.Loading -> LoadingDots(delayMillis = 0, modifier = Modifier.size(width = 18.dp, height = 14.dp))
+            AudioPlaybackPhase.Playing -> VoiceBars(active = true, color = content, modifier = Modifier.padding(horizontal = 1.dp))
+            else -> Icon(Icons.Rounded.PlayArrow, contentDescription = null, tint = content, modifier = Modifier.size(16.dp))
         }
-        Text(label, style = AjlTheme.type.meta.copy(fontSize = AjlTheme.type.meta.fontSize * 1.09f), color = colors.ink)
+        Text(label, style = AjlTheme.type.meta.copy(fontSize = AjlTheme.type.meta.fontSize * 1.09f), color = content)
     }
 }
 
@@ -273,7 +281,7 @@ internal fun ScenePanel(
     height: Dp = 200.dp,
 ) {
     Box(modifier.fillMaxWidth().height(height)) {
-        PortraitPanel(character, Modifier.matchParentSize())
+        PortraitPanel(character, Modifier.matchParentSize(), speaking = playback.phase == AudioPlaybackPhase.Playing)
         AudioChip(
             audio,
             playback,

@@ -391,15 +391,14 @@ class SampleLearningRepository {
                 )
             }
             val options = stableShuffle(
-                listOf(
-                    scene.subtext,
+                listOf(scene.subtext) + listOf(
                     "只是复述字面信息，没有额外语气。",
                     "主要是在转移话题，避免回应当前问题。",
                     "重点是确认客观事实，不涉及关系变化。",
                     "是在直接命令对方服从。",
-                ).distinct(),
+                ).filter { it != scene.subtext }.take(3),
                 scene.id,
-            ).take(4)
+            )
             val correctIndex = options.indexOf(scene.subtext).takeIf { it >= 0 }
             LinguisticExercise(
                 id = "${selection.workSlug}-$episodeLabel-read-air-${scene.id}",
@@ -1123,10 +1122,15 @@ class SampleLearningRepository {
                 sourceLabel = sentence.sourceLabel,
                 displayText = "先听音频，再拼日文",
                 targetTiles = targetTiles,
+                // Every target tile stays in the bank, repeats included (やばい…これは本気でやばい
+                // needs two やばい); distractors only fill the remaining slots.
                 bankTiles = stableShuffle(
-                    (targetTiles + sentenceDistractorTiles(sentences, sentence.id)).distinct(),
+                    targetTiles + sentenceDistractorTiles(sentences, sentence.id)
+                        .filter { it !in targetTiles }
+                        .distinct()
+                        .take((6 - targetTiles.size).coerceAtLeast(0)),
                     sentence.id,
-                ).take(maxOf(6, targetTiles.size)),
+                ),
                 audioTile = true,
                 sourceKind = "sentence",
                 sourceId = sentence.id,
@@ -1679,7 +1683,7 @@ class SampleLearningRepository {
         return sentences.filter { it.id != sourceId }
             .flatMap { splitJapaneseTiles(it.ja) }
             .filter { it.length <= 6 && isCleanTileFragment(it) }
-            .take(4)
+            .take(12)
     }
 
     private fun hasBadTileFragments(tiles: List<String>): Boolean {

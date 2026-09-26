@@ -102,6 +102,29 @@ class LocalLabStore(context: Context) {
         preferences.edit { putString(DrillProgressKey, json.toString()) }
     }
 
+    /** Per-day study log: ISO date -> [answers, correct, seconds]. */
+    fun readStudyLog(): Map<String, StudyDay> {
+        val raw = preferences.getString(StudyLogKey, null) ?: return emptyMap()
+        return runCatching {
+            val json = JSONObject(raw)
+            json.keys().asSequence().associateWith { day ->
+                val row = json.getJSONArray(day)
+                StudyDay(answers = row.optInt(0), correct = row.optInt(1), seconds = row.optInt(2))
+            }
+        }.getOrDefault(emptyMap())
+    }
+
+    fun writeStudyLog(log: Map<String, StudyDay>, lastAnswerAtMillis: Long) {
+        val json = JSONObject()
+        log.forEach { (day, d) -> json.put(day, JSONArray().put(d.answers).put(d.correct).put(d.seconds)) }
+        preferences.edit {
+            putString(StudyLogKey, json.toString())
+            putLong(StudyLastAnswerAtKey, lastAnswerAtMillis)
+        }
+    }
+
+    fun readStudyLastAnswerAt(): Long = preferences.getLong(StudyLastAnswerAtKey, 0L)
+
     fun readSessionCookie(): String = preferences.getString(SessionCookieKey, "").orEmpty()
 
     fun writeSessionCookie(cookie: String) {
@@ -109,7 +132,24 @@ class LocalLabStore(context: Context) {
     }
 
     fun clearSessionCookie() {
-        preferences.edit { remove(SessionCookieKey) }
+        preferences.edit { remove(SessionCookieKey).remove(AuthUserIdKey).remove(AuthUserEmailKey) }
+    }
+
+    /** Last user the server confirmed for the stored cookie; lets launch skip the login gate. */
+    fun readCachedUser(): AuthUser? {
+        if (readSessionCookie().isBlank()) return null
+        val id = preferences.getString(AuthUserIdKey, null)?.takeIf { it.isNotBlank() } ?: return null
+        return AuthUser(id = id, email = preferences.getString(AuthUserEmailKey, "").orEmpty())
+    }
+
+    fun writeCachedUser(user: AuthUser?) {
+        preferences.edit {
+            if (user == null) {
+                remove(AuthUserIdKey).remove(AuthUserEmailKey)
+            } else {
+                putString(AuthUserIdKey, user.id).putString(AuthUserEmailKey, user.email)
+            }
+        }
     }
 
     fun readMistakes(): List<MistakeRecord> {
@@ -233,6 +273,8 @@ class LocalLabStore(context: Context) {
         const val AiModelKey = "ai-model"
         const val ReasoningEffortKey = "reasoning-effort"
         const val SessionCookieKey = "auth-session-cookie"
+        const val AuthUserIdKey = "auth-user-id"
+        const val AuthUserEmailKey = "auth-user-email"
         const val AutoSpeakKey = "auto-speak"
         const val FeedbackSoundsKey = "feedback-sounds"
         const val HapticsEnabledKey = "haptics-enabled"
@@ -241,6 +283,8 @@ class LocalLabStore(context: Context) {
         const val CloudSyncKey = "cloud-sync"
         const val ShowFuriganaKey = "show-furigana"
         const val ShowRomajiKey = "show-romaji"
+        const val StudyLogKey = "study-log"
+        const val StudyLastAnswerAtKey = "study-last-answer-at"
         const val DrillProgressKey = "conjugation-drill-progress"
         const val MistakesKey = "mistakes"
         const val ProgressKey = "progress"
@@ -252,3 +296,5 @@ class LocalLabStore(context: Context) {
         const val EyecatchPlayedOnKey = "eyecatch-played-on"
     }
 }
+
+data class StudyDay(val answers: Int = 0, val correct: Int = 0, val seconds: Int = 0)

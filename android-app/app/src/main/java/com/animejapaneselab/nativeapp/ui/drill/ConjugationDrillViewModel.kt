@@ -10,6 +10,7 @@ import com.animejapaneselab.nativeapp.data.FoundationTopic
 import com.animejapaneselab.nativeapp.data.LocalLabStore
 import com.animejapaneselab.nativeapp.data.RemoteLabClient
 import com.animejapaneselab.nativeapp.ui.foundation.fetchAllFoundationTopics
+import com.animejapaneselab.nativeapp.ui.study.StudyLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -89,7 +90,7 @@ class ConjugationDrillViewModel(application: Application) : AndroidViewModel(app
     }
 
     fun selectGroup(group: String?) = _state.update {
-        it.copy(group = if (group == it.group) null else group, pointId = null)
+        it.copy(group = group, pointId = if (group == it.group) it.pointId else null)
     }
 
     fun selectPoint(pointId: String?) = _state.update { it.copy(pointId = pointId) }
@@ -124,6 +125,7 @@ class ConjugationDrillViewModel(application: Application) : AndroidViewModel(app
         val correct = question.answerId == optionId
         val updated = s.progress + (question.item.id to ConjugationDrillRules.schedule(s.progress[question.item.id], correct, s.today))
         store.writeDrillProgress(updated)
+        StudyLog.record(getApplication(), answers = 1, correct = if (correct) 1 else 0)
         _state.update { it.copy(progress = updated, answers = it.answers + (it.index to optionId)) }
     }
 

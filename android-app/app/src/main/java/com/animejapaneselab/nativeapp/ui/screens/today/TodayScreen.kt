@@ -21,10 +21,13 @@ import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -39,7 +42,6 @@ import androidx.compose.ui.unit.sp
 import com.animejapaneselab.nativeapp.data.LessonMode
 import com.animejapaneselab.nativeapp.domain.buildSmartReviewPlan
 import com.animejapaneselab.nativeapp.ui.LabUiState
-import com.animejapaneselab.nativeapp.ui.design.BroadcastLine
 import com.animejapaneselab.nativeapp.ui.design.Eyebrow
 import com.animejapaneselab.nativeapp.ui.design.IconButton44
 import com.animejapaneselab.nativeapp.ui.design.InkButton
@@ -54,6 +56,7 @@ import com.animejapaneselab.nativeapp.ui.design.TopBarNav
 import com.animejapaneselab.nativeapp.ui.design.VerticalText
 import com.animejapaneselab.nativeapp.ui.design.WorkIdentity
 import com.animejapaneselab.nativeapp.ui.screens.review.ReviewRules
+import com.animejapaneselab.nativeapp.ui.study.StudyLog
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 import com.animejapaneselab.nativeapp.ui.theme.normalizeWorkSlug
 import java.time.LocalDate
@@ -116,6 +119,12 @@ fun TodayScreen(
             ),
         )
     }
+    val context = LocalContext.current
+    remember { StudyLog.init(context) }
+    val studyDays by StudyLog.days.collectAsState()
+    val heatmap = remember(studyDays, uiState.progressItems, today) {
+        StudyHeatmapRules.build(studyDays, uiState.progressItems, today)
+    }
     val start: (SlotAction) -> Unit = { action ->
         when (action) {
             SlotAction.Lesson -> onStartLesson()
@@ -128,7 +137,6 @@ fun TodayScreen(
     BoxWithConstraints(modifier.fillMaxSize().background(colors.bg)) {
         val panelHeight = (maxHeight * 0.46f).coerceIn(300.dp, 372.dp)
         Column(Modifier.fillMaxSize()) {
-            BroadcastLine()
             TopBar(
                 nav = TopBarNav.None,
                 center = {
@@ -203,6 +211,8 @@ fun TodayScreen(
                         )
                     }
                 }
+                Spacer(Modifier.height(28.dp))
+                StudyHeatmapSection(heatmap)
             }
         }
     }

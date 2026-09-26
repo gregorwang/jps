@@ -1,5 +1,7 @@
 package com.animejapaneselab.nativeapp.ui.screens.session
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,14 +28,16 @@ import androidx.compose.ui.unit.sp
 import com.animejapaneselab.nativeapp.data.LabSettings
 import com.animejapaneselab.nativeapp.data.LinguisticCardPayload
 import com.animejapaneselab.nativeapp.data.StudyCardNode
+import com.animejapaneselab.nativeapp.ui.audio.AudioPlaybackPhase
 import com.animejapaneselab.nativeapp.ui.design.Hairline
 import com.animejapaneselab.nativeapp.ui.design.MangaPanel
 import com.animejapaneselab.nativeapp.ui.design.ToolPanel
+import com.animejapaneselab.nativeapp.ui.design.rememberVoicePhase
 import com.animejapaneselab.nativeapp.ui.design.screentone
+import com.animejapaneselab.nativeapp.ui.motion.MotionTokens
 import com.animejapaneselab.nativeapp.ui.reading.RubyText
 import com.animejapaneselab.nativeapp.ui.reading.rememberFuriganaAnnotator
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
-import androidx.compose.runtime.LaunchedEffect
 
 /**
  * 学习卡 — not a question: one word / pattern / line as a manga panel (serif headword with
@@ -67,12 +72,17 @@ internal fun StudyCardQuestion(
             )
         },
     ) {
+        // While the line plays the corner screentone swells and pulses — someone is talking.
+        val speaking = env.playback.phase == AudioPlaybackPhase.Playing
+        val pulse by rememberVoicePhase(speaking, periodMillis = 700)
+        val swell by animateFloatAsState(if (speaking) 1f else 0f, tween(MotionTokens.Dur.Progress, easing = MotionTokens.Ease.Standard), label = "tone-swell")
         MangaPanel(Modifier.fillMaxWidth()) {
+            val beat = kotlin.math.sin(pulse * 2 * Math.PI).toFloat() * 0.5f + 0.5f
             Box(
                 Modifier
                     .align(Alignment.TopEnd)
-                    .size(width = 96.dp, height = 72.dp)
-                    .screentone(work.tone(0.26f)),
+                    .size(width = 96.dp + 64.dp * swell, height = 72.dp + 40.dp * swell)
+                    .screentone(work.tone(0.26f + swell * (0.08f + 0.12f * beat))),
             )
             Column(
                 Modifier
