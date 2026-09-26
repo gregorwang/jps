@@ -431,6 +431,7 @@ private fun ShellPage(
                 onTargetLesson = viewModel::startTargetLesson,
                 onAskAi = viewModel::askAiAboutLibraryItem,
                 onOpenSearch = viewModel::openSearch,
+                onViewSource = viewModel::openSubtitlesAt,
             )
 
             LabTab.Review -> {

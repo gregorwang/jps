@@ -123,6 +123,20 @@ class LocalLabStore(context: Context) {
         }
     }
 
+    /** 栞 notebook, encoded by [NotebookRules]. */
+    fun readNotebook(): List<NotebookEntry> = NotebookRules.decode(preferences.getString(NotebookKey, null))
+
+    fun writeNotebook(entries: List<NotebookEntry>) {
+        preferences.edit { putString(NotebookKey, NotebookRules.encode(entries)) }
+    }
+
+    /** Home-screen 今日の一句 payload (JSON, see TodayWidgetLine). */
+    fun readTodayWidgetLine(): String? = preferences.getString(TodayWidgetLineKey, null)
+
+    fun writeTodayWidgetLine(encoded: String) {
+        preferences.edit { putString(TodayWidgetLineKey, encoded) }
+    }
+
     fun readStudyLastAnswerAt(): Long = preferences.getLong(StudyLastAnswerAtKey, 0L)
 
     fun readSessionCookie(): String = preferences.getString(SessionCookieKey, "").orEmpty()
@@ -284,6 +298,8 @@ class LocalLabStore(context: Context) {
         const val ShowFuriganaKey = "show-furigana"
         const val ShowRomajiKey = "show-romaji"
         const val StudyLogKey = "study-log"
+        const val NotebookKey = "notebook"
+        const val TodayWidgetLineKey = "today-widget-line"
         const val StudyLastAnswerAtKey = "study-last-answer-at"
         const val DrillProgressKey = "conjugation-drill-progress"
         const val MistakesKey = "mistakes"

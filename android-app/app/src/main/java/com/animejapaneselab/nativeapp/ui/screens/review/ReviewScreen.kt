@@ -61,6 +61,9 @@ import com.animejapaneselab.nativeapp.ui.design.TopBar
 import com.animejapaneselab.nativeapp.ui.design.TopBarNav
 import com.animejapaneselab.nativeapp.ui.design.clickableNoRipple
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
+import com.animejapaneselab.nativeapp.data.NotebookRules
+import com.animejapaneselab.nativeapp.ui.notebook.NotebookReviewDialog
+import com.animejapaneselab.nativeapp.ui.notebook.rememberNotebookEntries
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
@@ -97,6 +100,9 @@ fun ReviewScreen(
     val remaining = deck.filterNot { it.key in dismissed }
     val dueCount = ReviewRules.dueCount(plan)
     var notebookOpen by rememberSaveable { mutableStateOf(false) }
+    val shiori = rememberNotebookEntries()
+    val shioriDue = remember(shiori, today) { NotebookRules.dueCount(shiori, today.toEpochDay()) }
+    var shioriReviewing by rememberSaveable { mutableStateOf(false) }
     val entryByKey = remember(plan) { plan.entries.associateBy { it.key } }
 
     fun practice(card: ReviewCard) {
@@ -171,6 +177,22 @@ fun ReviewScreen(
                         Text("活用 復習", style = AjlTheme.type.body.copy(fontSize = 14.sp), color = colors.ink2)
                         Text("· 到期 $drillDue 句", style = AjlTheme.type.body.copy(fontSize = 14.sp), color = colors.ink3)
                         Icon(Icons.Rounded.ChevronRight, contentDescription = "开始活用复习", tint = colors.ink2, modifier = Modifier.size(16.dp))
+                    }
+                }
+            }
+            if (shioriDue > 0) {
+                item(key = "shiori", contentType = "toggle") {
+                    Row(
+                        Modifier
+                            .padding(top = if (drillDue > 0) 0.dp else 20.dp)
+                            .heightIn(min = 44.dp)
+                            .clickableNoRipple({ shioriReviewing = true }),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Text("栞をめくる", style = AjlTheme.type.body.copy(fontSize = 14.sp), color = colors.ink2)
+                        Text("· 到期 $shioriDue 枚", style = AjlTheme.type.body.copy(fontSize = 14.sp), color = colors.ink3)
+                        Icon(Icons.Rounded.ChevronRight, contentDescription = "开始栞复习", tint = colors.ink2, modifier = Modifier.size(16.dp))
                     }
                 }
             }
@@ -249,6 +271,9 @@ fun ReviewScreen(
                 }
             }
         }
+    }
+    if (shioriReviewing) {
+        NotebookReviewDialog(ttsWorkerUrl = uiState.settings.ttsWorkerUrl, onDismiss = { shioriReviewing = false })
     }
 }
 

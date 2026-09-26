@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Bookmark
+import androidx.compose.material.icons.rounded.BookmarkBorder
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.Text
@@ -40,6 +43,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.animejapaneselab.nativeapp.data.LessonMode
+import com.animejapaneselab.nativeapp.data.promptAudioForSentence
+import com.animejapaneselab.nativeapp.ui.audio.AudioPlaybackPhase
+import com.animejapaneselab.nativeapp.ui.audio.rememberLessonAudioController
+import com.animejapaneselab.nativeapp.ui.design.VoiceBars
+import com.animejapaneselab.nativeapp.ui.design.clickableNoRipple
+import com.animejapaneselab.nativeapp.ui.design.speechLines
+import com.animejapaneselab.nativeapp.ui.notebook.Notebook
+import com.animejapaneselab.nativeapp.ui.notebook.rememberNotebookEntries
+import com.animejapaneselab.nativeapp.widget.TodayWidget
 import com.animejapaneselab.nativeapp.domain.buildSmartReviewPlan
 import com.animejapaneselab.nativeapp.ui.LabUiState
 import com.animejapaneselab.nativeapp.ui.design.Eyebrow
@@ -125,6 +137,29 @@ fun TodayScreen(
     val heatmap = remember(studyDays, uiState.progressItems, today) {
         StudyHeatmapRules.build(studyDays, uiState.progressItems, today)
     }
+    val audio = rememberLessonAudioController()
+    val speaking = audio.playbackState.phase.let { it == AudioPlaybackPhase.Playing || it == AudioPlaybackPhase.Loading }
+    val lineSentence = remember(line, uiState.shadowing) {
+        line?.let { l ->
+            uiState.shadowing.firstOrNull { l.lineNo > 0 && it.sourceLineNo == l.lineNo }
+                ?: uiState.shadowing.firstOrNull { TodayRules.splitSpeakerPrefix(it.ja).second == l.ja }
+        }
+    }
+    val lineEntry = remember(line, lineSentence, workSlug, episode) {
+        line?.let { TodayRules.notebookEntry(it, lineSentence, workSlug, episode) }
+    }
+    val notebook = rememberNotebookEntries()
+    val lineSaved = lineEntry != null && notebook.any { it.key == lineEntry.key }
+    val playLine: () -> Unit = {
+        if (line != null) {
+            if (lineSentence != null) {
+                audio.play(promptAudioForSentence(workSlug, lineSentence, autoPlay = false), uiState.settings.ttsWorkerUrl)
+            } else {
+                audio.speakText(line.ja, uiState.settings.ttsWorkerUrl)
+            }
+        }
+    }
+    LaunchedEffect(line, today) { line?.let { TodayWidget.publish(context, it, workSlug, episodeLabel, today) } }
     val start: (SlotAction) -> Unit = { action ->
         when (action) {
             SlotAction.Lesson -> onStartLesson()
@@ -176,6 +211,10 @@ fun TodayScreen(
                     episodeLabel = episodeLabel,
                     height = panelHeight,
                     onOpenSubtitles = onOpenSubtitles,
+                    speaking = speaking,
+                    saved = lineSaved,
+                    onPlay = playLine,
+                    onToggleSaved = { lineEntry?.let { Notebook.toggle(context, it) } },
                 )
                 Spacer(Modifier.height(14.dp))
                 val current = TimetableRules.current(slots)
@@ -233,6 +272,10 @@ private fun TodayLinePanel(
     episodeLabel: String,
     height: Dp,
     onOpenSubtitles: () -> Unit,
+    speaking: Boolean = false,
+    saved: Boolean = false,
+    onPlay: () -> Unit = {},
+    onToggleSaved: () -> Unit = {},
 ) {
     val colors = AjlTheme.colors
     val type = AjlTheme.type
@@ -241,6 +284,8 @@ private fun TodayLinePanel(
         modifier = Modifier
             .fillMaxWidth()
             .height(height)
+            .speechLines(speaking, AjlTheme.work.accent)
+            .clickableNoRipple(onClick = onPlay)
             .semantics(mergeDescendants = true) {
                 contentDescription = buildString {
                     append("今日の一句 ")
@@ -309,6 +354,20 @@ private fun TodayLinePanel(
                     )
                 }
                 line.attribution?.let { Eyebrow(it) }
+            }
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 6.dp, bottom = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                VoiceBars(active = speaking, color = AjlTheme.work.accent, modifier = Modifier.padding(end = 4.dp))
+                IconButton44(
+                    icon = if (saved) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder,
+                    contentDescription = if (saved) "取下栞" else "夹进栞",
+                    onClick = onToggleSaved,
+                    tint = if (saved) AjlTheme.work.accent else colors.ink3,
+                )
             }
         } else {
             Box(

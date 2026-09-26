@@ -49,6 +49,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.animejapaneselab.nativeapp.data.GrammarPoint
 import com.animejapaneselab.nativeapp.data.LessonMode
+import com.animejapaneselab.nativeapp.data.NotebookKind
+import com.animejapaneselab.nativeapp.data.NotebookRules
+import com.animejapaneselab.nativeapp.data.toNotebookEntry
+import com.animejapaneselab.nativeapp.ui.notebook.NotebookMark
+import com.animejapaneselab.nativeapp.ui.notebook.NotebookPage
+import com.animejapaneselab.nativeapp.ui.notebook.NotebookToggleButton
+import com.animejapaneselab.nativeapp.ui.notebook.rememberNotebookEntries
 import com.animejapaneselab.nativeapp.data.LessonTarget
 import com.animejapaneselab.nativeapp.data.ShadowingSentence
 import com.animejapaneselab.nativeapp.data.VocabItem
@@ -86,6 +93,7 @@ fun LibraryScreen(
     onAskAi: (targetKey: String, kind: String, text: String, context: String) -> Unit,
     onOpenSearch: () -> Unit,
     modifier: Modifier = Modifier,
+    onViewSource: (workSlug: String, episode: Int, lineNo: Int) -> Unit = { _, _, _ -> },
 ) {
     val colors = AjlTheme.colors
     val workSlug = uiState.selection.workSlug
@@ -96,11 +104,14 @@ fun LibraryScreen(
     val deepDive = rememberSentenceDeepDive(uiState.settings)
     val characterProfile = rememberCharacterProfile(uiState.settings, workSlug)
     val episodeLabel = uiState.focus.episodeLabel.ifBlank { episodeTitle(episode) }
+    val notebook = rememberNotebookEntries()
+    val savedKeys = remember(notebook) { notebook.mapTo(HashSet()) { it.key } }
 
     val tabs = listOf(
         DictTab("词汇", uiState.vocab.size),
         DictTab("语法", uiState.grammar.size),
         DictTab("台词", uiState.shadowing.size),
+        DictTab("栞", notebook.size),
     )
 
     Column(modifier.fillMaxSize().background(colors.bg)) {
@@ -117,7 +128,7 @@ fun LibraryScreen(
             selectedIndex = selectedTab,
             onSelect = { selectedTab = it },
             modifier = Modifier.padding(horizontal = 20.dp),
-            trailing = { EpisodeChip(episodeTitle(episode), onClick = { pickerOpen = true }) },
+            trailing = { if (selectedTab != NotebookTab) EpisodeChip(episodeTitle(episode), onClick = { pickerOpen = true }) },
         )
         Box(Modifier.fillMaxWidth().weight(1f)) {
             val scope = "$workSlug#$episode#$selectedTab"
@@ -125,6 +136,7 @@ fun LibraryScreen(
                 0 -> VocabPage(
                     key = scope,
                     uiState = uiState,
+                    savedKeys = savedKeys,
                     onSpeak = { audio.speakText(it, uiState.settings.ttsWorkerUrl) },
                     onAsk = { item -> onAskAi(item.aiKey(), "vocab", item.surface, item.aiContext(episodeLabel)) },
                     onLearn = { onTargetLesson(LessonTarget.Vocab(it.id)) },
@@ -132,12 +144,18 @@ fun LibraryScreen(
                 1 -> GrammarPage(
                     key = scope,
                     uiState = uiState,
+                    savedKeys = savedKeys,
                     onAsk = { item -> onAskAi(item.aiKey(), "grammar", item.pattern, item.aiContext(episodeLabel)) },
                     onLearn = { onTargetLesson(LessonTarget.Grammar(it.id)) },
+                )
+                NotebookTab -> NotebookPage(
+                    ttsWorkerUrl = uiState.settings.ttsWorkerUrl,
+                    onViewSource = onViewSource,
                 )
                 else -> LinesPage(
                     key = scope,
                     uiState = uiState,
+                    savedKeys = savedKeys,
                     onPlay = { line -> audio.play(promptAudioForSentence(workSlug, line, autoPlay = false), uiState.settings.ttsWorkerUrl) },
                     onDeepDive = { line ->
                         deepDive.request(
@@ -193,6 +211,8 @@ fun LibraryScreen(
     DeepDiveSheet(deepDive)
     CharacterSheet(characterProfile)
 }
+
+private const val NotebookTab = 3
 
 // ---------------------------------------------------------------------------
 // Row model
@@ -306,6 +326,7 @@ private fun RowHead(row: String) {
 private fun VocabPage(
     key: String,
     uiState: LabUiState,
+    savedKeys: Set<String>,
     onSpeak: (String) -> Unit,
     onAsk: (VocabItem) -> Unit,
     onLearn: (VocabItem) -> Unit,
@@ -341,6 +362,7 @@ private fun VocabPage(
             VocabEntry(
                 item = item,
                 example = examples[item.id],
+                saved = NotebookRules.key(NotebookKind.Vocab, item.id) in savedKeys,
                 expanded = expanded == item.id,
                 onToggle = { expanded = if (expanded == item.id) null else item.id },
                 onSpeak = { onSpeak(item.surface) },
@@ -401,6 +423,7 @@ private fun LevelPills(buckets: List<LevelBucket>, selected: String, onSelect: (
 private fun VocabEntry(
     item: VocabItem,
     example: ShadowingSentence?,
+    saved: Boolean,
     expanded: Boolean,
     onToggle: () -> Unit,
     onSpeak: () -> Unit,
@@ -428,6 +451,7 @@ private fun VocabEntry(
                     Text(item.reading, style = type.jpBody.copy(fontSize = 14.sp), color = colors.ink3, modifier = Modifier.alignByBaseline())
                 }
                 Spacer(Modifier.weight(1f))
+                if (saved) NotebookMark(Modifier.alignByBaseline())
                 val level = Jlpt.normalize(item.level).takeIf { it in Jlpt.Levels }
                 if (level != null) {
                     Text(
@@ -468,6 +492,10 @@ private fun VocabEntry(
                     OutlineButton("発音", onSpeak, compact = true, leadingIcon = Icons.AutoMirrored.Rounded.VolumeUp)
                     OutlineButton("講解", onAsk, compact = true)
                     OutlineButton("この語を練習", onLearn, compact = true)
+                    NotebookToggleButton(
+                        entry = { item.toNotebookEntry(uiState.selection.workSlug, uiState.selection.episode, example) },
+                        saved = saved,
+                    )
                 }
                 LibraryAiNote(item.aiKey(), uiState)
             }
@@ -519,6 +547,7 @@ private fun ExampleLine(text: String, source: String) {
 private fun GrammarPage(
     key: String,
     uiState: LabUiState,
+    savedKeys: Set<String>,
     onAsk: (GrammarPoint) -> Unit,
     onLearn: (GrammarPoint) -> Unit,
 ) {
@@ -544,6 +573,7 @@ private fun GrammarPage(
             val item = row.value as GrammarPoint
             GrammarEntry(
                 item = item,
+                saved = NotebookRules.key(NotebookKind.Grammar, item.id) in savedKeys,
                 expanded = expanded == item.id,
                 onToggle = { expanded = if (expanded == item.id) null else item.id },
                 onAsk = { onAsk(item) },
@@ -558,6 +588,7 @@ private fun GrammarPage(
 @Composable
 private fun GrammarEntry(
     item: GrammarPoint,
+    saved: Boolean,
     expanded: Boolean,
     onToggle: () -> Unit,
     onAsk: () -> Unit,
@@ -579,6 +610,7 @@ private fun GrammarEntry(
                     modifier = Modifier.weight(1f, fill = false).alignByBaseline(),
                 )
                 Spacer(Modifier.weight(1f))
+                if (saved) NotebookMark(Modifier.alignByBaseline())
                 if (item.difficulty.isNotBlank()) {
                     Text(item.difficulty.trim().uppercase(), style = type.meta, color = AjlTheme.work.accent, modifier = Modifier.alignByBaseline())
                 }
@@ -596,6 +628,10 @@ private fun GrammarEntry(
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlineButton("講解", onAsk, compact = true)
                     OutlineButton("この文型を練習", onLearn, compact = true)
+                    NotebookToggleButton(
+                        entry = { item.toNotebookEntry(uiState.selection.workSlug, uiState.selection.episode) },
+                        saved = saved,
+                    )
                 }
                 LibraryAiNote(item.aiKey(), uiState)
             }
@@ -621,6 +657,7 @@ private fun Note(label: String, text: String) {
 private fun LinesPage(
     key: String,
     uiState: LabUiState,
+    savedKeys: Set<String>,
     onPlay: (ShadowingSentence) -> Unit,
     onDeepDive: (ShadowingSentence) -> Unit,
     onAsk: (ShadowingSentence) -> Unit,
@@ -649,6 +686,7 @@ private fun LinesPage(
         items(filtered, key = { "s-${it.id}" }, contentType = { "line" }) { line ->
             val spoken = remember(line.ja) { parseSpokenLine(line.ja) }
             val open = expanded == line.id
+            val saved = NotebookRules.key(NotebookKind.Line, line.id) in savedKeys
             Column(Modifier.fillMaxWidth()) {
                 Row(
                     Modifier
@@ -666,7 +704,12 @@ private fun LinesPage(
                             line.sourceLineNo.takeIf { it > 0 }?.let { "L$it" },
                             "原声".takeIf { line.hasSourceAudio },
                         ).joinToString(" · ")
-                        if (meta.isNotEmpty()) Text(meta, style = type.metaSmall, color = colors.ink3)
+                        if (meta.isNotEmpty() || saved) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text(meta, style = type.metaSmall, color = colors.ink3, modifier = Modifier.weight(1f))
+                                if (saved) NotebookMark()
+                            }
+                        }
                         Text(spoken.text, style = type.jpBody.copy(fontSize = 17.sp, lineHeight = 26.sp), color = colors.ink)
                         if (line.meaningZh.isNotBlank()) {
                             Text(line.meaningZh, style = type.caption.copy(fontSize = 13.sp, lineHeight = 19.sp), color = colors.ink3)
@@ -685,6 +728,10 @@ private fun LinesPage(
                             OutlineButton("精読", { onDeepDive(line) }, compact = true)
                             OutlineButton("講解", { onAsk(line) }, compact = true)
                             OutlineButton("シャドーイング", { onLearn(line) }, compact = true)
+                            NotebookToggleButton(
+                                entry = { line.toNotebookEntry(uiState.selection.workSlug, uiState.selection.episode) },
+                                saved = saved,
+                            )
                         }
                         LibraryAiNote(line.aiKey(), uiState)
                     }

@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Nihongo Lab</string>
+    <string name="today_widget_description">今日の一句：每天一句番剧台词，竖排显示在桌面</string>
     <string name="app_update_title">应用更新</string>
     <string name="app_update_current_version">当前版本 %1$s（%2$d）</string>
     <string name="app_update_idle">从云端检查并安装新的个人版本，不再需要通过微信传 APK。</string>

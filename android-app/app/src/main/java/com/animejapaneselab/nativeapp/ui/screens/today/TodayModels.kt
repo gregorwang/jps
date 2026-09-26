@@ -1,6 +1,10 @@
 package com.animejapaneselab.nativeapp.ui.screens.today
 
 import com.animejapaneselab.nativeapp.data.LinguisticExercise
+import com.animejapaneselab.nativeapp.data.NotebookEntry
+import com.animejapaneselab.nativeapp.data.NotebookKind
+import com.animejapaneselab.nativeapp.data.NotebookRules
+import com.animejapaneselab.nativeapp.data.toNotebookEntry
 import com.animejapaneselab.nativeapp.data.ShadowingSentence
 import com.animejapaneselab.nativeapp.data.SubtitleLine
 import com.animejapaneselab.nativeapp.ui.design.SlotState
@@ -187,6 +191,19 @@ object TodayRules {
         DayOfWeek.SATURDAY to "土",
         DayOfWeek.SUNDAY to "日",
     )
+
+    /** The line as a 栞 entry; keyed by its sentence when known so 辞書 shows it as saved too. */
+    fun notebookEntry(line: TodayLine, sentence: ShadowingSentence?, workSlug: String, episode: Int): NotebookEntry =
+        sentence?.toNotebookEntry(workSlug, episode)?.copy(headline = line.ja, meaning = line.zh.ifBlank { sentence.meaningZh })
+            ?: NotebookEntry(
+                key = NotebookRules.key(NotebookKind.Line, "${normalizeWorkSlug(workSlug)}-$episode-${line.lineNo.takeIf { it > 0 } ?: line.ja.hashCode()}"),
+                kind = NotebookKind.Line,
+                headline = line.ja,
+                meaning = line.zh,
+                workSlug = workSlug,
+                episode = episode,
+                lineNo = line.lineNo,
+            )
 
     /** 「9.25 木」 */
     fun dateMeta(date: LocalDate): String = "${date.monthValue}.${date.dayOfMonth} ${Weekdays.getValue(date.dayOfWeek)}"
