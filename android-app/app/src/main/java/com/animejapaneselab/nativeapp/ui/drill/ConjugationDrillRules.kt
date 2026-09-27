@@ -3,18 +3,25 @@ package com.animejapaneselab.nativeapp.ui.drill
 import com.animejapaneselab.nativeapp.data.ConjugationDrillItem
 import com.animejapaneselab.nativeapp.data.ConjugationHead
 import com.animejapaneselab.nativeapp.data.DrillProgress
+import com.animejapaneselab.nativeapp.data.LessonPractice
 import kotlin.math.abs
 
-enum class DrillQuestionKind { RowForm, BaseForm, PointId, Meaning }
+enum class DrillQuestionKind { RowForm, BaseForm, PointId, Meaning, Practice }
 
 data class DrillOption(val id: String, val text: String, val japanese: Boolean)
 
+/**
+ * One drill question. [item] is the anime line it is built on; null for a 板書 practice question
+ * ([DrillQuestionKind.Practice]), which drills a textbook verb and explains itself with [why].
+ */
 data class DrillQuestion(
-    val item: ConjugationDrillItem,
+    val item: ConjugationDrillItem?,
     val kind: DrillQuestionKind,
     val prompt: String,
     val options: List<DrillOption>,
     val answerId: String,
+    val pointId: String = item?.pointId.orEmpty(),
+    val why: String = "",
 )
 
 /**
@@ -26,6 +33,8 @@ object ConjugationDrillRules {
     private val Intervals = longArrayOf(0, 1, 2, 4, 8, 16)
     const val SessionSize = 15
     const val MasteredBox = 3
+    /** Anime lines in one lesson's 練習, after its 板書 practice questions. */
+    const val LessonLines = 5
 
     private val GodanEndings = listOf("う", "く", "ぐ", "す", "つ", "ぬ", "ぶ", "む", "る")
     private val RowOfEnding = mapOf(
@@ -91,7 +100,7 @@ object ConjugationDrillRules {
         return when (kind) {
             DrillQuestionKind.RowForm -> rowForm(item, seed)
             DrillQuestionKind.BaseForm -> baseForm(item, seed)
-            DrillQuestionKind.PointId -> pointId(item, pool, seed)
+            DrillQuestionKind.PointId, DrillQuestionKind.Practice -> pointId(item, pool, seed)
             DrillQuestionKind.Meaning -> meaning(item, pool, seed)
         }
     }
@@ -167,6 +176,24 @@ object ConjugationDrillRules {
         return assemble(item, DrillQuestionKind.Meaning, "这句台词的意思是？", item.zh.trim(), distractors, seed, japanese = false)
     }
 
+    /** A 板書 practice question: 「飲む → ない形」 with the lesson's hand-picked wrong forms. */
+    fun practice(pointId: String, practice: LessonPractice): DrillQuestion {
+        val seed = abs((pointId + practice.prompt).hashCode())
+        val texts = (listOf(practice.answer) + practice.distractors.filter { it != practice.answer }).distinct().take(4)
+        val position = seed % texts.size
+        val ordered = texts.drop(1).toMutableList().apply { add(position, texts.first()) }
+        val options = ordered.mapIndexed { index, text -> DrillOption(('A' + index).toString(), text, japanese = true) }
+        return DrillQuestion(
+            item = null,
+            kind = DrillQuestionKind.Practice,
+            prompt = practice.prompt,
+            options = options,
+            answerId = options.first { it.text == practice.answer }.id,
+            pointId = pointId,
+            why = practice.why,
+        )
+    }
+
     private fun <T> rotate(list: List<T>, seed: Int): List<T> =
         if (list.isEmpty()) list else list.indices.map { list[(it + seed) % list.size] }
 
@@ -215,6 +242,17 @@ object ConjugationDrillRules {
             buildList { while (iterators.any { it.hasNext() }) iterators.forEach { if (it.hasNext()) add(it.next()) } }
         }
         return (due + interleaved).distinctBy { it.sentenceId }.take(size)
+    }
+
+    /** Lines one lesson drills after its 板書: unseen first, then the weakest seen ones. */
+    fun pickLesson(
+        items: List<ConjugationDrillItem>,
+        progress: Map<String, DrillProgress>,
+        size: Int = LessonLines,
+    ): List<ConjugationDrillItem> {
+        val fresh = items.filter { progress[it.id] == null }.sortedBy { it.sortOrder }
+        val seen = items.filter { progress[it.id] != null }.sortedWith(compareBy({ progress[it.id]?.box ?: 0 }, { it.sortOrder }))
+        return (fresh + seen).distinctBy { it.sentenceId }.take(size)
     }
 
     fun dueCount(items: List<ConjugationDrillItem>, progress: Map<String, DrillProgress>, today: Long) =

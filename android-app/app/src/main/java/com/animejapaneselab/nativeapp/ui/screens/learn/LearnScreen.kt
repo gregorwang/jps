@@ -72,7 +72,7 @@ fun LearnScreen(
     val onDrillVolume = uiState.learnSection == LearnSection.Linguistics &&
         uiState.linguisticsTrack == LinguisticsTrack.Conjugation
     LaunchedEffect(onDrillVolume) {
-        if (onDrillVolume) drill.ensureLoaded() else drill.exitSession()
+        if (onDrillVolume) drill.ensureLoaded() else drill.leave()
     }
     if (onDrillVolume && drillState.session.isNotEmpty()) {
         ConjugationSession(
@@ -82,11 +82,31 @@ fun LearnScreen(
                 onNext = drill::next,
                 onRestart = drill::startSession,
                 onExit = drill::exitSession,
+                onNextLesson = drill::openNextLesson,
             ),
             ttsWorkerUrl = uiState.settings.ttsWorkerUrl,
             modifier = modifier,
         )
         return
+    }
+    if (onDrillVolume) {
+        val study = ConjugationStudyActions(
+            onCloseBook = drill::closeBook,
+            onOpenLesson = drill::openLesson,
+            onCloseLesson = drill::closeLesson,
+            onStartLesson = drill::startLesson,
+            onStartReview = drill::startSession,
+        )
+        val lesson = drillState.openLesson
+        val book = drillState.openBook
+        if (lesson != null) {
+            ConjugationLessonScreen(drillState, lesson, uiState.settings.ttsWorkerUrl, study, modifier)
+            return
+        }
+        if (book != null) {
+            ConjugationTextbookScreen(drillState, book, study, modifier)
+            return
+        }
     }
     if (foundationOpen && onFoundationVolume) {
         FoundationSession(
@@ -144,11 +164,10 @@ fun LearnScreen(
                 onOpenFoundation = { foundationOpen = true },
                 drill = drillState,
                 drillActions = DrillVolumeActions(
-                    onGroup = drill::selectGroup,
-                    onPoint = drill::selectPoint,
-                    onReset = drill::resetFilters,
+                    onOpenBook = drill::openBook,
+                    onOpenLesson = drill::openLesson,
+                    onReview = drill::startReview,
                     onRefresh = drill::refresh,
-                    onStart = drill::startSession,
                 ),
                 filtersOpen = filtersOpen,
                 onFiltersDismiss = { filtersOpen = false },

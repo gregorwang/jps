@@ -106,6 +106,21 @@ class LocalLabStore(context: Context) {
         preferences.edit { putString(DrillProgressKey, json.toString()) }
     }
 
+    /** 活用道場 lessons marked 已学 (point ids); null until the first write (migration hook). */
+    fun readLearnedPoints(): Set<String>? {
+        val raw = preferences.getString(LearnedPointsKey, null) ?: return null
+        return runCatching {
+            val array = JSONArray(raw)
+            (0 until array.length()).map { array.optString(it) }.filter { it.isNotBlank() }.toSet()
+        }.getOrNull()
+    }
+
+    fun writeLearnedPoints(points: Set<String>) {
+        val array = JSONArray()
+        points.sorted().forEach { array.put(it) }
+        preferences.edit { putString(LearnedPointsKey, array.toString()) }
+    }
+
     /** Per-day study log: ISO date -> [answers, correct, seconds]. */
     fun readStudyLog(): Map<String, StudyDay> {
         val raw = preferences.getString(StudyLogKey, null) ?: return emptyMap()
@@ -308,6 +323,7 @@ class LocalLabStore(context: Context) {
         const val TodayWidgetLineKey = "today-widget-line"
         const val StudyLastAnswerAtKey = "study-last-answer-at"
         const val DrillProgressKey = "conjugation-drill-progress"
+        const val LearnedPointsKey = "conjugation-learned-points"
         const val MistakesKey = "mistakes"
         const val ProgressKey = "progress"
         const val PendingProgressKey = "pending-progress"

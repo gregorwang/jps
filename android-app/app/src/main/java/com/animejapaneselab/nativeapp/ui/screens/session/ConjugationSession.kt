@@ -47,6 +47,7 @@ import com.animejapaneselab.nativeapp.ui.design.OptionRow
 import com.animejapaneselab.nativeapp.ui.design.QuietButton
 import com.animejapaneselab.nativeapp.ui.design.WorkIdentity
 import com.animejapaneselab.nativeapp.ui.drill.ConjugationDrillState
+import com.animejapaneselab.nativeapp.ui.drill.DrillMode
 import com.animejapaneselab.nativeapp.ui.drill.DrillQuestion
 import com.animejapaneselab.nativeapp.ui.feedback.FeedbackEvent
 import com.animejapaneselab.nativeapp.ui.feedback.LocalFeedbackEngine
@@ -57,6 +58,8 @@ data class ConjugationSessionActions(
     val onNext: () -> Unit,
     val onRestart: () -> Unit,
     val onExit: () -> Unit,
+    /** つづく of a 課 → open the next unlearned 課. */
+    val onNextLesson: () -> Unit = {},
 )
 
 /**
@@ -75,6 +78,7 @@ fun ConjugationSession(
     val audio = rememberLessonAudioController()
     val question = state.current
     when {
+        state.isComplete && state.mode == DrillMode.Lesson -> ConjugationLessonEnd(state, actions, modifier)
         state.isComplete -> ConjugationSetEnd(state, actions, modifier)
         question == null -> ReadAirQuietState(
             onExit = actions.onExit,
@@ -89,10 +93,10 @@ fun ConjugationSession(
                 ReadAirProgress(state.index + 1, total, state.answers.size.toFloat() / total.coerceAtLeast(1)),
                 actions.onExit,
             )
-            key(question.item.id, state.index) {
+            key(question.item?.id ?: question.prompt, state.index) {
                 ConjugationQuestionBody(
                     question = question,
-                    topic = state.topicFor(question.item),
+                    topic = question.item?.let(state::topicFor),
                     committed = state.answers[state.index],
                     isLast = state.index >= state.session.lastIndex,
                     audio = audio,
@@ -125,10 +129,10 @@ private fun ConjugationQuestionBody(
     val answered = !committed.isNullOrBlank()
     val correct = answered && committed == question.answerId
     val scroll = remember { ScrollState(0) }
-    val cue = remember(item.id) {
-        PromptAudio.Source(item.audioUrl, autoPlay = false, reliability = AudioReliability.Verified, fallbackTtsText = item.jaText)
+    val cue = remember(item?.id) {
+        item?.let { PromptAudio.Source(it.audioUrl, autoPlay = false, reliability = AudioReliability.Verified, fallbackTtsText = it.jaText) }
     }
-    val play = { audio.play(cue, ttsWorkerUrl) }
+    val play: () -> Unit = { cue?.let { audio.play(it, ttsWorkerUrl) } }
     LaunchedEffect(answered, sheetHeight) {
         if (answered && sheetHeight > 0) scroll.animateScrollTo(scroll.maxValue)
     }
@@ -144,6 +148,10 @@ private fun ConjugationQuestionBody(
                     .padding(start = 20.dp, end = 20.dp, top = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
+                if (item == null) {
+                    Eyebrow("活用 · 板書の練習")
+                    PracticePrompt(question.prompt)
+                } else {
                 Eyebrow(listOf("活用", item.episodeLabel, item.startTime.substringBefore(',').removePrefix("00:")).filter { it.isNotBlank() }.joinToString(" · "))
                 MangaPanel(Modifier.fillMaxWidth()) {
                     Row(
@@ -164,6 +172,7 @@ private fun ConjugationQuestionBody(
                     }
                 }
                 ReadAirQuestion(question.prompt)
+                }
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     question.options.forEach { option ->
                         OptionRow(
@@ -225,15 +234,19 @@ private fun ConjugationFeedback(
     val character = remember(hue) {
         FoundationRules.workSlugFor(hue)?.let { WorkIdentity.representative(it) } ?: CharacterRef("学", "学", null)
     }
-    val reaction = remember(item.id, correct) { ReadAirRules.reaction(correct, item.id, inScene = false) }
+    val reaction = remember(question.prompt, correct) { ReadAirRules.reaction(correct, item?.id ?: question.prompt, inScene = false) }
     val answerText = question.options.firstOrNull { it.id == question.answerId }?.text.orEmpty()
     val notes = buildList {
+        if (item == null) {
+            if (question.why.isNotBlank()) add("为什么" to question.why.trim())
+            return@buildList
+        }
         if (item.formula.isNotBlank()) add("拆解" to item.formula.trim())
         add("语法点" to listOf(item.pointTitle, item.sense).filter { it.isNotBlank() }.joinToString(" · "))
         if (item.note.isNotBlank()) add("说明" to item.note.trim())
         if (item.zh.isNotBlank()) add("译文" to item.zh.trim())
     }
-    var deep by rememberSaveable(item.id) { mutableStateOf(false) }
+    var deep by rememberSaveable(item?.id ?: question.prompt) { mutableStateOf(false) }
     val deepNotes = topic?.let { t ->
         buildList {
             add(t.titleJa to listOf(t.titleZh, t.shortDefinitionZh).filter { it.isNotBlank() }.joinToString("：").trim())
@@ -271,13 +284,63 @@ private fun ConjugationSetEnd(state: ConjugationDrillState, actions: Conjugation
         eyebrow = listOfNotNull("活用", state.group?.let { it.substringAfter(' ').substringBefore('（') }).joinToString(" · "),
         tally = ReadAirRules.tally(answered, correct),
         meta = ReadAirRules.accuracy(answered, correct),
-        noted = missed.take(6).map { TsuzukuLine(it.item.jaText, true, it.item.target) },
+        noted = missed.mapNotNull { it.item }.take(6).map { TsuzukuLine(it.jaText, true, it.target) },
         notedTitle = "这次答错的 ${missed.size.coerceAtMost(6)} 句",
         primaryLabel = "再来一组",
         onPrimary = {
             if (!moving) {
                 moving = true
                 actions.onRestart()
+            }
+        },
+        onClose = actions.onExit,
+        modifier = modifier,
+    )
+}
+
+/** A 板書 practice prompt 「飲む → ない形」: the verb large in serif, the target form after the arrow. */
+@Composable
+private fun PracticePrompt(prompt: String, modifier: Modifier = Modifier) {
+    val parts = prompt.split('→', limit = 2).map { it.trim() }
+    MangaPanel(modifier.fillMaxWidth()) {
+        Row(
+            Modifier.padding(horizontal = 16.dp, vertical = 18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(parts.first(), style = AjlTheme.type.jpBody.copy(fontSize = 26.sp, lineHeight = 36.sp), color = AjlTheme.colors.ink)
+            if (parts.size > 1) {
+                Text("→", style = AjlTheme.type.meta.copy(fontSize = 16.sp), color = AjlTheme.work.accent)
+                Text(parts[1], style = AjlTheme.type.title.copy(fontSize = 18.sp), color = AjlTheme.colors.ink2)
+            }
+        }
+    }
+}
+
+/** つづく for a 課: tally, the lines missed, then the next 課 (the 課 is now 已学). */
+@Composable
+private fun ConjugationLessonEnd(state: ConjugationDrillState, actions: ConjugationSessionActions, modifier: Modifier = Modifier) {
+    val point = state.openLesson.orEmpty()
+    val answered = state.answers.size
+    val correct = state.correctCount
+    val missed = state.session.filterIndexed { i, q -> state.answers[i]?.let { it != q.answerId } == true }
+    val next = state.nextLesson(state.openBook) ?: state.nextLesson()
+    var moving by remember { mutableStateOf(false) }
+    TsuzukuScreen(
+        eyebrow = "活用 · 第 ${state.lessonNumber(point)} 課 · 已学",
+        tally = ReadAirRules.tally(answered, correct),
+        meta = ReadAirRules.accuracy(answered, correct),
+        noted = missed.take(6).map { q ->
+            q.item?.let { TsuzukuLine(it.jaText, true, it.target) }
+                ?: TsuzukuLine(q.prompt, true, q.options.firstOrNull { it.id == q.answerId }?.text.orEmpty())
+        },
+        notedTitle = "这次答错的 ${missed.size.coerceAtMost(6)} 题",
+        preview = next?.let { TsuzukuPreview(title = "第 ${state.lessonNumber(it)} 課 · ${state.titleOf(it)}", meta = "次回") },
+        primaryLabel = if (next != null) "下一课" else "回到目次",
+        onPrimary = {
+            if (!moving) {
+                moving = true
+                if (next != null) actions.onNextLesson() else actions.onExit()
             }
         },
         onClose = actions.onExit,

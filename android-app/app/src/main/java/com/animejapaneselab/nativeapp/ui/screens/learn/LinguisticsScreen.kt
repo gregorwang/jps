@@ -173,54 +173,45 @@ private fun FilterGroupView(group: FilterGroup) {
 // ---------------------------------------------------------------------------
 
 internal data class DrillVolumeActions(
-    val onGroup: (String?) -> Unit,
-    val onPoint: (String?) -> Unit,
-    val onReset: () -> Unit,
+    val onOpenBook: (String) -> Unit,
+    val onOpenLesson: (String) -> Unit,
+    val onReview: () -> Unit,
     val onRefresh: () -> Unit,
-    val onStart: () -> Unit,
 )
 
-/** 第三巻 活用: one 教科書 per grammar group; progress = lines at box ≥ [ConjugationDrillRules.MasteredBox]. */
+/**
+ * 第三巻 活用: one 教科書 per grammar group, progress = 課 learned. A cover opens its 目次; the
+ * ink button continues with the next unlearned 課 (or reviews once every 課 is learned).
+ */
 private fun drillVolume(state: ConjugationDrillState, actions: DrillVolumeActions): VolumeUi {
-    val books = state.groups.mapIndexed { index, group ->
+    val next = state.nextLesson()
+    val books = state.groups.map { group ->
+        val points = state.lessonsIn(group)
         val inGroup = state.items.filter { it.group == group }
         TextbookSpec(
             key = group,
             volumeLabel = "VOL.${ConjugationDrillRules.groupKey(group)}",
             title = ConjugationDrillRules.groupTitle(group),
             sampleLine = inGroup.firstOrNull()?.target.orEmpty(),
-            gloss = "${inGroup.map { it.pointId }.distinct().size} 课 · ${inGroup.size} 句",
-            total = inGroup.size,
-            answered = ConjugationDrillRules.masteredCount(inGroup, state.progress),
-            current = group == state.group,
+            gloss = "${points.size} 课 · 已学 ${points.count { it in state.learned }}",
+            total = points.size,
+            answered = points.count { it in state.learned },
+            current = next != null && state.groupOf(next) == group,
         )
     }
-    val due = ConjugationDrillRules.dueCount(state.scoped, state.progress, state.today)
-    val count = state.nextSessionSize
-    val groups = buildList {
-        add(
-            FilterGroup(
-                "语法点",
-                listOf(FilterOption("全部", state.pointId == null) { actions.onPoint(null) }) +
-                    state.points.map { (id, title) -> FilterOption(title, id == state.pointId) { actions.onPoint(id) } },
-            ),
-        )
-    }
+    val due = ConjugationDrillRules.dueCount(state.items.filter { it.pointId in state.learned }, state.progress, state.today)
     return VolumeUi(
         books = books,
-        stats = "${state.items.size} 句 · 复习 $due · 掌握 ${ConjugationDrillRules.masteredCount(state.items, state.progress)}",
+        stats = "${state.pointOrder.size} 课 · 已学 ${state.learned.count { it in state.pointOrder }} · 复习 $due",
         loading = state.phase == DrillPhase.Idle || state.phase == DrillPhase.Loading,
         error = if (state.phase == DrillPhase.Error) "连不上题库服务" else null,
-        startLabel = if (due > 0) "活用 · 复习 $due · 共 $count 句" else "活用 · $count 句",
-        startCount = count,
-        onStart = actions.onStart,
-        onBook = {
-            actions.onGroup(it.key)
-            actions.onStart()
-        },
+        startLabel = if (next != null) "继续 · 第 ${state.lessonNumber(next)} 課 ${state.titleOf(next)}" else "活用 · 复习 $due 句",
+        startCount = if (next != null) 1 else state.items.count { it.pointId in state.learned },
+        onStart = { if (next != null) actions.onOpenLesson(next) else actions.onReview() },
+        onBook = { actions.onOpenBook(it.key) },
         onRefresh = actions.onRefresh,
-        onResetFilters = actions.onReset,
-        filterGroups = groups,
+        onResetFilters = {},
+        filterGroups = emptyList(),
     )
 }
 
