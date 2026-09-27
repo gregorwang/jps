@@ -117,6 +117,12 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 ## 8. 经验记录（每次会话结束补几条）
 
+**2026-09-27 · 0.9.0（读音辅助 + 学生証 + 单词练习）**
+- 读音辅助统一走 `ui/reading/Kana.kt`（假名→罗马音、按音拍切分、`LineReading` 把一句拆成「汉字词+读音 / 单个音拍」）和 `ReadingLineText`（上注假名、下注罗马音、目标词标色）。读音来自 Worker 的 furigana（`rememberFuriganaAnnotator`），受设定「假名注音 / 罗马音」开关控制。用户不熟假名，**凡是显示日语的学习界面都要考虑罗马音**。
+- 进度统一用 `ProgressLine`，不要再做分段进度条。声音按钮：`VoiceSwitchPill`（左右滑切原声/TTS）+ `VoiceTone`（播放时网点像声波扩散），在 `ui/design/VoiceSwitch.kt`。
+- 学生証编辑：`ui/profile/StudentProfile.kt`（氏名/所属/照片，照片存在 filesDir）。入学、出席不可改。
+- 单词练习：`ui/words/WordDrill.kt`（纯规则）+ `screens/library/WordStudy.kt`（全屏 Dialog）。`learning_vocab_items` 的读音/释义/备注很多是错的（大丈夫=だよ、戻れ=もどる、「EP17筛选…」），重写交给 Antigravity：`archive-content-sources/vocab-cards-v1/`（`export.py` 导出批次、`check.py` 校验、`--install` 写入 `assets/vocab_cards.json`，App 用 `VocabCards` 自动覆盖）。字幕的中文和日文经常错位，别当译文用。
+
 **2026-09-27 · 0.8.4（最近 12 週 + 活用讲解排版）**
 - 格子的规矩（用户定的）：**学完一次才点亮**。`StudyDay.finished` 在 `TsuzukuScreen` 首次出现时、栞翻卡复习做完时各 +1；只答了题没学完的那天只画小点。新 session 结束页不走 `TsuzukuScreen` 的，要自己调 `StudyLog.finishSession`。时长是「答题间隔（≤180s）」估算的学习时间，不是 App 前台时间；累计值存 `study-total-seconds`。
 - 讲解类文字统一用 `ui/design` 的 `NoteText`（「」内衬线加粗、`**…**` 加粗、→ 作品色）和 `MarkedLine`（目标词加粗、作品色、下划线）；拆解词块是 `screens/jishu/Formula.kt` 的 `FormulaRow`。用户很讨厌通用教科书段落和「深入/回到」来回切换的按钮，不要再加回来。
