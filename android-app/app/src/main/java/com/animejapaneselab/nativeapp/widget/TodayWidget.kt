@@ -110,6 +110,15 @@ object TodayWidget {
     fun read(context: Context): TodayWidgetLine? =
         TodayWidgetLine.decode(LocalLabStore(context.applicationContext).readTodayWidgetLine())
 
+    /** Asks the launcher to pin the widget; false when the launcher does not support it. */
+    fun requestPin(context: Context): Boolean {
+        val manager = AppWidgetManager.getInstance(context)
+        if (!manager.isRequestPinAppWidgetSupported) return false
+        return runCatching {
+            manager.requestPinAppWidget(ComponentName(context, TodayWidgetProvider::class.java), null, null)
+        }.getOrDefault(false)
+    }
+
     fun refreshAll(context: Context) {
         val manager = AppWidgetManager.getInstance(context)
         val ids = runCatching {

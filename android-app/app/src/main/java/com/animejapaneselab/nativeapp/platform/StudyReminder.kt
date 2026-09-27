@@ -121,6 +121,19 @@ object StudyReminder {
         sync(app)
     }
 
+    /** 設定's test button: posts today's 朝の一句 right now; false when notifications are blocked. */
+    fun postTest(context: Context): Boolean {
+        val app = context.applicationContext
+        val source = morningSource(LocalLabStore(app))
+        val body = source?.let {
+            buildString {
+                append("「").append(it.ja).append("」")
+                if (it.zh.isNotBlank()) append("\n").append(it.zh)
+            }
+        } ?: "提醒能正常送达。"
+        return post(app, ReminderMessage("morning", ReminderChannel.Study, "放課後チャイム · 测试", body, ReminderTarget.Today))
+    }
+
     /** 朝の一句 → 挟む: saves the line to 栞 and re-posts the notification without that action. */
     internal fun saveTodayLine(context: Context) {
         val app = context.applicationContext

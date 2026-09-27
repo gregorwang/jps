@@ -52,6 +52,7 @@ import com.animejapaneselab.nativeapp.data.SyncStatus
 import com.animejapaneselab.nativeapp.platform.DeviceCapabilitySnapshot
 import com.animejapaneselab.nativeapp.platform.ReminderHealthReader
 import com.animejapaneselab.nativeapp.platform.StudyReminder
+import com.animejapaneselab.nativeapp.widget.TodayWidget
 import com.animejapaneselab.nativeapp.platform.formatRefreshRates
 import com.animejapaneselab.nativeapp.ui.LabUiState
 import com.animejapaneselab.nativeapp.ui.audio.AudioPlaybackPhase
@@ -239,6 +240,35 @@ fun SettingsScreen(
                         }
                     }
                     ToggleRow("朝の一句 · 8:30", settings.morningLine) { onSettingsChange(settings.copy(morningLine = it)) }
+                    var testSent by remember { mutableStateOf<Boolean?>(null) }
+                    NavRow(
+                        "发一条测试提醒",
+                        onClick = {
+                            if (!reminderHealth.notifications) {
+                                if (!store.readNotificationPermissionAsked()) {
+                                    store.writeNotificationPermissionAsked()
+                                    onRequestNotificationPermission()
+                                } else {
+                                    ReminderHealthReader.openNotificationSettings(context)
+                                }
+                            } else {
+                                testSent = StudyReminder.postTest(context)
+                            }
+                        },
+                        value = when (testSent) {
+                            true -> "已发送，看通知栏"
+                            false -> "没发出去，先开通知"
+                            null -> null
+                        },
+                    )
+                    var widgetHint by remember { mutableStateOf<String?>(null) }
+                    NavRow(
+                        "桌面小组件 · 今日の一句",
+                        onClick = {
+                            widgetHint = if (TodayWidget.requestPin(context)) "按提示放到桌面" else "长按桌面 → 添加小部件"
+                        },
+                        value = widgetHint ?: "添加",
+                    )
                     NavRow(
                         "通知权限",
                         onClick = {
