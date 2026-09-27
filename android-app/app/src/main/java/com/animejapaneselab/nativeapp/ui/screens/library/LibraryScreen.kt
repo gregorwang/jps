@@ -1,5 +1,10 @@
 package com.animejapaneselab.nativeapp.ui.screens.library
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material3.Icon
+import com.animejapaneselab.nativeapp.ui.design.FilterPill
+import com.animejapaneselab.nativeapp.ui.design.InkButton
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
@@ -107,6 +112,7 @@ fun LibraryScreen(
     val episodeLabel = uiState.focus.episodeLabel.ifBlank { episodeTitle(episode) }
     val notebook = rememberNotebookEntries()
     val savedKeys = remember(notebook) { notebook.mapTo(HashSet()) { it.key } }
+    var studyIds by rememberSaveable { mutableStateOf<List<String>?>(null) }
 
     val tabs = listOf(
         DictTab("词汇", uiState.vocab.size),
@@ -140,7 +146,8 @@ fun LibraryScreen(
                     savedKeys = savedKeys,
                     onSpeak = { audio.speakText(it, uiState.settings.ttsWorkerUrl) },
                     onAsk = { item -> onAskAi(item.aiKey(), "vocab", item.surface, item.aiContext(episodeLabel)) },
-                    onLearn = { onTargetLesson(LessonTarget.Vocab(it.id)) },
+                    onLearn = { studyIds = listOf(it.id) },
+                    onLearnMany = { ids -> studyIds = ids },
                 )
                 1 -> GrammarPage(
                     key = scope,
@@ -173,6 +180,23 @@ fun LibraryScreen(
                     onLearn = { onTargetLesson(LessonTarget.Sentence(it.id)) },
                 )
             }
+        }
+    }
+
+    studyIds?.let { ids ->
+        val words = ids.mapNotNull { id -> uiState.vocab.firstOrNull { it.id == id } }
+        if (words.isEmpty()) {
+            studyIds = null
+        } else {
+            WordStudyDialog(
+                words = words,
+                pool = uiState.vocab,
+                lines = uiState.shadowing,
+                settings = uiState.settings,
+                workSlug = workSlug,
+                episode = episode,
+                onDismiss = { studyIds = null },
+            )
         }
     }
 
@@ -331,8 +355,12 @@ private fun VocabPage(
     onSpeak: (String) -> Unit,
     onAsk: (VocabItem) -> Unit,
     onLearn: (VocabItem) -> Unit,
+    onLearnMany: (List<String>) -> Unit,
 ) {
     var query by rememberSaveable(key) { mutableStateOf("") }
+    // 選んで練習: tap words to pick them, then practise them together.
+    var picking by rememberSaveable(key) { mutableStateOf(false) }
+    var picked by rememberSaveable(key) { mutableStateOf(listOf<String>()) }
     var level by rememberSaveable(key) { mutableStateOf(Jlpt.All) }
     var expanded by rememberExpandedKey(key)
     val vocab = uiState.vocab
@@ -348,13 +376,24 @@ private fun VocabPage(
     val examples = remember(vocab, uiState.shadowing) {
         vocab.associate { it.id to findExampleLine(it.surface, it.reading, uiState.shadowing) }
     }
+    Box(Modifier.fillMaxSize()) {
     IndexedList(
         key = key,
         rows = rows,
         starts = starts,
         tools = {
             Column(Modifier.padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                FindField(query, { query = it }, placeholder = "引く · 词、读音、中文")
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Box(Modifier.weight(1f)) { FindField(query, { query = it }, placeholder = "引く · 词、读音、中文") }
+                    FilterPill(
+                        text = if (picking) "取消" else "選ぶ",
+                        selected = picking,
+                        onClick = {
+                            picking = !picking
+                            picked = emptyList()
+                        },
+                    )
+                }
                 if (buckets.size > 2) LevelPills(buckets, level) { level = it }
             }
         },
@@ -364,8 +403,15 @@ private fun VocabPage(
                 item = item,
                 example = examples[item.id],
                 saved = NotebookRules.key(NotebookKind.Vocab, item.id) in savedKeys,
-                expanded = expanded == item.id,
-                onToggle = { expanded = if (expanded == item.id) null else item.id },
+                expanded = !picking && expanded == item.id,
+                picked = if (picking) item.id in picked else null,
+                onToggle = {
+                    if (picking) {
+                        picked = if (item.id in picked) picked - item.id else (picked + item.id).takeLast(10)
+                    } else {
+                        expanded = if (expanded == item.id) null else item.id
+                    }
+                },
                 onSpeak = { onSpeak(item.surface) },
                 onSpeakText = onSpeak,
                 onAsk = { onAsk(item) },
@@ -374,6 +420,20 @@ private fun VocabPage(
             )
         },
     )
+    if (picking && picked.isNotEmpty()) {
+        InkButton(
+            "${picked.size} 語を練習",
+            onClick = {
+                onLearnMany(picked)
+                picking = false
+                picked = emptyList()
+            },
+            trailingArrow = true,
+            height = 52.dp,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(start = 20.dp, end = 20.dp, bottom = 16.dp).fillMaxWidth(),
+        )
+    }
+    }
 }
 
 /**
@@ -430,6 +490,8 @@ private fun VocabEntry(
     onToggle: () -> Unit,
     onSpeak: () -> Unit,
     onSpeakText: (String) -> Unit,
+    /** Non-null in pick mode: whether this word is picked. */
+    picked: Boolean? = null,
     onAsk: () -> Unit,
     onLearn: () -> Unit,
     uiState: LabUiState,
@@ -454,6 +516,7 @@ private fun VocabEntry(
                     Text(item.reading, style = type.jpBody.copy(fontSize = 14.sp), color = colors.ink3, modifier = Modifier.alignByBaseline())
                 }
                 Spacer(Modifier.weight(1f))
+                if (picked != null) PickMark(picked, Modifier.align(Alignment.CenterVertically))
                 if (saved) NotebookMark(Modifier.alignByBaseline())
                 val level = Jlpt.normalize(item.level).takeIf { it in Jlpt.Levels }
                 if (level != null) {
@@ -749,5 +812,21 @@ private fun LinesPage(
                 Hairline()
             }
         }
+    }
+}
+
+/** Pick-mode check: an empty ring, or an ink disc with ✓. */
+@Composable
+private fun PickMark(on: Boolean, modifier: Modifier = Modifier) {
+    val colors = AjlTheme.colors
+    Box(
+        modifier
+            .size(22.dp)
+            .clip(androidx.compose.foundation.shape.CircleShape)
+            .background(if (on) colors.ink else colors.surface)
+            .border(AjlStroke.Ink, if (on) colors.ink else colors.line2, androidx.compose.foundation.shape.CircleShape),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (on) Icon(Icons.Rounded.Check, contentDescription = "已选", tint = colors.onInk, modifier = Modifier.size(14.dp))
     }
 }

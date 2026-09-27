@@ -45,6 +45,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.animejapaneselab.nativeapp.ui.motion.MotionTokens
 import com.animejapaneselab.nativeapp.ui.motion.rememberReducedMotion
 import com.animejapaneselab.nativeapp.ui.theme.AjlShape
@@ -282,10 +283,13 @@ fun WordTile(
     used: Boolean = false,
     enabled: Boolean = true,
     shape: Shape = AjlShape.Tile,
+    /** Small mono line under the text (e.g. the romaji of a kana tile). */
+    sub: String? = null,
 ) {
     val colors = AjlTheme.colors
     val reduced = rememberReducedMotion()
     val interaction = remember { MutableInteractionSource() }
+    val tileHeight = if (sub != null) 58.dp else 48.dp
     val pressed by interaction.collectIsPressedAsState()
     val sink by animateDpAsState(
         targetValue = if (pressed && enabled && !used && !reduced) AjlStroke.SolidShadow else 0.dp,
@@ -295,7 +299,7 @@ fun WordTile(
     if (used) {
         Box(
             modifier = modifier
-                .height(48.dp)
+                .height(tileHeight)
                 .clip(shape)
                 .background(colors.sunken)
                 .border(AjlStroke.Hair, colors.line2, shape)
@@ -309,7 +313,7 @@ fun WordTile(
     }
     Box(
         modifier = modifier
-            .height(48.dp)
+            .height(tileHeight)
             .solidShadow(AjlStroke.SolidShadow - sink, colors.ink, shape)
             .offset { IntOffset(sink.toPx().roundToInt(), sink.toPx().roundToInt()) }
             .clip(shape)
@@ -319,7 +323,14 @@ fun WordTile(
             .padding(horizontal = 16.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(text, style = AjlTheme.type.jpBody, color = if (enabled) colors.ink else colors.faint, maxLines = 1)
+        if (sub == null) {
+            Text(text, style = AjlTheme.type.jpBody, color = if (enabled) colors.ink else colors.faint, maxLines = 1)
+        } else {
+            androidx.compose.foundation.layout.Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(text, style = AjlTheme.type.jpBody.copy(fontSize = 20.sp, lineHeight = 26.sp), color = if (enabled) colors.ink else colors.faint, maxLines = 1)
+                Text(sub, style = AjlTheme.type.meta.copy(fontSize = 10.sp, lineHeight = 12.sp), color = if (enabled) colors.ink3 else colors.faint, maxLines = 1)
+            }
+        }
     }
 }
 
