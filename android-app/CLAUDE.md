@@ -117,6 +117,10 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 ## 8. 经验记录（每次会话结束补几条）
 
+**2026-09-27 · 0.8.4（最近 12 週 + 活用讲解排版）**
+- 格子的规矩（用户定的）：**学完一次才点亮**。`StudyDay.finished` 在 `TsuzukuScreen` 首次出现时、栞翻卡复习做完时各 +1；只答了题没学完的那天只画小点。新 session 结束页不走 `TsuzukuScreen` 的，要自己调 `StudyLog.finishSession`。时长是「答题间隔（≤180s）」估算的学习时间，不是 App 前台时间；累计值存 `study-total-seconds`。
+- 讲解类文字统一用 `ui/design` 的 `NoteText`（「」内衬线加粗、`**…**` 加粗、→ 作品色）和 `MarkedLine`（目标词加粗、作品色、下划线）；拆解词块是 `screens/jishu/Formula.kt` 的 `FormulaRow`。用户很讨厌通用教科书段落和「深入/回到」来回切换的按钮，不要再加回来。
+
 **2026-09-27 · 0.8.0（智能提醒 + AI 进主线）**
 - 提醒：`platform/ReminderPlanner.kt`（纯规则：习惯时间 = 近 14 天首次学习时刻中位数 −15 分钟；朝 8:30 / 习惯 / 復習 三个检查点，每天最多 2 条；断更 1–7 天每天、8–14 天隔 3 天、第 15 天说「先不提醒了」后静默）+ `StudyReminder.kt`（闹钟链、发通知、通知按钮）+ `ReminderHealth.kt`（通知权限 / 小米自启动 / 省电无限制）+ `MorningPick.kt`（朝の一句从「最久没复习的已学課」挑原作台词）+ `TodayLineAudio.kt`（台词音频缓存，通知里直接播）。
 - 之前的提醒从没生效：默认开着，却只在手动拨开关时才申请通知权限。**新加任何通知功能，都要确认权限在默认路径上会被申请**；小米还必须开自启动和省电无限制，否则闹钟不响。
