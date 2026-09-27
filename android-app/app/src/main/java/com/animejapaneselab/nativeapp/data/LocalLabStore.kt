@@ -142,6 +142,11 @@ class LocalLabStore(context: Context) {
 
     fun writeJishuCover(cover: Boolean) = preferences.edit { putBoolean(JishuCoverKey, cover) }
 
+    /** 自習 voice: false = 原声, true = TTS (swiped on the voice pill). */
+    fun readJishuVoiceTts(): Boolean = preferences.getBoolean(JishuVoiceTtsKey, false)
+
+    fun writeJishuVoiceTts(tts: Boolean) = preferences.edit { putBoolean(JishuVoiceTtsKey, tts) }
+
     /** Per-day study log: ISO date -> [answers, correct, seconds, studied, finished]. */
     fun readStudyLog(): Map<String, StudyDay> {
         val raw = preferences.getString(StudyLogKey, null) ?: return emptyMap()
@@ -416,6 +421,7 @@ class LocalLabStore(context: Context) {
         const val ReminderHabitPostedOnKey = "reminder-habit-posted-on"
         const val NotificationAskedKey = "notification-permission-asked"
         const val StudyLogKey = "study-log"
+        const val JishuVoiceTtsKey = "jishu-voice-tts"
         const val StudyTotalSecondsKey = "study-total-seconds"
         const val NotebookKey = "notebook"
         const val TodayWidgetLineKey = "today-widget-line"

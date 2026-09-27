@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.animejapaneselab.nativeapp.data.LabSettings
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -86,7 +87,7 @@ private const val JishuWork = "re-zero"
  * the 課's 練習 in place. Finishing a sitting marks the 課 learned, which lets its lines into 練習.
  */
 @Composable
-fun JishuScreen(ttsWorkerUrl: String, modifier: Modifier = Modifier) {
+fun JishuScreen(ttsWorkerUrl: String, settings: LabSettings, modifier: Modifier = Modifier) {
     val drill: ConjugationDrillViewModel = viewModel()
     val jishu: JishuViewModel = viewModel()
     val drillState by drill.state.collectAsState()
@@ -143,6 +144,7 @@ fun JishuScreen(ttsWorkerUrl: String, modifier: Modifier = Modifier) {
                 context = state.context,
                 cover = state.cover,
                 ttsWorkerUrl = ttsWorkerUrl,
+                settings = settings,
                 actions = SittingActions(
                     onExit = jishu::endSitting,
                     onBack = jishu::back,

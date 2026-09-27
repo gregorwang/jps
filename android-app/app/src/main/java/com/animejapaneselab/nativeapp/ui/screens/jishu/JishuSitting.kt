@@ -32,6 +32,17 @@ import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalContext
+import com.animejapaneselab.nativeapp.data.LabSettings
+import com.animejapaneselab.nativeapp.data.LocalLabStore
+import com.animejapaneselab.nativeapp.ui.design.ProgressLine
+import com.animejapaneselab.nativeapp.ui.design.VoiceSwitchPill
+import com.animejapaneselab.nativeapp.ui.design.VoiceTone
+import com.animejapaneselab.nativeapp.ui.reading.FuriganaAnnotator
+import com.animejapaneselab.nativeapp.ui.reading.LineReading
+import com.animejapaneselab.nativeapp.ui.reading.ReadingLineText
+import com.animejapaneselab.nativeapp.ui.reading.rememberFuriganaAnnotator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,7 +68,6 @@ import com.animejapaneselab.nativeapp.ui.audio.AudioPlaybackPhase
 import com.animejapaneselab.nativeapp.ui.audio.rememberLessonAudioController
 import com.animejapaneselab.nativeapp.ui.design.DanGrid
 import com.animejapaneselab.nativeapp.ui.design.DerivationLine
-import com.animejapaneselab.nativeapp.ui.design.EmphasisText
 import com.animejapaneselab.nativeapp.ui.design.Eyebrow
 import com.animejapaneselab.nativeapp.ui.design.Hairline
 import com.animejapaneselab.nativeapp.ui.design.IconButton44
@@ -65,7 +75,6 @@ import com.animejapaneselab.nativeapp.ui.design.InkButton
 import com.animejapaneselab.nativeapp.ui.design.MangaPanel
 import com.animejapaneselab.nativeapp.ui.design.OutlineButton
 import com.animejapaneselab.nativeapp.ui.design.Screentone
-import com.animejapaneselab.nativeapp.ui.design.VoicePill
 import com.animejapaneselab.nativeapp.ui.design.clickableNoRipple
 import com.animejapaneselab.nativeapp.ui.drill.ConjugationDrillRules
 import com.animejapaneselab.nativeapp.ui.drill.ConjugationDrillState
@@ -95,9 +104,12 @@ internal fun JishuSittingScreen(
     context: Map<String, SceneContext>,
     cover: Boolean,
     ttsWorkerUrl: String,
+    settings: LabSettings,
     actions: SittingActions,
     modifier: Modifier = Modifier,
 ) {
+    val furigana = rememberFuriganaAnnotator(settings)
+    val reading = ReadingAids(settings.showFurigana, settings.showRomaji, furigana)
     BackHandler(onBack = if (sitting.index > 0) actions.onBack else actions.onExit)
     val page = sitting.current ?: return
     val reduced = rememberReducedMotion()
@@ -114,7 +126,7 @@ internal fun JishuSittingScreen(
         ) { index ->
             when (val p = sitting.pages.getOrNull(index) ?: page) {
                 JishuPage.Board -> BoardPage(sitting, drill, actions.onNext)
-                is JishuPage.Card -> CardPage(p, index, sitting, drill, context[p.item.sentenceId], cover, ttsWorkerUrl, actions)
+                is JishuPage.Card -> CardPage(p, index, sitting, drill, context[p.item.sentenceId], cover, ttsWorkerUrl, reading, actions)
             }
         }
     }
@@ -131,26 +143,11 @@ private fun SittingTopBar(sitting: JishuSitting, cover: Boolean, actions: Sittin
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         IconButton44(Icons.Rounded.Close, "退出", actions.onExit)
-        Row(
-            Modifier.weight(1f).semantics { contentDescription = "第 ${sitting.index + 1} 页，共 $total 页" },
-            horizontalArrangement = Arrangement.spacedBy(3.dp),
-        ) {
-            repeat(total) { i ->
-                Box(
-                    Modifier
-                        .weight(1f)
-                        .height(3.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(
-                            when {
-                                i < sitting.index -> work.accent
-                                i == sitting.index -> colors.ink
-                                else -> colors.line
-                            },
-                        ),
-                )
-            }
-        }
+        ProgressLine(
+            progress = (sitting.index + 1f) / total.coerceAtLeast(1),
+            modifier = Modifier.weight(1f),
+            contentDescription = "第 ${sitting.index + 1} 页，共 $total 页",
+        )
         if (sitting.current is JishuPage.Board) {
             Text("板書", style = AjlTheme.type.meta.copy(fontSize = 11.sp), color = work.accent, modifier = Modifier.padding(end = 16.dp))
         } else {
@@ -304,17 +301,30 @@ private fun CardPage(
     scene: SceneContext?,
     cover: Boolean,
     ttsWorkerUrl: String,
+    aids: ReadingAids,
     actions: SittingActions,
 ) {
     val colors = AjlTheme.colors
     val work = AjlTheme.work
     val item = card.item
+    val appContext = LocalContext.current.applicationContext
+    val store = remember(appContext) { LocalLabStore(appContext) }
+    var tts by remember { mutableStateOf(store.readJishuVoiceTts()) }
     val audio = rememberLessonAudioController()
-    val cue = remember(item.id) {
-        PromptAudio.Source(item.audioUrl, autoPlay = false, reliability = AudioReliability.Verified, fallbackTtsText = item.jaText)
+    val cue = remember(item.id, tts) {
+        if (tts) {
+            PromptAudio.Tts(item.jaText, autoPlay = false)
+        } else {
+            PromptAudio.Source(item.audioUrl, autoPlay = false, reliability = AudioReliability.Verified, fallbackTtsText = item.jaText)
+        }
     }
     val play = { audio.play(cue, ttsWorkerUrl) }
-    LaunchedEffect(item.id, pageIndex) { play() }
+    LaunchedEffect(item.id, pageIndex, tts) { play() }
+    val aided = aids.ruby || aids.romaji
+    LaunchedEffect(item.jaText, aided) { if (aided) aids.annotator.request("sentence", listOf(item.jaText)) }
+    val line = remember(item.jaText, aids.annotator.resultFor(item.jaText)) {
+        LineReading.build(item.jaText, aids.annotator.resultFor(item.jaText))
+    }
     val playing = audio.playbackState.phase == AudioPlaybackPhase.Playing || audio.playbackState.phase == AudioPlaybackPhase.Loading
     var revealed by rememberSaveable(item.id, pageIndex) { mutableStateOf(false) }
     val cardNumber = sitting.pages.take(pageIndex + 1).count { it is JishuPage.Card }
@@ -340,18 +350,31 @@ private fun CardPage(
                 Column {
                     scene?.before?.takeIf { it.isNotBlank() }?.let { SceneBand(it, top = true) }
                     Box {
-                        Screentone(
-                            Modifier.align(Alignment.BottomEnd).offset(x = 36.dp, y = 18.dp).size(160.dp, 70.dp).rotate(-12f),
-                            color = work.tone(0.22f),
+                        // The tone behind the voice pill ripples out from it while the line plays.
+                        VoiceTone(
+                            playing = playing,
+                            modifier = Modifier.align(Alignment.BottomEnd).offset(x = 36.dp, y = 18.dp).size(200.dp, 96.dp).rotate(-12f),
+                            origin = Offset(0.45f, 0.42f),
                         )
                         Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 16.dp)) {
-                            EmphasisText(
-                                item.jaText,
-                                listOf(item.spanStart until item.spanEnd),
-                                style = AjlTheme.type.jpBody.copy(fontSize = 25.sp, lineHeight = 46.sp, fontWeight = FontWeight.Medium),
+                            ReadingLineText(
+                                line,
+                                item.spanStart until item.spanEnd,
+                                showRuby = aids.ruby,
+                                showRomaji = aids.romaji,
+                                style = AjlTheme.type.jpBody.copy(fontSize = 25.sp, lineHeight = 40.sp, fontWeight = FontWeight.Medium),
                             )
                             Row(Modifier.fillMaxWidth().padding(top = 12.dp), horizontalArrangement = Arrangement.End) {
-                                VoicePill(playing = playing, onClick = play)
+                                VoiceSwitchPill(
+                                    playing = playing,
+                                    options = listOf("原声", "TTS"),
+                                    selected = if (tts) 1 else 0,
+                                    onSelect = {
+                                        tts = it == 1
+                                        store.writeJishuVoiceTts(tts)
+                                    },
+                                    onClick = play,
+                                )
                             }
                         }
                     }
@@ -362,7 +385,13 @@ private fun CardPage(
             // 拆解: word blocks, the grammar point's own block in the work colour.
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Eyebrow("拆解")
-                FormulaRow(item.formula, item.group)
+                FormulaRow(
+                    item.formula,
+                    item.group,
+                    readings = { words -> line.readingsOf(words, item.spanStart) },
+                    showRuby = aids.ruby,
+                    showRomaji = aids.romaji,
+                )
             }
 
             // 意思: the translation (hidden under 遮る until tapped), then 用法 + 说明.
@@ -486,3 +515,6 @@ private val PointIdPattern = Regex("""\b[a-h]_[a-z_]+\b""")
 /** Lesson text sometimes names another 課 by its id (c_teshimau); show its title instead. */
 private fun readableIds(text: String, drill: ConjugationDrillState): String =
     PointIdPattern.replace(text) { m -> drill.titleOf(m.value).takeIf { it.isNotBlank() }?.let { splitTitle(it).first } ?: m.value }
+
+/** Reading aids from 設定 · 読み方 (假名注音 / 罗马音) and the furigana source for this sitting. */
+internal class ReadingAids(val ruby: Boolean, val romaji: Boolean, val annotator: FuriganaAnnotator)

@@ -437,7 +437,7 @@ private fun ShellPage(
                 onTodayLineRevealed = viewModel::markTodayLineRevealed,
             )
 
-            LabTab.Jishu -> JishuScreen(ttsWorkerUrl = uiState.settings.ttsWorkerUrl)
+            LabTab.Jishu -> JishuScreen(ttsWorkerUrl = uiState.settings.ttsWorkerUrl, settings = uiState.settings)
 
             LabTab.Learn -> LearnScreen(
                 uiState = uiState,
