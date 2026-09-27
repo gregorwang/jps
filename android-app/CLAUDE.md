@@ -58,6 +58,7 @@ v3 重写派了 6 个页面包、7 个子代理，合计约 120 万 token。钱�
 - `ui/study/StudyLog.kt`：全局学习日志（每天答题数、正确数、时长、自習句数 `recordStudy`），喂给 Today 的「最近 12 週」格点（`screens/today/StudyHeatmap.kt`）。**新增任何答题型 session，判定对错的地方都要调 `StudyLog.record(...)`**，否则格点和时长不计。
 - `platform/LearningSessionNotifier.kt`：学习中的常驻通知（Android 16 ProgressStyle 分段、作品色、角色头像、计时）；内容来自 `ui/LearningSessionStatus.kt`。
 - `platform/StudyReminder.kt`：放課後チャイム，每天定时（非精确闹钟）检查 StudyLog，当天没答题才发通知；开机/更新/换时区时重新排程。
+- `ui/review/ReviewFeed.kt` + `screens/review/ReviewFeedScreen.kt`：復習刷卡流（0.11.0）。`FeedRules.build` 把活用到期句、栞、本地错题（合并同 id 的服务端任务）轮流排成一条流，`ReviewFeed`（进程级 object）存当天卡序和位置；判定经 `ReviewSinks` 写回 `ConjugationDrillViewModel.gradeLine` / `Notebook.grade|master` / `markMistakeReviewed` / `LabViewModel.gradeReviewTask`。卡片本身只加新的 `FeedKind`，不要再做单独的复习入口。
 - `ui/notebook/`：栞（跨集生词本）。`data/NotebookModels.kt` 是模型、Leitner 规则（1/2/4/8/16 天）和编码；辞書第 4 个标签、翻卡复习（辞書和復習都有入口）、今日の一句和字幕页的栞按钮都在这里汇总。
 - `widget/TodayWidget.kt`：桌面小组件「今日の一句」。RemoteViews 不支持竖排，所以整块画成位图；数据由 Today 页写入 `LocalLabStore`。
 - `data/Conjugator.kt`：按规则推导动词/形容词活用表（不需要数据），辞書词条展开时显示。
@@ -118,6 +119,11 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 - 登录是必须的，不做手写功能，Web 前端不是规范；默认只改 `android-app/` 下的文件。
 
 ## 8. 经验记录（每次会话结束补几条）
+
+**2026-09-27 · 0.11.0（復習刷卡流）**
+- 用户想要的是「像抖音一样好玩」：全屏竖滑、上划即记得、双击盖章、右侧按钮栏、底部面板像评论区。先在画布画了「復習 · 刷卡流（预览）」页（`Reel*.dc.html`，一个可交互模板生成多块画板），用户确认后一次实现。
+- 復習的规矩：**判定一次、写回原处**，不要再出现「翻了卡但不记排程」的入口。本地错题没有排程，用 `review-mistake-due` 记「记得一次 → 2 天后再来，再记得就移出」。只有标题没内容的服务端任务做不成卡，留在帳面。
+- 这次会话中途，`vocab_cards.json` 被另一边（Antigravity 第三轮备注）装入了新版；提交前用 `git status` 看清楚，别人的改动单独提交，不要混进功能提交。
 
 **2026-09-27 · 0.10.1（产品方向：不改成 JLPT 大纲驱动）**
 - 用户考虑过把学习改成按 N5 → N1 组织，讨论后**决定不改**：App 的核心就是动漫素材，按作品 / 话组织的辞書、課程保留，JLPT 只作筛选标签。不要再主动提议大改；完整讨论和当时的数据现状在 `CHANGELOG.md` 的 0.10.1 一节。
