@@ -3,11 +3,12 @@ package com.animejapaneselab.nativeapp.platform
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
-/** The two daily checks: before the usual study time, and a later one for due 復習. */
-enum class ReminderSlot { Habit, Review }
+/** Daily checks: 朝の一句, before the usual study time, and a later one for due 復習. */
+enum class ReminderSlot { Morning, Habit, Review }
 
 /** Where a tap on the notification lands. */
 enum class ReminderTarget(val key: String) {
+    Today("today"),
     Jishu("jishu"),
     Review("review"),
     ;
@@ -60,6 +61,9 @@ object ReminderPlanner {
     private const val LeadMinutes = 15
     private const val ReviewAfterMinutes = 120
     private const val MinReviewGapMinutes = 45
+    private const val MorningMinute = 8 * 60 + 30
+    private const val MorningClearance = 90
+    const val DailyCap = 2
     private const val HabitSamples = 14
     private const val MinHabitSamples = 3
 
@@ -76,7 +80,13 @@ object ReminderPlanner {
     fun reviewMinute(habit: Int): Int? =
         (habit + ReviewAfterMinutes).coerceAtMost(LatestMinute).takeIf { it - habit >= MinReviewGapMinutes }
 
+    /** 朝の一句 at 08:30, unless the habit check is too close to it to be worth a separate ping. */
+    fun morningMinute(habit: Int): Int? = MorningMinute.takeIf { habit - it >= MorningClearance }
+
     fun plan(slot: ReminderSlot, input: ReminderInput): ReminderMessage? = when (slot) {
+        ReminderSlot.Morning -> lineBody(input)?.takeIf { !input.studiedToday }?.let { body ->
+            ReminderMessage("morning", ReminderChannel.Study, "今日の一句", body, ReminderTarget.Today)
+        }
         ReminderSlot.Habit -> if (input.studiedToday) null else nudge(input)
         // A second ping only when there is real 復習 to do, and never twice for the same silence.
         ReminderSlot.Review -> if (input.due >= DueThreshold && (input.studiedToday || !input.habitPostedToday)) {

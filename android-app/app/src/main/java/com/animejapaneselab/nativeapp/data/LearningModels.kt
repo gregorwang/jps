@@ -408,6 +408,8 @@ data class LabSettings(
     val studyReminderHour: Int = 21,
     /** Remind shortly before the time the user usually starts studying. */
     val studyReminderAuto: Boolean = true,
+    /** 朝の一句: today's line at 08:30, with 原声 and 挟む right in the notification. */
+    val morningLine: Boolean = true,
 )
 
 data class SyncSnapshot(

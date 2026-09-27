@@ -2375,7 +2375,8 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     fun updateSettings(settings: LabSettings) {
         val reminderChanged = settings.studyReminder != _uiState.value.settings.studyReminder ||
             settings.studyReminderHour != _uiState.value.settings.studyReminderHour ||
-            settings.studyReminderAuto != _uiState.value.settings.studyReminderAuto
+            settings.studyReminderAuto != _uiState.value.settings.studyReminderAuto ||
+            settings.morningLine != _uiState.value.settings.morningLine
         store.writeSettings(settings)
         if (reminderChanged) StudyReminder.sync(getApplication())
         _uiState.update { it.copy(settings = settings) }

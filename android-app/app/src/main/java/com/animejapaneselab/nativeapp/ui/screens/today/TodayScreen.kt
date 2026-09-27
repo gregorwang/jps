@@ -45,6 +45,10 @@ import androidx.compose.ui.unit.sp
 import com.animejapaneselab.nativeapp.data.LessonMode
 import com.animejapaneselab.nativeapp.data.promptAudioForSentence
 import com.animejapaneselab.nativeapp.data.AudioKind
+import com.animejapaneselab.nativeapp.data.PromptAudio
+import com.animejapaneselab.nativeapp.platform.TodayLineAudio
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.animejapaneselab.nativeapp.data.ShadowingSentence
 import com.animejapaneselab.nativeapp.ui.audio.AudioPlaybackPhase
 import com.animejapaneselab.nativeapp.ui.audio.rememberLessonAudioController
@@ -176,7 +180,13 @@ fun TodayScreen(
             }
         }
     }
-    LaunchedEffect(line, today) { line?.let { TodayWidget.publish(context, it, workSlug, episodeLabel, today) } }
+    LaunchedEffect(line, today, lineSentence, lineEntry) {
+        val todayLine = line ?: return@LaunchedEffect
+        val sourceUrl = lineSentence?.let { (promptAudioForSentence(workSlug, it, autoPlay = false) as? PromptAudio.Source)?.url }.orEmpty()
+        TodayWidget.publish(context, todayLine, workSlug, episodeLabel, today, sourceUrl, lineEntry)
+        // 朝の一句 plays this clip straight from the notification.
+        withContext(Dispatchers.IO) { TodayLineAudio.prepare(context, todayLine.ja, sourceUrl, uiState.settings.ttsWorkerUrl) }
+    }
     val start: (SlotAction) -> Unit = { action ->
         when (action) {
             SlotAction.Lesson -> onStartLesson()

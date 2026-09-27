@@ -18,6 +18,8 @@ import com.animejapaneselab.nativeapp.R
 import com.animejapaneselab.nativeapp.data.LocalLabStore
 import com.animejapaneselab.nativeapp.data.NotebookRules
 import com.animejapaneselab.nativeapp.ui.design.WorkIdentity
+import com.animejapaneselab.nativeapp.ui.notebook.Notebook
+import com.animejapaneselab.nativeapp.widget.TodayWidget
 import com.animejapaneselab.nativeapp.ui.theme.WorkThemes
 import com.animejapaneselab.nativeapp.widget.TodayWidgetLine
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,6 +41,8 @@ object StudyReminder {
     private const val ReviewChannelId = "review-due"
     private const val NotificationId = 4107
     private const val ActionRing = "com.animejapaneselab.nativeapp.action.STUDY_REMINDER"
+    const val ActionPlayLine = "com.animejapaneselab.nativeapp.action.PLAY_TODAY_LINE"
+    const val ActionSaveLine = "com.animejapaneselab.nativeapp.action.SAVE_TODAY_LINE"
     private const val WindowMillis = 10 * 60 * 1000L
 
     /** Arms or cancels the next check to match settings and habit. Safe to call often. */
@@ -50,7 +54,8 @@ object StudyReminder {
         alarms.cancel(ringIntent(app, ReminderSlot.Habit))
         if (!settings.studyReminder) return
         val habit = habitMinute(store)
-        val (at, slot) = nextRing(habit, ReminderPlanner.reviewMinute(habit))
+        val morning = if (settings.morningLine) ReminderPlanner.morningMinute(habit) else null
+        val (at, slot) = nextRing(habit, ReminderPlanner.reviewMinute(habit), morning)
         alarms.setWindow(AlarmManager.RTC_WAKEUP, at.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(), WindowMillis, ringIntent(app, slot))
     }
 
@@ -65,14 +70,25 @@ object StudyReminder {
         return ReminderPlanner.habitMinute(store.readStudyStarts(), settings.studyReminderAuto, settings.studyReminderHour)
     }
 
-    internal fun nextRing(habit: Int, review: Int?, now: LocalDateTime = LocalDateTime.now()): Pair<LocalDateTime, ReminderSlot> {
-        val today = now.toLocalDate()
-        val candidates = listOfNotNull(
-            today.atStartOfDay().plusMinutes(habit.toLong()) to ReminderSlot.Habit,
-            review?.let { today.atStartOfDay().plusMinutes(it.toLong()) to ReminderSlot.Review },
-            today.plusDays(1).atStartOfDay().plusMinutes(habit.toLong()) to ReminderSlot.Habit,
-        )
-        return candidates.first { it.first.isAfter(now.plusMinutes(1)) }
+    internal fun nextRing(
+        habit: Int,
+        review: Int?,
+        morning: Int?,
+        now: LocalDateTime = LocalDateTime.now(),
+    ): Pair<LocalDateTime, ReminderSlot> {
+        fun day(offset: Long) = listOfNotNull(
+            morning?.let { it to ReminderSlot.Morning },
+            habit to ReminderSlot.Habit,
+            review?.let { it to ReminderSlot.Review },
+        ).map { (minute, slot) -> now.toLocalDate().plusDays(offset).atStartOfDay().plusMinutes(minute.toLong()) to slot }
+        return (day(0) + day(1)).first { it.first.isAfter(now.plusMinutes(1)) }
+    }
+
+    /** 栞 + 活用 cards due today (the widget's 復習 count). */
+    fun dueCount(context: Context): Int {
+        val store = LocalLabStore(context.applicationContext)
+        val epochDay = LocalDate.now().toEpochDay()
+        return NotebookRules.dueCount(store.readNotebook(), epochDay) + store.readDrillProgress().values.count { it.dueDay <= epochDay }
     }
 
     private fun ringIntent(context: Context, slot: ReminderSlot): PendingIntent = PendingIntent.getBroadcast(
@@ -86,13 +102,14 @@ object StudyReminder {
         val app = context.applicationContext
         val store = LocalLabStore(app)
         val slot = ReminderSlot.entries.firstOrNull { it.name == slotName } ?: ReminderSlot.Habit
-        if (store.readSettings().studyReminder) {
-            val today = LocalDate.now()
+        val today = LocalDate.now()
+        if (store.readSettings().studyReminder && store.readReminderPostedCount(today.toString()) < ReminderPlanner.DailyCap) {
             val message = ReminderPlanner.plan(slot, input(store, today))
             if (message != null && post(app, message)) {
-                store.writeReminderPosted(message.template, habitPostedOn = today.toString().takeIf { slot == ReminderSlot.Habit })
+                store.writeReminderPosted(message.template, today.toString(), habitPostedOn = today.toString().takeIf { slot == ReminderSlot.Habit })
             }
         }
+        TodayWidget.refreshAll(app)
         sync(app)
     }
 
@@ -100,7 +117,23 @@ object StudyReminder {
     fun onStudyStarted(context: Context) {
         val app = context.applicationContext
         app.getSystemService(NotificationManager::class.java)?.cancel(NotificationId)
+        TodayWidget.refreshAll(app)
         sync(app)
+    }
+
+    /** 朝の一句 → 挟む: saves the line to 栞 and re-posts the notification without that action. */
+    internal fun saveTodayLine(context: Context) {
+        val app = context.applicationContext
+        val line = TodayWidgetLine.decode(LocalLabStore(app).readTodayWidgetLine()) ?: return
+        NotebookRules.decode(line.notebookEntry).firstOrNull()?.let { Notebook.save(app, it) }
+        val manager = app.getSystemService(NotificationManager::class.java) ?: return
+        if (manager.activeNotifications.none { it.id == NotificationId }) return
+        post(app, ReminderMessage("morning", ReminderChannel.Study, "今日の一句 · 已挟入栞", lineText(line), ReminderTarget.Today), saved = true)
+    }
+
+    private fun lineText(line: TodayWidgetLine) = buildString {
+        append("「").append(line.ja).append("」")
+        if (line.zh.isNotBlank()) append("\n").append(line.zh)
     }
 
     private fun input(store: LocalLabStore, today: LocalDate): ReminderInput {
@@ -123,7 +156,7 @@ object StudyReminder {
         )
     }
 
-    private fun post(context: Context, message: ReminderMessage): Boolean {
+    private fun post(context: Context, message: ReminderMessage, saved: Boolean = false): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
@@ -142,7 +175,7 @@ object StudyReminder {
         )
         val line = TodayWidgetLine.decode(LocalLabStore(context).readTodayWidgetLine())
         val accent = WorkThemes.of(WorkIdentity.hue(line?.workSlug.orEmpty()), dark = false).accent.toArgb()
-        val notification = Notification.Builder(context, if (message.channel == ReminderChannel.Review) ReviewChannelId else StudyChannelId)
+        val builder = Notification.Builder(context, if (message.channel == ReminderChannel.Review) ReviewChannelId else StudyChannelId)
             .setSmallIcon(R.drawable.ic_learning_notification)
             .setContentTitle(message.title)
             .setContentText(message.body.lineSequence().first())
@@ -150,11 +183,27 @@ object StudyReminder {
             .setColor(accent)
             .setContentIntent(openIntent(context, message.target))
             .setAutoCancel(true)
+            .setOnlyAlertOnce(true)
             .setCategory(Notification.CATEGORY_REMINDER)
-            .build()
-        manager.notify(NotificationId, notification)
+        if (message.template == "morning" && line != null) {
+            // Learn the line from the shade: hear it, keep it.
+            if (TodayLineAudio.cached(context, line.ja) != null) {
+                builder.addAction(Notification.Action.Builder(null, "▶ 原声", actionIntent(context, ActionPlayLine)).build())
+            }
+            if (!saved && line.notebookEntry.isNotBlank()) {
+                builder.addAction(Notification.Action.Builder(null, "挟む · 存进栞", actionIntent(context, ActionSaveLine)).build())
+            }
+        }
+        manager.notify(NotificationId, builder.build())
         return true
     }
+
+    private fun actionIntent(context: Context, action: String): PendingIntent = PendingIntent.getBroadcast(
+        context,
+        action.hashCode(),
+        Intent(context, StudyReminderReceiver::class.java).setAction(action),
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+    )
 
     private fun openIntent(context: Context, target: ReminderTarget): PendingIntent = PendingIntent.getActivity(
         context,
@@ -188,6 +237,13 @@ class StudyReminderReceiver : BroadcastReceiver() {
             Intent.ACTION_TIMEZONE_CHANGED,
             -> StudyReminder.sync(context)
             "com.animejapaneselab.nativeapp.action.STUDY_REMINDER" -> StudyReminder.ring(context, intent.getStringExtra("slot"))
+            StudyReminder.ActionSaveLine -> StudyReminder.saveTodayLine(context)
+            StudyReminder.ActionPlayLine -> {
+                val line = TodayWidgetLine.decode(LocalLabStore(context).readTodayWidgetLine()) ?: return
+                val clip = TodayLineAudio.cached(context, line.ja) ?: return
+                val pending = goAsync()
+                TodayLineAudio.play(clip) { pending.finish() }
+            }
         }
     }
 }

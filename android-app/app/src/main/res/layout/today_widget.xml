@@ -9,4 +9,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitCenter" />
+
+    <!-- Tap target over the painted 「復習 N ›」 line; hidden when nothing is due. -->
+    <FrameLayout
+        android:id="@+id/today_widget_review"
+        android:layout_width="140dp"
+        android:layout_height="44dp"
+        android:layout_gravity="top|start"
+        android:visibility="gone" />
 </FrameLayout>

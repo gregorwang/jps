@@ -42,6 +42,15 @@ object Notebook {
         )
     }
 
+    /** Adds [entry] if it is not saved yet; true when it was added. */
+    @Synchronized
+    fun save(context: Context, entry: NotebookEntry): Boolean {
+        init(context)
+        if (_entries.value.any { it.key == entry.key }) return false
+        write((listOf(entry.copy(savedAtMillis = System.currentTimeMillis())) + _entries.value).take(MaxEntries))
+        return true
+    }
+
     @Synchronized
     fun remove(context: Context, key: String) {
         init(context)

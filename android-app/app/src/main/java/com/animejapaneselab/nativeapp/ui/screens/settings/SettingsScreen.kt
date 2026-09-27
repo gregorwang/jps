@@ -238,6 +238,7 @@ fun SettingsScreen(
                             }
                         }
                     }
+                    ToggleRow("朝の一句 · 8:30", settings.morningLine) { onSettingsChange(settings.copy(morningLine = it)) }
                     NavRow(
                         "通知权限",
                         onClick = {

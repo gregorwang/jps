@@ -34,6 +34,7 @@ class LocalLabStore(context: Context) {
             studyReminder = preferences.getBoolean(StudyReminderKey, true),
             studyReminderHour = preferences.getInt(StudyReminderHourKey, 21),
             studyReminderAuto = preferences.getBoolean(StudyReminderAutoKey, true),
+            morningLine = preferences.getBoolean(MorningLineKey, true),
         )
     }
 
@@ -54,6 +55,7 @@ class LocalLabStore(context: Context) {
             putBoolean(StudyReminderKey, settings.studyReminder)
             putInt(StudyReminderHourKey, settings.studyReminderHour)
             putBoolean(StudyReminderAutoKey, settings.studyReminderAuto)
+            putBoolean(MorningLineKey, settings.morningLine)
         }
     }
 
@@ -207,9 +209,17 @@ class LocalLabStore(context: Context) {
     /** ISO date on which the habit-slot reminder last posted. */
     fun readReminderHabitPostedOn(): String? = preferences.getString(ReminderHabitPostedOnKey, null)
 
-    fun writeReminderPosted(template: String, habitPostedOn: String?) {
+    /** Reminders posted on [date] (ISO), for the daily cap. */
+    fun readReminderPostedCount(date: String): Int {
+        val raw = preferences.getString(ReminderPostedCountKey, null).orEmpty()
+        return if (raw.substringBefore('|') == date) raw.substringAfter('|').toIntOrNull() ?: 0 else 0
+    }
+
+    fun writeReminderPosted(template: String, date: String, habitPostedOn: String?) {
+        val count = readReminderPostedCount(date) + 1
         preferences.edit {
             putString(ReminderLastTemplateKey, template)
+            putString(ReminderPostedCountKey, "$date|$count")
             if (habitPostedOn != null) putString(ReminderHabitPostedOnKey, habitPostedOn)
         }
     }
@@ -385,6 +395,8 @@ class LocalLabStore(context: Context) {
         const val StudyReminderKey = "study-reminder"
         const val StudyReminderHourKey = "study-reminder-hour"
         const val StudyReminderAutoKey = "study-reminder-auto"
+        const val MorningLineKey = "morning-line"
+        const val ReminderPostedCountKey = "reminder-posted-count"
         const val StudyStartsKey = "study-starts"
         const val DrillPointDueKey = "drill-point-due"
         const val ReminderLastTemplateKey = "reminder-last-template"

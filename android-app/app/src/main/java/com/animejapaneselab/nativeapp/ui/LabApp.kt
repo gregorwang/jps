@@ -49,6 +49,9 @@ import com.animejapaneselab.nativeapp.ui.screens.jishu.JishuScreen
 import com.animejapaneselab.nativeapp.platform.LearningSessionNotifier
 import com.animejapaneselab.nativeapp.platform.LaunchRequests
 import com.animejapaneselab.nativeapp.platform.ReminderTarget
+import com.animejapaneselab.nativeapp.widget.TodayWidget
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import com.animejapaneselab.nativeapp.data.LocalLabStore
 import androidx.core.app.NotificationManagerCompat
 import com.animejapaneselab.nativeapp.ui.design.BottomTabBar
@@ -215,6 +218,9 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
         }
     }
 
+    // Leaving the app is when 復習 counts have usually changed: keep the widget honest.
+    LifecycleEventEffect(Lifecycle.Event.ON_STOP) { TodayWidget.refreshIfDueChanged(context) }
+
     // A tapped reminder opens its tab, unless a lesson is running.
     val launchTarget by LaunchRequests.target.collectAsStateWithLifecycle()
     LaunchedEffect(launchTarget, loggedIn) {
@@ -222,7 +228,13 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
         if (!loggedIn) return@LaunchedEffect
         if (activeSession == null) {
             if (secondaryScreen != null) viewModel.closeSecondaryScreen()
-            viewModel.selectTab(if (target == ReminderTarget.Review) LabTab.Review else LabTab.Jishu)
+            viewModel.selectTab(
+                when (target) {
+                    ReminderTarget.Review -> LabTab.Review
+                    ReminderTarget.Jishu -> LabTab.Jishu
+                    ReminderTarget.Today -> LabTab.Today
+                },
+            )
         }
         LaunchRequests.consume()
     }

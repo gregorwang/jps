@@ -22,6 +22,10 @@ import androidx.core.content.res.ResourcesCompat
 import com.animejapaneselab.nativeapp.MainActivity
 import com.animejapaneselab.nativeapp.R
 import com.animejapaneselab.nativeapp.data.LocalLabStore
+import com.animejapaneselab.nativeapp.data.NotebookEntry
+import com.animejapaneselab.nativeapp.data.NotebookRules
+import com.animejapaneselab.nativeapp.platform.ReminderTarget
+import com.animejapaneselab.nativeapp.platform.StudyReminder
 import com.animejapaneselab.nativeapp.ui.design.TextRules
 import com.animejapaneselab.nativeapp.ui.design.WorkIdentity
 import com.animejapaneselab.nativeapp.ui.screens.today.TodayLine
@@ -39,10 +43,15 @@ data class TodayWidgetLine(
     val workSlug: String,
     val episodeLabel: String,
     val date: String,
+    /** Source clip for the line, blank when only TTS exists. */
+    val audioUrl: String = "",
+    /** The line as a 栞 entry (NotebookRules encoding), for the notification's 挟む action. */
+    val notebookEntry: String = "",
 ) {
     fun encode(): String = JSONObject()
         .put("ja", ja).put("zh", zh).put("at", attribution)
         .put("w", workSlug).put("ep", episodeLabel).put("d", date)
+        .put("au", audioUrl).put("nb", notebookEntry)
         .toString()
 
     companion object {
@@ -55,6 +64,8 @@ data class TodayWidgetLine(
                 workSlug = o.optString("w"),
                 episodeLabel = o.optString("ep"),
                 date = o.optString("d"),
+                audioUrl = o.optString("au"),
+                notebookEntry = o.optString("nb"),
             ).takeIf { it.ja.isNotBlank() }
         }.getOrNull()
     }
@@ -62,7 +73,15 @@ data class TodayWidgetLine(
 
 object TodayWidget {
     /** Called by the 今日 tab whenever its line changes; repaints any placed widgets. */
-    fun publish(context: Context, line: TodayLine, workSlug: String, episodeLabel: String, today: LocalDate) {
+    fun publish(
+        context: Context,
+        line: TodayLine,
+        workSlug: String,
+        episodeLabel: String,
+        today: LocalDate,
+        audioUrl: String = "",
+        entry: NotebookEntry? = null,
+    ) {
         val store = LocalLabStore(context.applicationContext)
         val next = TodayWidgetLine(
             ja = line.ja,
@@ -71,11 +90,21 @@ object TodayWidget {
             workSlug = workSlug,
             episodeLabel = episodeLabel,
             date = today.toString(),
+            audioUrl = audioUrl,
+            notebookEntry = entry?.let { NotebookRules.encode(listOf(it)) }.orEmpty(),
         )
         val encoded = next.encode()
         if (store.readTodayWidgetLine() == encoded) return
         store.writeTodayWidgetLine(encoded)
         refreshAll(context)
+    }
+
+    private var renderedDue = -1
+
+    /** Re-renders only when the 復習 count on the widget is stale (cheap to call on app stop). */
+    fun refreshIfDueChanged(context: Context) {
+        val due = StudyReminder.dueCount(context)
+        if (due != renderedDue) refreshAll(context)
     }
 
     fun read(context: Context): TodayWidgetLine? =
@@ -99,7 +128,17 @@ object TodayWidget {
         while (widthDp * scale * heightDp * scale > 1_100_000f && scale > 1f) scale *= 0.85f
         val dark = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
             Configuration.UI_MODE_NIGHT_YES
-        val bitmap = TodayWidgetRenderer(context, scale, dark).render(read(context), widthDp, heightDp)
+        val due = StudyReminder.dueCount(context)
+        renderedDue = due
+        val bitmap = TodayWidgetRenderer(context, scale, dark).render(read(context), widthDp, heightDp, due)
+        val review = PendingIntent.getActivity(
+            context,
+            1,
+            Intent(context, MainActivity::class.java)
+                .putExtra(StudyReminder.ExtraOpen, ReminderTarget.Review.key)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+        )
         val open = PendingIntent.getActivity(
             context,
             0,
@@ -110,6 +149,9 @@ object TodayWidget {
             setImageViewBitmap(R.id.today_widget_image, bitmap)
             setContentDescription(R.id.today_widget_image, read(context)?.let { "今日の一句 ${it.ja} ${it.zh}" } ?: "今日の一句")
             setOnClickPendingIntent(R.id.today_widget_image, open)
+            setViewVisibility(R.id.today_widget_review, if (due > 0) android.view.View.VISIBLE else android.view.View.GONE)
+            setOnClickPendingIntent(R.id.today_widget_review, review)
+            setContentDescription(R.id.today_widget_review, "復習 $due")
         }
         manager.updateAppWidget(id, views)
     }
@@ -150,7 +192,7 @@ private class TodayWidgetRenderer(context: Context, private val scale: Float, da
         else -> if (dark) 0xFF8C9BF2.toInt() else 0xFF3A4FCB.toInt()
     }
 
-    fun render(line: TodayWidgetLine?, widthDp: Int, heightDp: Int): Bitmap {
+    fun render(line: TodayWidgetLine?, widthDp: Int, heightDp: Int, due: Int): Bitmap {
         val w = px(widthDp.toFloat()).toInt().coerceAtLeast(1)
         val h = px(heightDp.toFloat()).toInt().coerceAtLeast(1)
         val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
@@ -203,6 +245,12 @@ private class TodayWidgetRenderer(context: Context, private val scale: Float, da
             line?.episodeLabel?.ifBlank { null },
         ).joinToString(" · ")
         canvas.drawText(header, pad, pad - eyebrow.ascent(), eyebrow)
+        // 復習 count under the eyebrow; the overlay view on top of it opens 復習.
+        val dueShift = if (due > 0) px(20f) else 0f
+        if (due > 0) {
+            val duePaint = TextPaint(eyebrow).apply { color = accent; textSize = px(12f) }
+            canvas.drawText("復習 $due ›", pad, pad + px(18f) - duePaint.ascent(), duePaint)
+        }
 
         if (line == null) {
             val body = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { textSize = px(14f); color = ink2 }
@@ -211,7 +259,9 @@ private class TodayWidgetRenderer(context: Context, private val scale: Float, da
         }
 
         // Seal under the eyebrow when there is room.
-        if (heightDp >= 150) drawSeal(canvas, WorkIdentity.sealText(line.workSlug), pad + px(2f), pad + px(26f), px(34f), accent)
+        if (heightDp >= 150 + (if (due > 0) 20 else 0)) {
+            drawSeal(canvas, WorkIdentity.sealText(line.workSlug), pad + px(2f), pad + px(26f) + dueShift, px(34f), accent)
+        }
 
         // Vertical line on the right: shrink the glyphs until the columns fit ~62% of the width.
         val top = pad + px(6f)
