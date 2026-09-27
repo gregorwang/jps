@@ -71,7 +71,9 @@ import com.animejapaneselab.nativeapp.ui.screens.learn.LearnScreen
 import com.animejapaneselab.nativeapp.ui.screens.library.LibraryScreen
 import com.animejapaneselab.nativeapp.ui.screens.library.SubtitlesScreen
 import com.animejapaneselab.nativeapp.ui.screens.login.LoginScreen
-import com.animejapaneselab.nativeapp.ui.screens.review.ReviewScreen
+import com.animejapaneselab.nativeapp.ui.screens.review.ReviewFeedActions
+import com.animejapaneselab.nativeapp.ui.screens.review.ReviewFeedScreen
+import com.animejapaneselab.nativeapp.ui.review.ReviewSinks
 import com.animejapaneselab.nativeapp.ui.screens.review.SmartReviewQueueScreen
 import com.animejapaneselab.nativeapp.ui.screens.search.CommandPalette
 import com.animejapaneselab.nativeapp.ui.screens.session.LessonSessionScreen
@@ -448,7 +450,7 @@ private fun ShellPage(
                 onStartLesson = viewModel::startLessonFromCurrentTab,
                 onStartModeLesson = { mode -> viewModel.startLessonModeFromCurrentTab(mode) },
                 onStartReadAir = viewModel::startReadAirForCurrentEpisode,
-                onStartReview = viewModel::openSmartReviewQueue,
+                onStartReview = { viewModel.selectTab(LabTab.Review) },
                 onOpenLearn = { viewModel.selectLearnSection(LearnSection.Course) },
                 onOpenSubtitles = viewModel::openSubtitles,
                 onOpenSearch = viewModel::openSearch,
@@ -469,7 +471,7 @@ private fun ShellPage(
                 onStartExercise = viewModel::startExerciseLab,
                 onStartExerciseMix = viewModel::startExerciseLabMix,
                 onStartReadAirBatch = viewModel::startReadAirPathBatch,
-                onStartReview = viewModel::openSmartReviewQueue,
+                onStartReview = { viewModel.selectTab(LabTab.Review) },
                 onWorkSelected = viewModel::selectWork,
                 onEpisodeSelected = viewModel::selectEpisode,
                 onTrackSelected = viewModel::selectLinguisticsTrack,
@@ -519,22 +521,35 @@ private fun ShellPage(
             LabTab.Review -> {
                 val drill: ConjugationDrillViewModel = viewModel()
                 val drillState by drill.state.collectAsStateWithLifecycle()
-                ReviewScreen(
+                ReviewFeedScreen(
                     uiState = uiState,
-                    onOpenLesson = { viewModel.selectLearnSection(LearnSection.Course) },
-                    onOpenSmartReviewQueue = viewModel::openSmartReviewQueue,
-                    onMistakeReviewed = viewModel::markMistakeReviewed,
-                    onPracticeMistake = viewModel::practiceLocalMistake,
-                    onPracticeRemoteTask = viewModel::practiceReviewTask,
-                    onExplainMistake = viewModel::askAiAboutMistake,
-                    onViewSource = viewModel::openSubtitlesAt,
-                    onOpenSearch = viewModel::openSearch,
-                    onOpenSettings = viewModel::openSettings,
-                    drillDue = drillState.dueToday,
-                    onStartDrillReview = {
-                        viewModel.selectLinguisticsTrack(LinguisticsTrack.Conjugation)
-                        viewModel.selectLearnSection(LearnSection.Linguistics)
-                        drill.startReview()
+                    drill = drillState,
+                    actions = remember(viewModel, drill) {
+                        ReviewFeedActions(
+                            sinks = ReviewSinks(
+                                gradeLine = drill::gradeLine,
+                                markMistakeReviewed = viewModel::markMistakeReviewed,
+                                gradeTask = viewModel::gradeReviewTask,
+                            ),
+                            ensureDrill = drill::ensureLoaded,
+                            askAi = viewModel::askAiAboutLibraryItem,
+                            practiceMistake = viewModel::practiceLocalMistake,
+                            practiceTask = viewModel::practiceReviewTask,
+                            practiceWeak = { category ->
+                                when (category) {
+                                    "语感 · 读空气" -> viewModel.startReadAirForCurrentEpisode()
+                                    "基础题库" -> {
+                                        viewModel.selectLinguisticsTrack(LinguisticsTrack.Foundation)
+                                        viewModel.selectLearnSection(LearnSection.Linguistics)
+                                    }
+                                    else -> viewModel.selectLearnSection(LearnSection.Course)
+                                }
+                            },
+                            viewSource = viewModel::openSubtitlesAt,
+                            openKnownWords = { viewModel.selectTab(LabTab.Library) },
+                            openSearch = viewModel::openSearch,
+                            done = { viewModel.selectTab(LabTab.Today) },
+                        )
                     },
                 )
             }

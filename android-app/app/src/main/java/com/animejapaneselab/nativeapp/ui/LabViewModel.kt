@@ -2166,6 +2166,26 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         store.writeMistakes(checkNotNull(committedMistakes))
     }
 
+    /**
+     * 復習 刷卡流 verdict on a server review task: saved like an answer (the server reschedules it)
+     * and dropped from today's list right away. StudyLog is counted by the card flow.
+     */
+    fun gradeReviewTask(task: ProgressItem, remembered: Boolean) {
+        _uiState.update { state ->
+            state.copy(reviewTasks = state.reviewTasks.filterNot { it.sameProgressIdentity(task) })
+        }
+        syncAnswer(
+            SyncAnswer(
+                itemId = task.itemId,
+                itemType = task.itemType,
+                selection = EpisodeSelection(task.workSlug, task.episode).takeIf { task.workSlug.isNotBlank() && task.episode > 0 },
+                state = if (remembered) ReviewState.Good else ReviewState.Bad,
+                label = task.label,
+                payload = JSONObject(task.payload),
+            ),
+        )
+    }
+
     fun practiceLocalMistake(itemId: String) {
         val mistake = _uiState.value.mistakes.firstOrNull { it.itemId == itemId }
         if (mistake == null) {

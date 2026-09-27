@@ -225,6 +225,14 @@ object ConjugationDrillRules {
         )
     }
 
+    /** 覚えた (double tap in 復習): straight to the top box. */
+    fun master(previous: DrillProgress?, today: Long): DrillProgress = DrillProgress(
+        box = Intervals.lastIndex,
+        dueDay = today + Intervals.last(),
+        seen = (previous?.seen ?: 0) + 1,
+        wrong = previous?.wrong ?: 0,
+    )
+
     fun isDue(progress: DrillProgress?, today: Long) = progress != null && progress.dueDay <= today
 
     /** Due reviews first (lowest box first), then unseen lines in curriculum order. */

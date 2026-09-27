@@ -202,6 +202,16 @@ class LocalLabStore(context: Context) {
         preferences.edit { putString(KnownWordsKey, words.joinToString("\n")) }
     }
 
+    /** 復習 刷卡流: today's card order and position (JSON, see ReviewFeed). */
+    fun readReviewFeedSession(): String? = preferences.getString(ReviewFeedSessionKey, null)
+
+    fun writeReviewFeedSession(raw: String) = preferences.edit { putString(ReviewFeedSessionKey, raw) }
+
+    /** 復習 刷卡流: local mistakes remembered once, as JSON `{itemId: dueEpochDay}`. */
+    fun readReviewMistakeDue(): String? = preferences.getString(ReviewMistakeDueKey, null)
+
+    fun writeReviewMistakeDue(raw: String) = preferences.edit { putString(ReviewMistakeDueKey, raw) }
+
     /** Home-screen 今日の一句 payload (JSON, see TodayWidgetLine). */
     fun readTodayWidgetLine(): String? = preferences.getString(TodayWidgetLineKey, null)
 
@@ -450,6 +460,8 @@ class LocalLabStore(context: Context) {
         const val StudyTotalSecondsKey = "study-total-seconds"
         const val NotebookKey = "notebook"
         const val KnownWordsKey = "known-words"
+        const val ReviewFeedSessionKey = "review-feed-session"
+        const val ReviewMistakeDueKey = "review-mistake-due"
         const val TodayWidgetLineKey = "today-widget-line"
         const val StudyLastAnswerAtKey = "study-last-answer-at"
         const val DrillProgressKey = "conjugation-drill-progress"

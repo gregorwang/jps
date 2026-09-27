@@ -78,6 +78,7 @@ import com.animejapaneselab.nativeapp.ui.screens.review.ReviewRules
 import com.animejapaneselab.nativeapp.ui.screens.settings.ReminderHealthStrip
 import com.animejapaneselab.nativeapp.ui.screens.settings.rememberReminderHealth
 import com.animejapaneselab.nativeapp.ui.study.StudyLog
+import com.animejapaneselab.nativeapp.ui.review.ReviewFeed
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 import com.animejapaneselab.nativeapp.ui.theme.normalizeWorkSlug
 import java.time.LocalDate
@@ -126,7 +127,11 @@ fun TodayScreen(
     val notebook = rememberNotebookEntries()
     val shioriDue = remember(notebook, today) { NotebookRules.dueCount(notebook, today.toEpochDay()) }
     val jishuDoneToday = (studyDays[today.toString()]?.studied ?: 0) > 0
-    val slots = remember(uiState.lesson, uiState.lessonMode, uiState.reviewTasks, uiState.mistakes, uiState.readAir, uiState.shadowing, candidates, episodeLabel, mainLine, shioriDue, jishuDoneToday) {
+    remember { ReviewFeed.init(context) }
+    // 三限 復習 shows what is left of today's 復習 round once it exists (same count as the feed).
+    val feed by ReviewFeed.session.collectAsState()
+    val feedLeft = feed?.takeIf { it.day == today.toEpochDay() && it.filter == null && !it.extra }?.remaining
+    val slots = remember(uiState.lesson, uiState.lessonMode, uiState.reviewTasks, uiState.mistakes, uiState.readAir, uiState.shadowing, candidates, episodeLabel, mainLine, shioriDue, jishuDoneToday, feedLeft) {
         val plan = buildSmartReviewPlan(uiState.reviewTasks, uiState.mistakes, today)
         val slug = normalizeWorkSlug(workSlug)
         val readAirScope = uiState.readAir.exercises.filter {
@@ -139,7 +144,7 @@ fun TodayScreen(
                 lessonModeLabel = uiState.lessonMode.label,
                 lessonTotal = uiState.lesson.nodes.size,
                 lessonDone = uiState.lesson.index.coerceAtMost(uiState.lesson.nodes.size),
-                reviewDue = ReviewRules.dueCount(plan) + shioriDue,
+                reviewDue = feedLeft ?: (ReviewRules.dueCount(plan) + shioriDue),
                 readAirTotal = if (readAirLoaded) readAirScope.size else null,
                 readAirAnswered = readAirScope.count { !uiState.readAir.selectedAnswers[it.id].isNullOrBlank() },
                 shadowingCount = uiState.shadowing.size,

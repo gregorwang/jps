@@ -245,6 +245,24 @@ class ConjugationDrillViewModel(application: Application) : AndroidViewModel(app
         if (item != null) writePointDue(_state.value)
     }
 
+    /**
+     * One 復習 card verdict on a line: remembered / forgotten through the normal schedule, or
+     * [mastered] straight to the top box. The card flow logs StudyLog itself.
+     */
+    fun gradeLine(itemId: String, remembered: Boolean, mastered: Boolean = false) {
+        val s = _state.value
+        val today = LocalDate.now().toEpochDay()
+        val next = if (mastered) {
+            ConjugationDrillRules.master(s.progress[itemId], today)
+        } else {
+            ConjugationDrillRules.schedule(s.progress[itemId], remembered, today)
+        }
+        val updated = s.progress + (itemId to next)
+        store.writeDrillProgress(updated)
+        _state.update { it.copy(progress = updated) }
+        writePointDue(_state.value)
+    }
+
     /** Per-課 earliest due day, so 放課後チャイム can name the lesson that is fading. */
     private fun writePointDue(s: ConjugationDrillState) {
         if (s.items.isEmpty()) return

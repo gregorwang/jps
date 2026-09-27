@@ -64,6 +64,13 @@ object Notebook {
         write(_entries.value.map { if (it.key == key) NotebookRules.grade(it, remembered, today) else it })
     }
 
+    @Synchronized
+    fun master(context: Context, key: String) {
+        init(context)
+        val today = LocalDate.now().toEpochDay()
+        write(_entries.value.map { if (it.key == key) NotebookRules.master(it, today) else it })
+    }
+
     private fun write(next: List<NotebookEntry>) {
         _entries.value = next
         store?.writeNotebook(next)

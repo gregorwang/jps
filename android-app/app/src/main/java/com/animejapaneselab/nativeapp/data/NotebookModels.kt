@@ -68,6 +68,13 @@ object NotebookRules {
         )
     }
 
+    /** 覚えた (double tap in 復習): straight to the top box. */
+    fun master(entry: NotebookEntry, today: Long): NotebookEntry = entry.copy(
+        box = IntervalsDays.size,
+        dueDay = today + IntervalsDays.last(),
+        reviews = entry.reviews + 1,
+    )
+
     /** 「覚えた」 once a card reaches the top box. */
     fun isMastered(entry: NotebookEntry): Boolean = entry.box >= IntervalsDays.size
 
