@@ -3741,12 +3741,12 @@ async function listEpisodeVocabRows(
   if (plannedIds?.length) {
     const rows = await supabase<unknown[]>(
       env,
-      `/rest/v1/learning_vocab_items?select=*&id=${encodeURIComponent(`in.(${plannedIds.map(quotePostgrestString).join(',')})`)}&limit=${plannedIds.length}`,
+      `/rest/v1/learning_vocab_items?select=*&is_study_word=eq.true&id=${encodeURIComponent(`in.(${plannedIds.map(quotePostgrestString).join(',')})`)}&limit=${plannedIds.length}`,
     )
     if (mode === 'vocab') {
       const extras = await supabase<unknown[]>(
         env,
-        `/rest/v1/learning_vocab_items?select=*&work_slug=eq.${encodeURIComponent(workSlug)}&order=total_occurrences.desc&limit=80`,
+        `/rest/v1/learning_vocab_items?select=*&is_study_word=eq.true&work_slug=eq.${encodeURIComponent(workSlug)}&order=total_occurrences.desc&limit=80`,
       )
       const plannedSet = new Set(plannedIds)
       const merged = [
@@ -3773,7 +3773,7 @@ async function listEpisodeVocabRows(
 
   return supabase<unknown[]>(
     env,
-    `/rest/v1/learning_vocab_items?select=*&work_slug=eq.${encodeURIComponent(workSlug)}&order=total_occurrences.desc&limit=80`,
+    `/rest/v1/learning_vocab_items?select=*&is_study_word=eq.true&work_slug=eq.${encodeURIComponent(workSlug)}&order=total_occurrences.desc&limit=80`,
   )
 }
 
@@ -4144,6 +4144,8 @@ function mapVocab(input: unknown) {
     romaji: readString(row, 'romaji'),
     meaningZh: readString(row, 'meaning_zh'),
     pos: readString(row, 'pos'),
+    lemma: readString(row, 'lemma'),
+    lemmaReading: readString(row, 'lemma_reading'),
     jlptLevel: readString(row, 'jlpt_level'),
     suitableHandwriting: readBoolean(row, 'suitable_handwriting'),
     suitableShadowing: readBoolean(row, 'suitable_shadowing'),

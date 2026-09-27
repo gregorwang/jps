@@ -121,6 +121,9 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 - Antigravity 的单词卡：`check.py` 全过（3770，keep=false 6.7%），抽查 40 词读音全对；问题只在措辞（「微缩微景」式叠词）和约 15% 复述释义的空备注，不影响教学，直接装了。以后精修就针对这两类返工。
 - `vocab_cards.json` 约 490KB，只含读音/释义/备注，不含字幕原文，可以进仓库；`archive-content-sources/vocab-cards-v1/` 仍不能提交。
 - 课程学习卡（`StudyCardQuestion`）在 `sourceKind == "vocab"` 时用 `VocabCards` 覆盖读音、释义，备注换成「词性 / 辞书形 / note」，旧的 `realWorldNote` 和出现次数不再显示。服务端词汇题仍是旧数据，写回 Supabase 要 service role key（交接文档第 4 节）。
+- 0.9.2：用户给了 Supabase 个人 access token（`sbp_`），走 Management API（`/v1/projects/<ref>/database/query`）可以直接跑 SQL 和 DDL，不需要 service role key。数据已写回云端（`push_cloud.py`），worker 只下发 `is_study_word=true`。**用 `create table … as` 在 public 下建的表默认不开 RLS，匿名 key 能读到，建完立刻 `enable row level security`。**
+- 云端的 `pos` 现在是中文标签（`な形容词`、`动词`），`Conjugator` 已兼容；新代码判断词性时两种标签都要认。
+- 用户以为 App 是纯本地、不联网的；其实登录、課程、辞書、AI 都走 worker，只有 `vocab_cards.json` 是本地覆盖。以后云端逻辑要当作唯一数据源来做，本地 asset 只是兜底。
 
 **2026-09-27 · 0.9.0（读音辅助 + 学生証 + 单词练习）**
 - 读音辅助统一走 `ui/reading/Kana.kt`（假名→罗马音、按音拍切分、`LineReading` 把一句拆成「汉字词+读音 / 单个音拍」）和 `ReadingLineText`（上注假名、下注罗马音、目标词标色）。读音来自 Worker 的 furigana（`rememberFuriganaAnnotator`），受设定「假名注音 / 罗马音」开关控制。用户不熟假名，**凡是显示日语的学习界面都要考虑罗马音**。

@@ -43,8 +43,8 @@ object Conjugator {
             pos.contains("サ変") || pos.contains("する動") || pos.contains("する动") ||
                 pos == "名詞/動詞" || pos == "noun/verb" -> suru(if (word.endsWith("する")) word.dropLast(2) else word)
             pos.startsWith("動") || pos.startsWith("动") || pos.startsWith("verb") -> verb(word, kana)
-            pos.contains("形容動") || pos.contains("形動") || pos.startsWith("na-adj") -> naAdjective(word)
-            pos.startsWith("形容") || pos.startsWith("i-adj") -> iAdjective(word)
+            pos.contains("形容動") || pos.contains("形動") || pos.startsWith("な形") || pos.startsWith("na-adj") -> naAdjective(word)
+            pos.startsWith("形容") || pos.startsWith("い形") || pos.startsWith("i-adj") -> iAdjective(word)
             else -> null
         }
     }

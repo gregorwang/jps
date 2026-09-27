@@ -55,3 +55,10 @@ App 用本地 asset 已经够了。如果用户希望网页端和服务端题目
 - Supabase 用 Python 请求要带浏览器 User-Agent，否则 Cloudflare 返回 403。
 - `subtitle_lines` 的中文 `zh_text` 经常和日文错位，不能当译文用。
 - `WordRules.fits` 和 `check.py` 的 `fits` 是同一条规则（汉字每个字读 1–4 个假名），改一边要同步另一边。
+
+## 6. 进度（2026-09-27）
+
+- 第一轮已完成：3770 词全过校验，已装进 App（0.9.1），并写回 Supabase。
+- **云端**：`push_cloud.py`（需要 `SUPABASE_ACCESS_TOKEN=sbp_...`，走 Management API）。它会写 `reading / romaji / meaning_zh / pos / lemma / lemma_reading / real_world_note(=note)`，把 `is_study_word` 设成 keep，并清空 `anime_tone_note`。改写前的旧表备份在 `learning_vocab_items_backup_20260927`（已开 RLS，只有管理端能读），迁移记录在 `supabase/migrations/20260927130000_vocab_cards_v1.sql`。worker 的 `/vocab` 只下发 `is_study_word=true`，并带 `lemma / lemmaReading`。
+- **第二轮精修**（交给 Antigravity）：`rework_export.py` 给措辞可疑的卡打标记，一共 668 词、7 批，生成 `rework/rework_NN.md`；提示词是 `ANTIGRAVITY_REWORK_PROMPT.md`。Antigravity 把改过的卡写进 `rework/rework_NN.json`，`check.py` 会把这些改动覆盖到第一轮结果上。
+- **精修交回后**：`python check.py` 看数字 → 抽查 20 条改动 → `python check.py --install`（App）+ `push_cloud.py`（云端），**两边都要做**，否则 App 本地的 asset 会覆盖云端的新数据 → 编译、发版。
