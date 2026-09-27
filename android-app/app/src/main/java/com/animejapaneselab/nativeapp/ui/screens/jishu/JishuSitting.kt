@@ -72,7 +72,6 @@ import com.animejapaneselab.nativeapp.ui.drill.ConjugationDrillState
 import com.animejapaneselab.nativeapp.ui.jishu.JishuPage
 import com.animejapaneselab.nativeapp.ui.jishu.JishuSitting
 import com.animejapaneselab.nativeapp.ui.jishu.SceneContext
-import com.animejapaneselab.nativeapp.ui.jishu.parseFormula
 import com.animejapaneselab.nativeapp.ui.motion.rememberReducedMotion
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 
@@ -361,20 +360,9 @@ private fun CardPage(
             }
 
             // 拆解: word blocks, the grammar point's own block in the work colour.
-            val parts = remember(item.formula) { parseFormula(item.formula) }
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Eyebrow("拆解")
-                if (parts.isEmpty()) {
-                    Text(item.formula, style = AjlTheme.type.jpBody.copy(fontSize = 16.sp, lineHeight = 26.sp), color = colors.ink)
-                } else {
-                    val stemPoint = ConjugationDrillRules.groupKey(item.group) in StemGroups
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        parts.forEachIndexed { i, part ->
-                            if (i > 0) Text("＋", style = AjlTheme.type.meta.copy(fontSize = 18.sp), color = work.accent, modifier = Modifier.padding(top = 6.dp))
-                            FormulaBlock(part.word, part.note, accent = if (stemPoint) i == 0 else i > 0)
-                        }
-                    }
-                }
+                FormulaRow(item.formula, item.group)
             }
 
             // 意思: the translation (hidden under 遮る until tapped), then 用法 + 说明.
@@ -444,9 +432,6 @@ private fun CardPage(
     }
 }
 
-/** Groups whose grammar point is the stem's own form (活用形 / 音便 / 形容词), not what follows it. */
-private val StemGroups = setOf("A", "B", "F")
-
 @Composable
 private fun SceneBand(text: String, top: Boolean) {
     val colors = AjlTheme.colors
@@ -460,31 +445,6 @@ private fun SceneBand(text: String, top: Boolean) {
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
         )
         if (top) Hairline()
-    }
-}
-
-@Composable
-private fun FormulaBlock(word: String, note: String, accent: Boolean) {
-    val colors = AjlTheme.colors
-    val work = AjlTheme.work
-    val notes = note.split(" · ").filter { it.isNotBlank() }
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Column(Modifier.width(androidx.compose.foundation.layout.IntrinsicSize.Max)) {
-            Text(
-                word,
-                style = AjlTheme.type.jpBody.copy(fontSize = 24.sp, lineHeight = 32.sp, fontWeight = FontWeight.SemiBold),
-                color = if (accent) work.accent else colors.ink,
-            )
-            Box(Modifier.fillMaxWidth().height(if (accent) 2.dp else 1.5.dp).background(if (accent) work.accent else colors.ink))
-        }
-        if (notes.isNotEmpty()) {
-            Column {
-                Text(notes.first(), style = AjlTheme.type.caption.copy(fontSize = 12.sp, lineHeight = 17.sp), color = colors.ink2)
-                if (notes.size > 1) {
-                    Text(notes.drop(1).joinToString(" · "), style = AjlTheme.type.caption.copy(fontSize = 12.sp, lineHeight = 17.sp), color = colors.ink3)
-                }
-            }
-        }
     }
 }
 

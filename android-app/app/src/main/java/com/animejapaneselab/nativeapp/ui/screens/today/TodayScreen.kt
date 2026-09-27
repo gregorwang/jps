@@ -142,8 +142,9 @@ fun TodayScreen(
     val context = LocalContext.current
     remember { StudyLog.init(context) }
     val studyDays by StudyLog.days.collectAsState()
-    val heatmap = remember(studyDays, uiState.progressItems, today) {
-        StudyHeatmapRules.build(studyDays, uiState.progressItems, today)
+    val studyTotal by StudyLog.totalSeconds.collectAsState()
+    val heatmap = remember(studyDays, studyTotal, uiState.progressItems, today) {
+        StudyHeatmapRules.build(studyDays, uiState.progressItems, today, studyTotal)
     }
     val audio = rememberLessonAudioController()
     val speaking = audio.playbackState.phase.let { it == AudioPlaybackPhase.Playing || it == AudioPlaybackPhase.Loading }

@@ -28,6 +28,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -220,4 +226,78 @@ fun Eyebrow(text: String, modifier: Modifier = Modifier, color: Color = AjlTheme
         color = color,
         maxLines = 1,
     )
+}
+
+/**
+ * A Japanese line with its target ([mark]) set bold, in the work colour and underlined, so the
+ * point of the line reads at a glance (feedback sheet, 解説).
+ */
+@Composable
+fun MarkedLine(
+    text: String,
+    mark: IntRange?,
+    modifier: Modifier = Modifier,
+    style: TextStyle = AjlTheme.type.jpBody,
+    color: Color = AjlTheme.colors.ink,
+) {
+    val accent = AjlTheme.work.accent
+    val annotated = remember(text, mark, accent) {
+        buildAnnotatedString {
+            append(text)
+            val range = mark?.takeIf { it.first >= 0 && it.last < text.length && !it.isEmpty() } ?: return@buildAnnotatedString
+            addStyle(
+                SpanStyle(color = accent, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline),
+                range.first,
+                range.last + 1,
+            )
+        }
+    }
+    Text(annotated, modifier = modifier, style = style, color = color)
+}
+
+/**
+ * Explanation text with light structure: 「…」/『…』 quotes are set in serif, semibold ink (the
+ * Japanese being talked about), `**…**` is bold, and `→` takes the work colour. Plain text otherwise.
+ */
+@Composable
+fun NoteText(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle = AjlTheme.type.body.copy(fontSize = 14.sp, lineHeight = 22.sp),
+    color: Color = AjlTheme.colors.ink2,
+) {
+    val ink = AjlTheme.colors.ink
+    val accent = AjlTheme.work.accent
+    val annotated = remember(text, ink, accent) { noteAnnotated(text, ink, accent) }
+    Text(annotated, modifier = modifier, style = style, color = color)
+}
+
+internal fun noteAnnotated(text: String, ink: Color, accent: Color): AnnotatedString = buildAnnotatedString {
+    val quote = SpanStyle(color = ink, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold)
+    var i = 0
+    while (i < text.length) {
+        val c = text[i]
+        when {
+            text.startsWith("**", i) && text.indexOf("**", i + 2) > i + 2 -> {
+                val end = text.indexOf("**", i + 2)
+                withStyle(SpanStyle(color = ink, fontWeight = FontWeight.Bold)) { append(text, i + 2, end) }
+                i = end + 2
+            }
+            (c == '「' || c == '『') && text.indexOf(if (c == '「') '」' else '』', i + 1) > i -> {
+                val end = text.indexOf(if (c == '「') '」' else '』', i + 1)
+                append(c)
+                withStyle(quote) { append(text, i + 1, end) }
+                append(text[end])
+                i = end + 1
+            }
+            c == '→' || c == '←' -> {
+                withStyle(SpanStyle(color = accent, fontWeight = FontWeight.SemiBold)) { append(c) }
+                i++
+            }
+            else -> {
+                append(c)
+                i++
+            }
+        }
+    }
 }

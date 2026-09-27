@@ -13,7 +13,8 @@ import java.time.LocalTime
 /**
  * Process-wide study log behind 今日「最近 12 周」. Every judged answer (lesson, 读空气, 基础题库,
  * 活用道場) calls [record], every 自習 card [recordStudy]; study time is the gap since the previous answer, capped so a phone
- * left on the table doesn't count as studying.
+ * left on the table doesn't count as studying. Reaching a session's end (つづく, 栞 review done) calls [finishSession]:
+ * only finished sessions light a square.
  */
 object StudyLog {
     private const val MaxGapSeconds = 180
@@ -22,12 +23,19 @@ object StudyLog {
 
     private val _days = MutableStateFlow<Map<String, StudyDay>>(emptyMap())
     val days: StateFlow<Map<String, StudyDay>> = _days.asStateFlow()
+    private val _totalSeconds = MutableStateFlow(0L)
+    /** Lifetime study time, beyond the 120 days the per-day log keeps. */
+    val totalSeconds: StateFlow<Long> = _totalSeconds.asStateFlow()
     private var store: LocalLabStore? = null
 
     @Synchronized
     fun init(context: Context) {
         if (store != null) return
-        store = LocalLabStore(context.applicationContext).also { _days.value = it.readStudyLog() }
+        store = LocalLabStore(context.applicationContext).also { s ->
+            _days.value = s.readStudyLog()
+            _totalSeconds.value = s.readStudyTotalSeconds().takeIf { it >= 0 }
+                ?: _days.value.values.sumOf { it.seconds.toLong() }.also(s::writeStudyTotalSeconds)
+        }
     }
 
     fun record(context: Context, answers: Int, correct: Int) {
@@ -41,13 +49,22 @@ object StudyLog {
         add(context) { it.copy(studied = it.studied + lines) }
     }
 
+    /** A session reached its end screen; lights today's square (deeper with each one). */
+    fun finishSession(context: Context) {
+        add(context, timed = false) { it.copy(finished = it.finished + 1) }
+    }
+
     @Synchronized
-    private fun add(context: Context, change: (StudyDay) -> StudyDay) {
+    private fun add(context: Context, timed: Boolean = true, change: (StudyDay) -> StudyDay) {
         init(context)
         val store = checkNotNull(store)
-        val now = System.currentTimeMillis()
+        val now = if (timed) System.currentTimeMillis() else store.readStudyLastAnswerAt()
         val gap = ((now - store.readStudyLastAnswerAt()) / 1000).toInt()
-        val seconds = if (gap in 1..MaxGapSeconds) gap else FirstAnswerSeconds
+        val seconds = when {
+            !timed -> 0
+            gap in 1..MaxGapSeconds -> gap
+            else -> FirstAnswerSeconds
+        }
         val today = LocalDate.now()
         val key = today.toString()
         val oldest = today.minusDays(KeepDays).toString()
@@ -55,7 +72,11 @@ object StudyLog {
         val next = _days.value.filterKeys { it >= oldest } + (key to change(current).copy(seconds = current.seconds + seconds))
         _days.value = next
         store.writeStudyLog(next, now)
-        if (current.activity == 0) {
+        if (seconds > 0) {
+            _totalSeconds.value += seconds
+            store.writeStudyTotalSeconds(_totalSeconds.value)
+        }
+        if (timed && current.activity == 0) {
             // First study of the day: feeds the reminder's habit time and clears today's nudge.
             store.appendStudyStart(LocalTime.now().let { it.hour * 60 + it.minute })
             StudyReminder.onStudyStarted(context)

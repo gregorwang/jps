@@ -142,21 +142,26 @@ class LocalLabStore(context: Context) {
 
     fun writeJishuCover(cover: Boolean) = preferences.edit { putBoolean(JishuCoverKey, cover) }
 
-    /** Per-day study log: ISO date -> [answers, correct, seconds]. */
+    /** Per-day study log: ISO date -> [answers, correct, seconds, studied, finished]. */
     fun readStudyLog(): Map<String, StudyDay> {
         val raw = preferences.getString(StudyLogKey, null) ?: return emptyMap()
         return runCatching {
             val json = JSONObject(raw)
             json.keys().asSequence().associateWith { day ->
                 val row = json.getJSONArray(day)
-                StudyDay(answers = row.optInt(0), correct = row.optInt(1), seconds = row.optInt(2), studied = row.optInt(3))
+                StudyDay(answers = row.optInt(0), correct = row.optInt(1), seconds = row.optInt(2), studied = row.optInt(3), finished = row.optInt(4))
             }
         }.getOrDefault(emptyMap())
     }
 
+    /** Lifetime study seconds (the per-day log only keeps 120 days); -1 until first written. */
+    fun readStudyTotalSeconds(): Long = preferences.getLong(StudyTotalSecondsKey, -1L)
+
+    fun writeStudyTotalSeconds(seconds: Long) = preferences.edit { putLong(StudyTotalSecondsKey, seconds) }
+
     fun writeStudyLog(log: Map<String, StudyDay>, lastAnswerAtMillis: Long) {
         val json = JSONObject()
-        log.forEach { (day, d) -> json.put(day, JSONArray().put(d.answers).put(d.correct).put(d.seconds).put(d.studied)) }
+        log.forEach { (day, d) -> json.put(day, JSONArray().put(d.answers).put(d.correct).put(d.seconds).put(d.studied).put(d.finished)) }
         preferences.edit {
             putString(StudyLogKey, json.toString())
             putLong(StudyLastAnswerAtKey, lastAnswerAtMillis)
@@ -411,6 +416,7 @@ class LocalLabStore(context: Context) {
         const val ReminderHabitPostedOnKey = "reminder-habit-posted-on"
         const val NotificationAskedKey = "notification-permission-asked"
         const val StudyLogKey = "study-log"
+        const val StudyTotalSecondsKey = "study-total-seconds"
         const val NotebookKey = "notebook"
         const val TodayWidgetLineKey = "today-widget-line"
         const val StudyLastAnswerAtKey = "study-last-answer-at"
@@ -429,7 +435,10 @@ class LocalLabStore(context: Context) {
     }
 }
 
-/** One day of study: judged [answers] ([correct] of them), [seconds] spent, and 自習 lines gone through ([studied]). */
-data class StudyDay(val answers: Int = 0, val correct: Int = 0, val seconds: Int = 0, val studied: Int = 0) {
+/**
+ * One day of study: judged [answers] ([correct] of them), [seconds] spent, 自習 lines gone through ([studied]),
+ * and sessions seen through to their end ([finished]) — only those light a square on 最近 12 週.
+ */
+data class StudyDay(val answers: Int = 0, val correct: Int = 0, val seconds: Int = 0, val studied: Int = 0, val finished: Int = 0) {
     val activity: Int get() = answers + studied
 }

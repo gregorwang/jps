@@ -31,11 +31,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -51,6 +54,7 @@ import com.animejapaneselab.nativeapp.ui.design.MangaPanel
 import com.animejapaneselab.nativeapp.ui.design.OutlineButton
 import com.animejapaneselab.nativeapp.ui.design.screentone
 import com.animejapaneselab.nativeapp.ui.motion.MotionTokens
+import com.animejapaneselab.nativeapp.ui.study.StudyLog
 import com.animejapaneselab.nativeapp.ui.motion.rememberReducedMotion
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 
@@ -71,7 +75,8 @@ data class TsuzukuPreview(
  * 次回予告 card rising at 700ms, the tally shown as-is at 900ms (no rolling numbers, no XP). Below:
  * the lines worth another look; one outline + one ink action.
  *
- * Shared by the lesson, read-air and foundation sessions.
+ * Shared by the lesson, read-air and foundation sessions. Showing it counts as finishing a session
+ * (lights today's square on 最近 12 週).
  */
 @Composable
 fun TsuzukuScreen(
@@ -93,6 +98,14 @@ fun TsuzukuScreen(
 ) {
     val colors = AjlTheme.colors
     val work = AjlTheme.work
+    val context = LocalContext.current
+    var logged by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        if (!logged) {
+            logged = true
+            StudyLog.finishSession(context)
+        }
+    }
     val reduced = rememberReducedMotion()
     val clock = remember { Animatable(if (reduced) 1200f else 0f) }
     LaunchedEffect(Unit) {

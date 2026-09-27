@@ -3,6 +3,13 @@ package com.animejapaneselab.nativeapp.ui.screens.session
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import com.animejapaneselab.nativeapp.ui.design.MarkedLine
+import com.animejapaneselab.nativeapp.ui.design.NoteText
+import com.animejapaneselab.nativeapp.ui.screens.jishu.FormulaRow
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,7 +40,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.animejapaneselab.nativeapp.data.AudioReliability
-import com.animejapaneselab.nativeapp.data.FoundationTopic
 import com.animejapaneselab.nativeapp.data.PromptAudio
 import com.animejapaneselab.nativeapp.ui.audio.LessonAudioController
 import com.animejapaneselab.nativeapp.ui.audio.rememberLessonAudioController
@@ -98,7 +104,6 @@ fun ConjugationSession(
                 ConjugationQuestionBody(
                     question = question,
                     learned = learnedTitles,
-                    topic = question.item?.let(state::topicFor),
                     committed = state.answers[state.index],
                     isLast = state.index >= state.session.lastIndex,
                     audio = audio,
@@ -115,7 +120,6 @@ fun ConjugationSession(
 private fun ConjugationQuestionBody(
     question: DrillQuestion,
     learned: List<String>,
-    topic: FoundationTopic?,
     committed: String?,
     isLast: Boolean,
     audio: LessonAudioController,
@@ -205,7 +209,6 @@ private fun ConjugationQuestionBody(
             ConjugationFeedback(
                 question = question,
                 learned = learned,
-                topic = topic,
                 committed = committed.orEmpty(),
                 correct = correct,
                 continueLabel = if (isLast) "完成" else "继续",
@@ -223,11 +226,15 @@ private fun ConjugationQuestionBody(
     }
 }
 
+/**
+ * Feedback for one 活用 question, laid out like the 自習 card it came from: the line with its
+ * target marked, the translation, the 拆解 blocks, then the point (用法 tag + 说明). A wrong answer
+ * adds the AI's one-line 为什么不是 on top.
+ */
 @Composable
 private fun ConjugationFeedback(
     question: DrillQuestion,
     learned: List<String>,
-    topic: FoundationTopic?,
     committed: String,
     correct: Boolean,
     continueLabel: String,
@@ -235,22 +242,14 @@ private fun ConjugationFeedback(
     modifier: Modifier = Modifier,
 ) {
     val item = question.item
-    val hue = AjlTheme.work.hue
+    val colors = AjlTheme.colors
+    val work = AjlTheme.work
+    val hue = work.hue
     val character = remember(hue) {
         FoundationRules.workSlugFor(hue)?.let { WorkIdentity.representative(it) } ?: CharacterRef("学", "学", null)
     }
     val reaction = remember(question.prompt, correct) { ReadAirRules.reaction(correct, item?.id ?: question.prompt, inScene = false) }
     val answerText = question.options.firstOrNull { it.id == question.answerId }?.text.orEmpty()
-    val notes = buildList {
-        if (item == null) {
-            if (question.why.isNotBlank()) add("为什么" to question.why.trim())
-            return@buildList
-        }
-        if (item.formula.isNotBlank()) add("拆解" to item.formula.trim())
-        add("语法点" to listOf(item.pointTitle, item.sense).filter { it.isNotBlank() }.joinToString(" · "))
-        if (item.note.isNotBlank()) add("说明" to item.note.trim())
-        if (item.zh.isNotBlank()) add("译文" to item.zh.trim())
-    }
     val chosenText = question.options.firstOrNull { it.id == committed }?.text.orEmpty()
     val aiRequest = remember(question.prompt, committed, correct) {
         if (correct || chosenText.isBlank()) {
@@ -268,15 +267,6 @@ private fun ConjugationFeedback(
         }
     }
     val ai = rememberQuickFeedback(aiRequest)
-    var deep by rememberSaveable(item?.id ?: question.prompt) { mutableStateOf(false) }
-    val deepNotes = topic?.let { t ->
-        buildList {
-            add(t.titleJa to listOf(t.titleZh, t.shortDefinitionZh).filter { it.isNotBlank() }.joinToString("：").trim())
-            if (t.beginnerExplanationZh.isNotBlank()) add("讲解" to t.beginnerExplanationZh.trim())
-            if (t.deepExplanationZh.isNotBlank()) add("深入" to t.deepExplanationZh.trim())
-            if (t.cautionNoteZh.isNotBlank()) add("注意" to t.cautionNoteZh.trim())
-        }
-    }
     FeedbackSheet(
         correct = correct,
         onContinue = onContinue,
@@ -284,17 +274,79 @@ private fun ConjugationFeedback(
         character = character,
         line = reaction.ja,
         lineGloss = reaction.zh,
-        explanation = if (correct) null else "正确答案是「$answerText」。",
+        explanation = if (correct) null else "正确答案是「$answerText」",
         continueLabel = continueLabel,
         extra = {
-            if (!deep && ai is QuickFeedbackState.Loading) QuickFeedbackLoading(chosenText)
-            val aiNote = (ai as? QuickFeedbackState.Ready)?.let { listOf(quickFeedbackLabel(chosenText) to it.text) }.orEmpty()
-            key(deep) { ReadAirNotes(if (deep && deepNotes != null) deepNotes else aiNote + notes) }
-            if (deepNotes != null) {
-                QuietButton(if (deep) "回到拆解" else "深入讲解 · ${topic?.titleZh.orEmpty()}", { deep = !deep })
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 300.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                if (ai is QuickFeedbackState.Loading) QuickFeedbackLoading(chosenText)
+                (ai as? QuickFeedbackState.Ready)?.let { ready ->
+                    FeedbackBlock(quickFeedbackLabel(chosenText)) { NoteText(ready.text) }
+                }
+                if (item == null) {
+                    // 板書 practice: the right form, then why.
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        MarkedLine(
+                            answerText,
+                            answerText.indices,
+                            style = AjlTheme.type.jpBody.copy(fontSize = 22.sp, lineHeight = 32.sp),
+                        )
+                        if (question.why.isNotBlank()) NoteText(question.why.trim())
+                    }
+                    return@Column
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    MarkedLine(
+                        item.jaText,
+                        item.spanStart until item.spanEnd,
+                        style = AjlTheme.type.jpBody.copy(fontSize = 19.sp, lineHeight = 30.sp),
+                    )
+                    if (item.zh.isNotBlank()) {
+                        Text(item.zh.trim(), style = AjlTheme.type.body.copy(fontSize = 14.sp, lineHeight = 21.sp), color = colors.ink3)
+                    }
+                }
+                if (item.formula.isNotBlank()) {
+                    FeedbackBlock("拆解") { FormulaRow(item.formula, item.group, wordSize = 20.sp) }
+                }
+                val title = item.pointTitle.trim()
+                if (title.isNotBlank() || item.sense.isNotBlank() || item.note.isNotBlank()) {
+                    FeedbackBlock("语法点") {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            if (title.isNotBlank()) {
+                                Text(title, style = AjlTheme.type.title.copy(fontSize = 15.sp), color = colors.ink, modifier = Modifier.weight(1f, fill = false))
+                            }
+                            if (item.sense.isNotBlank()) {
+                                Text(
+                                    item.sense.trim(),
+                                    style = AjlTheme.type.caption.copy(fontSize = 12.sp),
+                                    color = work.accent,
+                                    maxLines = 1,
+                                    modifier = Modifier
+                                        .border(1.dp, work.accent.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
+                                        .padding(horizontal = 7.dp, vertical = 2.dp),
+                                )
+                            }
+                        }
+                        if (item.note.isNotBlank()) NoteText(item.note.trim())
+                    }
+                }
             }
         },
     )
+}
+
+/** A labelled block in the feedback sheet: small mono label, then its content. */
+@Composable
+private fun FeedbackBlock(label: String, content: @Composable () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Eyebrow(label)
+        content()
+    }
 }
 
 /** つづく for a drill set: tally, the lines missed this time, 再来一组. */

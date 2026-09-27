@@ -28,6 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -303,6 +304,7 @@ fun NotebookReviewDialog(ttsWorkerUrl: String, onDismiss: () -> Unit) {
             )
             val card = queue.getOrNull(index)
             if (card == null) {
+                if (queue.isNotEmpty()) LaunchedEffect(Unit) { StudyLog.finishSession(context) }
                 Column(
                     Modifier.fillMaxSize().padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,

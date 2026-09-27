@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
+import com.animejapaneselab.nativeapp.ui.design.NoteText
 import com.animejapaneselab.nativeapp.ui.design.Avatar
 import com.animejapaneselab.nativeapp.ui.design.BubbleShape
 import com.animejapaneselab.nativeapp.ui.design.EmphasisText
@@ -274,12 +275,12 @@ internal fun ReadAirCheckBar(
     }
 }
 
-/** A labelled note inside the feedback sheet (证据 / 学习点). */
+/** A labelled note inside the feedback sheet (证据 / 学习点); 「」 quotes stand out via [NoteText]. */
 @Composable
 internal fun ReadAirNote(label: String, body: String, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Eyebrow(label)
-        Text(body, style = AjlTheme.type.body.copy(fontSize = 14.sp), color = AjlTheme.colors.ink2)
+        NoteText(body)
     }
 }
 
