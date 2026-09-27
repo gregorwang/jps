@@ -21,6 +21,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -39,6 +40,7 @@ import com.animejapaneselab.nativeapp.ui.motion.MotionTokens
 import com.animejapaneselab.nativeapp.ui.reading.RubyText
 import com.animejapaneselab.nativeapp.ui.reading.rememberFuriganaAnnotator
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
+import com.animejapaneselab.nativeapp.ui.words.VocabCards
 
 /**
  * 学习卡 — not a question: one word / pattern / line as a manga panel (serif headword with
@@ -51,6 +53,18 @@ internal fun StudyCardQuestion(
     settings: LabSettings,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current.applicationContext
+    // Vocab rows carry unreliable readings / meanings / notes: the hand-checked card wins.
+    val fix = remember(node.id) { if (node.sourceKind == "vocab") VocabCards.get(context, node.sourceId) else null }
+    val reading = fix?.reading?.ifBlank { null } ?: node.reading
+    val meaning = fix?.meaning?.ifBlank { null } ?: node.meaningZh
+    val cardNotes = if (fix == null) node.notes else listOfNotNull(
+        fix.pos.ifBlank { null },
+        fix.lemma.takeIf { it.isNotBlank() && it != node.japanese }?.let { lemma ->
+            "辞书形 " + lemma + fix.lemmaReading.takeIf { it.isNotBlank() && it != lemma }?.let { "（$it）" }.orEmpty()
+        },
+        fix.note.ifBlank { null },
+    )
     val colors = AjlTheme.colors
     val work = AjlTheme.work
     val furigana = rememberFuriganaAnnotator(settings)
@@ -107,18 +121,18 @@ internal fun StudyCardQuestion(
                     color = colors.ink,
                     rubyColor = colors.ink3,
                 )
-                if (node.reading.isNotBlank() && node.reading != node.japanese) {
-                    Text(node.reading, style = AjlTheme.type.jpLabel.copy(fontSize = 14.sp, lineHeight = 20.sp), color = colors.ink3)
+                if (reading.isNotBlank() && reading != node.japanese) {
+                    Text(reading, style = AjlTheme.type.jpLabel.copy(fontSize = 14.sp, lineHeight = 20.sp), color = colors.ink3)
                 }
                 Text(
-                    node.meaningZh,
+                    meaning,
                     style = AjlTheme.type.body.copy(fontSize = 17.sp, lineHeight = 26.sp, fontWeight = FontWeight.Medium),
                     color = colors.ink,
                     modifier = Modifier.padding(top = 6.dp),
                 )
             }
         }
-        val notes = node.notes.filter { it.isNotBlank() && it != node.meaningZh && !com.animejapaneselab.nativeapp.ui.words.WordRules.isFiller(it) }.distinct()
+        val notes = cardNotes.filter { it.isNotBlank() && it != meaning && !com.animejapaneselab.nativeapp.ui.words.WordRules.isFiller(it) }.distinct()
         if (notes.isNotEmpty()) {
             Column {
                 notes.forEach { note ->
