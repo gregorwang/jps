@@ -530,6 +530,7 @@ private fun SittingEnd(
         onClose = onClose,
         quietLabel = if (practiceCount > 0) "小テスト · $practiceCount 题" else null,
         onQuiet = if (practiceCount > 0) ({ if (!moving) { moving = true; onTest(point) } }) else null,
+        extra = { SentencePractice(point, drill.titleOf(point)) },
         modifier = modifier,
     )
 }

@@ -33,6 +33,8 @@ data class ReminderInput(
     val lineZh: String?,
     val habitPostedToday: Boolean,
     val lastTemplate: String?,
+    /** Main-line 朝の一句 for today, if one was picked. */
+    val morningPick: MorningPick? = null,
 ) {
     val due: Int get() = shioriDue + drillDue
 }
@@ -84,9 +86,7 @@ object ReminderPlanner {
     fun morningMinute(habit: Int): Int? = MorningMinute.takeIf { habit - it >= MorningClearance }
 
     fun plan(slot: ReminderSlot, input: ReminderInput): ReminderMessage? = when (slot) {
-        ReminderSlot.Morning -> lineBody(input)?.takeIf { !input.studiedToday }?.let { body ->
-            ReminderMessage("morning", ReminderChannel.Study, "今日の一句", body, ReminderTarget.Today)
-        }
+        ReminderSlot.Morning -> if (input.studiedToday) null else morning(input)
         ReminderSlot.Habit -> if (input.studiedToday) null else nudge(input)
         // A second ping only when there is real 復習 to do, and never twice for the same silence.
         ReminderSlot.Review -> if (input.due >= DueThreshold && (input.studiedToday || !input.habitPostedToday)) {
@@ -114,6 +114,20 @@ object ReminderPlanner {
             )
             else -> null
         }
+    }
+
+    /** The fading 課's line when there is one (a review in disguise), else the episode's line. */
+    private fun morning(input: ReminderInput): ReminderMessage? {
+        val pick = input.morningPick
+        if (pick != null) {
+            val body = buildString {
+                append("「").append(pick.ja).append("」")
+                if (pick.zh.isNotBlank()) append("\n").append(pick.zh)
+                if (pick.formula.isNotBlank()) append("\n拆解：").append(pick.formula)
+            }
+            return ReminderMessage("morning", ReminderChannel.Study, "今日の一句 · ${pick.point}", body, ReminderTarget.Review)
+        }
+        return lineBody(input)?.let { ReminderMessage("morning", ReminderChannel.Study, "今日の一句", it, ReminderTarget.Today) }
     }
 
     private fun dueNudge(input: ReminderInput) = message(

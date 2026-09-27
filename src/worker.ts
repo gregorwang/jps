@@ -474,6 +474,10 @@ async function handleApi(request: Request, env: Env, url: URL) {
     return handleCharacterProfile(request, env)
   }
 
+  if (url.pathname === '/api/ai/quick-feedback' && request.method === 'POST') {
+    return handleQuickFeedback(request, env)
+  }
+
   if (url.pathname === '/api/ai/correct-sentence' && request.method === 'POST') {
     return handleSentenceCorrection(request, env)
   }
@@ -2117,6 +2121,68 @@ async function writeCharacterProfileCache(env: Env, row: Record<string, unknown>
 function profileErrorMessage(stage: string, error: unknown) {
   const message = error instanceof Error ? error.message : 'Unknown error'
   return `${stage} failed: ${message}`
+}
+
+/**
+ * One or two sentences on a wrong drill answer: why the picked option is wrong and how it differs
+ * from the right one. Flash-Lite at minimal thinking, so it lands while the feedback sheet opens.
+ */
+async function handleQuickFeedback(request: Request, env: Env) {
+  const auth = await getAuthContext(request, env)
+  if (!auth.user) return json({ error: { message: '请先登录' } }, 401)
+  const body = (await request.json().catch(() => null)) as
+    | { prompt?: string; sentence?: string; chosen?: string; answer?: string; point?: string; formula?: string; learned?: string[] }
+    | null
+  const chosen = body?.chosen?.trim()
+  const answer = body?.answer?.trim()
+  if (!chosen || !answer) return json({ error: { message: 'chosen and answer are required' } }, 400)
+
+  const model = defaultGatewayModel
+  const payload = {
+    prompt: (body?.prompt ?? '').slice(0, 300),
+    sentence: (body?.sentence ?? '').slice(0, 300),
+    chosen: chosen.slice(0, 80),
+    answer: answer.slice(0, 80),
+    point: (body?.point ?? '').slice(0, 80),
+    formula: (body?.formula ?? '').slice(0, 160),
+    model,
+  }
+  const cacheKey = await hashPayload(`quick-feedback-${cacheSchemaVersion}`, payload)
+  const cached = await readAiCache(env, cacheKey)
+  if (cached) return json(cached)
+
+  const learned = (body?.learned ?? []).filter((item) => typeof item === 'string').slice(0, 12)
+  const raw = await callAiGateway(
+    env,
+    model,
+    '你是日语活用练习的批改老师。只用简体中文，一到两句话，直接说学生选的形式错在哪、和正确形式差在哪一步变化。不复述题目，不说鼓励的话，不用 Markdown。',
+    [
+      payload.sentence && `台词：${payload.sentence}`,
+      payload.prompt && `题目：${payload.prompt}`,
+      payload.point && `考点：${payload.point}`,
+      payload.formula && `正确拆解：${payload.formula}`,
+      `学生选了：${payload.chosen}`,
+      `正确答案：${payload.answer}`,
+      learned.length > 0 && `学生已学过的课（可以借来类比）：${learned.join('、')}`,
+    ].filter(Boolean).join('\n'),
+    {
+      maxTokens: 300,
+      temperature: 0.2,
+      reasoningEffort: 'minimal',
+      jsonSchema: { type: 'object', properties: { feedback: { type: 'string' } }, required: ['feedback'] },
+    },
+  )
+  let feedback = raw
+  try {
+    feedback = (JSON.parse(raw) as { feedback?: string }).feedback ?? raw
+  } catch {
+    // plain text fallback
+  }
+  const result = { feedback: feedback.trim() }
+  if (result.feedback) {
+    await writeAiCache(env, { cacheKey, cacheKind: 'quick_feedback', model, inputPayload: payload, resultPayload: result })
+  }
+  return json(result)
 }
 
 async function handleSentenceCorrection(request: Request, env: Env) {

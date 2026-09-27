@@ -218,6 +218,9 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
         }
     }
 
+    // Drill items feed the reminders (fading 課, tomorrow's 朝の一句), so load them at sign-in.
+    LaunchedEffect(loggedIn) { if (loggedIn) drillForJishu.ensureLoaded() }
+
     // Leaving the app is when 復習 counts have usually changed: keep the widget honest.
     LifecycleEventEffect(Lifecycle.Event.ON_STOP) { TodayWidget.refreshIfDueChanged(context) }
 

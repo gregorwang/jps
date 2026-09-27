@@ -1,5 +1,7 @@
 package com.animejapaneselab.nativeapp.ui.drill
 
+import com.animejapaneselab.nativeapp.platform.MorningPick
+import com.animejapaneselab.nativeapp.platform.TodayLineAudio
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -256,6 +258,22 @@ class ConjugationDrillViewModel(application: Application) : AndroidViewModel(app
             .groupBy({ it.first }, { it.second })
             .mapValues { (_, days) -> days.min() }
         store.writeDrillPointDue(due)
+        writeMorningPick(s)
+    }
+
+    /** The next 朝の一句 from the fading 課, with its clip cached for the notification. */
+    private fun writeMorningPick(s: ConjugationDrillState) {
+        val pick = MorningPick.choose(s.items, s.learned, s.progress, s::titleOf)
+        val previous = MorningPick.decode(store.readMorningPick())
+        // Keep the line already chosen for that morning; only replace it when the date moves on.
+        if (previous != null && pick != null && previous.date == pick.date) return
+        store.writeMorningPick(pick?.encode())
+        if (pick != null) {
+            val app = getApplication<Application>()
+            viewModelScope.launch(Dispatchers.IO) {
+                TodayLineAudio.prepare(app, pick.ja, pick.audioUrl, store.readSettings().ttsWorkerUrl)
+            }
+        }
     }
 
     fun next() {

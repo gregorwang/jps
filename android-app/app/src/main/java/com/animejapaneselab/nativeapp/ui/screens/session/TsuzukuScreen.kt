@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -87,6 +88,8 @@ fun TsuzukuScreen(
     quietLabel: String? = null,
     quietEnabled: Boolean = true,
     onQuiet: (() -> Unit)? = null,
+    /** Extra block under the noted lines (e.g. 自習's 作文). */
+    extra: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     val colors = AjlTheme.colors
     val work = AjlTheme.work
@@ -230,6 +233,7 @@ fun TsuzukuScreen(
                         }
                     }
                 }
+                if (extra != null) extra()
             }
             Row(
                 Modifier

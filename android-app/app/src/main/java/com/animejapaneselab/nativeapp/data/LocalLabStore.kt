@@ -224,6 +224,13 @@ class LocalLabStore(context: Context) {
         }
     }
 
+    /** 朝の一句 from the main line (MorningPick encoding). */
+    fun readMorningPick(): String? = preferences.getString(MorningPickKey, null)
+
+    fun writeMorningPick(encoded: String?) = preferences.edit {
+        if (encoded == null) remove(MorningPickKey) else putString(MorningPickKey, encoded)
+    }
+
     /** Set once the app has asked for POST_NOTIFICATIONS on its own. */
     fun readNotificationPermissionAsked(): Boolean = preferences.getBoolean(NotificationAskedKey, false)
 
@@ -396,6 +403,7 @@ class LocalLabStore(context: Context) {
         const val StudyReminderHourKey = "study-reminder-hour"
         const val StudyReminderAutoKey = "study-reminder-auto"
         const val MorningLineKey = "morning-line"
+        const val MorningPickKey = "morning-pick"
         const val ReminderPostedCountKey = "reminder-posted-count"
         const val StudyStartsKey = "study-starts"
         const val DrillPointDueKey = "drill-point-due"

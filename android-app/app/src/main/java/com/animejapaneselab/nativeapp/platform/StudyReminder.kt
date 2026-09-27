@@ -124,16 +124,27 @@ object StudyReminder {
     /** 朝の一句 → 挟む: saves the line to 栞 and re-posts the notification without that action. */
     internal fun saveTodayLine(context: Context) {
         val app = context.applicationContext
-        val line = TodayWidgetLine.decode(LocalLabStore(app).readTodayWidgetLine()) ?: return
-        NotebookRules.decode(line.notebookEntry).firstOrNull()?.let { Notebook.save(app, it) }
+        val source = morningSource(LocalLabStore(app)) ?: return
+        NotebookRules.decode(source.entry).firstOrNull()?.let { Notebook.save(app, it) }
         val manager = app.getSystemService(NotificationManager::class.java) ?: return
         if (manager.activeNotifications.none { it.id == NotificationId }) return
-        post(app, ReminderMessage("morning", ReminderChannel.Study, "今日の一句 · 已挟入栞", lineText(line), ReminderTarget.Today), saved = true)
+        val body = buildString {
+            append("「").append(source.ja).append("」")
+            if (source.zh.isNotBlank()) append("\n").append(source.zh)
+        }
+        post(app, ReminderMessage("morning", ReminderChannel.Study, "今日の一句 · 已挟入栞", body, ReminderTarget.Today), saved = true)
     }
 
-    private fun lineText(line: TodayWidgetLine) = buildString {
-        append("「").append(line.ja).append("」")
-        if (line.zh.isNotBlank()) append("\n").append(line.zh)
+    internal fun morningClip(context: Context) = morningSource(LocalLabStore(context))?.let { TodayLineAudio.cached(context, it.ja) }
+
+    private data class MorningSource(val ja: String, val zh: String, val entry: String)
+
+    /** What 朝の一句 shows today: the main-line pick when fresh, else the episode's line. */
+    private fun morningSource(store: LocalLabStore): MorningSource? {
+        MorningPick.decode(store.readMorningPick())?.takeIf { MorningPick.isFor(it, LocalDate.now()) }?.let {
+            return MorningSource(it.ja, it.zh, it.entry)
+        }
+        return TodayWidgetLine.decode(store.readTodayWidgetLine())?.let { MorningSource(it.ja, it.zh, it.notebookEntry) }
     }
 
     private fun input(store: LocalLabStore, today: LocalDate): ReminderInput {
@@ -153,6 +164,7 @@ object StudyReminder {
             lineZh = line?.zh,
             habitPostedToday = store.readReminderHabitPostedOn() == todayKey,
             lastTemplate = store.readReminderLastTemplate(),
+            morningPick = MorningPick.decode(store.readMorningPick())?.takeIf { MorningPick.isFor(it, today) },
         )
     }
 
@@ -185,12 +197,13 @@ object StudyReminder {
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
             .setCategory(Notification.CATEGORY_REMINDER)
-        if (message.template == "morning" && line != null) {
+        val morning = if (message.template == "morning") morningSource(LocalLabStore(context)) else null
+        if (morning != null) {
             // Learn the line from the shade: hear it, keep it.
-            if (TodayLineAudio.cached(context, line.ja) != null) {
+            if (TodayLineAudio.cached(context, morning.ja) != null) {
                 builder.addAction(Notification.Action.Builder(null, "▶ 原声", actionIntent(context, ActionPlayLine)).build())
             }
-            if (!saved && line.notebookEntry.isNotBlank()) {
+            if (!saved && morning.entry.isNotBlank()) {
                 builder.addAction(Notification.Action.Builder(null, "挟む · 存进栞", actionIntent(context, ActionSaveLine)).build())
             }
         }
@@ -239,8 +252,7 @@ class StudyReminderReceiver : BroadcastReceiver() {
             "com.animejapaneselab.nativeapp.action.STUDY_REMINDER" -> StudyReminder.ring(context, intent.getStringExtra("slot"))
             StudyReminder.ActionSaveLine -> StudyReminder.saveTodayLine(context)
             StudyReminder.ActionPlayLine -> {
-                val line = TodayWidgetLine.decode(LocalLabStore(context).readTodayWidgetLine()) ?: return
-                val clip = TodayLineAudio.cached(context, line.ja) ?: return
+                val clip = StudyReminder.morningClip(context) ?: return
                 val pending = goAsync()
                 TodayLineAudio.play(clip) { pending.finish() }
             }

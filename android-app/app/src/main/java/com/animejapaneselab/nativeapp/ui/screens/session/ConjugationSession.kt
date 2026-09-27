@@ -77,6 +77,7 @@ fun ConjugationSession(
     BackHandler(onBack = actions.onExit)
     val audio = rememberLessonAudioController()
     val question = state.current
+    val learnedTitles = remember(state.learned, state.lessons) { state.learned.map(state::titleOf) }
     when {
         state.isComplete && state.mode == DrillMode.Lesson -> ConjugationLessonEnd(state, actions, modifier)
         state.isComplete -> ConjugationSetEnd(state, actions, modifier)
@@ -96,6 +97,7 @@ fun ConjugationSession(
             key(question.item?.id ?: question.prompt, state.index) {
                 ConjugationQuestionBody(
                     question = question,
+                    learned = learnedTitles,
                     topic = question.item?.let(state::topicFor),
                     committed = state.answers[state.index],
                     isLast = state.index >= state.session.lastIndex,
@@ -112,6 +114,7 @@ fun ConjugationSession(
 @Composable
 private fun ConjugationQuestionBody(
     question: DrillQuestion,
+    learned: List<String>,
     topic: FoundationTopic?,
     committed: String?,
     isLast: Boolean,
@@ -201,6 +204,7 @@ private fun ConjugationQuestionBody(
         if (answered) {
             ConjugationFeedback(
                 question = question,
+                learned = learned,
                 topic = topic,
                 committed = committed.orEmpty(),
                 correct = correct,
@@ -222,6 +226,7 @@ private fun ConjugationQuestionBody(
 @Composable
 private fun ConjugationFeedback(
     question: DrillQuestion,
+    learned: List<String>,
     topic: FoundationTopic?,
     committed: String,
     correct: Boolean,
@@ -246,6 +251,23 @@ private fun ConjugationFeedback(
         if (item.note.isNotBlank()) add("说明" to item.note.trim())
         if (item.zh.isNotBlank()) add("译文" to item.zh.trim())
     }
+    val chosenText = question.options.firstOrNull { it.id == committed }?.text.orEmpty()
+    val aiRequest = remember(question.prompt, committed, correct) {
+        if (correct || chosenText.isBlank()) {
+            null
+        } else {
+            QuickFeedbackRequest(
+                prompt = question.prompt,
+                sentence = item?.jaText.orEmpty(),
+                chosen = chosenText,
+                answer = answerText,
+                point = item?.pointTitle.orEmpty(),
+                formula = item?.formula.orEmpty(),
+                learned = learned,
+            )
+        }
+    }
+    val ai = rememberQuickFeedback(aiRequest)
     var deep by rememberSaveable(item?.id ?: question.prompt) { mutableStateOf(false) }
     val deepNotes = topic?.let { t ->
         buildList {
@@ -265,7 +287,9 @@ private fun ConjugationFeedback(
         explanation = if (correct) null else "正确答案是「$answerText」。",
         continueLabel = continueLabel,
         extra = {
-            key(deep) { ReadAirNotes(if (deep && deepNotes != null) deepNotes else notes) }
+            if (!deep && ai is QuickFeedbackState.Loading) QuickFeedbackLoading(chosenText)
+            val aiNote = (ai as? QuickFeedbackState.Ready)?.let { listOf(quickFeedbackLabel(chosenText) to it.text) }.orEmpty()
+            key(deep) { ReadAirNotes(if (deep && deepNotes != null) deepNotes else aiNote + notes) }
             if (deepNotes != null) {
                 QuietButton(if (deep) "回到拆解" else "深入讲解 · ${topic?.titleZh.orEmpty()}", { deep = !deep })
             }

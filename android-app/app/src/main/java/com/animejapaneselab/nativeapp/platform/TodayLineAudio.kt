@@ -28,11 +28,14 @@ object TodayLineAudio {
 
     fun cached(context: Context, ja: String): File? = file(context, ja).takeIf { it.exists() && it.length() > 0 }
 
-    /** Blocking download; call off the main thread. Keeps only today's clip. */
+    /** Blocking download; call off the main thread. Keeps the few newest clips (today line + morning pick). */
     fun prepare(context: Context, ja: String, sourceUrl: String, ttsWorkerUrl: String) {
         if (ja.isBlank() || cached(context, ja) != null) return
         val target = file(context, ja)
-        target.parentFile?.apply { mkdirs(); listFiles()?.forEach { it.delete() } }
+        target.parentFile?.apply {
+            mkdirs()
+            listFiles()?.sortedByDescending { it.lastModified() }?.drop(3)?.forEach { it.delete() }
+        }
         val part = File(target.parentFile, target.name + ".part")
         runCatching {
             val connection = if (sourceUrl.isNotBlank()) {

@@ -340,6 +340,45 @@ class RemoteLabClient(
         return parseAiExplainResult(JSONObject(post("/api/ai/explain", body)))
     }
 
+    /** One or two sentences on why [chosen] is wrong where [answer] is right (drill feedback). */
+    fun fetchQuickFeedback(
+        prompt: String,
+        sentence: String,
+        chosen: String,
+        answer: String,
+        point: String,
+        formula: String,
+        learned: List<String>,
+    ): String {
+        val body = JSONObject()
+            .put("prompt", prompt)
+            .put("sentence", sentence)
+            .put("chosen", chosen)
+            .put("answer", answer)
+            .put("point", point)
+            .put("formula", formula)
+            .put("learned", JSONArray(learned))
+        return JSONObject(post("/api/ai/quick-feedback", body)).optString("feedback").trim()
+    }
+
+    /** AI correction of a sentence the learner wrote with [targetLabel] (a 課 title). */
+    fun correctSentence(
+        targetId: String,
+        targetLabel: String,
+        sentence: String,
+        model: String,
+        deviceId: String,
+    ): AiExplainResult {
+        val body = JSONObject()
+            .put("targetType", "grammar")
+            .put("targetId", targetId)
+            .put("targetLabel", targetLabel)
+            .put("sentence", sentence)
+            .put("model", model)
+            .put("deviceId", deviceId)
+        return parseAiExplainResult(JSONObject(post("/api/ai/correct-sentence", body)))
+    }
+
     /**
      * Batch furigana annotation for up to 80 texts per call (server limit).
      * Keys of [items] are caller-chosen target ids echoed back in the result map.
