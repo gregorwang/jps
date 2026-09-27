@@ -1,5 +1,6 @@
 package com.animejapaneselab.nativeapp.ui.notebook
 
+import com.animejapaneselab.nativeapp.ui.words.KnownWords
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -394,6 +395,19 @@ fun NotebookReviewDialog(ttsWorkerUrl: String, onDismiss: () -> Unit) {
                         index++
                     }
                     if (revealed) {
+                        if (card.kind == NotebookKind.Vocab) {
+                            QuietButton(
+                                "早就会了 · 斩",
+                                onClick = {
+                                    KnownWords.cutHeadword(context, card.headline, card.key)
+                                    StudyLog.record(context, answers = 1, correct = 1)
+                                    remembered++
+                                    revealed = false
+                                    index++
+                                },
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                            )
+                        }
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             OutlineButton("まだ", { grade(false) }, modifier = Modifier.weight(1f))
                             InkButton("覚えた", onClick = { grade(true) }, modifier = Modifier.weight(1f))

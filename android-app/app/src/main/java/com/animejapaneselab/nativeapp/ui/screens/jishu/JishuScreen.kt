@@ -508,7 +508,7 @@ private fun SittingEnd(
         tally = "覚えた ${sitting.remembered} 句",
         meta = "本课 $studied / $total 句",
         noted = againLines.take(6).map { TsuzukuLine(it.item.jaText, true, it.item.target) },
-        notedTitle = "もう一回 了 ${againLines.size} 句",
+        notedTitle = "还要再看的 ${againLines.size} 句",
         preview = nextPoint?.let { p ->
             val (nextJp, nextGloss) = splitTitle(drill.titleOf(p))
             TsuzukuPreview(

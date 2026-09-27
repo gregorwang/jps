@@ -28,6 +28,18 @@ object KnownWords {
 
     fun key(item: VocabItem): String = item.surface.trim()
 
+    /**
+     * Words any anime viewer understands by ear, offered for 一键斩 until the checked cards carry
+     * their own `easy` column (archive-content-sources/vocab-cards-v1/ANTIGRAVITY_EASY_PROMPT.md).
+     */
+    private val Obvious = setOf(
+        "なるほど", "ありがとう", "すごい", "かわいい", "大丈夫", "ごめん", "ごめんなさい", "うん", "はい", "ちょっと",
+        "やばい", "先輩", "おはよう", "バカ", "本当", "よろしく", "すみません", "ダメ", "違う", "好き", "大好き", "嫌い",
+        "先生", "友達", "じゃあ", "おいしい", "まさか", "お前", "大変",
+    )
+
+    fun isObvious(item: VocabItem): Boolean = key(item) in Obvious
+
     fun isKnown(item: VocabItem): Boolean = key(item) in _words.value
 
     @Synchronized
@@ -37,6 +49,15 @@ object KnownWords {
         Notebook.init(context)
         items.forEach { Notebook.remove(context, NotebookRules.key(NotebookKind.Vocab, it.id)) }
         write(_words.value + items.map(::key))
+    }
+
+    /** 斩 from a 栞 card: the headword is known and its card leaves 栞. */
+    @Synchronized
+    fun cutHeadword(context: Context, headword: String, notebookKey: String) {
+        init(context)
+        Notebook.init(context)
+        Notebook.remove(context, notebookKey)
+        write(_words.value + headword.trim())
     }
 
     @Synchronized

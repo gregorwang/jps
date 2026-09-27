@@ -113,6 +113,7 @@ internal fun CourseScreen(
             EpisodePanel(
                 model = model,
                 onScene = startScene,
+                onNextEpisode = after.firstOrNull()?.let { next -> { actions.onEpisodeSelected(next.number) } },
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
             )
         }
@@ -250,6 +251,8 @@ private fun EpisodePanel(
     model: CourseScreenModel,
     onScene: (CourseScene) -> Unit,
     modifier: Modifier = Modifier,
+    /** A finished 話 moves on to the next one instead of offering a replay. */
+    onNextEpisode: (() -> Unit)? = null,
 ) {
     val colors = AjlTheme.colors
     val work = AjlTheme.work
@@ -295,7 +298,15 @@ private fun EpisodePanel(
                 course.scenes.forEach { scene -> SceneRow(scene, model.materials, onClick = { onScene(scene) }) }
             }
             val primary = current ?: course.scenes.firstOrNull { it.startable && it.kind != SceneKind.Review }
-            if (primary != null) {
+            if (current == null && onNextEpisode != null) {
+                InkButton(
+                    text = "下一話",
+                    onClick = onNextEpisode,
+                    trailingArrow = true,
+                    height = 44.dp,
+                    modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 14.dp),
+                )
+            } else if (primary != null) {
                 InkButton(
                     text = if (current != null) "继续场面 ${primary.number.toString().padStart(2, '0')}" else "再看一遍",
                     onClick = { onScene(primary) },

@@ -159,7 +159,8 @@ private fun ConjugationQuestionBody(
                     Eyebrow("活用 · 板書の練習")
                     PracticePrompt(question.prompt)
                 } else {
-                Eyebrow(listOf("活用", item.episodeLabel, item.startTime.substringBefore(',').removePrefix("00:")).filter { it.isNotBlank() }.joinToString(" · "))
+                // No 出处 (episode / time) on the card: the learner asked for the line alone.
+                Eyebrow("活用 · 原作台词")
                 MangaPanel(Modifier.fillMaxWidth()) {
                     Row(
                         Modifier.padding(start = 16.dp, end = 4.dp, top = 10.dp, bottom = 10.dp),

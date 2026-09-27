@@ -384,7 +384,7 @@ private fun VocabPage(
         if (archive) cut else studyable.filterNot { KnownWords.key(it) in known }
     }
     // Words every anime viewer knows (marked easy on the checked cards), offered to 斩 in one go.
-    val easy = remember(vocab, archive) { if (archive) emptyList() else vocab.filter { VocabCards.get(appContext, it.id)?.easy == true } }
+    val easy = remember(vocab, archive) { if (archive) emptyList() else vocab.filter { VocabCards.get(appContext, it.id)?.easy == true || KnownWords.isObvious(it) } }
     LaunchedEffect(cut.isEmpty()) { if (cut.isEmpty()) archive = false }
     val buckets = remember(vocab) { levelBuckets(vocab) }
     val filtered = remember(vocab, level, query) { filterByLevel(vocab, level).filter { it.matches(query) } }
