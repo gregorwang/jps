@@ -501,14 +501,7 @@ fun SettingsScreen(
 
 @Composable
 private fun StudentIdCard(uiState: LabUiState, modifier: Modifier = Modifier) {
-    val card = remember(uiState.auth.user, uiState.selection, uiState.works, uiState.progressItems) {
-        studentCardInfo(uiState)
-    }
-    com.animejapaneselab.nativeapp.ui.design.StudentCard(
-        rows = card.rows,
-        number = card.number,
-        modifier = modifier,
-    )
+    EditableStudentCard(uiState, modifier)
 }
 
 // ---------------------------------------------------------------------------

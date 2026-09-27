@@ -142,6 +142,20 @@ class LocalLabStore(context: Context) {
 
     fun writeJishuCover(cover: Boolean) = preferences.edit { putBoolean(JishuCoverKey, cover) }
 
+    /** 学生証 edits: 氏名, 所属, photo version (0 = none). */
+    fun readStudentProfile(): com.animejapaneselab.nativeapp.ui.profile.StudentProfileData =
+        com.animejapaneselab.nativeapp.ui.profile.StudentProfileData(
+            name = preferences.getString(StudentNameKey, null).orEmpty(),
+            affiliation = preferences.getString(StudentAffiliationKey, null).orEmpty(),
+            photoVersion = preferences.getLong(StudentPhotoVersionKey, 0L),
+        )
+
+    fun writeStudentProfile(profile: com.animejapaneselab.nativeapp.ui.profile.StudentProfileData) = preferences.edit {
+        putString(StudentNameKey, profile.name)
+        putString(StudentAffiliationKey, profile.affiliation)
+        putLong(StudentPhotoVersionKey, profile.photoVersion)
+    }
+
     /** 自習 voice: false = 原声, true = TTS (swiped on the voice pill). */
     fun readJishuVoiceTts(): Boolean = preferences.getBoolean(JishuVoiceTtsKey, false)
 
@@ -422,6 +436,9 @@ class LocalLabStore(context: Context) {
         const val NotificationAskedKey = "notification-permission-asked"
         const val StudyLogKey = "study-log"
         const val JishuVoiceTtsKey = "jishu-voice-tts"
+        const val StudentNameKey = "student-name"
+        const val StudentAffiliationKey = "student-affiliation"
+        const val StudentPhotoVersionKey = "student-photo-version"
         const val StudyTotalSecondsKey = "study-total-seconds"
         const val NotebookKey = "notebook"
         const val TodayWidgetLineKey = "today-widget-line"

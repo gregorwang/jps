@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -200,10 +201,13 @@ fun StudentCard(
     number: String = "No. 0001",
     monoValueLabels: Set<String> = setOf("入学", "出席"),
     photo: (@Composable () -> Unit)? = null,
+    /** When set, the whole card opens the editor and a pencil sits by the number. */
+    onEdit: (() -> Unit)? = null,
 ) {
     val colors = AjlTheme.colors
     val work = AjlTheme.work
-    MangaPanel(modifier = modifier.fillMaxWidth()) {
+    val panel = if (onEdit != null) modifier.fillMaxWidth().clickable(onClickLabel = "编辑学生証", onClick = onEdit) else modifier.fillMaxWidth()
+    MangaPanel(modifier = panel) {
         Box(
             Modifier
                 .fillMaxWidth()
@@ -217,7 +221,17 @@ fun StudentCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text("学 生 証", style = AjlTheme.type.jpLabel.copy(fontSize = 13.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp), color = work.onAccent)
-                Text(number, style = AjlTheme.type.metaSmall.copy(fontSize = 10.sp), color = work.onAccent)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(number, style = AjlTheme.type.metaSmall.copy(fontSize = 10.sp), color = work.onAccent)
+                    if (onEdit != null) {
+                        androidx.compose.material3.Icon(
+                            androidx.compose.material.icons.Icons.Rounded.Edit,
+                            contentDescription = null,
+                            tint = work.onAccent,
+                            modifier = Modifier.size(12.dp),
+                        )
+                    }
+                }
             }
             Spacer(Modifier.height(14.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
