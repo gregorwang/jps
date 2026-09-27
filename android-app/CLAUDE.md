@@ -117,6 +117,11 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 ## 8. 经验记录（每次会话结束补几条）
 
+**2026-09-27 · 0.9.1（单词卡数据装入）**
+- Antigravity 的单词卡：`check.py` 全过（3770，keep=false 6.7%），抽查 40 词读音全对；问题只在措辞（「微缩微景」式叠词）和约 15% 复述释义的空备注，不影响教学，直接装了。以后精修就针对这两类返工。
+- `vocab_cards.json` 约 490KB，只含读音/释义/备注，不含字幕原文，可以进仓库；`archive-content-sources/vocab-cards-v1/` 仍不能提交。
+- 课程学习卡（`StudyCardQuestion`）在 `sourceKind == "vocab"` 时用 `VocabCards` 覆盖读音、释义，备注换成「词性 / 辞书形 / note」，旧的 `realWorldNote` 和出现次数不再显示。服务端词汇题仍是旧数据，写回 Supabase 要 service role key（交接文档第 4 节）。
+
 **2026-09-27 · 0.9.0（读音辅助 + 学生証 + 单词练习）**
 - 读音辅助统一走 `ui/reading/Kana.kt`（假名→罗马音、按音拍切分、`LineReading` 把一句拆成「汉字词+读音 / 单个音拍」）和 `ReadingLineText`（上注假名、下注罗马音、目标词标色）。读音来自 Worker 的 furigana（`rememberFuriganaAnnotator`），受设定「假名注音 / 罗马音」开关控制。用户不熟假名，**凡是显示日语的学习界面都要考虑罗马音**。
 - 进度统一用 `ProgressLine`，不要再做分段进度条。声音按钮：`VoiceSwitchPill`（左右滑切原声/TTS）+ `VoiceTone`（播放时网点像声波扩散），在 `ui/design/VoiceSwitch.kt`。
