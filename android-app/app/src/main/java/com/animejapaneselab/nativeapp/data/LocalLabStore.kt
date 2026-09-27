@@ -21,7 +21,7 @@ class LocalLabStore(context: Context) {
         return LabSettings(
             apiBaseUrl = preferences.getString(ApiBaseKey, DefaultApiBaseUrl) ?: DefaultApiBaseUrl,
             ttsWorkerUrl = preferences.getString(TtsBaseKey, DefaultTtsWorkerUrl) ?: DefaultTtsWorkerUrl,
-            aiModel = preferences.getString(AiModelKey, DefaultAiModel) ?: DefaultAiModel,
+            aiModel = (preferences.getString(AiModelKey, DefaultAiModel) ?: DefaultAiModel).let { LegacyAiModels[it] ?: it },
             reasoningEffort = preferences.getString(ReasoningEffortKey, DefaultReasoningEffort) ?: DefaultReasoningEffort,
             autoSpeak = preferences.getBoolean(AutoSpeakKey, true),
             feedbackSounds = preferences.getBoolean(FeedbackSoundsKey, true),

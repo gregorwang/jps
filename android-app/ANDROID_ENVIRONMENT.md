@@ -229,7 +229,7 @@ Default public endpoints are code defaults, not secrets:
 API: https://anime-japanese-lab.ishallnotwant123.workers.dev
 TTS: https://cloudflare-edge-tts.ishallnotwant123.workers.dev
 Update: https://anime-japanese-lab-android-updates.ishallnotwant123.workers.dev
-AI model: gemini-3.1-flash-lite
+AI model: gemini-3.5-flash-lite
 Reasoning effort: high
 ```
 

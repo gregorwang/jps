@@ -2,7 +2,13 @@ package com.animejapaneselab.nativeapp.data
 
 const val DefaultApiBaseUrl = "https://anime-japanese-lab.ishallnotwant123.workers.dev"
 const val DefaultTtsWorkerUrl = "https://cloudflare-edge-tts.ishallnotwant123.workers.dev"
-const val DefaultAiModel = "gemini-3.1-flash-lite"
+const val DefaultAiModel = "gemini-3.5-flash-lite"
+
+/** Model ids the worker no longer lists, mapped to their successors. */
+val LegacyAiModels = mapOf(
+    "gemini-3.1-flash-lite" to "gemini-3.5-flash-lite",
+    "gemini-3.5-flash" to "gemini-3.6-flash",
+)
 const val DefaultReasoningEffort = "high"
 
 data class WorkOption(

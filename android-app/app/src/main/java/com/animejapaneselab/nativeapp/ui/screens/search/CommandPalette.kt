@@ -93,7 +93,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-private data class SearchRequest(val query: String, val workSlug: String, val seq: Int)
+private data class SearchRequest(val query: String, val workSlug: String, val seq: Int, val analyze: Boolean = false)
 
 private sealed interface SearchState {
     data object Idle : SearchState
@@ -207,6 +207,7 @@ private fun PalettePanel(
                     deviceId = store.deviceId(),
                     episode = null,
                     topK = 8,
+                    analyze = active.analyze,
                 )
             }
         }
@@ -345,6 +346,13 @@ private fun PalettePanel(
                     query = s.result.query.ifBlank { query },
                     onOpen = onOpenSubtitleLine,
                     onPick = submit,
+                    // The LLM reading is one tap away instead of riding on every search.
+                    onAnalyze = request?.takeIf { !it.analyze }?.let { pending ->
+                        {
+                            seq += 1
+                            request = pending.copy(seq = seq, analyze = true)
+                        }
+                    },
                 )
             }
         }
@@ -374,6 +382,7 @@ private fun LazyListScope.readySections(
     query: String,
     onOpen: (String, Int, Int) -> Unit,
     onPick: (String) -> Unit,
+    onAnalyze: (() -> Unit)?,
 ) {
     if (result.sources.isEmpty()) {
         item(key = "empty") {
@@ -406,6 +415,9 @@ private fun LazyListScope.readySections(
                 }
             }
         }
+    }
+    if (analysis == null && onAnalyze != null) {
+        item(key = "analyze") { ActionRow("AI 解读这些台词", onClick = onAnalyze) }
     }
     sectionLabel("lines", "字幕")
     result.sources.forEachIndexed { index, source ->

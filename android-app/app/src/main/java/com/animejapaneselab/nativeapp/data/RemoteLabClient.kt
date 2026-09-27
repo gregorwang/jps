@@ -388,12 +388,14 @@ class RemoteLabClient(
         deviceId: String,
         episode: Int? = null,
         topK: Int = 8,
+        analyze: Boolean = false,
     ): RagSearchResult {
         val body = JSONObject()
             .put("query", query)
             .put("workSlug", ragWorkSlug(workSlug))
             .put("topK", topK.coerceIn(1, 50))
             .put("deviceId", deviceId)
+            .put("analyze", analyze)
         if (episode != null && episode > 0) body.put("episode", episode)
         return parseRagSearchJson(post("/api/rag/search", body))
     }

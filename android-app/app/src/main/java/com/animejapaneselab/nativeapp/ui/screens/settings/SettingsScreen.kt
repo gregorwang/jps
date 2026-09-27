@@ -74,8 +74,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private val FallbackAiModels = listOf(
-    AiModelOption("gemini-3.1-flash-lite", "Gemini 3.1 Flash Lite"),
-    AiModelOption("gemini-3.5-flash", "Gemini 3.5 Flash"),
+    AiModelOption("gemini-3.5-flash-lite", "Gemini 3.5 Flash-Lite"),
+    AiModelOption("gemini-3.6-flash", "Gemini 3.6 Flash"),
     AiModelOption("deepseek-v4-flash", "DeepSeek V4 Flash"),
     AiModelOption("deepseek-v4-pro", "DeepSeek V4 Pro"),
     AiModelOption("grok-4.3", "Grok 4.3"),
