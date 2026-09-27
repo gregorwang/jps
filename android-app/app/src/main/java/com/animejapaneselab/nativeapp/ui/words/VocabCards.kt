@@ -24,6 +24,11 @@ data class VocabCardFix(
 object VocabCards {
     private const val Asset = "vocab_cards.json"
 
+    /** 「台词「…」，」 at the start of a note repeats the line the card already shows under 原作里. */
+    private val QuotedLine = Regex("""^台词[里中]?[：:]?「[^」]*」(?:中|里)?[，,、。：:]?\s*""")
+
+    fun tidyNote(note: String): String = note.trim().replace(QuotedLine, "").trim()
+
     @Volatile
     private var cards: Map<String, VocabCardFix>? = null
 
@@ -45,7 +50,7 @@ object VocabCards {
                         lemmaReading = row.optString(3),
                         pos = row.optString(4),
                         meaning = row.optString(5),
-                        note = row.optString(6),
+                        note = tidyNote(row.optString(6)),
                         easy = row.optInt(7, 0) == 1,
                     )
                 }

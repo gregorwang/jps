@@ -627,7 +627,8 @@ private fun VocabEntry(
         if (expanded) {
             Column(Modifier.fillMaxWidth().padding(bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (shownReading.isNotBlank()) Text(Kana.romaji(shownReading), style = type.meta, color = colors.ink3)
-                val note = fix?.note?.takeIf { fix.keep && it.isNotBlank() } ?: item.realWorldNote
+                // A checked card's empty note is deliberate: never fall back to the row's unreliable one.
+                val note = if (fix?.keep == true) fix.note else item.realWorldNote
                 if (!WordRules.isFiller(note)) NoteText(note)
                 val conjugation = remember(item.surface, item.reading, item.partOfSpeech) {
                     Conjugator.tableFor(item.surface, item.reading, item.partOfSpeech)

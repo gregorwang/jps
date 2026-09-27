@@ -379,12 +379,13 @@ private fun StudyPage(
                 }
             }
 
-            val notes = listOfNotNull(
+            // A checked card's note (empty on purpose when there is nothing worth adding) replaces the row's own.
+            val notes = (if (card.checked) listOf(card.note) else listOfNotNull(
                 card.note,
                 card.item.enrichment?.coreZh,
                 card.item.enrichment?.usageScenes?.firstOrNull(),
                 card.item.realWorldNote,
-            ).map { it.trim() }.filterNot(WordRules::isFiller).distinct().take(2)
+            )).map { it.trim() }.filterNot(WordRules::isFiller).distinct().take(2)
             if (notes.isNotEmpty()) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Eyebrow("用法")

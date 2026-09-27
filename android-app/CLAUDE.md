@@ -119,6 +119,10 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 ## 8. 经验记录（每次会话结束补几条）
 
+**2026-09-27 · 0.10.1（产品方向：不改成 JLPT 大纲驱动）**
+- 用户考虑过把学习改成按 N5 → N1 组织，讨论后**决定不改**：App 的核心就是动漫素材，按作品 / 话组织的辞書、課程保留，JLPT 只作筛选标签。不要再主动提议大改；完整讨论和当时的数据现状在 `CHANGELOG.md` 的 0.10.1 一节。
+- 单词卡 note 由 `VocabCards.tidyNote` 去掉开头抄的台词；校对过的卡片 note 为空就是空，**不要**退回 `realWorldNote`（`WordCard.checked`）。
+
 **2026-09-27 · 0.10.0（产品逻辑大扫除 + 斩）**
 - 用户最烦的是**不合常理的产品逻辑**，不只是 bug。规矩：结算页的主按钮是「完成」（回到进来的地方），「再来一组」最多当次要按钮，并且只在有意义时出现（还有到期、有错题）；只有「下一课 / 下一話 / 続き」这种往前走的动作可以当主按钮。新做 session 结算页照这个来。
 - 斩：`ui/words/KnownWords.kt`（按词头记，本地存 `known-words`），辞書词汇页有「已斩」档案可以恢复。`vocab_cards.json` 每行可以带第 8 列 `easy`（Antigravity 任务 `ANTIGRAVITY_EASY_PROMPT.md`，`check.py --install` 写入），在那之前用 `KnownWords.Obvious` 里内置的约 30 个词。課程（按话的 `SampleLearningRepository`）还没有跳过已斩的词，因为那在 data 层。

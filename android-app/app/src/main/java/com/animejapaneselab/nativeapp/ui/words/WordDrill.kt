@@ -26,6 +26,8 @@ data class WordCard(
     val note: String = "",
     /** Part of speech in plain Chinese when the checked card gives one. */
     val pos: String = "",
+    /** From a hand-checked card: its (possibly empty) note replaces the row's unreliable notes. */
+    val checked: Boolean = false,
 ) {
     /** Morae to spell the word with, in the script it is written in (katakana words stay katakana). */
     val morae: List<String>
@@ -127,6 +129,7 @@ object WordRules {
                 example = examples.firstOrNull { it.exact } ?: examples.firstOrNull(),
                 note = fix.note,
                 pos = fix.pos,
+                checked = true,
             )
         }
         val stored = item.reading.trim()
