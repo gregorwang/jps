@@ -183,7 +183,18 @@ fun TodayScreen(
     LaunchedEffect(line, today, lineSentence, lineEntry) {
         val todayLine = line ?: return@LaunchedEffect
         val sourceUrl = lineSentence?.let { (promptAudioForSentence(workSlug, it, autoPlay = false) as? PromptAudio.Source)?.url }.orEmpty()
-        TodayWidget.publish(context, todayLine, workSlug, episodeLabel, today, sourceUrl, lineEntry)
+        // Two weeks ahead, so the widget and 朝の一句 turn the page at midnight on their own.
+        val queue = (0L until 14L).mapNotNull { offset ->
+            val day = today.plusDays(offset)
+            if (offset == 0L) {
+                TodayWidget.queueEntry(todayLine, workSlug, episodeLabel, day, sourceUrl, lineEntry)
+            } else {
+                TodayRules.pickLine(day, workSlug, episode, candidates)?.let { next ->
+                    TodayWidget.queueEntry(next, workSlug, episodeLabel, day, "", TodayRules.notebookEntry(next, null, workSlug, episode))
+                }
+            }
+        }
+        TodayWidget.publish(context, queue)
         // 朝の一句 plays this clip straight from the notification.
         withContext(Dispatchers.IO) { TodayLineAudio.prepare(context, todayLine.ja, sourceUrl, uiState.settings.ttsWorkerUrl) }
     }

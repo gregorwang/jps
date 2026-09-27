@@ -171,7 +171,14 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
     TrainingFrameRateEffect(highFrameRate = activeSession != null)
     LearningSessionNotificationEffect(
         enabled = uiState.settings.learningLiveUpdates,
-        status = uiState.learningSessionStatus(),
+        // 自習 and 活用 are the main line now; they get the live card (and the island) too.
+        status = uiState.learningSessionStatus()
+            ?: buildJishuSessionStatus(
+                jishuSitting.sitting,
+                jishuSitting.sitting?.pointId?.let(drillSession::titleOf).orEmpty(),
+                uiState.selection.workSlug,
+            )
+            ?: buildDrillSessionStatus(drillSession, uiState.selection.workSlug),
     )
 
     // Predictive back for pages and sessions; the palette registers its own (later = on top).

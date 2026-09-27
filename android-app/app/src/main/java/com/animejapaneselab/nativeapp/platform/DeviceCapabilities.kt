@@ -87,7 +87,7 @@ object DeviceCapabilityReader {
         )
     }
 
-    private fun queryHyperOsFocusPermission(context: Context): Boolean {
+    internal fun queryHyperOsFocusPermission(context: Context): Boolean {
         return runCatching {
             val extras = Bundle().apply { putString("package", context.packageName) }
             context.contentResolver.call(

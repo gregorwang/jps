@@ -55,7 +55,28 @@ data class TodayWidgetLine(
         .toString()
 
     companion object {
-        fun decode(raw: String?): TodayWidgetLine? = runCatching {
+        /**
+         * Stored as a queue of upcoming days (JSON array) so the widget and 朝の一句 move on at
+         * midnight without the app; picks [today]'s entry, else the latest earlier one. A single
+         * object (pre-0.8.2) still decodes.
+         */
+        fun decode(raw: String?, today: LocalDate = LocalDate.now()): TodayWidgetLine? {
+            val text = raw?.trim() ?: return null
+            if (!text.startsWith("[")) return decodeOne(text)
+            val lines = runCatching {
+                val array = org.json.JSONArray(text)
+                (0 until array.length()).mapNotNull { decodeOne(array.optJSONObject(it)?.toString()) }
+            }.getOrDefault(emptyList())
+            val key = today.toString()
+            return lines.firstOrNull { it.date == key }
+                ?: lines.filter { it.date < key }.maxByOrNull { it.date }
+                ?: lines.firstOrNull()
+        }
+
+        fun encodeQueue(lines: List<TodayWidgetLine>): String =
+            org.json.JSONArray().apply { lines.forEach { put(JSONObject(it.encode())) } }.toString()
+
+        private fun decodeOne(raw: String?): TodayWidgetLine? = runCatching {
             val o = JSONObject(raw ?: return null)
             TodayWidgetLine(
                 ja = o.optString("ja"),
@@ -73,27 +94,24 @@ data class TodayWidgetLine(
 
 object TodayWidget {
     /** Called by the 今日 tab whenever its line changes; repaints any placed widgets. */
-    fun publish(
-        context: Context,
-        line: TodayLine,
-        workSlug: String,
-        episodeLabel: String,
-        today: LocalDate,
-        audioUrl: String = "",
-        entry: NotebookEntry? = null,
-    ) {
-        val store = LocalLabStore(context.applicationContext)
-        val next = TodayWidgetLine(
+    /** One upcoming day's line for [publish]. */
+    fun queueEntry(line: TodayLine, workSlug: String, episodeLabel: String, day: LocalDate, audioUrl: String, entry: NotebookEntry?) =
+        TodayWidgetLine(
             ja = line.ja,
             zh = line.zh,
             attribution = line.attribution.orEmpty(),
             workSlug = workSlug,
             episodeLabel = episodeLabel,
-            date = today.toString(),
+            date = day.toString(),
             audioUrl = audioUrl,
             notebookEntry = entry?.let { NotebookRules.encode(listOf(it)) }.orEmpty(),
         )
-        val encoded = next.encode()
+
+    /** Stores the next days' lines (today first) and redraws the widget if anything changed. */
+    fun publish(context: Context, queue: List<TodayWidgetLine>) {
+        if (queue.isEmpty()) return
+        val store = LocalLabStore(context.applicationContext)
+        val encoded = TodayWidgetLine.encodeQueue(queue)
         if (store.readTodayWidgetLine() == encoded) return
         store.writeTodayWidgetLine(encoded)
         refreshAll(context)
@@ -118,6 +136,21 @@ object TodayWidget {
             manager.requestPinAppWidget(ComponentName(context, TodayWidgetProvider::class.java), null, null)
         }.getOrDefault(false)
     }
+
+    /** 2:1 manga-panel art for notifications (BigPictureStyle), matching the widget. */
+    fun lineArt(context: Context, line: TodayWidgetLine): Bitmap =
+        TodayWidgetRenderer(context, artScale(context), isDark(context)).render(line, ArtWidthDp, ArtHeightDp, due = 0)
+
+    fun dueArt(context: Context, shiori: Int, drill: Int, point: String?): Bitmap =
+        TodayWidgetRenderer(context, artScale(context), isDark(context)).renderDue(shiori, drill, point, ArtWidthDp, ArtHeightDp)
+
+    private const val ArtWidthDp = 360
+    private const val ArtHeightDp = 180
+
+    private fun artScale(context: Context) = context.resources.displayMetrics.density.coerceAtMost(2.5f)
+
+    private fun isDark(context: Context) = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+        Configuration.UI_MODE_NIGHT_YES
 
     fun refreshAll(context: Context) {
         val manager = AppWidgetManager.getInstance(context)
@@ -183,7 +216,7 @@ class TodayWidgetProvider : AppWidgetProvider() {
  * Paints the widget as one bitmap so it can keep the app's manga-panel look (vertical serif
  * line, screentone, seal) — RemoteViews has no vertical text. Colours mirror AjlTheme tokens.
  */
-private class TodayWidgetRenderer(context: Context, private val scale: Float, dark: Boolean) {
+internal class TodayWidgetRenderer(context: Context, private val scale: Float, dark: Boolean) {
     private val surface = if (dark) 0xFF1C1C1A.toInt() else 0xFFFFFFFF.toInt()
     private val ink = if (dark) 0xFFEDEDE8.toInt() else 0xFF1B1B19.toInt()
     private val ink2 = if (dark) 0xFFA9A8A1.toInt() else 0xFF55544F.toInt()
@@ -330,6 +363,68 @@ private class TodayWidgetRenderer(context: Context, private val scale: Float, da
             layout.draw(canvas)
             canvas.restore()
         }
+        return bitmap
+    }
+
+    /**
+     * 復習 card for reminders: the due count set large in serif, what it is made of above it, and
+     * the fading 課 running down the right edge — same panel, tone and seal as the line card.
+     */
+    fun renderDue(shiori: Int, drill: Int, point: String?, widthDp: Int, heightDp: Int): Bitmap {
+        val w = px(widthDp.toFloat()).toInt().coerceAtLeast(1)
+        val h = px(heightDp.toFloat()).toInt().coerceAtLeast(1)
+        val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val accent = accentFor("")
+        val radius = px(18f)
+        val inset = px(0.75f)
+        val panel = RectF(inset, inset, w - inset, h - inset)
+        canvas.drawRoundRect(panel, radius, radius, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = surface })
+        canvas.save()
+        canvas.clipRect(panel)
+        canvas.rotate(-12f, 0f, h.toFloat())
+        val dot = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = accent; alpha = 77 }
+        val step = px(7f)
+        var y = h - px(60f)
+        while (y < h + px(40f)) {
+            var x = -px(30f)
+            while (x < w * 0.5f) {
+                canvas.drawCircle(x, y, px(1.2f), dot)
+                x += step
+            }
+            y += step
+        }
+        canvas.restore()
+        canvas.drawRoundRect(panel, radius, radius, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.STROKE
+            strokeWidth = px(1.5f)
+            color = ink
+        })
+
+        val pad = px(16f)
+        val eyebrow = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { typeface = mono; textSize = px(10.5f); color = ink3; letterSpacing = 0.06f }
+        val parts = listOfNotNull(shiori.takeIf { it > 0 }?.let { "栞 $it" }, drill.takeIf { it > 0 }?.let { "活用 $it" })
+        canvas.drawText((listOf("復習") + parts).joinToString(" · "), pad, pad - eyebrow.ascent(), eyebrow)
+
+        val big = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { typeface = serifBold; textSize = px(58f); color = ink }
+        val count = (shiori + drill).toString()
+        val baseline = h * 0.68f
+        canvas.drawText(count, pad, baseline, big)
+        val unit = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { typeface = mono; textSize = px(12f); color = accent }
+        canvas.drawText("枚到期", pad + big.measureText(count) + px(8f), baseline, unit)
+
+        // Fading 課 down the right edge.
+        val title = point?.takeIf { it.isNotBlank() }?.substringBefore('（')?.substringBefore(' ')?.take(8) ?: "復習"
+        val glyph = min(px(24f), (h - pad * 2) / (title.length.coerceAtLeast(3) * 1.1f))
+        val jp = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { typeface = serifBold; textSize = glyph; color = ink }
+        val fm = jp.fontMetrics
+        val cx = w - pad - glyph * 0.7f
+        title.forEachIndexed { i, ch ->
+            val g = TextRules.verticalGlyph(ch).toString()
+            val cy = pad + glyph * 1.1f * i + glyph * 0.55f
+            canvas.drawText(g, cx - jp.measureText(g) / 2f, cy - (fm.ascent + fm.descent) / 2f, jp)
+        }
+        drawSeal(canvas, "復\n習", w - pad - glyph * 1.6f - px(44f), h - pad - px(36f), px(34f), accent)
         return bitmap
     }
 

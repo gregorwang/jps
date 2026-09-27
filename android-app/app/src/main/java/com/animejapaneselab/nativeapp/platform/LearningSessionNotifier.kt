@@ -10,7 +10,6 @@ import android.content.Intent
 import android.content.BroadcastReceiver
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.drawable.Icon
 import android.os.Build
 import androidx.core.content.edit
@@ -102,7 +101,7 @@ class LearningSessionNotifier(context: Context) {
         val builder = Notification.Builder(appContext, ChannelId)
             .setSmallIcon(R.drawable.ic_learning_notification)
             .setContentTitle(topic ?: mode)
-            .setContentText(listOfNotNull(mode.takeIf { topic != null }, "第 ${status.position} / ${status.total} 问").joinToString(" · "))
+            .setContentText(listOfNotNull(mode.takeIf { topic != null }, "第 ${status.position} / ${status.total} ${status.unit}").joinToString(" · "))
             .setSubText(header)
             .setContentIntent(contentIntent)
             .setDeleteIntent(deleteIntent)
@@ -116,7 +115,8 @@ class LearningSessionNotifier(context: Context) {
             .setLocalOnly(true)
             .setColor(accent)
             .setTimeoutAfter(MaxSessionDurationMs)
-        characterFace(status)?.let { builder.setLargeIcon(it) }
+        val face = CharacterFaces.face(appContext, status.workSlug, status.episode)
+        face?.let { builder.setLargeIcon(it) }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
             // One segment per question (a 場面 strip), dimmed until answered.
@@ -135,14 +135,61 @@ class LearningSessionNotifier(context: Context) {
             builder.setProgress(status.total, status.completed, false)
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA &&
-            Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1
-        ) {
-            builder
-                .setRequestPromotedOngoing(true)
-                .setShortCriticalText(status.chipText)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            // Live Update request by extras too: HyperOS 3 is Android 16.0, where the builder
+            // setters below don't exist yet, but the island reads these keys.
+            builder.extras.putBoolean(ExtraRequestPromotedOngoing, true)
+            builder.extras.putCharSequence(ExtraShortCriticalText, status.chipText)
+            if (Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
+                builder
+                    .setRequestPromotedOngoing(true)
+                    .setShortCriticalText(status.chipText)
+            }
         }
+        if (hyperOsFocusAllowed) addHyperOsIsland(builder, status, topic ?: mode, mode, face)
         return builder.build()
+    }
+
+    /** Xiaomi's own island protocol; only honoured for apps Xiaomi has granted 焦点通知. */
+    private val hyperOsFocusAllowed: Boolean by lazy {
+        runCatching {
+            android.provider.Settings.System.getInt(appContext.contentResolver, "notification_focus_protocol", 0) >= 3 &&
+                DeviceCapabilityReader.queryHyperOsFocusPermission(appContext)
+        }.getOrDefault(false)
+    }
+
+    private fun addHyperOsIsland(builder: Notification.Builder, status: LearningSessionStatus, title: String, mode: String, face: Bitmap?) {
+        val pic = "miui.focus.pic_face"
+        val island = org.json.JSONObject().put(
+            "param_v2",
+            org.json.JSONObject()
+                .put("protocol", 1)
+                .put("business", "study")
+                .put("updatable", true)
+                .put("ticker", "${status.chipText} · $title")
+                .put("aodTitle", status.chipText)
+                .put(
+                    "param_island",
+                    org.json.JSONObject()
+                        .put("islandProperty", 1)
+                        .put(
+                            "bigIslandArea",
+                            org.json.JSONObject().put(
+                                "imageTextInfoLeft",
+                                org.json.JSONObject()
+                                    .put("type", 1)
+                                    .put("picInfo", org.json.JSONObject().put("type", 1).put("pic", pic))
+                                    .put("textInfo", org.json.JSONObject().put("title", status.chipText).put("content", mode)),
+                            ),
+                        )
+                        .put("smallIslandArea", org.json.JSONObject().put("picInfo", org.json.JSONObject().put("type", 1).put("pic", pic))),
+                )
+                .put("baseInfo", org.json.JSONObject().put("title", title).put("content", "第 ${status.position} / ${status.total} ${status.unit}").put("type", 2)),
+        )
+        builder.extras.putString("miui.focus.param", island.toString())
+        if (face != null) {
+            builder.extras.putBundle("miui.focus.pics", android.os.Bundle().apply { putParcelable(pic, Icon.createWithBitmap(face)) })
+        }
     }
 
     /** 「单点训练 · やばい…」 → (单点训练, やばい…); a title without a topic stays whole. */
@@ -151,27 +198,11 @@ class LearningSessionNotifier(context: Context) {
         return if (parts.size == 2 && parts[1].isNotBlank()) parts[0] to parts[1] else title to null
     }
 
-    private fun characterFace(status: LearningSessionStatus): Bitmap? {
-        val character = WorkIdentity.representative(status.workSlug, status.episode.coerceAtLeast(1)) ?: return null
-        val res = character.drawable ?: return null
-        return faceCache.getOrPut(res) {
-            runCatching {
-                val options = BitmapFactory.Options().apply { inSampleSize = 2 }
-                val image = BitmapFactory.decodeResource(appContext.resources, res, options) ?: return@runCatching null
-                val face = character.face
-                val side = (image.width * face.size).coerceAtMost(minOf(image.width, image.height).toFloat()).toInt()
-                val left = (image.width * face.cx - side / 2f).toInt().coerceIn(0, image.width - side)
-                val top = (image.height * face.cy - side / 2f).toInt().coerceIn(0, image.height - side)
-                Bitmap.createScaledBitmap(Bitmap.createBitmap(image, left, top, side, side), FaceSizePx, FaceSizePx, true)
-            }.getOrNull()
-        }
-    }
-
     private companion object {
         const val MaxSegments = 24
-        const val FaceSizePx = 192
+        const val ExtraRequestPromotedOngoing = "android.requestPromotedOngoing"
+        const val ExtraShortCriticalText = "android.shortCriticalText"
         const val StartedAtKey = "session-started-at"
-        val faceCache = mutableMapOf<Int, Bitmap?>()
         const val ChannelId = "learning-session-live-update"
         const val NotificationId = 1601
         const val MaxSessionDurationMs = 2 * 60 * 60 * 1000L

@@ -198,19 +198,21 @@ object StudyReminder {
                 description = "栞和活用按遗忘曲线到期时提醒"
             },
         )
-        val line = TodayWidgetLine.decode(LocalLabStore(context).readTodayWidgetLine())
+        val store = LocalLabStore(context)
+        val line = TodayWidgetLine.decode(store.readTodayWidgetLine())
         val accent = WorkThemes.of(WorkIdentity.hue(line?.workSlug.orEmpty()), dark = false).accent.toArgb()
         val builder = Notification.Builder(context, if (message.channel == ReminderChannel.Review) ReviewChannelId else StudyChannelId)
             .setSmallIcon(R.drawable.ic_learning_notification)
             .setContentTitle(message.title)
             .setContentText(message.body.lineSequence().first())
-            .setStyle(Notification.BigTextStyle().bigText(message.body))
+            .setStyle(reminderStyle(context, store, message, line))
             .setColor(accent)
             .setContentIntent(openIntent(context, message.target))
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
             .setCategory(Notification.CATEGORY_REMINDER)
-        val morning = if (message.template == "morning") morningSource(LocalLabStore(context)) else null
+        CharacterFaces.face(context, line?.workSlug.orEmpty())?.let { builder.setLargeIcon(it) }
+        val morning = if (message.template == "morning") morningSource(store) else null
         if (morning != null) {
             // Learn the line from the shade: hear it, keep it.
             if (TodayLineAudio.cached(context, morning.ja) != null) {
@@ -222,6 +224,35 @@ object StudyReminder {
         }
         manager.notify(NotificationId, builder.build())
         return true
+    }
+
+    /**
+     * Expanded look in the app's own language: a manga panel with the line set vertically (the
+     * widget's art) for line reminders, a 復習 card with the due count for review ones.
+     */
+    private fun reminderStyle(context: Context, store: LocalLabStore, message: ReminderMessage, line: TodayWidgetLine?): Notification.Style {
+        val today = LocalDate.now()
+        val epochDay = today.toEpochDay()
+        val art = runCatching {
+            when {
+                message.channel == ReminderChannel.Review -> {
+                    val shiori = NotebookRules.dueCount(store.readNotebook(), epochDay)
+                    val drill = store.readDrillProgress().values.count { it.dueDay <= epochDay }
+                    val fading = store.readDrillPointDue().filterValues { it <= epochDay }.minByOrNull { it.value }?.key
+                    if (shiori + drill > 0) TodayWidget.dueArt(context, shiori, drill, fading) else null
+                }
+                message.body.startsWith("「") -> {
+                    val pick = MorningPick.decode(store.readMorningPick())
+                        ?.takeIf { message.template == "morning" && MorningPick.isFor(it, today) }
+                    val artLine = pick?.let { TodayWidgetLine(it.ja, it.zh, it.point, "", "", it.date) } ?: line
+                    artLine?.let { TodayWidget.lineArt(context, it) }
+                }
+                else -> null
+            }
+        }.getOrNull()
+        if (art == null) return Notification.BigTextStyle().bigText(message.body)
+        val summary = message.body.lines().drop(1).firstOrNull { it.isNotBlank() } ?: message.body.lineSequence().first()
+        return Notification.BigPictureStyle().bigPicture(art).setSummaryText(summary)
     }
 
     private fun actionIntent(context: Context, action: String): PendingIntent = PendingIntent.getBroadcast(
