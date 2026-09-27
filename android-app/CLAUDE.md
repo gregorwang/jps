@@ -117,6 +117,12 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 ## 8. 经验记录（每次会话结束补几条）
 
+**2026-09-27 · 0.8.0（智能提醒 + AI 进主线）**
+- 提醒：`platform/ReminderPlanner.kt`（纯规则：习惯时间 = 近 14 天首次学习时刻中位数 −15 分钟；朝 8:30 / 习惯 / 復習 三个检查点，每天最多 2 条；断更 1–7 天每天、8–14 天隔 3 天、第 15 天说「先不提醒了」后静默）+ `StudyReminder.kt`（闹钟链、发通知、通知按钮）+ `ReminderHealth.kt`（通知权限 / 小米自启动 / 省电无限制）+ `MorningPick.kt`（朝の一句从「最久没复习的已学課」挑原作台词）+ `TodayLineAudio.kt`（台词音频缓存，通知里直接播）。
+- 之前的提醒从没生效：默认开着，却只在手动拨开关时才申请通知权限。**新加任何通知功能，都要确认权限在默认路径上会被申请**；小米还必须开自启动和省电无限制，否则闹钟不响。
+- AI：默认 `gemini-3.5-flash-lite`（另有 `gemini-3.6-flash`），旧 id 在 worker 和 `LocalLabStore` 里自动映射。Gemini 3.x 弃用了 `temperature`，思考深度用 `reasoning_effort`（按任务在 worker 的 `effortFor` 里定），分栏讲解走 `callAiSections`（JSON schema 结构化输出）。`.dev.vars` 里有 `CF_AIG_TOKEN`，改 AI 参数前可以先直接调网关实测。
+- AI 用在判断和生成上（答错点评 `/api/ai/quick-feedback`、自習つづく的作文批改），数据里已有的东西（活用拆解、原作台词）不要硬塞给 AI。
+
 **2026-09-27 · 0.7.0（自習 tab）**
 - 用户的产品逻辑：**素材来自动漫（字幕、原声），学习融进场景**，但**自習按知识点组织，不按剧集**；出处信息都不要。先学后练：学过的才进練習。
 - 做大界面前**先在设计画布上画预览**，用户确认后再写代码；这次在画布加了「自習」页 5 块画板。
