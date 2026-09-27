@@ -27,16 +27,9 @@ data class TodayLine(
     val timeCode: String? = null,
     val lineNo: Int = 0,
 ) {
-    /** 「憂 · 12:31」; falls back to 「第 16 行」 when neither speaker nor time is known. */
+    /** 「憂 · 12:31」; null when neither is known (a bare subtitle row number means nothing to the learner). */
     val attribution: String?
-        get() {
-            val parts = listOfNotNull(speaker?.takeIf { it.isNotBlank() }, timeCode)
-            return when {
-                parts.isNotEmpty() -> parts.joinToString(" · ")
-                lineNo > 0 -> "第 $lineNo 行"
-                else -> null
-            }
-        }
+        get() = listOfNotNull(speaker?.takeIf { it.isNotBlank() }, timeCode).joinToString(" · ").ifEmpty { null }
 }
 
 object TodayRules {
@@ -213,7 +206,18 @@ object TodayRules {
 // 本日の時間割
 // ---------------------------------------------------------------------------
 
-enum class SlotAction { Lesson, Review, ReadAir, Shadowing }
+/** 自習 → 練習 state for the 時間割, read from the 自習 / 活用 holders in LabApp. */
+data class TodayMainLine(
+    val jishuPoint: String? = null,
+    /** 「第 3 課 · ている」 */
+    val jishuTitle: String? = null,
+    val jishuStudied: Int = 0,
+    val jishuTotal: Int = 0,
+    /** 活用 lines due over the learned 課; null before anything is learned. */
+    val practiceDue: Int? = null,
+)
+
+enum class SlotAction { Jishu, Practice, Lesson, Review, ReadAir, Shadowing }
 
 data class TimetableSlot(
     val action: SlotAction,
@@ -243,10 +247,19 @@ data class TimetableInput(
     val shadowingCount: Int,
     /** Character whose lines dominate the shadowing set (憂の台词). */
     val shadowingSpeaker: String? = null,
+    /** 自習: the 課 to continue (「第 3 課 · ている」), null while the lessons are not loaded. */
+    val jishuTitle: String? = null,
+    /** 自習 lines of that 課 learned / its total. */
+    val jishuStudied: Int = 0,
+    val jishuTotal: Int = 0,
+    /** A 自習 sitting was already gone through today. */
+    val jishuDoneToday: Boolean = false,
+    /** 練習: 活用 lines due over the learned 課; null when nothing has been learned yet. */
+    val practiceDue: Int? = null,
 )
 
 object TimetableRules {
-    private val Periods = listOf("一限", "二限", "三限")
+    private val Periods = listOf("一限", "二限", "三限", "四限")
     const val AfterSchool = "放課後"
 
     fun build(input: TimetableInput): List<TimetableSlot> {
@@ -260,6 +273,28 @@ object TimetableRules {
         )
         val drafts = mutableListOf<Draft>()
 
+        // The main line first: 自習 (learn) → 練習 (drill what was learned) → 復習.
+        input.jishuTitle?.let { title ->
+            val total = input.jishuTotal
+            drafts += Draft(
+                action = SlotAction.Jishu,
+                title = "自習 · $title",
+                meta = if (input.jishuDoneToday) "済" else if (total > 0) "${input.jishuStudied}/$total 句" else "",
+                done = input.jishuDoneToday,
+                caption = if (total > 0) "本课 ${input.jishuStudied}/$total 句" else "自習",
+                progress = if (total > 0) input.jishuStudied.toFloat() / total else null,
+            )
+        }
+        input.practiceDue?.let { due ->
+            drafts += Draft(
+                action = SlotAction.Practice,
+                title = "練習 · 活用",
+                meta = if (due > 0) "$due 句" else "済",
+                done = due <= 0,
+                caption = "学过的课 · 到期 $due 句",
+                progress = null,
+            )
+        }
         if (input.lessonTotal > 0) {
             val done = input.lessonDone.coerceIn(0, input.lessonTotal)
             val complete = done >= input.lessonTotal
@@ -275,7 +310,7 @@ object TimetableRules {
         if (input.reviewDue > 0) {
             drafts += Draft(
                 action = SlotAction.Review,
-                title = "复习 · 快忘的卡片",
+                title = "復習 · 快忘的卡片和栞",
                 meta = "${input.reviewDue} 枚",
                 done = false,
                 caption = "到期 ${input.reviewDue} 枚",

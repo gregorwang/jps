@@ -272,3 +272,14 @@ private fun posPart(part: String): String {
         else -> part
     }
 }
+
+/**
+ * Grammar rows' real_world_note is often a curation label (「适合做单句精读和语法理解题。」 on 240
+ * rows, 「N4 核心」), not a usage note: those are not shown as 実際.
+ */
+private val LabelNote = Regex("""^(N[1-5]|JLPT)\s*\S{0,4}$|适合做|适合用来|学习价值|筛选""")
+
+internal fun isLabelNote(note: String): Boolean {
+    val text = note.trim()
+    return text.length <= 6 || LabelNote.containsMatchIn(text)
+}

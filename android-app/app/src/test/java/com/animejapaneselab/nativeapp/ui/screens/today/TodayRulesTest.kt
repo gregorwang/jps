@@ -109,8 +109,8 @@ class TodayRulesTest {
     }
 
     @Test
-    fun attributionFallsBackToLineNumberThenNothing() {
-        assertEquals("第 7 行", TodayLine("あ", lineNo = 7).attribution)
+    fun attributionNeverShowsARowNumber() {
+        assertNull(TodayLine("あ", lineNo = 7).attribution)
         assertNull(TodayLine("あ").attribution)
     }
 

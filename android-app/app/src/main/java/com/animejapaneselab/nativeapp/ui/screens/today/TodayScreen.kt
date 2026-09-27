@@ -55,6 +55,7 @@ import com.animejapaneselab.nativeapp.ui.audio.rememberLessonAudioController
 import com.animejapaneselab.nativeapp.ui.design.VoiceBars
 import com.animejapaneselab.nativeapp.ui.design.clickableNoRipple
 import com.animejapaneselab.nativeapp.ui.design.speechLines
+import com.animejapaneselab.nativeapp.data.NotebookRules
 import com.animejapaneselab.nativeapp.ui.notebook.Notebook
 import com.animejapaneselab.nativeapp.ui.notebook.rememberNotebookEntries
 import com.animejapaneselab.nativeapp.widget.TodayWidget
@@ -96,6 +97,10 @@ fun TodayScreen(
     modifier: Modifier = Modifier,
     today: LocalDate = LocalDate.now(),
     onTodayLineRevealed: (date: String) -> Unit = {},
+    /** 自習 → 練習 → 復習: the main line's state and entries. */
+    mainLine: TodayMainLine = TodayMainLine(),
+    onStartJishu: (pointId: String) -> Unit = {},
+    onStartPractice: () -> Unit = {},
 ) {
     val colors = AjlTheme.colors
     val workSlug = uiState.selection.workSlug
@@ -115,7 +120,13 @@ fun TodayScreen(
     val line = remember(today, workSlug, episode, candidates) {
         TodayRules.pickLine(today, workSlug, episode, candidates)
     }
-    val slots = remember(uiState.lesson, uiState.lessonMode, uiState.reviewTasks, uiState.mistakes, uiState.readAir, uiState.shadowing, candidates, episodeLabel) {
+    val context = LocalContext.current
+    remember { StudyLog.init(context) }
+    val studyDays by StudyLog.days.collectAsState()
+    val notebook = rememberNotebookEntries()
+    val shioriDue = remember(notebook, today) { NotebookRules.dueCount(notebook, today.toEpochDay()) }
+    val jishuDoneToday = (studyDays[today.toString()]?.studied ?: 0) > 0
+    val slots = remember(uiState.lesson, uiState.lessonMode, uiState.reviewTasks, uiState.mistakes, uiState.readAir, uiState.shadowing, candidates, episodeLabel, mainLine, shioriDue, jishuDoneToday) {
         val plan = buildSmartReviewPlan(uiState.reviewTasks, uiState.mistakes, today)
         val slug = normalizeWorkSlug(workSlug)
         val readAirScope = uiState.readAir.exercises.filter {
@@ -128,7 +139,7 @@ fun TodayScreen(
                 lessonModeLabel = uiState.lessonMode.label,
                 lessonTotal = uiState.lesson.nodes.size,
                 lessonDone = uiState.lesson.index.coerceAtMost(uiState.lesson.nodes.size),
-                reviewDue = ReviewRules.dueCount(plan),
+                reviewDue = ReviewRules.dueCount(plan) + shioriDue,
                 readAirTotal = if (readAirLoaded) readAirScope.size else null,
                 readAirAnswered = readAirScope.count { !uiState.readAir.selectedAnswers[it.id].isNullOrBlank() },
                 shadowingCount = uiState.shadowing.size,
@@ -136,12 +147,14 @@ fun TodayScreen(
                     candidates,
                     uiState.shadowing.map { it.sourceLineNo }.filter { it > 0 }.toSet(),
                 ),
+                jishuTitle = mainLine.jishuTitle,
+                jishuStudied = mainLine.jishuStudied,
+                jishuTotal = mainLine.jishuTotal,
+                jishuDoneToday = jishuDoneToday,
+                practiceDue = mainLine.practiceDue,
             ),
         )
     }
-    val context = LocalContext.current
-    remember { StudyLog.init(context) }
-    val studyDays by StudyLog.days.collectAsState()
     val studyTotal by StudyLog.totalSeconds.collectAsState()
     val heatmap = remember(studyDays, studyTotal, uiState.progressItems, today) {
         StudyHeatmapRules.build(studyDays, uiState.progressItems, today, studyTotal)
@@ -170,7 +183,6 @@ fun TodayScreen(
     val lineEntry = remember(line, lineSentence, workSlug, episode) {
         line?.let { TodayRules.notebookEntry(it, lineSentence, workSlug, episode) }
     }
-    val notebook = rememberNotebookEntries()
     val lineSaved = lineEntry != null && notebook.any { it.key == lineEntry.key }
     val playLine: () -> Unit = {
         if (line != null) {
@@ -201,6 +213,8 @@ fun TodayScreen(
     }
     val start: (SlotAction) -> Unit = { action ->
         when (action) {
+            SlotAction.Jishu -> mainLine.jishuPoint?.let(onStartJishu)
+            SlotAction.Practice -> onStartPractice()
             SlotAction.Lesson -> onStartLesson()
             SlotAction.Review -> onStartReview()
             SlotAction.ReadAir -> onStartReadAir()
@@ -362,7 +376,8 @@ private fun TodayLinePanel(
         val fontSize = if (height < 340.dp) 28.sp else 32.sp
         val glyphSpacing = 1.12f
         val glyphDp = with(density) { (fontSize.toPx() * glyphSpacing).toDp() }
-        val available = height - 22.dp - 18.dp
+        // Keep the columns clear of the 栞 button (44dp + 6dp) in the bottom-right corner.
+        val available = height - 22.dp - 56.dp
         val perColumn = (available / glyphDp).toInt().coerceIn(4, 12)
         val text = line?.ja ?: episodeLabel
         val layout = remember(text, perColumn) { TodayRules.verticalLayout(text, perColumn) }

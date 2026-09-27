@@ -44,7 +44,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.animejapaneselab.nativeapp.ui.foundation.LinguisticsTrack
 import com.animejapaneselab.nativeapp.ui.drill.ConjugationDrillViewModel
 import com.animejapaneselab.nativeapp.ui.drill.DrillMode
+import com.animejapaneselab.nativeapp.ui.jishu.JishuState
 import com.animejapaneselab.nativeapp.ui.jishu.JishuViewModel
+import com.animejapaneselab.nativeapp.ui.drill.ConjugationDrillState
+import com.animejapaneselab.nativeapp.ui.screens.jishu.splitTitle
+import com.animejapaneselab.nativeapp.ui.screens.today.TodayMainLine
 import com.animejapaneselab.nativeapp.ui.screens.jishu.JishuScreen
 import com.animejapaneselab.nativeapp.platform.LearningSessionNotifier
 import com.animejapaneselab.nativeapp.platform.LaunchRequests
@@ -424,8 +428,23 @@ private fun ShellPage(
         }
 
         is ShellRoute.Main -> when (route.tab) {
-            LabTab.Today -> TodayScreen(
+            LabTab.Today -> {
+                val drill: ConjugationDrillViewModel = viewModel()
+                val jishu: JishuViewModel = viewModel()
+                val drillState by drill.state.collectAsStateWithLifecycle()
+                val jishuState by jishu.state.collectAsStateWithLifecycle()
+                TodayScreen(
                 uiState = uiState,
+                mainLine = remember(drillState, jishuState) { todayMainLine(drillState, jishuState) },
+                onStartJishu = { point ->
+                    jishu.requestStart(point)
+                    viewModel.selectTab(LabTab.Jishu)
+                },
+                onStartPractice = {
+                    viewModel.selectLinguisticsTrack(LinguisticsTrack.Conjugation)
+                    viewModel.selectLearnSection(LearnSection.Linguistics)
+                    drill.startReview()
+                },
                 onStartLesson = viewModel::startLessonFromCurrentTab,
                 onStartModeLesson = { mode -> viewModel.startLessonModeFromCurrentTab(mode) },
                 onStartReadAir = viewModel::startReadAirForCurrentEpisode,
@@ -436,6 +455,7 @@ private fun ShellPage(
                 onOpenSettings = viewModel::openSettings,
                 onTodayLineRevealed = viewModel::markTodayLineRevealed,
             )
+            }
 
             LabTab.Jishu -> JishuScreen(ttsWorkerUrl = uiState.settings.ttsWorkerUrl, settings = uiState.settings)
 
@@ -520,6 +540,18 @@ private fun ShellPage(
             }
         }
     }
+}
+
+/** 今日's 自習 / 練習 periods: the 課 to continue and the 活用 lines due (null before any 課 is learned). */
+private fun todayMainLine(drill: ConjugationDrillState, jishu: JishuState): TodayMainLine {
+    val point = jishu.currentPoint(drill)
+    return TodayMainLine(
+        jishuPoint = point,
+        jishuTitle = point?.let { "第 ${drill.lessonNumber(it)} 課 · ${splitTitle(drill.titleOf(it)).first}" },
+        jishuStudied = point?.let { jishu.studiedIn(it, drill.linesOf(it)) } ?: 0,
+        jishuTotal = point?.let { jishu.totalIn(drill, it) } ?: 0,
+        practiceDue = if (drill.learned.isEmpty()) null else drill.dueToday,
+    )
 }
 
 @Composable

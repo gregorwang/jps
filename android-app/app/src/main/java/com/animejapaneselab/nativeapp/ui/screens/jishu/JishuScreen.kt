@@ -103,6 +103,14 @@ fun JishuScreen(ttsWorkerUrl: String, settings: LabSettings, modifier: Modifier 
         jishu.startSitting(point, lines, s.items, s.progress, hasBoard = studied == 0 || studied >= total)
     }
 
+    // 今日's 時間割 asked for this 課: open it straight away (no second tap on 今日の自習).
+    LaunchedEffect(state.pendingStart, drillState.items.isNotEmpty()) {
+        val point = state.pendingStart ?: return@LaunchedEffect
+        if (drillState.items.isEmpty()) return@LaunchedEffect
+        jishu.clearPendingStart()
+        if (state.sitting == null) start(point)
+    }
+
     ProvideWorkTheme(JishuWork) {
         val sitting = state.sitting
         when {
@@ -186,13 +194,8 @@ private class Progress(private val drill: ConjugationDrillState, private val sta
     fun done(point: String) = total(point) > 0 && studied(point) >= total(point)
     fun learned(point: String) = point in drill.learned || done(point)
 
-    /** The 課 to continue: one half-way through, else the first never learned, else one with lines left. */
-    fun current(): String? {
-        val order = drill.pointOrder
-        return order.firstOrNull { studied(it) in 1 until total(it) }
-            ?: order.firstOrNull { !learned(it) }
-            ?: order.firstOrNull { !done(it) }
-    }
+    /** The 課 to continue (shared with 今日's 時間割). */
+    fun current(): String? = state.currentPoint(drill)
 
     /** The line a 課 shows next: its first line not learned yet. */
     fun nextLine(point: String): ConjugationDrillItem? {

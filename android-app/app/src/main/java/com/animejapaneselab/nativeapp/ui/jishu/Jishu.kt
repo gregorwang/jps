@@ -10,6 +10,7 @@ import com.animejapaneselab.nativeapp.data.EpisodeSelection
 import com.animejapaneselab.nativeapp.data.LocalLabStore
 import com.animejapaneselab.nativeapp.data.RemoteLabClient
 import com.animejapaneselab.nativeapp.data.SubtitleLine
+import com.animejapaneselab.nativeapp.ui.drill.ConjugationDrillState
 import com.animejapaneselab.nativeapp.ui.study.StudyLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,9 +53,23 @@ data class JishuState(
     val context: Map<String, SceneContext> = emptyMap(),
     /** 遮る: hide the translation until tapped (second pass). */
     val cover: Boolean = false,
+    /** A sitting asked for from outside the tab (今日's 時間割); 自習 starts it once the 課 are loaded. */
+    val pendingStart: String? = null,
 ) {
     fun studiedIn(pointId: String, lines: List<ConjugationDrillItem>): Int =
         lines.distinctBy { it.sentenceId }.count { key(pointId, it.sentenceId) in studied }
+
+    fun totalIn(drill: ConjugationDrillState, pointId: String): Int = drill.linesOf(pointId).distinctBy { it.sentenceId }.size
+
+    /** The 課 to continue: one half-way through, else the first never learned, else one with lines left. */
+    fun currentPoint(drill: ConjugationDrillState): String? {
+        val order = drill.pointOrder
+        fun studied(p: String) = studiedIn(p, drill.linesOf(p))
+        fun done(p: String) = totalIn(drill, p).let { it > 0 && studied(p) >= it }
+        return order.firstOrNull { studied(it) in 1 until totalIn(drill, it) }
+            ?: order.firstOrNull { it !in drill.learned && !done(it) }
+            ?: order.firstOrNull { !done(it) }
+    }
 
     companion object {
         fun key(pointId: String, sentenceId: String) = "$pointId::$sentenceId"
@@ -76,6 +91,10 @@ class JishuViewModel(application: Application) : AndroidViewModel(application) {
     fun openBook(group: String) = _state.update { it.copy(openBook = group) }
 
     fun closeBook() = _state.update { it.copy(openBook = null) }
+
+    fun requestStart(pointId: String) = _state.update { it.copy(pendingStart = pointId, openBook = null) }
+
+    fun clearPendingStart() = _state.update { it.copy(pendingStart = null) }
 
     fun toggleCover() = _state.update { it.copy(cover = !it.cover).also { s -> store.writeJishuCover(s.cover) } }
 

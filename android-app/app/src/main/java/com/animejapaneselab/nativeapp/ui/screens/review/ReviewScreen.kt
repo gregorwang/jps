@@ -1,5 +1,7 @@
 package com.animejapaneselab.nativeapp.ui.screens.review
 
+import com.animejapaneselab.nativeapp.ui.design.SlotState
+import com.animejapaneselab.nativeapp.ui.design.TimetableRow
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -159,40 +161,28 @@ fun ReviewScreen(
                             trailingArrow = true,
                             onClick = onOpenSmartReviewQueue,
                         )
-                    } else {
+                    } else if (drillDue == 0 && shioriDue == 0) {
                         InkButton(text = "去学ぶ", trailingArrow = true, onClick = onOpenLesson)
                     }
                 }
             }
-            if (drillDue > 0) {
-                item(key = "drill", contentType = "toggle") {
-                    Row(
-                        Modifier
-                            .padding(top = 20.dp)
-                            .heightIn(min = 44.dp)
-                            .clickableNoRipple(onStartDrillReview),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        Text("活用 復習", style = AjlTheme.type.body.copy(fontSize = 14.sp), color = colors.ink2)
-                        Text("· 到期 $drillDue 句", style = AjlTheme.type.body.copy(fontSize = 14.sp), color = colors.ink3)
-                        Icon(Icons.Rounded.ChevronRight, contentDescription = "开始活用复习", tint = colors.ink2, modifier = Modifier.size(16.dp))
-                    }
-                }
-            }
-            if (shioriDue > 0) {
-                item(key = "shiori", contentType = "toggle") {
-                    Row(
-                        Modifier
-                            .padding(top = if (drillDue > 0) 0.dp else 20.dp)
-                            .heightIn(min = 44.dp)
-                            .clickableNoRipple({ shioriReviewing = true }),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        Text("栞をめくる", style = AjlTheme.type.body.copy(fontSize = 14.sp), color = colors.ink2)
-                        Text("· 到期 $shioriDue 枚", style = AjlTheme.type.body.copy(fontSize = 14.sp), color = colors.ink3)
-                        Icon(Icons.Rounded.ChevronRight, contentDescription = "开始栞复习", tint = colors.ink2, modifier = Modifier.size(16.dp))
+            if (drillDue > 0 || shioriDue > 0) {
+                // The other two queues due today, as real rows (they used to be easy-to-miss small text).
+                item(key = "queues", contentType = "queues") {
+                    Column(Modifier.padding(top = 22.dp)) {
+                        SectionHeading(title = "还有到期", meta = "${drillDue + shioriDue} 项")
+                        if (drillDue > 0) {
+                            TimetableRow(period = "活用", title = "活用 · 学过的课", meta = "$drillDue 句", state = SlotState.Current, onClick = onStartDrillReview)
+                        }
+                        if (shioriDue > 0) {
+                            TimetableRow(
+                                period = "栞",
+                                title = "栞をめくる",
+                                meta = "$shioriDue 枚",
+                                state = if (drillDue > 0) SlotState.Upcoming else SlotState.Current,
+                                onClick = { shioriReviewing = true },
+                            )
+                        }
                     }
                 }
             }
