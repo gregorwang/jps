@@ -50,6 +50,8 @@ import com.animejapaneselab.nativeapp.data.LocalLabStore
 import com.animejapaneselab.nativeapp.data.RemoteLabClient
 import com.animejapaneselab.nativeapp.data.SyncStatus
 import com.animejapaneselab.nativeapp.platform.DeviceCapabilitySnapshot
+import com.animejapaneselab.nativeapp.platform.ReminderHealthReader
+import com.animejapaneselab.nativeapp.platform.StudyReminder
 import com.animejapaneselab.nativeapp.platform.formatRefreshRates
 import com.animejapaneselab.nativeapp.ui.LabUiState
 import com.animejapaneselab.nativeapp.ui.audio.AudioPlaybackPhase
@@ -201,27 +203,65 @@ fun SettingsScreen(
                 ToggleRow("进场アイキャッチ", settings.richAnimationsEnabled) {
                     onSettingsChange(settings.copy(richAnimationsEnabled = it))
                 }
+                val reminderHealth = rememberReminderHealth()
+                val plannedTime = remember(settings.studyReminderAuto, settings.studyReminderHour) {
+                    StudyReminder.plannedTime(appContext)
+                }
                 ToggleRow(
                     "放課後チャイム",
                     settings.studyReminder,
-                    value = if (settings.studyReminder) "${settings.studyReminderHour}:00" else null,
+                    value = when {
+                        !settings.studyReminder -> null
+                        !reminderHealth.ok -> "收不到"
+                        settings.studyReminderAuto -> "自动 · $plannedTime"
+                        else -> plannedTime
+                    },
                 ) { enabled ->
                     onSettingsChange(settings.copy(studyReminder = enabled))
-                    if (enabled && capabilities?.notificationsEnabled != true) onRequestNotificationPermission()
+                    if (enabled && !reminderHealth.notifications) onRequestNotificationPermission()
                 }
                 if (settings.studyReminder) {
                     LineRow(minHeight = 52.dp) {
                         RowLabel("提醒时间", Modifier.weight(1f))
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            FilterPill(
+                                text = "自动",
+                                selected = settings.studyReminderAuto,
+                                onClick = { onSettingsChange(settings.copy(studyReminderAuto = true)) },
+                            )
                             ReminderHours.forEach { hour ->
                                 FilterPill(
                                     text = "$hour",
-                                    selected = settings.studyReminderHour == hour,
-                                    onClick = { onSettingsChange(settings.copy(studyReminderHour = hour)) },
+                                    selected = !settings.studyReminderAuto && settings.studyReminderHour == hour,
+                                    onClick = { onSettingsChange(settings.copy(studyReminderAuto = false, studyReminderHour = hour)) },
                                 )
                             }
                         }
                     }
+                    NavRow(
+                        "通知权限",
+                        onClick = {
+                            if (!reminderHealth.notifications && !store.readNotificationPermissionAsked()) {
+                                store.writeNotificationPermissionAsked()
+                                onRequestNotificationPermission()
+                            } else {
+                                ReminderHealthReader.openNotificationSettings(context)
+                            }
+                        },
+                        value = if (reminderHealth.notifications) "已允许" else "去开启",
+                    )
+                    if (reminderHealth.isXiaomi) {
+                        NavRow(
+                            "自启动",
+                            onClick = { ReminderHealthReader.openAutostart(context) },
+                            value = if (reminderHealth.autostart) "已开启" else "去开启",
+                        )
+                    }
+                    NavRow(
+                        if (reminderHealth.isXiaomi) "省电策略 · 无限制" else "不受电池优化限制",
+                        onClick = { ReminderHealthReader.openBattery(context) },
+                        value = if (reminderHealth.battery) "已开启" else "去开启",
+                    )
                 }
                 DisclosureRow("试听音效", open == Open.SoundTest, onClick = { toggle(Open.SoundTest) })
                 if (open == Open.SoundTest) {
@@ -727,7 +767,7 @@ internal fun studentCardInfo(uiState: LabUiState): StudentCardInfo {
 
 /** `2026-09-24T12:00:00Z` → `2026-09-24`; anything unparseable → null. */
 /** 放課後チャイム hours on offer: after school through late evening. */
-private val ReminderHours = listOf(18, 20, 21, 22, 23)
+private val ReminderHours = listOf(19, 21, 22)
 
 internal fun dayOf(timestamp: String): String? {
     val day = timestamp.trim().take(10)

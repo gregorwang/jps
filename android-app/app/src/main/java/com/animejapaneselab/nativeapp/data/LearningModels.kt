@@ -396,9 +396,12 @@ data class LabSettings(
     val cloudSync: Boolean = true,
     val showFurigana: Boolean = true,
     val showRomaji: Boolean = false,
-    /** 放課後チャイム: nudge once a day at [studyReminderHour] if nothing was studied yet. */
+    /** 放課後チャイム: smart study reminders (see platform/ReminderPlanner). */
     val studyReminder: Boolean = true,
+    /** Fixed reminder hour, used when [studyReminderAuto] is off or there is no habit yet. */
     val studyReminderHour: Int = 21,
+    /** Remind shortly before the time the user usually starts studying. */
+    val studyReminderAuto: Boolean = true,
 )
 
 data class SyncSnapshot(

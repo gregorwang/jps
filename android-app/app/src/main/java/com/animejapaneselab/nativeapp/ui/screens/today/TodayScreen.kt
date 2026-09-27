@@ -70,6 +70,8 @@ import com.animejapaneselab.nativeapp.ui.design.TopBarNav
 import com.animejapaneselab.nativeapp.ui.design.VerticalText
 import com.animejapaneselab.nativeapp.ui.design.WorkIdentity
 import com.animejapaneselab.nativeapp.ui.screens.review.ReviewRules
+import com.animejapaneselab.nativeapp.ui.screens.settings.ReminderHealthStrip
+import com.animejapaneselab.nativeapp.ui.screens.settings.rememberReminderHealth
 import com.animejapaneselab.nativeapp.ui.study.StudyLog
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 import com.animejapaneselab.nativeapp.ui.theme.normalizeWorkSlug
@@ -217,6 +219,11 @@ fun TodayScreen(
                     .padding(horizontal = 20.dp)
                     .padding(bottom = 24.dp),
             ) {
+                val reminderHealth = rememberReminderHealth()
+                if (uiState.settings.studyReminder && !reminderHealth.ok) {
+                    ReminderHealthStrip(reminderHealth, onClick = onOpenSettings)
+                    Spacer(Modifier.height(12.dp))
+                }
                 TodayLinePanel(
                     line = line,
                     today = today,

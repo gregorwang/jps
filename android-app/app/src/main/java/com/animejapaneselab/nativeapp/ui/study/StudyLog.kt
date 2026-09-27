@@ -3,10 +3,12 @@ package com.animejapaneselab.nativeapp.ui.study
 import android.content.Context
 import com.animejapaneselab.nativeapp.data.LocalLabStore
 import com.animejapaneselab.nativeapp.data.StudyDay
+import com.animejapaneselab.nativeapp.platform.StudyReminder
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.time.LocalDate
+import java.time.LocalTime
 
 /**
  * Process-wide study log behind 今日「最近 12 周」. Every judged answer (lesson, 读空气, 基础题库,
@@ -53,5 +55,10 @@ object StudyLog {
         val next = _days.value.filterKeys { it >= oldest } + (key to change(current).copy(seconds = current.seconds + seconds))
         _days.value = next
         store.writeStudyLog(next, now)
+        if (current.activity == 0) {
+            // First study of the day: feeds the reminder's habit time and clears today's nudge.
+            store.appendStudyStart(LocalTime.now().let { it.hour * 60 + it.minute })
+            StudyReminder.onStudyStarted(context)
+        }
     }
 }

@@ -47,6 +47,10 @@ import com.animejapaneselab.nativeapp.ui.drill.DrillMode
 import com.animejapaneselab.nativeapp.ui.jishu.JishuViewModel
 import com.animejapaneselab.nativeapp.ui.screens.jishu.JishuScreen
 import com.animejapaneselab.nativeapp.platform.LearningSessionNotifier
+import com.animejapaneselab.nativeapp.platform.LaunchRequests
+import com.animejapaneselab.nativeapp.platform.ReminderTarget
+import com.animejapaneselab.nativeapp.data.LocalLabStore
+import androidx.core.app.NotificationManagerCompat
 import com.animejapaneselab.nativeapp.ui.design.BottomTabBar
 import com.animejapaneselab.nativeapp.ui.design.TabItem
 import com.animejapaneselab.nativeapp.ui.feedback.FeedbackSettings
@@ -197,6 +201,30 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
             gateExit.snapTo(0f)
             gateVisible = true
         }
+    }
+
+    // 放課後チャイム is on by default, so ask for the permission once instead of waiting for a toggle.
+    LaunchedEffect(loggedIn) {
+        if (!loggedIn || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return@LaunchedEffect
+        val store = LocalLabStore(context)
+        if (uiState.settings.studyReminder && !store.readNotificationPermissionAsked() &&
+            !NotificationManagerCompat.from(context).areNotificationsEnabled()
+        ) {
+            store.writeNotificationPermissionAsked()
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    // A tapped reminder opens its tab, unless a lesson is running.
+    val launchTarget by LaunchRequests.target.collectAsStateWithLifecycle()
+    LaunchedEffect(launchTarget, loggedIn) {
+        val target = launchTarget ?: return@LaunchedEffect
+        if (!loggedIn) return@LaunchedEffect
+        if (activeSession == null) {
+            if (secondaryScreen != null) viewModel.closeSecondaryScreen()
+            viewModel.selectTab(if (target == ReminderTarget.Review) LabTab.Review else LabTab.Jishu)
+        }
+        LaunchRequests.consume()
     }
 
     ProvideWorkTheme(uiState.selection.workSlug) {

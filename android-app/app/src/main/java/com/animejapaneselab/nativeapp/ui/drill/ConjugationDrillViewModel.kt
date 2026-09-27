@@ -146,7 +146,10 @@ class ConjugationDrillViewModel(application: Application) : AndroidViewModel(app
                     onFailure = { s.copy(phase = DrillPhase.Error) },
                 )
             }
-            if (result.isSuccess) migrateLearned()
+            if (result.isSuccess) {
+                migrateLearned()
+                writePointDue(_state.value)
+            }
             if (result.isSuccess && startWhenReady) startSession()
             startWhenReady = false
             if (result.isSuccess && _state.value.topics.isEmpty()) {
@@ -237,6 +240,22 @@ class ConjugationDrillViewModel(application: Application) : AndroidViewModel(app
         if (item != null) store.writeDrillProgress(updated)
         StudyLog.record(getApplication(), answers = 1, correct = if (correct) 1 else 0)
         _state.update { it.copy(progress = updated, answers = it.answers + (it.index to optionId)) }
+        if (item != null) writePointDue(_state.value)
+    }
+
+    /** Per-課 earliest due day, so 放課後チャイム can name the lesson that is fading. */
+    private fun writePointDue(s: ConjugationDrillState) {
+        if (s.items.isEmpty()) return
+        val due = s.items
+            .filter { it.pointId in s.learned }
+            .mapNotNull { item ->
+                val progress = s.progress[item.id] ?: return@mapNotNull null
+                val title = s.lessons[item.pointId]?.title?.takeIf { it.isNotBlank() } ?: item.pointTitle
+                title.takeIf { it.isNotBlank() }?.let { it to progress.dueDay }
+            }
+            .groupBy({ it.first }, { it.second })
+            .mapValues { (_, days) -> days.min() }
+        store.writeDrillPointDue(due)
     }
 
     fun next() {

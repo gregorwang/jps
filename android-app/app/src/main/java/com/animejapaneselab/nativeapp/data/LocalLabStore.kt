@@ -33,6 +33,7 @@ class LocalLabStore(context: Context) {
             showRomaji = preferences.getBoolean(ShowRomajiKey, false),
             studyReminder = preferences.getBoolean(StudyReminderKey, true),
             studyReminderHour = preferences.getInt(StudyReminderHourKey, 21),
+            studyReminderAuto = preferences.getBoolean(StudyReminderAutoKey, true),
         )
     }
 
@@ -52,6 +53,7 @@ class LocalLabStore(context: Context) {
             putBoolean(ShowRomajiKey, settings.showRomaji)
             putBoolean(StudyReminderKey, settings.studyReminder)
             putInt(StudyReminderHourKey, settings.studyReminderHour)
+            putBoolean(StudyReminderAutoKey, settings.studyReminderAuto)
         }
     }
 
@@ -174,6 +176,53 @@ class LocalLabStore(context: Context) {
     }
 
     fun readStudyLastAnswerAt(): Long = preferences.getLong(StudyLastAnswerAtKey, 0L)
+
+    /** Minute of day (0..1439) of each day's first study activity, oldest first. */
+    fun readStudyStarts(): List<Int> = runCatching {
+        val array = JSONArray(preferences.getString(StudyStartsKey, "[]"))
+        (0 until array.length()).map { array.optInt(it, -1) }.filter { it in 0..1439 }
+    }.getOrDefault(emptyList())
+
+    fun appendStudyStart(minuteOfDay: Int) {
+        val array = JSONArray()
+        (readStudyStarts() + minuteOfDay).takeLast(30).forEach { array.put(it) }
+        preferences.edit { putString(StudyStartsKey, array.toString()) }
+    }
+
+    /** 活用 課 title -> earliest Leitner due day (epoch day) among its practised lines. */
+    fun readDrillPointDue(): Map<String, Long> = runCatching {
+        val json = JSONObject(preferences.getString(DrillPointDueKey, "{}").orEmpty())
+        json.keys().asSequence().associateWith { json.optLong(it) }
+    }.getOrDefault(emptyMap())
+
+    fun writeDrillPointDue(due: Map<String, Long>) {
+        val json = JSONObject()
+        due.forEach { (title, day) -> json.put(title, day) }
+        preferences.edit { putString(DrillPointDueKey, json.toString()) }
+    }
+
+    /** Last reminder template posted, so the next one can pick a different wording. */
+    fun readReminderLastTemplate(): String? = preferences.getString(ReminderLastTemplateKey, null)
+
+    /** ISO date on which the habit-slot reminder last posted. */
+    fun readReminderHabitPostedOn(): String? = preferences.getString(ReminderHabitPostedOnKey, null)
+
+    fun writeReminderPosted(template: String, habitPostedOn: String?) {
+        preferences.edit {
+            putString(ReminderLastTemplateKey, template)
+            if (habitPostedOn != null) putString(ReminderHabitPostedOnKey, habitPostedOn)
+        }
+    }
+
+    /** Set once the app has asked for POST_NOTIFICATIONS on its own. */
+    fun readNotificationPermissionAsked(): Boolean = preferences.getBoolean(NotificationAskedKey, false)
+
+    fun writeNotificationPermissionAsked() = preferences.edit { putBoolean(NotificationAskedKey, true) }
+
+    /** Xiaomi settings the app cannot read back; set once the user has been sent to the page. */
+    fun readReminderConfirmed(key: String): Boolean = preferences.getBoolean("reminder-confirmed-$key", false)
+
+    fun writeReminderConfirmed(key: String) = preferences.edit { putBoolean("reminder-confirmed-$key", true) }
 
     fun readSessionCookie(): String = preferences.getString(SessionCookieKey, "").orEmpty()
 
@@ -335,6 +384,12 @@ class LocalLabStore(context: Context) {
         const val ShowRomajiKey = "show-romaji"
         const val StudyReminderKey = "study-reminder"
         const val StudyReminderHourKey = "study-reminder-hour"
+        const val StudyReminderAutoKey = "study-reminder-auto"
+        const val StudyStartsKey = "study-starts"
+        const val DrillPointDueKey = "drill-point-due"
+        const val ReminderLastTemplateKey = "reminder-last-template"
+        const val ReminderHabitPostedOnKey = "reminder-habit-posted-on"
+        const val NotificationAskedKey = "notification-permission-asked"
         const val StudyLogKey = "study-log"
         const val NotebookKey = "notebook"
         const val TodayWidgetLineKey = "today-widget-line"
