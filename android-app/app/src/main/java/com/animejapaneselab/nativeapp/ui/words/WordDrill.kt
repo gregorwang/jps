@@ -22,6 +22,10 @@ data class WordCard(
     val lemmaReading: String?,
     val meaning: String,
     val example: WordExample?,
+    /** One concrete usage line from the checked word cards ("" when none). */
+    val note: String = "",
+    /** Part of speech in plain Chinese when the checked card gives one. */
+    val pos: String = "",
 ) {
     /** Morae to spell the word with, in the script it is written in (katakana words stay katakana). */
     val morae: List<String>
@@ -67,18 +71,23 @@ object WordRules {
     /** True when [reading] can spell [surface] (kanji runs take any kana, kana must match). */
     fun fits(surface: String, reading: String): Boolean {
         if (surface.isBlank() || reading.isBlank()) return false
+        // A kanji reads as 1–4 kana, so a run of k kanji takes k..4k kana (大丈夫 ≠ だよ).
         val pattern = buildString {
             append('^')
-            var inKanji = false
+            var run = 0
+            fun flush() {
+                if (run > 0) append("(.{$run,${run * 4}}?)")
+                run = 0
+            }
             surface.forEach { c ->
                 if (Kana.isKanji(c)) {
-                    if (!inKanji) append("(.+?)")
-                    inKanji = true
+                    run++
                 } else {
-                    inKanji = false
+                    flush()
                     append(Regex.escape(Kana.toHiragana(c.toString())))
                 }
             }
+            flush()
             append('$')
         }
         return runCatching { Regex(pattern).matches(Kana.toHiragana(reading)) }.getOrDefault(false)
@@ -105,8 +114,21 @@ object WordRules {
         return Triple(surfaceReading, stem + r.takeLast(k), r)
     }
 
-    fun card(item: VocabItem, furigana: FuriganaResult?, examples: List<WordExample>): WordCard {
+    fun card(item: VocabItem, furigana: FuriganaResult?, examples: List<WordExample>, fix: VocabCardFix? = null): WordCard {
         val surface = item.surface.trim()
+        if (fix != null && fix.keep && fix.reading.isNotBlank()) {
+            return WordCard(
+                item = item,
+                surface = surface,
+                reading = Kana.toHiragana(fix.reading),
+                lemma = fix.lemma.ifBlank { null }?.takeIf { it != surface },
+                lemmaReading = fix.lemmaReading.ifBlank { null },
+                meaning = fix.meaning.ifBlank { cleanMeaning(item.meaningZh) },
+                example = examples.firstOrNull { it.exact } ?: examples.firstOrNull(),
+                note = fix.note,
+                pos = fix.pos,
+            )
+        }
         val stored = item.reading.trim()
         var reading: String? = null
         var lemma: String? = null
@@ -140,7 +162,8 @@ object WordRules {
     }
 
     /** Headwords whose stored reading does not spell them: ask the Worker's furigana for these. */
-    fun needsFurigana(item: VocabItem): Boolean {
+    fun needsFurigana(item: VocabItem, fix: VocabCardFix? = null): Boolean {
+        if (fix?.keep == true && fix.reading.isNotBlank()) return false
         val s = item.surface.trim()
         return Kana.hasKanji(s) && !fits(s, item.reading) && inflected(s, item.reading) == null
     }

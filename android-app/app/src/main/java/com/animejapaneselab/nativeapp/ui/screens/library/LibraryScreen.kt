@@ -1,5 +1,10 @@
 package com.animejapaneselab.nativeapp.ui.screens.library
 
+import com.animejapaneselab.nativeapp.ui.words.VocabCards
+import com.animejapaneselab.nativeapp.ui.design.NoteText
+import androidx.compose.ui.platform.LocalContext
+import com.animejapaneselab.nativeapp.ui.reading.Kana
+import com.animejapaneselab.nativeapp.ui.words.WordRules
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Icon
@@ -363,7 +368,9 @@ private fun VocabPage(
     var picked by rememberSaveable(key) { mutableStateOf(listOf<String>()) }
     var level by rememberSaveable(key) { mutableStateOf(Jlpt.All) }
     var expanded by rememberExpandedKey(key)
-    val vocab = uiState.vocab
+    val appContext = LocalContext.current.applicationContext
+    // Fragments the checked word cards marked keep=false (って, 〜ちゃ) are not listed.
+    val vocab = remember(uiState.vocab) { uiState.vocab.filter { VocabCards.get(appContext, it.id)?.keep != false } }
     val buckets = remember(vocab) { levelBuckets(vocab) }
     val filtered = remember(vocab, level, query) { filterByLevel(vocab, level).filter { it.matches(query) } }
     val groups = remember(filtered) { groupByGojuon(filtered) { it.indexReading() } }
@@ -499,6 +506,10 @@ private fun VocabEntry(
     val colors = AjlTheme.colors
     val type = AjlTheme.type
     val accent = AjlTheme.work.accent
+    // The stored reading is sometimes the dictionary form's (戻れ · もどる): show the one that spells the headword.
+    val appContext = LocalContext.current.applicationContext
+    val fix = remember(item.id) { VocabCards.get(appContext, item.id) }
+    val shownReading = remember(item.id) { WordRules.card(item, null, emptyList(), fix).reading ?: item.reading }
     Column(Modifier.fillMaxWidth()) {
         Column(
             Modifier.fillMaxWidth().clickableNoRipple(onToggle).padding(top = 16.dp, bottom = 14.dp),
@@ -512,8 +523,8 @@ private fun VocabEntry(
                     color = colors.ink,
                     modifier = Modifier.alignByBaseline(),
                 )
-                if (item.reading.isNotBlank() && item.reading != item.surface) {
-                    Text(item.reading, style = type.jpBody.copy(fontSize = 14.sp), color = colors.ink3, modifier = Modifier.alignByBaseline())
+                if (shownReading.isNotBlank() && shownReading != item.surface) {
+                    Text(shownReading, style = type.jpBody.copy(fontSize = 14.sp), color = colors.ink3, modifier = Modifier.alignByBaseline())
                 }
                 Spacer(Modifier.weight(1f))
                 if (picked != null) PickMark(picked, Modifier.align(Alignment.CenterVertically))
@@ -545,14 +556,15 @@ private fun VocabEntry(
                             .padding(horizontal = 5.dp, vertical = 1.dp),
                     )
                 }
-                Box(Modifier.weight(1f)) { Meaning(item.meaningZh) }
+                Box(Modifier.weight(1f)) { Meaning(fix?.meaning?.takeIf { fix.keep && it.isNotBlank() } ?: item.meaningZh) }
             }
             if (example != null) ExampleLine(parseSpokenLine(example.ja).text, exampleSource(example))
         }
         if (expanded) {
             Column(Modifier.fillMaxWidth().padding(bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (item.romanization.isNotBlank()) Text(item.romanization, style = type.meta, color = colors.ink3)
-                if (item.realWorldNote.isNotBlank()) Text(item.realWorldNote, style = type.body, color = colors.ink2)
+                if (shownReading.isNotBlank()) Text(Kana.romaji(shownReading), style = type.meta, color = colors.ink3)
+                val note = fix?.note?.takeIf { fix.keep && it.isNotBlank() } ?: item.realWorldNote
+                if (!WordRules.isFiller(note)) NoteText(note)
                 val conjugation = remember(item.surface, item.reading, item.partOfSpeech) {
                     Conjugator.tableFor(item.surface, item.reading, item.partOfSpeech)
                 }

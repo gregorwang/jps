@@ -92,7 +92,10 @@ import com.animejapaneselab.nativeapp.ui.words.ChoiceKind
 import com.animejapaneselab.nativeapp.ui.words.WordCard
 import com.animejapaneselab.nativeapp.ui.words.WordRules
 import com.animejapaneselab.nativeapp.ui.words.WordStep
+import com.animejapaneselab.nativeapp.ui.words.VocabCards
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
@@ -121,7 +124,8 @@ internal fun WordStudyDialog(
 
     var cards by remember { mutableStateOf<List<WordCard>?>(null) }
     LaunchedEffect(words) {
-        val ask = words.filter(WordRules::needsFurigana).map { it.surface.trim() }
+        val fixes = withContext(Dispatchers.IO) { VocabCards.load(context) }
+        val ask = words.filter { WordRules.needsFurigana(it, fixes[it.id]) }.map { it.surface.trim() }
         if (ask.isNotEmpty()) {
             annotator.request("sentence", ask)
             withTimeoutOrNull(2500) { snapshotFlow { ask.all { annotator.resultFor(it) != null } }.first { it } }
@@ -129,7 +133,7 @@ internal fun WordStudyDialog(
         withTimeoutOrNull(1500) { snapshotFlow { drill.state.value.items.isNotEmpty() }.first { it } }
         val drillItems = drill.state.value.items
         cards = words.map { item ->
-            WordRules.card(item, annotator.resultFor(item.surface.trim()), WordRules.examples(item, lines, drillItems))
+            WordRules.card(item, annotator.resultFor(item.surface.trim()), WordRules.examples(item, lines, drillItems), fixes[item.id])
         }
     }
 
@@ -292,7 +296,7 @@ private fun StudyPage(card: WordCard, number: Int, total: Int, settings: LabSett
                         )
                         Text(card.meaning, style = AjlTheme.type.title.copy(fontSize = 20.sp, lineHeight = 28.sp), color = colors.ink)
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            val pos = partOfSpeechLabel(card.item.partOfSpeech)
+                            val pos = card.pos.ifBlank { partOfSpeechLabel(card.item.partOfSpeech) }
                             if (pos.isNotBlank()) Tag(pos, colors.ink2)
                             Jlpt.normalize(card.item.level).takeIf { it in Jlpt.Levels }?.let { Tag(it, work.accent) }
                             Spacer(Modifier.weight(1f))
@@ -352,6 +356,7 @@ private fun StudyPage(card: WordCard, number: Int, total: Int, settings: LabSett
             }
 
             val notes = listOfNotNull(
+                card.note,
                 card.item.enrichment?.coreZh,
                 card.item.enrichment?.usageScenes?.firstOrNull(),
                 card.item.realWorldNote,

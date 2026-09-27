@@ -118,7 +118,7 @@ internal fun StudyCardQuestion(
                 )
             }
         }
-        val notes = node.notes.filter { it.isNotBlank() && it != node.meaningZh }.distinct()
+        val notes = node.notes.filter { it.isNotBlank() && it != node.meaningZh && !com.animejapaneselab.nativeapp.ui.words.WordRules.isFiller(it) }.distinct()
         if (notes.isNotEmpty()) {
             Column {
                 notes.forEach { note ->
