@@ -415,21 +415,15 @@ private fun FoundationSetEnd(
             TsuzukuLine(text, ReadAirRules.looksJapanese(text), q.stage.name)
         },
         notedTitle = "这次答错的 ${missed.size.coerceAtMost(6)} 题",
-        primaryLabel = "重新练习",
-        onPrimary = {
-            if (!moving) {
-                moving = true
-                actions.onRestart()
-            }
-        },
+        primaryLabel = "完成",
+        onPrimary = onExit,
         onClose = onExit,
         modifier = modifier,
-        quietLabel = "上一题",
-        quietEnabled = state.currentIndex > 0,
+        quietLabel = if (missed.isNotEmpty()) "再练一遍" else null,
         onQuiet = {
             if (!moving) {
                 moving = true
-                actions.onPrevious()
+                actions.onRestart()
             }
         },
     )

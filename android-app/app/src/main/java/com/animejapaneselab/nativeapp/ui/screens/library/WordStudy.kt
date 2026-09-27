@@ -66,6 +66,7 @@ import com.animejapaneselab.nativeapp.ui.design.MangaPanel
 import com.animejapaneselab.nativeapp.ui.design.MarkedLine
 import com.animejapaneselab.nativeapp.ui.design.NoteText
 import com.animejapaneselab.nativeapp.ui.design.OptionRow
+import com.animejapaneselab.nativeapp.ui.design.OutlineButton
 import com.animejapaneselab.nativeapp.ui.design.OptionState
 import com.animejapaneselab.nativeapp.ui.design.ProgressLine
 import com.animejapaneselab.nativeapp.ui.design.TopBar
@@ -89,6 +90,7 @@ import com.animejapaneselab.nativeapp.ui.study.StudyLog
 import com.animejapaneselab.nativeapp.ui.theme.AjlStroke
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 import com.animejapaneselab.nativeapp.ui.words.ChoiceKind
+import com.animejapaneselab.nativeapp.ui.words.KnownWords
 import com.animejapaneselab.nativeapp.ui.words.WordCard
 import com.animejapaneselab.nativeapp.ui.words.WordRules
 import com.animejapaneselab.nativeapp.ui.words.WordStep
@@ -160,6 +162,19 @@ internal fun WordStudyDialog(
         StudyLog.record(context, answers = 1, correct = if (ok) 1 else 0)
     }
 
+    // 斩 on the study card: the word is known, so its questions are dropped and it leaves 辞書.
+    fun cutWord(card: WordCard) {
+        KnownWords.cut(context, listOf(card.item))
+        steps = steps.take(index) + steps.drop(index).filterNot { it.card.item.id == card.item.id }
+        if (index < steps.size) return
+        if (!retried && missed.isNotEmpty()) {
+            retried = true
+            steps = steps + WordRules.retry(steps, missed.toSet())
+        } else if (answered == 0) {
+            onDismiss()
+        }
+    }
+
     fun next() {
         if (index + 1 < steps.size) {
             index++
@@ -193,8 +208,9 @@ internal fun WordStudyDialog(
                     meta = ReadAirRules.accuracy(answered, correctCount),
                     noted = ready.orEmpty().filter { it.item.id in missed }.map { TsuzukuLine(it.surface, true, it.meaning) },
                     notedTitle = "放进栞的 ${missed.size} 个词",
-                    primaryLabel = "もう一回",
-                    onPrimary = { attempt++ },
+                    // The words are done: finishing goes back to 辞書 (missed ones already came back once and sit in 栞).
+                    primaryLabel = "完成",
+                    onPrimary = onDismiss,
                     onClose = onDismiss,
                 )
                 return@Column
@@ -219,9 +235,9 @@ internal fun WordStudyDialog(
             }
             val wordNo = ready.indexOfFirst { it.item.id == step.card.item.id } + 1
             // key: every step starts with fresh local state.
-            androidx.compose.runtime.key(index, attempt) {
+            androidx.compose.runtime.key(index, attempt, step.card.item.id) {
                 when (step) {
-                    is WordStep.Study -> StudyPage(step.card, wordNo, ready.size, settings, audio, onNext = ::next)
+                    is WordStep.Study -> StudyPage(step.card, wordNo, ready.size, settings, audio, onNext = ::next, onKnown = { cutWord(step.card) })
                     is WordStep.Spell -> SpellPage(step, workSlug, onJudged = { judge(step, it) }, onNext = ::next)
                     is WordStep.Choice -> ChoicePage(step, workSlug, settings, audio, onJudged = { judge(step, it) }, onNext = ::next)
                 }
@@ -263,7 +279,15 @@ private fun headReading(card: WordCard): LineReading {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun StudyPage(card: WordCard, number: Int, total: Int, settings: LabSettings, audio: LessonAudioController, onNext: () -> Unit) {
+private fun StudyPage(
+    card: WordCard,
+    number: Int,
+    total: Int,
+    settings: LabSettings,
+    audio: LessonAudioController,
+    onNext: () -> Unit,
+    onKnown: () -> Unit,
+) {
     val colors = AjlTheme.colors
     val work = AjlTheme.work
     val say = { audio.play(PromptAudio.Tts(card.surface, autoPlay = false), settings.ttsWorkerUrl) }
@@ -368,7 +392,14 @@ private fun StudyPage(card: WordCard, number: Int, total: Int, settings: LabSett
                 }
             }
         }
-        InkButton("练一练", onClick = onNext, trailingArrow = true, height = 52.dp, modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 20.dp, top = 8.dp).fillMaxWidth())
+        Row(
+            Modifier.padding(start = 20.dp, end = 20.dp, bottom = 20.dp, top = 8.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            OutlineButton("斩 · 已会", onClick = onKnown, ink = true, modifier = Modifier.height(52.dp))
+            InkButton("练一练", onClick = onNext, trailingArrow = true, height = 52.dp, modifier = Modifier.weight(1f))
+        }
     }
 }
 

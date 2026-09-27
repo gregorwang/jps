@@ -1,5 +1,6 @@
 package com.animejapaneselab.nativeapp.ui.screens.library
 
+import com.animejapaneselab.nativeapp.ui.words.KnownWords
 import com.animejapaneselab.nativeapp.ui.words.VocabCards
 import com.animejapaneselab.nativeapp.ui.design.NoteText
 import androidx.compose.ui.platform.LocalContext
@@ -38,6 +39,8 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Subtitles
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -78,6 +81,7 @@ import com.animejapaneselab.nativeapp.ui.design.EmptyNote
 import com.animejapaneselab.nativeapp.ui.design.Hairline
 import com.animejapaneselab.nativeapp.ui.design.IconButton44
 import com.animejapaneselab.nativeapp.ui.design.OutlineButton
+import com.animejapaneselab.nativeapp.ui.design.QuietButton
 import com.animejapaneselab.nativeapp.ui.design.TopBar
 import com.animejapaneselab.nativeapp.ui.design.TopBarNav
 import com.animejapaneselab.nativeapp.ui.design.WorkIdentity
@@ -368,14 +372,26 @@ private fun VocabPage(
     var picked by rememberSaveable(key) { mutableStateOf(listOf<String>()) }
     var level by rememberSaveable(key) { mutableStateOf(Jlpt.All) }
     var expanded by rememberExpandedKey(key)
+    // 斩: the 已斩 archive replaces the list while open; words can be restored from there.
+    var archive by rememberSaveable(key) { mutableStateOf(false) }
     val appContext = LocalContext.current.applicationContext
+    remember { KnownWords.init(appContext) }
+    val known by KnownWords.words.collectAsState()
     // Fragments the checked word cards marked keep=false (って, 〜ちゃ) are not listed.
-    val vocab = remember(uiState.vocab) { uiState.vocab.filter { VocabCards.get(appContext, it.id)?.keep != false } }
+    val studyable = remember(uiState.vocab) { uiState.vocab.filter { VocabCards.get(appContext, it.id)?.keep != false } }
+    val cut = remember(studyable, known) { studyable.filter { KnownWords.key(it) in known } }
+    val vocab = remember(studyable, known, archive) {
+        if (archive) cut else studyable.filterNot { KnownWords.key(it) in known }
+    }
+    // Words every anime viewer knows (marked easy on the checked cards), offered to 斩 in one go.
+    val easy = remember(vocab, archive) { if (archive) emptyList() else vocab.filter { VocabCards.get(appContext, it.id)?.easy == true } }
+    LaunchedEffect(cut.isEmpty()) { if (cut.isEmpty()) archive = false }
     val buckets = remember(vocab) { levelBuckets(vocab) }
     val filtered = remember(vocab, level, query) { filterByLevel(vocab, level).filter { it.matches(query) } }
     val groups = remember(filtered) { groupByGojuon(filtered) { it.indexReading() } }
     val empty = when {
-        vocab.isEmpty() -> DictRow.Empty("この話の単語はまだない", null)
+        studyable.isEmpty() -> DictRow.Empty("この話の単語はまだない", null)
+        vocab.isEmpty() -> DictRow.Empty("全部斩了", "这一话的词都会了，斩掉的在「已斩」里")
         filtered.isEmpty() -> DictRow.Empty("見つからない", query.takeIf { it.isNotBlank() })
         else -> null
     }
@@ -392,14 +408,38 @@ private fun VocabPage(
             Column(Modifier.padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Box(Modifier.weight(1f)) { FindField(query, { query = it }, placeholder = "引く · 词、读音、中文") }
-                    FilterPill(
-                        text = if (picking) "取消" else "選ぶ",
-                        selected = picking,
-                        onClick = {
-                            picking = !picking
-                            picked = emptyList()
-                        },
-                    )
+                    if (!archive) {
+                        FilterPill(
+                            text = if (picking) "取消" else "選ぶ",
+                            selected = picking,
+                            onClick = {
+                                picking = !picking
+                                picked = emptyList()
+                            },
+                        )
+                    }
+                    if (cut.isNotEmpty()) {
+                        FilterPill(
+                            text = "已斩 ${cut.size}",
+                            selected = archive,
+                            onClick = {
+                                archive = !archive
+                                picking = false
+                                picked = emptyList()
+                            },
+                        )
+                    }
+                }
+                if (easy.isNotEmpty() && !picking) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            "动漫里天天听的词 ${easy.size} 个",
+                            style = AjlTheme.type.caption,
+                            color = AjlTheme.colors.ink3,
+                            modifier = Modifier.weight(1f),
+                        )
+                        QuietButton("一键斩掉", onClick = { KnownWords.cut(appContext, easy) }, color = AjlTheme.work.accent)
+                    }
                 }
                 if (buckets.size > 2) LevelPills(buckets, level) { level = it }
             }
@@ -424,21 +464,42 @@ private fun VocabPage(
                 onAsk = { onAsk(item) },
                 onLearn = { onLearn(item) },
                 uiState = uiState,
+                known = archive,
+                onKnown = {
+                    expanded = null
+                    if (archive) KnownWords.restore(appContext, item) else KnownWords.cut(appContext, listOf(item))
+                },
             )
         },
     )
     if (picking && picked.isNotEmpty()) {
-        InkButton(
-            "${picked.size} 語を練習",
-            onClick = {
-                onLearnMany(picked)
-                picking = false
-                picked = emptyList()
-            },
-            trailingArrow = true,
-            height = 52.dp,
-            modifier = Modifier.align(Alignment.BottomCenter).padding(start = 20.dp, end = 20.dp, bottom = 16.dp).fillMaxWidth(),
-        )
+        Row(
+            Modifier.align(Alignment.BottomCenter).padding(start = 20.dp, end = 20.dp, bottom = 16.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            OutlineButton(
+                "斩",
+                onClick = {
+                    KnownWords.cut(appContext, vocab.filter { it.id in picked })
+                    picking = false
+                    picked = emptyList()
+                },
+                ink = true,
+                modifier = Modifier.height(52.dp),
+            )
+            InkButton(
+                "${picked.size} 語を練習",
+                onClick = {
+                    onLearnMany(picked)
+                    picking = false
+                    picked = emptyList()
+                },
+                trailingArrow = true,
+                height = 52.dp,
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
     }
 }
@@ -502,6 +563,9 @@ private fun VocabEntry(
     onAsk: () -> Unit,
     onLearn: () -> Unit,
     uiState: LabUiState,
+    /** Shown in the 已斩 archive: the action restores it instead of cutting it. */
+    known: Boolean = false,
+    onKnown: () -> Unit = {},
 ) {
     val colors = AjlTheme.colors
     val type = AjlTheme.type
@@ -574,11 +638,16 @@ private fun VocabEntry(
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlineButton("発音", onSpeak, compact = true, leadingIcon = Icons.AutoMirrored.Rounded.VolumeUp)
                     OutlineButton("講解", onAsk, compact = true)
-                    OutlineButton("この語を練習", onLearn, compact = true)
-                    NotebookToggleButton(
-                        entry = { item.toNotebookEntry(uiState.selection.workSlug, uiState.selection.episode, example) },
-                        saved = saved,
-                    )
+                    if (known) {
+                        OutlineButton("恢复", onKnown, compact = true)
+                    } else {
+                        OutlineButton("この語を練習", onLearn, compact = true)
+                        NotebookToggleButton(
+                            entry = { item.toNotebookEntry(uiState.selection.workSlug, uiState.selection.episode, example) },
+                            saved = saved,
+                        )
+                        OutlineButton("斩 · 已会", onKnown, compact = true)
+                    }
                 }
                 LibraryAiNote(item.aiKey(), uiState)
             }

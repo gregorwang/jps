@@ -349,7 +349,7 @@ private fun FeedbackBlock(label: String, content: @Composable () -> Unit) {
     }
 }
 
-/** つづく for a drill set: tally, the lines missed this time, 再来一组. */
+/** つづく for a drill set: tally, the lines missed this time; 完成 goes back, 再来一组 only while lines are still due. */
 @Composable
 private fun ConjugationSetEnd(state: ConjugationDrillState, actions: ConjugationSessionActions, modifier: Modifier = Modifier) {
     val answered = state.answers.size
@@ -362,15 +362,22 @@ private fun ConjugationSetEnd(state: ConjugationDrillState, actions: Conjugation
         meta = ReadAirRules.accuracy(answered, correct),
         noted = missed.mapNotNull { it.item }.take(6).map { TsuzukuLine(it.jaText, true, it.target) },
         notedTitle = "这次答错的 ${missed.size.coerceAtMost(6)} 句",
-        primaryLabel = "再来一组",
+        primaryLabel = "完成",
         onPrimary = {
+            if (!moving) {
+                moving = true
+                actions.onExit()
+            }
+        },
+        onClose = actions.onExit,
+        modifier = modifier,
+        quietLabel = if (state.dueInScope > 0) "再来一组 · 还有 ${state.dueInScope} 句到期" else null,
+        onQuiet = {
             if (!moving) {
                 moving = true
                 actions.onRestart()
             }
         },
-        onClose = actions.onExit,
-        modifier = modifier,
     )
 }
 
@@ -421,5 +428,12 @@ private fun ConjugationLessonEnd(state: ConjugationDrillState, actions: Conjugat
         },
         onClose = actions.onExit,
         modifier = modifier,
+        quietLabel = if (next != null) "今天到这" else null,
+        onQuiet = {
+            if (!moving) {
+                moving = true
+                actions.onExit()
+            }
+        },
     )
 }

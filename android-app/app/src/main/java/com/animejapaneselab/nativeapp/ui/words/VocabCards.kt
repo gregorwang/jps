@@ -6,7 +6,8 @@ import org.json.JSONObject
 /**
  * Hand-checked word cards (`assets/vocab_cards.json`, written offline and validated by
  * `archive-content-sources/vocab-cards-v1/check.py`). They replace the vocab rows' unreliable
- * reading / meaning / notes; [keep] = false marks fragments not worth studying on their own.
+ * reading / meaning / notes; [keep] = false marks fragments not worth studying on their own;
+ * [easy] (optional 8th column) marks words every anime viewer already knows.
  */
 data class VocabCardFix(
     val keep: Boolean,
@@ -16,6 +17,8 @@ data class VocabCardFix(
     val pos: String,
     val meaning: String,
     val note: String,
+    /** Anime viewers know it already (なるほど, ありがとう): 辞書 offers to 斩 these in one go. */
+    val easy: Boolean = false,
 )
 
 object VocabCards {
@@ -43,6 +46,7 @@ object VocabCards {
                         pos = row.optString(4),
                         meaning = row.optString(5),
                         note = row.optString(6),
+                        easy = row.optInt(7, 0) == 1,
                     )
                 }
             }.getOrDefault(emptyMap())

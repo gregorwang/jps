@@ -273,7 +273,7 @@ private fun LessonTsuzuku(
         primaryLabel = if (hasNext) "看下一回" else "回到本話",
         onPrimary = once(if (hasNext) onNextBatch else onExit),
         onClose = onExit,
-        quietLabel = if (hasNext) "今天到这" else "再练一次",
+        quietLabel = if (hasNext) "今天到这" else "再练一次".takeIf { noted.isNotEmpty() },
         onQuiet = once(if (hasNext) onExit else onRestart),
         modifier = modifier,
     )

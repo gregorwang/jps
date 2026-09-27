@@ -323,16 +323,16 @@ private fun ReadAirSetEnd(
             val text = line.ifBlank { ReadAirRules.promptForDisplay(item.prompt) }
             TsuzukuLine(text, ReadAirRules.looksJapanese(text), "错题本")
         },
-        primaryLabel = "再来一组",
-        onPrimary = {
+        primaryLabel = "完成",
+        onPrimary = onExit,
+        onClose = onExit,
+        modifier = modifier,
+        quietLabel = "再来一组",
+        onQuiet = {
             if (!restarting) {
                 restarting = true
                 onRestart()
             }
         },
-        onClose = onExit,
-        modifier = modifier,
-        quietLabel = "今天到这",
-        onQuiet = onExit,
     )
 }

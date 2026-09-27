@@ -194,6 +194,14 @@ class LocalLabStore(context: Context) {
         preferences.edit { putString(NotebookKey, NotebookRules.encode(entries)) }
     }
 
+    /** 斩: headwords marked as already known (hidden from 辞書 and 単語練習), newline-separated. */
+    fun readKnownWords(): Set<String> =
+        preferences.getString(KnownWordsKey, null)?.split('\n')?.filter { it.isNotBlank() }?.toSet().orEmpty()
+
+    fun writeKnownWords(words: Set<String>) {
+        preferences.edit { putString(KnownWordsKey, words.joinToString("\n")) }
+    }
+
     /** Home-screen 今日の一句 payload (JSON, see TodayWidgetLine). */
     fun readTodayWidgetLine(): String? = preferences.getString(TodayWidgetLineKey, null)
 
@@ -441,6 +449,7 @@ class LocalLabStore(context: Context) {
         const val StudentPhotoVersionKey = "student-photo-version"
         const val StudyTotalSecondsKey = "study-total-seconds"
         const val NotebookKey = "notebook"
+        const val KnownWordsKey = "known-words"
         const val TodayWidgetLineKey = "today-widget-line"
         const val StudyLastAnswerAtKey = "study-last-answer-at"
         const val DrillProgressKey = "conjugation-drill-progress"
