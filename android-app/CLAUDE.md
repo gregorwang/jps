@@ -13,6 +13,7 @@ Anime Japanese Lab 的原生 Android App（Kotlin + Jetpack Compose）。**私�
 | 动效 | `design/MOTION_SPEC.md` |
 | 已知缺数据、还能补的字段 | `design/v3-requests/*.md` |
 | 发布更新 | 本文第 6 节；细节看 `APP_UPDATE_GUIDE.md` |
+| 以前每版改了什么 | `CHANGELOG.md`（面向用户的详细更新日志） |
 | 活用道場（第三巻 活用）继续做 P3 | `CONJUGATION_DRILL_HANDOFF.md` |
 | 自習（学习台）的产品逻辑 | 本文第 3 节「产品主线」；画布「自習 · 学习台（预览）」页 |
 
@@ -97,6 +98,7 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 发布更新，也就是用户说的"推送更新"：
 1. 在 `app/build.gradle.kts` 里给 `versionCode` 加 1，`versionName` 按需改。版本号不高于线上的话，脚本会拒绝发布。
+   **同时在 `CHANGELOG.md` 最上面加一节**（用户要求：每次更新都要详细记录改了什么、为什么、在哪能看到），`-ReleaseNotes` 用这一节的摘要。
 2. 跑发布脚本：
    ```powershell
    $env:Path = "C:\Program Files\nodejs;$env:Path"   # PowerShell 默认找不到 node，wrangler 会失败
@@ -116,6 +118,13 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 - 登录是必须的，不做手写功能，Web 前端不是规范；默认只改 `android-app/` 下的文件。
 
 ## 8. 经验记录（每次会话结束补几条）
+
+**2026-09-27 · 0.10.0（产品逻辑大扫除 + 斩）**
+- 用户最烦的是**不合常理的产品逻辑**，不只是 bug。规矩：结算页的主按钮是「完成」（回到进来的地方），「再来一组」最多当次要按钮，并且只在有意义时出现（还有到期、有错题）；只有「下一课 / 下一話 / 続き」这种往前走的动作可以当主按钮。新做 session 结算页照这个来。
+- 斩：`ui/words/KnownWords.kt`（按词头记，本地存 `known-words`），辞書词汇页有「已斩」档案可以恢复。`vocab_cards.json` 每行可以带第 8 列 `easy`（Antigravity 任务 `ANTIGRAVITY_EASY_PROMPT.md`，`check.py --install` 写入），在那之前用 `KnownWords.Obvious` 里内置的约 30 个词。課程（按话的 `SampleLearningRepository`）还没有跳过已斩的词，因为那在 data 层。
+- 今日時間割 = 一限 自習 / 二限 練習（活用到期）/ 三限 復習（卡片 + 栞）/ 之后是按话的課程、读空气、跟读。今日点自習用 `JishuViewModel.requestStart` 直接开课；「接着学哪课」的规则是 `JishuState.currentPoint`，自習首页和今日共用。
+- grep 找调用方时要连函数引用一起搜（`::topicFor`），审计里「没人用」的判断就是这么错的。
+- 没做、留给下次：活用练习的选项加罗马音（AUDIT C1/C4，需要 furigana）；課程「先学这个词」学习卡换成 `WordStudy` 的版本（C3）；練習 tab 的按话「課程」去留（A3，要用户定）。
 
 **2026-09-27 · 0.9.1（单词卡数据装入）**
 - Antigravity 的单词卡：`check.py` 全过（3770，keep=false 6.7%），抽查 40 词读音全对；问题只在措辞（「微缩微景」式叠词）和约 15% 复述释义的空备注，不影响教学，直接装了。以后精修就针对这两类返工。
