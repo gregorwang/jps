@@ -296,6 +296,12 @@ async function handleApi(request: Request, env: Env, url: URL) {
     return json(gatewayModels)
   }
 
+  // Every model call costs money: AI and RAG routes are for signed-in users only.
+  if (url.pathname.startsWith('/api/ai/') || url.pathname.startsWith('/api/rag/')) {
+    const auth = await getAuthContext(request, env)
+    if (!auth.user) return json({ error: { message: '请先登录' } }, 401)
+  }
+
   const foundationResource = matchFoundationApiRoute(request.method, url.pathname)
   if (foundationResource) {
     return handleFoundationList(env, url, foundationResource)
