@@ -537,6 +537,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 ensureLinguisticsTrackLoaded(_uiState.value.linguisticsTrack)
             }
             LabTab.Today,
+            LabTab.Jishu,
             LabTab.Review -> Unit
         }
     }

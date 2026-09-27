@@ -14,6 +14,7 @@ Anime Japanese Lab 的原生 Android App（Kotlin + Jetpack Compose）。**私�
 | 已知缺数据、还能补的字段 | `design/v3-requests/*.md` |
 | 发布更新 | 本文第 6 节；细节看 `APP_UPDATE_GUIDE.md` |
 | 活用道場（第三巻 活用）继续做 P3 | `CONJUGATION_DRILL_HANDOFF.md` |
+| 自習（学习台）的产品逻辑 | 本文第 3 节「产品主线」；画布「自習 · 学习台（预览）」页 |
 
 设计画布：https://claude.ai/artifact/9x3RkMeAtAYTN64i8T8HN4 （用 Artifact 工具的 `read` 读取，只看 `V3*`、`X*` 开头的画板）。**只在要实现画布上某一屏时才读，且只读那一屏**：`path=project/<画板>.dc.html`。
 
@@ -37,7 +38,11 @@ v3 重写派了 6 个页面包、7 个子代理，合计约 120 万 token。钱�
 - `data/`、`domain/`：数据层和 Worker 协议。**做界面需求时不要改。** 本地持久化统一放进 `data/LocalLabStore.kt`（SharedPreferences）。
 - `ui/LabViewModel.kt`：唯一的大 ViewModel（各种回调）。状态类型（`LabUiState`、`ReadAirTrainingState`、`LabTab`、`SecondaryScreen` 等）在 `ui/LabUiState.kt`，纯辅助函数在 `ui/LabViewModelSupport.kt`。**新功能要新建独立的 state holder，不要继续往这个文件里塞。** 只有需要复用它的现有状态时，才在这里加字段。
 - 独立 state holder 的范例：`ui/study/StudyLog.kt`、`ui/notebook/Notebook.kt`（进程级 `object` + `StateFlow` + `LocalLabStore` 持久化，界面用 `collectAsState`）。
-- `ui/LabApp.kt`：底部 4 个标签 Today / Learn / Library / Review、二级页面路由、登录门、命令面板入口。
+- `ui/LabApp.kt`：底部 5 个标签 今日 / 自習 / 練習（`LabTab.Learn`）/ 辞書 / 復習、二级页面路由、登录门、命令面板入口。自習学习中隐藏底栏。
+- **产品主线：自習 → 練習 → 復習。** 自習学（按知识点，材料是带原声的动漫台词），練習测（只出自習学过的课），復習巩固。
+  - `ui/jishu/Jishu.kt`（`JishuViewModel`）：一次学习（板書 + 8 张场景句卡）、「覚えた」记录（`pointId::sentenceId`）、场景上下文（按集拉 `/subtitles` 取前后句）、`parseFormula` 把拆解拆成词块。
+  - `ui/screens/jishu/`：首页（今日の自習 + 教科書书架）、目次、`JishuSittingScreen`（板書页、场景句卡、遮る）、つづく（小テスト 就地跑本课練習）。卡片上**不显示出处**（集数、时间、说话人），用户明确不要。
+  - 72 课讲义在 `assets/conjugation_lessons.json`，由 Antigravity 写、`archive-content-sources/conjugation-drill-p1/lessons/check.py --install` 装入；课列表、台词、已学（`learned`）仍在 `ConjugationDrillViewModel`。一次学习结束就 `markLearned`，这课才进練習。
 - `ui/screens/<区域>/`：`today`、`learn`（課程 / 言語学 / 选番面板）、`session`（アイキャッチ、各题型、つづく、读空气、基础题库）、`library`（辞書、字幕）、`review`、`settings`（学生証、AI 历史）、`login`、`search`（命令面板）。`V3Contracts.kt` 里放的是回调合集。
 - `ui/design/`：v3 组件库。**写新 UI 之前先 grep 这里有没有现成的**：
   - `Primitives`：Hairline、MangaPanel、Screentone、ProgressLine
@@ -49,7 +54,7 @@ v3 重写派了 6 个页面包、7 个子代理，合计约 120 万 token。钱�
   - `Text`：VerticalText、EmphasisText
   - `WorkIdentity`：`workSlug` 到作品色、角色和头像的映射
 - `ui/theme/Theme.kt`：`AjlTheme.colors`、`.type`、`.shape`、`WorkTheme`（按作品切换颜色）。`ui/motion/MotionTokens.kt`：Ease、Dur 等动效令牌。
-- `ui/study/StudyLog.kt`：全局学习日志（每天答题数、正确数、时长），喂给 Today 的「最近 12 週」格点（`screens/today/StudyHeatmap.kt`）。**新增任何答题型 session，判定对错的地方都要调 `StudyLog.record(...)`**，否则格点和时长不计。
+- `ui/study/StudyLog.kt`：全局学习日志（每天答题数、正确数、时长、自習句数 `recordStudy`），喂给 Today 的「最近 12 週」格点（`screens/today/StudyHeatmap.kt`）。**新增任何答题型 session，判定对错的地方都要调 `StudyLog.record(...)`**，否则格点和时长不计。
 - `platform/LearningSessionNotifier.kt`：学习中的常驻通知（Android 16 ProgressStyle 分段、作品色、角色头像、计时）；内容来自 `ui/LearningSessionStatus.kt`。
 - `platform/StudyReminder.kt`：放課後チャイム，每天定时（非精确闹钟）检查 StudyLog，当天没答题才发通知；开机/更新/换时区时重新排程。
 - `ui/notebook/`：栞（跨集生词本）。`data/NotebookModels.kt` 是模型、Leitner 规则（1/2/4/8/16 天）和编码；辞書第 4 个标签、翻卡复习（辞書和復習都有入口）、今日の一句和字幕页的栞按钮都在这里汇总。
@@ -111,6 +116,12 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 - 登录是必须的，不做手写功能，Web 前端不是规范；默认只改 `android-app/` 下的文件。
 
 ## 8. 经验记录（每次会话结束补几条）
+
+**2026-09-27 · 0.7.0（自習 tab）**
+- 用户的产品逻辑：**素材来自动漫（字幕、原声），学习融进场景**，但**自習按知识点组织，不按剧集**；出处信息都不要。先学后练：学过的才进練習。
+- 做大界面前**先在设计画布上画预览**，用户确认后再写代码；这次在画布加了「自習」页 5 块画板。
+- 讲义这类批量内容交给 Antigravity：仿照 `conjugation-drill-p1/ANTIGRAVITY_PROMPT.md` 写提示词 + 分批 md + 校验脚本（拒收模板话术、半角公式、抄台词），我只做工程。**先把提示词交给用户，再写代码**，两边并行。
+- 画布发布：scratchpad 用长路径（`C:\Users\汪家俊\AppData\Local\Temp\...`），短路径 `6058~1` 会被读取权限规则拦；发布前先 `read` 一次整个画布（不带 path）。
 
 **2026-09-26 · 0.6.0（用户放权的大改动轮）**
 - 工具链：Kotlin 2.3.21、Compose BOM 2026.06.01（Compose 1.11）。**Compose 1.12 起要求 compileSdk 37**，本机只有 36.1，要升得先装 SDK 37 并换 AGP 9。

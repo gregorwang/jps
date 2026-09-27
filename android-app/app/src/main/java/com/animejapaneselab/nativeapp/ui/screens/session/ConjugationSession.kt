@@ -84,7 +84,7 @@ fun ConjugationSession(
             onExit = actions.onExit,
             modifier = modifier,
             text = "今日の活用は、おしまい",
-            gloss = "这个范围里没有到期或新的句子",
+            gloss = if (state.scoped.isEmpty()) "这本还没在自習里学过" else "这个范围里没有到期或新的句子",
         ) { QuietButton("返回", actions.onExit) }
 
         else -> Column(modifier.fillMaxSize().background(AjlTheme.colors.bg)) {

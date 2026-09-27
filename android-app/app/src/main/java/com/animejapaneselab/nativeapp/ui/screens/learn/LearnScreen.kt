@@ -33,6 +33,7 @@ import com.animejapaneselab.nativeapp.ui.screens.session.ConjugationSession
 import com.animejapaneselab.nativeapp.ui.screens.session.ConjugationSessionActions
 import com.animejapaneselab.nativeapp.ui.screens.session.FoundationSession
 import com.animejapaneselab.nativeapp.ui.drill.ConjugationDrillViewModel
+import com.animejapaneselab.nativeapp.ui.drill.DrillMode
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
@@ -74,7 +75,7 @@ fun LearnScreen(
     LaunchedEffect(onDrillVolume) {
         if (onDrillVolume) drill.ensureLoaded() else drill.leave()
     }
-    if (onDrillVolume && drillState.session.isNotEmpty()) {
+    if (onDrillVolume && drillState.session.isNotEmpty() && drillState.mode == DrillMode.Review) {
         ConjugationSession(
             state = drillState,
             actions = ConjugationSessionActions(
@@ -82,31 +83,11 @@ fun LearnScreen(
                 onNext = drill::next,
                 onRestart = drill::startSession,
                 onExit = drill::exitSession,
-                onNextLesson = drill::openNextLesson,
             ),
             ttsWorkerUrl = uiState.settings.ttsWorkerUrl,
             modifier = modifier,
         )
         return
-    }
-    if (onDrillVolume) {
-        val study = ConjugationStudyActions(
-            onCloseBook = drill::closeBook,
-            onOpenLesson = drill::openLesson,
-            onCloseLesson = drill::closeLesson,
-            onStartLesson = drill::startLesson,
-            onStartReview = drill::startSession,
-        )
-        val lesson = drillState.openLesson
-        val book = drillState.openBook
-        if (lesson != null) {
-            ConjugationLessonScreen(drillState, lesson, uiState.settings.ttsWorkerUrl, study, modifier)
-            return
-        }
-        if (book != null) {
-            ConjugationTextbookScreen(drillState, book, study, modifier)
-            return
-        }
     }
     if (foundationOpen && onFoundationVolume) {
         FoundationSession(
@@ -164,8 +145,10 @@ fun LearnScreen(
                 onOpenFoundation = { foundationOpen = true },
                 drill = drillState,
                 drillActions = DrillVolumeActions(
-                    onOpenBook = drill::openBook,
-                    onOpenLesson = drill::openLesson,
+                    onBook = { group ->
+                        drill.selectGroup(group)
+                        drill.startSession()
+                    },
                     onReview = drill::startReview,
                     onRefresh = drill::refresh,
                 ),

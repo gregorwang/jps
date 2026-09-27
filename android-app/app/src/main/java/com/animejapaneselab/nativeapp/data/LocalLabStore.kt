@@ -121,6 +121,23 @@ class LocalLabStore(context: Context) {
         preferences.edit { putString(LearnedPointsKey, array.toString()) }
     }
 
+    /** 自習: lines marked 覚えた, as "pointId::sentenceId". */
+    fun readJishuStudied(): Set<String> = runCatching {
+        val array = JSONArray(preferences.getString(JishuStudiedKey, "[]").orEmpty())
+        (0 until array.length()).map { array.optString(it) }.filter { it.isNotBlank() }.toSet()
+    }.getOrElse { emptySet() }
+
+    fun writeJishuStudied(keys: Set<String>) {
+        val array = JSONArray()
+        keys.forEach { array.put(it) }
+        preferences.edit { putString(JishuStudiedKey, array.toString()) }
+    }
+
+    /** 自習 遮る mode (translation hidden until tapped). */
+    fun readJishuCover(): Boolean = preferences.getBoolean(JishuCoverKey, false)
+
+    fun writeJishuCover(cover: Boolean) = preferences.edit { putBoolean(JishuCoverKey, cover) }
+
     /** Per-day study log: ISO date -> [answers, correct, seconds]. */
     fun readStudyLog(): Map<String, StudyDay> {
         val raw = preferences.getString(StudyLogKey, null) ?: return emptyMap()
@@ -128,14 +145,14 @@ class LocalLabStore(context: Context) {
             val json = JSONObject(raw)
             json.keys().asSequence().associateWith { day ->
                 val row = json.getJSONArray(day)
-                StudyDay(answers = row.optInt(0), correct = row.optInt(1), seconds = row.optInt(2))
+                StudyDay(answers = row.optInt(0), correct = row.optInt(1), seconds = row.optInt(2), studied = row.optInt(3))
             }
         }.getOrDefault(emptyMap())
     }
 
     fun writeStudyLog(log: Map<String, StudyDay>, lastAnswerAtMillis: Long) {
         val json = JSONObject()
-        log.forEach { (day, d) -> json.put(day, JSONArray().put(d.answers).put(d.correct).put(d.seconds)) }
+        log.forEach { (day, d) -> json.put(day, JSONArray().put(d.answers).put(d.correct).put(d.seconds).put(d.studied)) }
         preferences.edit {
             putString(StudyLogKey, json.toString())
             putLong(StudyLastAnswerAtKey, lastAnswerAtMillis)
@@ -324,6 +341,8 @@ class LocalLabStore(context: Context) {
         const val StudyLastAnswerAtKey = "study-last-answer-at"
         const val DrillProgressKey = "conjugation-drill-progress"
         const val LearnedPointsKey = "conjugation-learned-points"
+        const val JishuStudiedKey = "jishu-studied"
+        const val JishuCoverKey = "jishu-cover"
         const val MistakesKey = "mistakes"
         const val ProgressKey = "progress"
         const val PendingProgressKey = "pending-progress"
@@ -335,4 +354,7 @@ class LocalLabStore(context: Context) {
     }
 }
 
-data class StudyDay(val answers: Int = 0, val correct: Int = 0, val seconds: Int = 0)
+/** One day of study: judged [answers] ([correct] of them), [seconds] spent, and 自習 lines gone through ([studied]). */
+data class StudyDay(val answers: Int = 0, val correct: Int = 0, val seconds: Int = 0, val studied: Int = 0) {
+    val activity: Int get() = answers + studied
+}

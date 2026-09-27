@@ -38,6 +38,8 @@ data class StudyHeatmapModel(
     val levels: List<Int?>,
     val todayIndex: Int,
     val weekAnswers: Int,
+    /** 自習 lines this week. */
+    val weekStudied: Int = 0,
     val weekAccuracy: Int?,
     val weekSeconds: Int,
     val mastered: Int,
@@ -49,7 +51,7 @@ object StudyHeatmapRules {
     fun build(log: Map<String, StudyDay>, progress: List<ProgressItem>, today: LocalDate): StudyHeatmapModel {
         // Days before the local log existed still show up, from each item's last review.
         val backfill = progress.mapNotNull { localDate(it.lastReviewedAt) }.groupingBy { it.toString() }.eachCount()
-        fun answersOn(day: LocalDate): Int = maxOf(log[day.toString()]?.answers ?: 0, backfill[day.toString()] ?: 0)
+        fun answersOn(day: LocalDate): Int = maxOf(log[day.toString()]?.activity ?: 0, backfill[day.toString()] ?: 0)
 
         val weekStart = today.with(DayOfWeek.MONDAY)
         val gridStart = weekStart.minusWeeks((Weeks - 1).toLong())
@@ -63,7 +65,8 @@ object StudyHeatmapRules {
         return StudyHeatmapModel(
             levels = levels,
             todayIndex = (Weeks - 1) * 7 + (today.dayOfWeek.value - 1),
-            weekAnswers = week.sumOf(::answersOn),
+            weekAnswers = week.sumOf { day -> maxOf(log[day.toString()]?.answers ?: 0, backfill[day.toString()] ?: 0) },
+            weekStudied = weekLog.sumOf { it.studied },
             weekAccuracy = if (logged > 0) weekLog.sumOf { it.correct } * 100 / logged else null,
             weekSeconds = weekLog.sumOf { it.seconds },
             mastered = progress.count { it.state == ReviewState.Known || it.state == ReviewState.Good },
@@ -108,7 +111,7 @@ fun StudyHeatmapSection(model: StudyHeatmapModel, modifier: Modifier = Modifier)
     val cell = 13.dp
     val gap = 3.dp
     Column(modifier.fillMaxWidth()) {
-        SectionHeading(title = "最近 12 週", meta = "本周 ${model.weekAnswers} 题")
+        SectionHeading(title = "最近 12 週", meta = listOfNotNull("本周 ${model.weekAnswers} 题", model.weekStudied.takeIf { it > 0 }?.let { "自習 $it 句" }).joinToString(" · "))
         Spacer(Modifier.height(14.dp))
         Row(verticalAlignment = Alignment.Bottom) {
             Canvas(

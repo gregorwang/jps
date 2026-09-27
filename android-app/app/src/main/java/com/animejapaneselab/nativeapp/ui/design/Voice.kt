@@ -8,6 +8,21 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.sp
+import com.animejapaneselab.nativeapp.ui.theme.AjlStroke
+import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -91,5 +106,31 @@ fun Modifier.speechLines(active: Boolean, color: Color): Modifier = composed {
                 cap = StrokeCap.Round,
             )
         }
+    }
+}
+
+/**
+ * 原声 pill: [VoiceBars] + 「原声」 in a 1.5px ink capsule, work-soft while the line plays.
+ * Tapping replays the line.
+ */
+@Composable
+fun VoicePill(playing: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier, label: String = "原声") {
+    val colors = AjlTheme.colors
+    val work = AjlTheme.work
+    val shape = RoundedCornerShape(20.dp)
+    val content = if (playing) work.accent else colors.ink
+    Row(
+        modifier
+            .heightIn(min = 44.dp)
+            .clip(shape)
+            .background(if (playing) work.soft else colors.surface)
+            .border(AjlStroke.Ink, colors.ink, shape)
+            .clickable(onClickLabel = "播放$label", role = Role.Button, onClick = onClick)
+            .padding(start = 12.dp, end = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        VoiceBars(active = playing, color = content)
+        Text(label, style = AjlTheme.type.meta.copy(fontSize = 12.sp), color = content)
     }
 }

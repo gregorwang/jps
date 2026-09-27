@@ -426,7 +426,9 @@ data class ReadAirFilters(
 /** v3 bottom tabs: Japanese label + Chinese caption. */
 enum class LabTab(val jp: String, val label: String) {
     Today("今日", "今日"),
-    Learn("学ぶ", "学习"),
+    /** 自習: learn a grammar point from its anime lines before it is drilled. */
+    Jishu("自習", "自习"),
+    Learn("練習", "练习"),
     Library("辞書", "资料"),
     Review("復習", "复盘"),
 }

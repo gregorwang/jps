@@ -10,7 +10,7 @@ import java.time.LocalDate
 
 /**
  * Process-wide study log behind 今日「最近 12 周」. Every judged answer (lesson, 读空气, 基础题库,
- * 活用道場) calls [record]; study time is the gap since the previous answer, capped so a phone
+ * 活用道場) calls [record], every 自習 card [recordStudy]; study time is the gap since the previous answer, capped so a phone
  * left on the table doesn't count as studying.
  */
 object StudyLog {
@@ -28,9 +28,19 @@ object StudyLog {
         store = LocalLabStore(context.applicationContext).also { _days.value = it.readStudyLog() }
     }
 
-    @Synchronized
     fun record(context: Context, answers: Int, correct: Int) {
         if (answers <= 0) return
+        add(context) { it.copy(answers = it.answers + answers, correct = it.correct + correct.coerceIn(0, answers)) }
+    }
+
+    /** 自習: [lines] anime lines gone through (覚えた or もう一回); counts toward the grid and study time. */
+    fun recordStudy(context: Context, lines: Int = 1) {
+        if (lines <= 0) return
+        add(context) { it.copy(studied = it.studied + lines) }
+    }
+
+    @Synchronized
+    private fun add(context: Context, change: (StudyDay) -> StudyDay) {
         init(context)
         val store = checkNotNull(store)
         val now = System.currentTimeMillis()
@@ -40,11 +50,7 @@ object StudyLog {
         val key = today.toString()
         val oldest = today.minusDays(KeepDays).toString()
         val current = _days.value[key] ?: StudyDay()
-        val next = (_days.value.filterKeys { it >= oldest } + (key to StudyDay(
-            answers = current.answers + answers,
-            correct = current.correct + correct.coerceIn(0, answers),
-            seconds = current.seconds + seconds,
-        )))
+        val next = _days.value.filterKeys { it >= oldest } + (key to change(current).copy(seconds = current.seconds + seconds))
         _days.value = next
         store.writeStudyLog(next, now)
     }

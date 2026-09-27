@@ -43,6 +43,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.animejapaneselab.nativeapp.ui.foundation.LinguisticsTrack
 import com.animejapaneselab.nativeapp.ui.drill.ConjugationDrillViewModel
+import com.animejapaneselab.nativeapp.ui.drill.DrillMode
+import com.animejapaneselab.nativeapp.ui.jishu.JishuViewModel
+import com.animejapaneselab.nativeapp.ui.screens.jishu.JishuScreen
 import com.animejapaneselab.nativeapp.platform.LearningSessionNotifier
 import com.animejapaneselab.nativeapp.ui.design.BottomTabBar
 import com.animejapaneselab.nativeapp.ui.design.TabItem
@@ -139,6 +142,13 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
     }
     val paletteOpen = secondaryScreen == SecondaryScreen.Search
     val route = shellRouteOf(secondaryScreen, activeSession, uiState.selectedTab, underlay)
+    // A 自習 sitting (or its 小テスト) takes the whole screen, like a lesson.
+    val jishu: JishuViewModel = viewModel()
+    val jishuSitting by jishu.state.collectAsStateWithLifecycle()
+    val drillForJishu: ConjugationDrillViewModel = viewModel()
+    val drillSession by drillForJishu.state.collectAsStateWithLifecycle()
+    val jishuImmersive = uiState.selectedTab == LabTab.Jishu &&
+        (jishuSitting.sitting != null || (drillSession.mode == DrillMode.Lesson && drillSession.session.isNotEmpty()))
     val closePalette: () -> Unit = {
         // Closing search returns to the page it was opened from (only 字幕 has an entry).
         if (underlay == SecondaryScreen.Subtitles) viewModel.openSubtitles() else viewModel.closeSecondaryScreen()
@@ -204,7 +214,7 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
                             containerColor = AjlTheme.colors.bg,
                             contentWindowInsets = WindowInsets.safeDrawing,
                             bottomBar = {
-                                if (route is ShellRoute.Main) {
+                                if (route is ShellRoute.Main && !jishuImmersive) {
                                     BottomTabBar(
                                         items = LabTab.entries.map { TabItem(it.jp, it.label) },
                                         selectedIndex = LabTab.entries.indexOf(uiState.selectedTab),
@@ -376,6 +386,8 @@ private fun ShellPage(
                 onOpenSettings = viewModel::openSettings,
                 onTodayLineRevealed = viewModel::markTodayLineRevealed,
             )
+
+            LabTab.Jishu -> JishuScreen(ttsWorkerUrl = uiState.settings.ttsWorkerUrl)
 
             LabTab.Learn -> LearnScreen(
                 uiState = uiState,

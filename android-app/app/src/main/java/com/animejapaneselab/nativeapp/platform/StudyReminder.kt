@@ -63,7 +63,7 @@ object StudyReminder {
         val app = context.applicationContext
         val store = LocalLabStore(app)
         val today = LocalDate.now()
-        val studied = (store.readStudyLog()[today.toString()]?.answers ?: 0) > 0
+        val studied = (store.readStudyLog()[today.toString()]?.activity ?: 0) > 0
         if (!studied && store.readSettings().studyReminder) post(app, store, today)
         sync(app)
     }

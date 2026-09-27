@@ -166,26 +166,31 @@ class ConjugationDrillViewModel(application: Application) : AndroidViewModel(app
         _state.update { it.copy(learned = practised) }
     }
 
-    // ------------------------------------------------------------ pages
+    // ------------------------------------------------------------ scope
 
-    fun openBook(group: String) = _state.update { it.copy(openBook = group, group = group, pointId = null) }
-
-    fun closeBook() = _state.update { it.copy(openBook = null, group = null, pointId = null) }
-
-    fun openLesson(pointId: String) = _state.update {
-        it.copy(openLesson = pointId, openBook = it.openBook ?: it.groupOf(pointId).ifBlank { null })
-    }
-
-    fun closeLesson() = _state.update { it.copy(openLesson = null) }
-
-    /** Leaving 第三巻 altogether (volume switch): drop pages and any set in progress. */
+    /** Leaving 第三巻 (volume switch): drop the review scope and a review set; a 自習 小テスト stays. */
     fun leave() = _state.update {
-        it.copy(openBook = null, openLesson = null, group = null, pointId = null, session = emptyList(), index = 0, answers = emptyMap())
+        if (it.mode == DrillMode.Lesson && it.session.isNotEmpty()) it
+        else it.copy(openBook = null, openLesson = null, group = null, pointId = null, session = emptyList(), index = 0, answers = emptyMap())
     }
 
-    fun selectPoint(pointId: String?) = _state.update { it.copy(pointId = pointId) }
+    /** 题库 cover: review scope = this 教科書's learned 課. */
+    fun selectGroup(group: String?) = _state.update { it.copy(group = group, pointId = null) }
 
-    fun resetFilters() = _state.update { it.copy(group = it.openBook, pointId = null) }
+    /** 自習 finished a sitting of this 課: its lines now enter the 题库 and review. */
+    fun markLearned(pointId: String) {
+        val s = _state.value
+        if (pointId in s.learned) return
+        val learned = s.learned + pointId
+        store.writeLearnedPoints(learned)
+        _state.update { it.copy(learned = learned) }
+    }
+
+    /** 自習 小テスト: the 練習 of [pointId] (its 板書 practice questions + a few of its lines). */
+    fun startLessonFor(pointId: String) {
+        _state.update { it.copy(openLesson = pointId) }
+        startLesson()
+    }
 
     // ------------------------------------------------------------ sets
 
@@ -243,12 +248,6 @@ class ConjugationDrillViewModel(application: Application) : AndroidViewModel(app
             store.writeLearnedPoints(learned)
             _state.update { it.copy(learned = learned) }
         }
-    }
-
-    /** つづく after a 課 → the next unlearned 課 of the same 教科書 (else of the whole volume). */
-    fun openNextLesson() = _state.update { s ->
-        val next = s.nextLesson(s.openBook) ?: s.nextLesson()
-        s.copy(openLesson = next, openBook = next?.let { s.groupOf(it) } ?: s.openBook, session = emptyList(), index = 0, answers = emptyMap())
     }
 
     /** Leaves the set. A finished 課 goes back to its 目次; a half-done one back to its 板書. */
