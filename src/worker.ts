@@ -49,7 +49,7 @@ type Env = {
 
 const EMBEDDING_MODEL = '@cf/baai/bge-m3'
 const SUBTITLE_RAG_WORKER_URL = 'https://anime-japanese-lab-vector-ingest.ishallnotwant123.workers.dev'
-const defaultGatewayModel = 'gemini-3.1-flash-lite'
+const defaultGatewayModel = 'gemini-3.5-flash-lite'
 const cacheSchemaVersion = 'v6'
 const sessionCookieName = 'ajl_session'
 const sessionMaxAgeSeconds = 60 * 60 * 24 * 30
@@ -64,8 +64,8 @@ const foundationStageSet = new Set<string>(foundationStages)
 const foundationQuestionTypeSet = new Set<string>(foundationQuestionTypes)
 const foundationSourceKindSet = new Set<string>(foundationSourceKinds)
 
-type GatewayModel = 'gemini-3.1-flash-lite' | 'gemini-3.5-flash' | 'deepseek-v4-flash' | 'deepseek-v4-pro' | 'grok-4.3'
-type ReasoningEffort = 'low' | 'medium' | 'high'
+type GatewayModel = 'gemini-3.5-flash-lite' | 'gemini-3.6-flash' | 'deepseek-v4-flash' | 'deepseek-v4-pro' | 'grok-4.3'
+type ReasoningEffort = 'minimal' | 'low' | 'medium' | 'high'
 type RagWorkSlug = 'rezero' | 'k-on'
 type SubtitleRagMatch = {
   id: string
@@ -91,8 +91,8 @@ type SubtitleRagQueryResponse = {
 const ragWorkSlugs = new Set<RagWorkSlug>(['rezero', 'k-on'])
 
 const gatewayModels: { id: GatewayModel; label: string }[] = [
-  { id: 'gemini-3.1-flash-lite', label: 'Gemini 3.1 Flash Lite' },
-  { id: 'gemini-3.5-flash', label: 'Gemini 3.5 Flash' },
+  { id: 'gemini-3.5-flash-lite', label: 'Gemini 3.5 Flash-Lite' },
+  { id: 'gemini-3.6-flash', label: 'Gemini 3.6 Flash' },
   { id: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash' },
   { id: 'deepseek-v4-pro', label: 'DeepSeek V4 Pro' },
   { id: 'grok-4.3', label: 'Grok 4.3' },
@@ -1659,7 +1659,7 @@ async function handleAiExplain(request: Request, env: Env) {
   }
 
   const model = normalizeGatewayModel(body?.model)
-  const reasoningEffort = normalizeReasoningEffort(body?.reasoningEffort)
+  const reasoningEffort = effortFor(model, normalizeReasoningEffort(body?.reasoningEffort), 'low')
   const payload = { kind: body?.kind ?? 'vocab', text, context: body?.context ?? '', model, reasoningEffort }
   const cacheKey = await hashPayload(`ai-explain-${cacheSchemaVersion}`, payload)
   const stored = await readAiCache(env, cacheKey)
@@ -1679,22 +1679,25 @@ async function handleAiExplain(request: Request, env: Env) {
   const cached = await cache.match(edgeCacheKey)
   if (cached) return cached
 
-  const explanation = payload.kind === 'linguistic'
-    ? await callAiGateway(
+  const result = payload.kind === 'linguistic'
+    ? await callAiSections(
         env,
         model,
         '你是 Nihongo Lab 的日语语言学训练老师。必须只使用简体中文回答。只基于用户给出的题目、选项、用户答案、正确答案和解释分析，不引用外部作品，不编造剧情，不把 TTS 当作音系学标准发音依据。',
         `题目材料：\n${payload.context}\n\n请严格按这些栏目回答：${explainSections(payload.kind).join('、')}。重点解释用户为什么被错误选项吸引、错误选项具体错在哪里、正确答案为什么成立、下次遇到同类语言现象怎么判断。`,
+        'AI 精讲',
+        explainSections(payload.kind),
         { maxTokens: 1400, temperature: 0.2, reasoningEffort },
       )
-    : await callAiGateway(
+    : await callAiSections(
         env,
         model,
         '你是 Nihongo Lab 的日语老师。必须只使用简体中文回答。只基于用户给出的日文文本和上下文讲解，不引用外部作品，不编造例句，禁止拆字或词源解释。只讲现代日语学习用法、语气、现实可用性和注意点。',
         `类型：${payload.kind}\n文本：${text}\n上下文：${payload.context}\n\n请用简体中文做日语学习精讲，并严格按这些栏目输出：${explainSections(payload.kind).join('、')}。不要解释词源。`,
+        'AI 精讲',
+        explainSections(payload.kind),
         { maxTokens: 1200, temperature: 0.2, reasoningEffort },
       )
-  const result = structuredTextResult('AI 精讲', explanation, explainSections(payload.kind))
   await writeAiCache(env, {
     cacheKey,
     cacheKind: `explain:${payload.kind}`,
@@ -1767,7 +1770,7 @@ async function handleFurigana(request: Request, env: Env, url: URL) {
       'Concatenating every text field must equal the original sentence exactly.',
       `Original sentence: ${text}`,
     ].join('\n'),
-    { maxTokens: 700, temperature: 0, reasoningEffort: 'low' },
+    { maxTokens: 700, temperature: 0, reasoningEffort: 'minimal' },
   )
   const parsedSegments = stripNonKanjiReadings(parseRubySegments(rawText))
   const validation = validateRubySegments(parsedSegments, text)
@@ -1900,7 +1903,7 @@ async function generateFuriganaBatch(
       'reading may contain only hiragana, katakana, or the long vowel mark ー.',
       `Input items JSON: ${JSON.stringify(items.map((item) => ({ targetId: item.targetId, text: item.text })))}`,
     ].join('\n'),
-    { maxTokens: Math.min(Math.max(items.length * 260, 1600), 9000), temperature: 0, reasoningEffort: 'low' },
+    { maxTokens: Math.min(Math.max(items.length * 260, 1600), 9000), temperature: 0, reasoningEffort: 'minimal' },
   )
   return parseRubyBatchResult(rawText)
 }
@@ -1930,7 +1933,7 @@ async function handleSentenceDeepDive(request: Request, env: Env) {
   if (!jaText) return json({ error: { message: 'jaText is required' } }, 400)
 
   const model = normalizeGatewayModel(body?.model)
-  const reasoningEffort = normalizeReasoningEffort(body?.reasoningEffort)
+  const reasoningEffort = effortFor(model, normalizeReasoningEffort(body?.reasoningEffort), 'medium')
   const payload = {
     workSlug: body?.workSlug ?? 'k-on',
     episode: body?.episode ?? 1,
@@ -1956,23 +1959,28 @@ async function handleSentenceDeepDive(request: Request, env: Env) {
     return json(cached)
   }
 
-  const text = await callAiGateway(
+  // 角色心理 needs the scene: three lines either side of the target line.
+  const around = payload.lineNo > 0
+    ? await supabase<Record<string, unknown>[]>(
+        env,
+        `/rest/v1/subtitle_lines?select=line_no,ja_text,zh_text&work_slug=eq.${encodeURIComponent(normalizeWorkSlugAlias(payload.workSlug))}&episode=eq.${payload.episode}&line_no=gte.${payload.lineNo - 3}&line_no=lte.${payload.lineNo + 3}&order=line_no.asc&limit=7`,
+      ).catch(() => [])
+    : []
+  const scene = around
+    .map((row) => {
+      const mark = readNumber(row, 'line_no') === payload.lineNo ? '▶ ' : '  '
+      return `${mark}${readString(row, 'ja_text')}${readString(row, 'zh_text') ? `（${readString(row, 'zh_text')}）` : ''}`
+    })
+    .join('\n')
+  const result = await callAiSections(
     env,
     model,
-    '你是 Nihongo Lab 的日语语言学精读老师。只使用简体中文，必须只基于给定台词和上下文分析。输出要结构化，不能泛泛翻译。',
-    `台词：${jaText}\n中文对照：${payload.zhText}\n作品：${payload.workSlug} EP${payload.episode} line ${payload.lineNo}\n\n请严格按这些栏目精读：字面意思、词法拆解、句法结构、助词说明、句末语气、角色心理、现实可用性、相近表达对比。每栏给出简洁但具体的说明。`,
+    '你是 Nihongo Lab 的日语语言学精读老师。只使用简体中文，必须只基于给定台词和前后文分析，前后文里没有的信息不要推测。输出要结构化，不能泛泛翻译。',
+    `台词：${jaText}\n中文对照：${payload.zhText}\n作品：${payload.workSlug} EP${payload.episode} line ${payload.lineNo}${scene ? `\n前后文（▶ 为本句）：\n${scene}` : ''}\n\n请严格按这些栏目精读：字面意思、词法拆解、句法结构、助词说明、句末语气、角色心理、现实可用性、相近表达对比。每栏给出简洁但具体的说明。`,
+    '单句精读',
+    ['字面意思', '词法拆解', '句法结构', '助词说明', '句末语气', '角色心理', '现实可用性', '相近表达对比'],
     { maxTokens: 1800, temperature: 0.2, reasoningEffort },
   )
-  const result = structuredTextResult('单句精读', text, [
-    '字面意思',
-    '词法拆解',
-    '句法结构',
-    '助词说明',
-    '句末语气',
-    '角色心理',
-    '现实可用性',
-    '相近表达对比',
-  ])
   await writeAiCache(env, {
     cacheKey,
     cacheKind: 'sentence_deep_dive',
@@ -2005,7 +2013,7 @@ async function handleCharacterProfile(request: Request, env: Env) {
   const characterKey = body?.characterKey ?? 'yui'
   const characterName = body?.characterName ?? '唯'
   const model = normalizeGatewayModel(body?.model)
-  const reasoningEffort = normalizeReasoningEffort(body?.reasoningEffort)
+  const reasoningEffort = effortFor(model, normalizeReasoningEffort(body?.reasoningEffort), 'medium')
 
   if (!body?.regenerate) {
     const existing = await supabase<Record<string, unknown>[]>(
@@ -2048,13 +2056,16 @@ async function handleCharacterProfile(request: Request, env: Env) {
     }
   })
 
-  let text: string
+  const profileSections = ['常见口癖', '句末倾向', '礼貌度', '情绪表达', '吐槽/被吐槽模式', '典型场景', '学习价值', '局限']
+  let structured: Awaited<ReturnType<typeof callAiSections>>
   try {
-    text = await callAiGateway(
+    structured = await callAiSections(
       env,
       model,
-      '你是日语角色语言画像分析助手。只基于给定检索结果做谨慎画像，必须标注这是第一版占位分析，不要声称角色识别完全准确。',
-      `角色：${characterName}\n作品：${workSlug}\nRAG work：${ragWorkSlug}\n检索来源 JSON：${JSON.stringify(sources).slice(0, 9000)}\n\n请输出：常见口癖、句末倾向、礼貌度、情绪表达、吐槽/被吐槽模式、典型场景、学习价值、局限。`,
+      '你是日语角色语言画像分析助手。只基于给定检索到的字幕做画像，每个结论都要引用日文台词作证据；检索结果里说话人不一定是这个角色，拿不准的写进「局限」。只使用简体中文。',
+      `角色：${characterName}\n作品：${workSlug}\nRAG work：${ragWorkSlug}\n检索来源 JSON：${JSON.stringify(sources).slice(0, 9000)}\n\n请输出：${profileSections.join('、')}。`,
+      `${characterName} 的语言画像`,
+      profileSections,
       { maxTokens: 1600, temperature: 0.2, reasoningEffort },
     )
   } catch (error) {
@@ -2062,16 +2073,7 @@ async function handleCharacterProfile(request: Request, env: Env) {
   }
 
   const profile = {
-    ...structuredTextResult(`${characterName} 的语言画像`, text, [
-      '常见口癖',
-      '句末倾向',
-      '礼貌度',
-      '情绪表达',
-      '吐槽/被吐槽模式',
-      '典型场景',
-      '学习价值',
-      '局限',
-    ]),
+    ...structured,
     model,
     cachedAt: new Date().toISOString(),
     sources,
@@ -2136,7 +2138,7 @@ async function handleSentenceCorrection(request: Request, env: Env) {
   if (!sentence) return json({ error: { message: 'sentence is required' } }, 400)
   if (body?.deviceId && !isValidDeviceId(body.deviceId)) return json({ error: { message: 'deviceId is invalid' } }, 400)
   const model = normalizeGatewayModel(body?.model)
-  const reasoningEffort = normalizeReasoningEffort(body?.reasoningEffort)
+  const reasoningEffort = effortFor(model, normalizeReasoningEffort(body?.reasoningEffort), 'low')
   const payload = {
     targetType: body?.targetType ?? 'free',
     targetId: body?.targetId ?? '',
@@ -2152,14 +2154,15 @@ async function handleSentenceCorrection(request: Request, env: Env) {
     return json(cached)
   }
 
-  const text = await callAiGateway(
+  const correction = await callAiSections(
     env,
     model,
     '你是日语造句批改老师。只使用简体中文。批改要具体、直接，指出自然度和语气，不要鼓励空话。',
-    `目标类型：${payload.targetType}\n目标词/语法：${payload.targetLabel || payload.targetId || '自由造句'}\n用户造句：${sentence}\n\n请返回：语法是否正确、自然度、语气是否合适、更自然改写、用法提醒、评分（100分制）。`,
+    `目标类型：${payload.targetType}\n目标词/语法：${payload.targetLabel || payload.targetId || '自由造句'}\n用户造句：${sentence}\n\n「评分」一栏写 100 分制分数和一句理由。`,
+    '造句批改',
+    ['语法是否正确', '自然度', '语气', '改写', '用法提醒', '评分'],
     { maxTokens: 1400, temperature: 0.2, reasoningEffort },
   )
-  const correction = structuredTextResult('造句批改', text, ['语法是否正确', '自然度', '语气', '改写', '用法提醒', '评分'])
   await writeAiCache(env, {
     cacheKey,
     cacheKind: 'sentence_correction',
@@ -2182,7 +2185,7 @@ async function buildCacheKey(prefix: string, value: string) {
 
 async function handleRagSearch(request: Request, env: Env) {
   const body = (await request.json().catch(() => null)) as
-    | { query?: string; workSlug?: string; season?: number; episode?: number; topK?: number; model?: GatewayModel; reasoningEffort?: ReasoningEffort; deviceId?: string }
+    | { query?: string; workSlug?: string; season?: number; episode?: number; topK?: number; model?: GatewayModel; reasoningEffort?: ReasoningEffort; deviceId?: string; analyze?: boolean }
     | null
 
   const query = body?.query?.trim()
@@ -2245,8 +2248,11 @@ async function handleRagSearch(request: Request, env: Env) {
     }),
   )
 
+  // Plain search is vector-only; the LLM reading costs a call, so callers opt in (default on for old clients).
+  if (body?.analyze === false) return json({ query, sources, analysis: null })
+
   const model = normalizeGatewayModel(body?.model)
-  const reasoningEffort = normalizeReasoningEffort(body?.reasoningEffort)
+  const reasoningEffort = effortFor(model, normalizeReasoningEffort(body?.reasoningEffort), 'low')
   const cacheKey = await hashPayload(`rag-air-${cacheSchemaVersion}`, {
     query,
     workSlug,
@@ -2450,7 +2456,7 @@ async function handleRagSuggestTrainingQuery(request: Request, env: Env) {
     | { workSlug?: string; model?: GatewayModel; reasoningEffort?: ReasoningEffort; deviceId?: string }
     | null
   const model = normalizeGatewayModel(body?.model)
-  const reasoningEffort = normalizeReasoningEffort(body?.reasoningEffort)
+  const reasoningEffort = effortFor(model, normalizeReasoningEffort(body?.reasoningEffort), 'minimal')
   const workSlug = body?.workSlug?.trim()
   if (!workSlug) return json({ error: { message: 'workSlug is required' } }, 400)
   if (!isRagWorkSlug(workSlug)) return json({ error: { message: 'workSlug must be one of: rezero, k-on' } }, 400)
@@ -2499,7 +2505,7 @@ async function handleRagGenerateQuestion(request: Request, env: Env) {
   if (!source) return json({ error: { message: 'source is required' } }, 400)
 
   const model = normalizeGatewayModel(body?.model)
-  const reasoningEffort = normalizeReasoningEffort(body?.reasoningEffort)
+  const reasoningEffort = effortFor(model, normalizeReasoningEffort(body?.reasoningEffort), 'medium')
   const context = JSON.stringify(source).slice(0, 9000)
   const text = await callAiGateway(
     env,
@@ -2548,7 +2554,7 @@ async function handleRagGenerateQuestions(request: Request, env: Env) {
   if (sources.length === 0) return json({ error: { message: 'sources is required' } }, 400)
 
   const model = normalizeGatewayModel(body?.model)
-  const reasoningEffort = normalizeReasoningEffort(body?.reasoningEffort)
+  const reasoningEffort = effortFor(model, normalizeReasoningEffort(body?.reasoningEffort), 'medium')
   const context = JSON.stringify(sources).slice(0, 18000)
   const text = await callAiGateway(
     env,
@@ -3108,6 +3114,66 @@ function normalizeAirQuestionCandidate(input: Record<string, unknown>, source: R
   }
 }
 
+const sectionsSchema = {
+  type: 'object',
+  properties: {
+    summary: { type: 'string' },
+    sections: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { title: { type: 'string' }, body: { type: 'string' } },
+        required: ['title', 'body'],
+      },
+    },
+  },
+  required: ['summary', 'sections'],
+}
+
+/**
+ * Asks for fixed sections. Gemini returns them as JSON (structured output); other models answer
+ * in text and go through the heading parser. Result shape matches [structuredTextResult].
+ */
+async function callAiSections(
+  env: Env,
+  model: GatewayModel,
+  systemPrompt: string,
+  userPrompt: string,
+  title: string,
+  sections: string[],
+  options: { maxTokens: number; temperature: number; reasoningEffort: ReasoningEffort },
+) {
+  if (!model.startsWith('gemini-')) {
+    const text = await callAiGateway(env, model, systemPrompt, `${userPrompt}
+
+严格按这些栏目输出：${sections.join('、')}。`, options)
+    return structuredTextResult(title, text, sections)
+  }
+  const raw = await callAiGateway(
+    env,
+    model,
+    systemPrompt,
+    `${userPrompt}\n\n输出 JSON：summary 是一句话结论；sections 严格按这些栏目的顺序各一项，title 与栏目名完全一致：${sections.join('、')}。body 写该栏内容，可分行，不要 Markdown 标题和加粗。`,
+    { ...options, jsonSchema: sectionsSchema },
+  )
+  try {
+    const parsed = JSON.parse(raw) as { summary?: string; sections?: { title?: string; body?: string }[] }
+    const items = Array.isArray(parsed.sections) ? parsed.sections : []
+    const result = sections.map((section, index) => ({
+      title: section,
+      body: (items.find((item) => item.title?.trim() === section)?.body ?? items[index]?.body ?? '').trim(),
+    }))
+    return {
+      title,
+      summary: parsed.summary?.trim() || result.find((item) => item.body)?.body.slice(0, 180) || '',
+      sections: result,
+      text: result.map((item) => `${item.title}\n${item.body}`).join('\n\n'),
+    }
+  } catch {
+    return structuredTextResult(title, raw, sections)
+  }
+}
+
 function structuredTextResult(title: string, text: string, preferredSections: string[]) {
   const lines = text
     .split(/\n+/)
@@ -3234,8 +3300,23 @@ function extractInlineLabeledSection(text: string, alias: string, aliases: strin
   return text.match(pattern)?.[1]?.trim() ?? ''
 }
 
+const legacyGatewayModels: Record<string, GatewayModel> = {
+  'gemini-3.1-flash-lite': 'gemini-3.5-flash-lite',
+  'gemini-3.5-flash': 'gemini-3.6-flash',
+}
+
 function normalizeGatewayModel(model: unknown): GatewayModel {
+  if (typeof model === 'string' && legacyGatewayModels[model]) return legacyGatewayModels[model]
   return gatewayModels.some((item) => item.id === model) ? (model as GatewayModel) : defaultGatewayModel
+}
+
+/**
+ * Thinking depth actually sent. Gemini gets a per-task level (Flash-Lite is fast at 'minimal'
+ * and 'low'); the client's choice only applies to Grok, the one model the settings expose it for.
+ */
+function effortFor(model: GatewayModel, requested: ReasoningEffort, geminiLevel: ReasoningEffort): ReasoningEffort {
+  if (model.startsWith('gemini-')) return geminiLevel
+  return model === 'grok-4.3' ? requested : 'low'
 }
 
 function normalizeReasoningEffort(value: unknown): ReasoningEffort {
@@ -3482,7 +3563,7 @@ async function callAiGateway(
   model: GatewayModel,
   systemPrompt: string,
   userPrompt: string,
-  options: { maxTokens: number; temperature: number; reasoningEffort?: ReasoningEffort },
+  options: { maxTokens: number; temperature: number; reasoningEffort?: ReasoningEffort; jsonSchema?: Record<string, unknown> },
 ): Promise<string> {
   const aiGatewayToken = env.CF_AIG_TOKEN?.replace(/^\uFEFF/u, '').trim()
   if (!aiGatewayToken) {
@@ -3504,7 +3585,10 @@ async function callAiGateway(
           { role: 'user', content: userPrompt },
         ],
         max_tokens: options.maxTokens,
-        temperature: options.temperature,
+        reasoning_effort: options.reasoningEffort ?? 'low',
+        ...(options.jsonSchema
+          ? { response_format: { type: 'json_schema', json_schema: { name: 'result', strict: true, schema: options.jsonSchema } } }
+          : {}),
         stream: false,
       }),
     })

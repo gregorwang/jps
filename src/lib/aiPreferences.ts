@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react'
 import { aiGatewayModels, type GatewayModel } from './aiModels'
 
 const key = 'anime-japanese-lab-ai-model'
-const defaultModel: GatewayModel = 'gemini-3.1-flash-lite'
+const defaultModel: GatewayModel = 'gemini-3.5-flash-lite'
 const listeners = new Set<() => void>()
 
 function isGatewayModel(value: unknown): value is GatewayModel {
