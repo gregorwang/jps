@@ -16,6 +16,7 @@ import androidx.core.content.edit
 import androidx.core.content.ContextCompat
 import com.animejapaneselab.nativeapp.MainActivity
 import com.animejapaneselab.nativeapp.R
+import com.animejapaneselab.nativeapp.widget.LabArt
 import androidx.compose.ui.graphics.toArgb
 import com.animejapaneselab.nativeapp.ui.LearningSessionStatus
 import com.animejapaneselab.nativeapp.ui.design.TextRules
@@ -92,16 +93,19 @@ class LearningSessionNotifier(context: Context) {
         // Re:ゼロ 第一話 in the header, the line being studied as the title, 「单点训练 · 第 2 / 4 问」 below;
         // work colour + character face so it reads as this app rather than a generic progress bar.
         val accent = WorkThemes.of(WorkIdentity.hue(status.workSlug), dark = false).accent.toArgb()
-        val (mode, topic) = splitTitle(status.title)
+        val (rawMode, topic) = splitTitle(status.title)
+        val mode = japaneseMode(rawMode)
+        val unit = japaneseUnit(status.unit)
+        val chip = "$unit ${status.position}/${status.total}"
         val header = listOfNotNull(
             WorkIdentity.displayName(status.workSlug).ifBlank { null },
             status.episode.takeIf { it > 0 }?.let(TextRules::episodeLabel),
         ).joinToString(" ").ifBlank { status.subtitle }
         val startedAt = preferences.getLong(StartedAtKey, 0L).takeIf { it > 0 } ?: System.currentTimeMillis()
         val builder = Notification.Builder(appContext, ChannelId)
-            .setSmallIcon(R.drawable.ic_learning_notification)
+            .setSmallIcon(StudyReminder.sealIcon(appContext))
             .setContentTitle(topic ?: mode)
-            .setContentText(listOfNotNull(mode.takeIf { topic != null }, "第 ${status.position} / ${status.total} ${status.unit}").joinToString(" · "))
+            .setContentText(listOfNotNull(mode.takeIf { topic != null }, "第 ${status.position} / ${status.total} $unit").joinToString(" · "))
             .setSubText(header)
             .setContentIntent(contentIntent)
             .setDeleteIntent(deleteIntent)
@@ -119,16 +123,25 @@ class LearningSessionNotifier(context: Context) {
         face?.let { builder.setLargeIcon(it) }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
-            // One segment per question (a 場面 strip), dimmed until answered.
+            // One segment per question (a 場面 strip): answered ones in the work colour, the rest soft;
+            // the character's face walks along as the progress head.
+            val soft = WorkThemes.of(WorkIdentity.hue(status.workSlug), dark = false).soft.toArgb()
             val perQuestion = status.total in 2..MaxSegments
+            val mark = WorkIdentity.representative(status.workSlug.ifBlank { "re-zero" }, status.episode.coerceAtLeast(1))?.mark ?: "学"
+            val tracker = LabArt.forContext(appContext).faceBadge(face, mark, status.workSlug, 24)
             val style = Notification.ProgressStyle()
-                .setStyledByProgress(true)
-                .setProgressTrackerIcon(Icon.createWithResource(appContext, R.drawable.ic_learning_notification).setTint(accent))
+                .setStyledByProgress(false)
+                .setProgressTrackerIcon(Icon.createWithBitmap(tracker))
                 .setProgress(status.completed)
             if (perQuestion) {
-                repeat(status.total) { style.addProgressSegment(Notification.ProgressStyle.Segment(1).setColor(accent)) }
+                repeat(status.total) { i ->
+                    style.addProgressSegment(Notification.ProgressStyle.Segment(1).setColor(if (i < status.completed) accent else soft))
+                }
             } else {
-                style.addProgressSegment(Notification.ProgressStyle.Segment(status.total).setColor(accent))
+                style.addProgressSegment(Notification.ProgressStyle.Segment(status.completed.coerceAtLeast(1)).setColor(accent))
+                if (status.total > status.completed) {
+                    style.addProgressSegment(Notification.ProgressStyle.Segment(status.total - status.completed).setColor(soft))
+                }
             }
             builder.setStyle(style)
         } else {
@@ -139,11 +152,11 @@ class LearningSessionNotifier(context: Context) {
             // Live Update request by extras too: HyperOS 3 is Android 16.0, where the builder
             // setters below don't exist yet, but the island reads these keys.
             builder.extras.putBoolean(ExtraRequestPromotedOngoing, true)
-            builder.extras.putCharSequence(ExtraShortCriticalText, status.chipText)
+            builder.extras.putCharSequence(ExtraShortCriticalText, chip)
             if (Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
                 builder
                     .setRequestPromotedOngoing(true)
-                    .setShortCriticalText(status.chipText)
+                    .setShortCriticalText(chip)
             }
         }
         if (hyperOsFocusAllowed) addHyperOsIsland(builder, status, topic ?: mode, mode, face)
@@ -190,6 +203,24 @@ class LearningSessionNotifier(context: Context) {
         if (face != null) {
             builder.extras.putBundle("miui.focus.pics", android.os.Bundle().apply { putParcelable(pic, Icon.createWithBitmap(face)) })
         }
+    }
+
+    /** Session labels in the app's school vocabulary (the island and card speak Japanese). */
+    private fun japaneseMode(mode: String): String = when {
+        "复习" in mode || "复盘" in mode -> "復習"
+        "单点" in mode -> "練習"
+        "读空气" in mode -> "空気を読む"
+        "跟读" in mode -> "シャドーイング"
+        "词汇" in mode -> "語彙"
+        "语法" in mode -> "文法"
+        "综合" in mode -> "総合"
+        else -> mode
+    }
+
+    private fun japaneseUnit(unit: String): String = when (unit) {
+        "问" -> "問"
+        "页" -> "頁"
+        else -> unit
     }
 
     /** 「单点训练 · やばい…」 → (单点训练, やばい…); a title without a topic stays whole. */

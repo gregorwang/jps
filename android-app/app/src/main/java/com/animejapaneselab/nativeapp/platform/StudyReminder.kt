@@ -20,6 +20,9 @@ import com.animejapaneselab.nativeapp.data.NotebookRules
 import com.animejapaneselab.nativeapp.ui.design.WorkIdentity
 import com.animejapaneselab.nativeapp.ui.notebook.Notebook
 import com.animejapaneselab.nativeapp.widget.TodayWidget
+import com.animejapaneselab.nativeapp.widget.LabArt
+import android.graphics.drawable.Icon
+import android.widget.RemoteViews
 import com.animejapaneselab.nativeapp.ui.theme.WorkThemes
 import com.animejapaneselab.nativeapp.widget.TodayWidgetLine
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -150,14 +153,46 @@ object StudyReminder {
 
     internal fun morningClip(context: Context) = morningSource(LocalLabStore(context))?.let { TodayLineAudio.cached(context, it.ja) }
 
-    private data class MorningSource(val ja: String, val zh: String, val entry: String)
+    private data class MorningSource(
+        val ja: String,
+        val zh: String,
+        val entry: String,
+        val eyebrow: String,
+        val seal: String,
+        /** Accent line under the translation: the 拆解 for a lesson line, who / where for an episode line. */
+        val note: String,
+        val workSlug: String,
+    )
 
     /** What 朝の一句 shows today: the main-line pick when fresh, else the episode's line. */
     private fun morningSource(store: LocalLabStore): MorningSource? {
         MorningPick.decode(store.readMorningPick())?.takeIf { MorningPick.isFor(it, LocalDate.now()) }?.let {
-            return MorningSource(it.ja, it.zh, it.entry)
+            val short = it.point.substringBefore('（').substringBefore(' ').trim()
+            return MorningSource(
+                ja = it.ja,
+                zh = it.zh,
+                entry = it.entry,
+                eyebrow = listOf("朝の一句", short).filter(String::isNotBlank).joinToString(" · "),
+                seal = short.take(2).let { s -> if (s.length == 2) "${s[0]}\n${s[1]}" else s.ifBlank { "学" } },
+                note = it.formula,
+                workSlug = "",
+            )
         }
-        return TodayWidgetLine.decode(store.readTodayWidgetLine())?.let { MorningSource(it.ja, it.zh, it.notebookEntry) }
+        return TodayWidgetLine.decode(store.readTodayWidgetLine())?.let { lineSource(it) }
+    }
+
+    private fun lineSource(line: TodayWidgetLine): MorningSource {
+        val work = listOf(WorkIdentity.displayName(line.workSlug), line.episodeLabel).filter(String::isNotBlank).joinToString(" ")
+        val speaker = line.attribution.substringBefore(" · ").trim().takeUnless { it.isBlank() || it.any(Char::isDigit) }
+        return MorningSource(
+            ja = line.ja,
+            zh = line.zh,
+            entry = line.notebookEntry,
+            eyebrow = listOf("今日の一句", work).filter(String::isNotBlank).joinToString(" · "),
+            seal = WorkIdentity.sealText(line.workSlug),
+            note = listOfNotNull(speaker, work.ifBlank { null }).joinToString(" · "),
+            workSlug = line.workSlug,
+        )
     }
 
     private fun input(store: LocalLabStore, today: LocalDate): ReminderInput {
@@ -200,60 +235,115 @@ object StudyReminder {
         )
         val store = LocalLabStore(context)
         val line = TodayWidgetLine.decode(store.readTodayWidgetLine())
-        val accent = WorkThemes.of(WorkIdentity.hue(line?.workSlug.orEmpty()), dark = false).accent.toArgb()
+        val content = runCatching { contentViews(context, store, message, line, saved) }.getOrNull()
+        val accent = WorkThemes.of(WorkIdentity.hue(content?.workSlug ?: line?.workSlug.orEmpty()), dark = false).accent.toArgb()
         val builder = Notification.Builder(context, if (message.channel == ReminderChannel.Review) ReviewChannelId else StudyChannelId)
-            .setSmallIcon(R.drawable.ic_learning_notification)
+            .setSmallIcon(sealIcon(context))
             .setContentTitle(message.title)
             .setContentText(message.body.lineSequence().first())
-            .setStyle(reminderStyle(context, store, message, line))
             .setColor(accent)
             .setContentIntent(openIntent(context, message.target))
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
             .setCategory(Notification.CATEGORY_REMINDER)
-        CharacterFaces.face(context, line?.workSlug.orEmpty())?.let { builder.setLargeIcon(it) }
-        val morning = if (message.template == "morning") morningSource(store) else null
-        if (morning != null) {
-            // Learn the line from the shade: hear it, keep it.
-            if (TodayLineAudio.cached(context, morning.ja) != null) {
-                builder.addAction(Notification.Action.Builder(null, "▶ 原声", actionIntent(context, ActionPlayLine)).build())
-            }
-            if (!saved && morning.entry.isNotBlank()) {
-                builder.addAction(Notification.Action.Builder(null, "挟む · 存进栞", actionIntent(context, ActionSaveLine)).build())
-            }
+        if (content != null) {
+            // System header (app, 朝の一句 / 復習到期, time) on top; everything below is ours.
+            builder.setSubText(content.header)
+                .setStyle(Notification.DecoratedCustomViewStyle())
+                .setCustomContentView(content.small)
+            content.big?.let { builder.setCustomBigContentView(it) }
+        } else {
+            builder.setStyle(Notification.BigTextStyle().bigText(message.body))
         }
         manager.notify(NotificationId, builder.build())
         return true
     }
 
+    private class ReminderViews(val header: String, val small: RemoteViews, val big: RemoteViews?, val workSlug: String)
+
+    private const val ContentWidthDp = 295
+
     /**
-     * Expanded look in the app's own language: a manga panel with the line set vertically (the
-     * widget's art) for line reminders, a 復習 card with the due count for review ones.
+     * The reminder's content in the canvas design (「通知 · 超级岛」): a manga panel for line
+     * reminders, a stamp + 時間割 card for 復習, a name plate + line when collapsed.
      */
-    private fun reminderStyle(context: Context, store: LocalLabStore, message: ReminderMessage, line: TodayWidgetLine?): Notification.Style {
-        val today = LocalDate.now()
-        val epochDay = today.toEpochDay()
-        val art = runCatching {
-            when {
-                message.channel == ReminderChannel.Review -> {
-                    val shiori = NotebookRules.dueCount(store.readNotebook(), epochDay)
-                    val drill = store.readDrillProgress().values.count { it.dueDay <= epochDay }
-                    val fading = store.readDrillPointDue().filterValues { it <= epochDay }.minByOrNull { it.value }?.key
-                    if (shiori + drill > 0) TodayWidget.dueArt(context, shiori, drill, fading) else null
-                }
-                message.body.startsWith("「") -> {
-                    val pick = MorningPick.decode(store.readMorningPick())
-                        ?.takeIf { message.template == "morning" && MorningPick.isFor(it, today) }
-                    val artLine = pick?.let { TodayWidgetLine(it.ja, it.zh, it.point, "", "", it.date) } ?: line
-                    artLine?.let { TodayWidget.lineArt(context, it) }
-                }
-                else -> null
+    private fun contentViews(context: Context, store: LocalLabStore, message: ReminderMessage, line: TodayWidgetLine?, saved: Boolean): ReminderViews {
+        val art = LabArt.forContext(context)
+        val pkg = context.packageName
+        if (message.channel == ReminderChannel.Review) {
+            val today = LocalDate.now()
+            val epochDay = today.toEpochDay()
+            val shiori = NotebookRules.dueCount(store.readNotebook(), epochDay)
+            val drill = store.readDrillProgress().values.count { it.dueDay <= epochDay }
+            val due = shiori + drill
+            val fading = store.readDrillPointDue().filterValues { it <= epochDay }.minByOrNull { it.value }?.key
+                ?.substringBefore('（')?.trim()
+            val lastStudy = store.readStudyLog().filter { (day, d) -> day < today.toString() && d.activity > 0 }.keys.maxOrNull()
+            val gap = lastStudy?.let { runCatching { java.time.temporal.ChronoUnit.DAYS.between(LocalDate.parse(it), today).toInt() }.getOrNull() } ?: 0
+            val workSlug = line?.workSlug.orEmpty()
+            val small = RemoteViews(pkg, R.layout.notif_small).apply {
+                setImageViewBitmap(R.id.notif_badge, art.stamp(due, workSlug, 40))
+                setTextViewText(R.id.notif_title, fading?.let { "「$it」が薄れてきた" } ?: "復習の時間 · $due 枚")
+                setTextViewText(R.id.notif_meta, listOfNotNull(drill.takeIf { it > 0 }?.let { "活用 $it" }, shiori.takeIf { it > 0 }?.let { "栞 $it" }).joinToString(" · "))
             }
-        }.getOrNull()
-        if (art == null) return Notification.BigTextStyle().bigText(message.body)
-        val summary = message.body.lines().drop(1).firstOrNull { it.isNotBlank() } ?: message.body.lineSequence().first()
-        return Notification.BigPictureStyle().bigPicture(art).setSummaryText(summary)
+            val big = RemoteViews(pkg, R.layout.notif_review_big).apply {
+                setImageViewBitmap(R.id.notif_card, art.reviewCard(drill, shiori, fading, gap, workSlug, ContentWidthDp))
+                setTextViewText(R.id.notif_go_meta, "约 ${((due * 10 + 59) / 60).coerceAtLeast(1)} 分钟")
+                setImageViewBitmap(R.id.notif_ramp, art.ramp(workSlug, ContentWidthDp))
+                setOnClickPendingIntent(R.id.notif_go, openIntent(context, ReminderTarget.Review))
+            }
+            return ReminderViews("復習到期", small, big, workSlug)
+        }
+
+        val morning = message.template == "morning"
+        val source = (if (morning) morningSource(store) else line?.let { lineSource(it) })?.takeIf { message.body.startsWith("「") }
+        if (source == null) {
+            val workSlug = line?.workSlug.orEmpty()
+            val small = RemoteViews(pkg, R.layout.notif_small).apply {
+                setImageViewBitmap(R.id.notif_badge, art.nameplate(markFor(workSlug), workSlug, 40))
+                setTextViewText(R.id.notif_title, message.title)
+                setTextViewText(R.id.notif_meta, message.body.lineSequence().first())
+            }
+            return ReminderViews("放課後チャイム", small, null, workSlug)
+        }
+        val small = RemoteViews(pkg, R.layout.notif_small).apply {
+            setImageViewBitmap(R.id.notif_badge, art.nameplate(markFor(source.workSlug), source.workSlug, 40))
+            setTextViewText(R.id.notif_title, source.ja)
+            setTextViewText(R.id.notif_meta, if (saved) "已挟入栞" else if (morning) source.eyebrow else message.title)
+        }
+        val big = RemoteViews(pkg, R.layout.notif_line_big).apply {
+            setImageViewBitmap(
+                R.id.notif_panel,
+                art.linePanel(source.ja, source.zh, source.eyebrow, source.seal, source.note, source.workSlug, ContentWidthDp, 170),
+            )
+            val canPlay = morning && TodayLineAudio.cached(context, source.ja) != null
+            val canSave = morning && !saved && source.entry.isNotBlank()
+            setViewVisibility(R.id.notif_actions, if (canPlay || canSave) android.view.View.VISIBLE else android.view.View.GONE)
+            setViewVisibility(R.id.notif_play, if (canPlay) android.view.View.VISIBLE else android.view.View.GONE)
+            setViewVisibility(R.id.notif_save, if (canSave) android.view.View.VISIBLE else android.view.View.GONE)
+            if (canPlay) {
+                setImageViewBitmap(R.id.notif_play_bars, art.voiceBars(source.workSlug))
+                setOnClickPendingIntent(R.id.notif_play, actionIntent(context, ActionPlayLine))
+            }
+            if (canSave) {
+                val label = android.text.SpannableString("挟む · 存进栞").apply {
+                    setSpan(android.text.style.TypefaceSpan("serif"), 0, 2, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    setSpan(android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, 2, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+                setTextViewText(R.id.notif_save, label)
+                setOnClickPendingIntent(R.id.notif_save, actionIntent(context, ActionSaveLine))
+            }
+        }
+        return ReminderViews(if (morning) "朝の一句" else "放課後チャイム", small, big, source.workSlug)
     }
+
+    private fun markFor(workSlug: String): String = WorkIdentity.representative(workSlug.ifBlank { "re-zero" })?.mark ?: "学"
+
+    private var sealIconCache: Icon? = null
+
+    /** The 学 seal: status bar, island and card header all show this instead of a generic glyph. */
+    fun sealIcon(context: Context): Icon =
+        sealIconCache ?: Icon.createWithBitmap(LabArt.sealIcon(context.applicationContext)).also { sealIconCache = it }
 
     private fun actionIntent(context: Context, action: String): PendingIntent = PendingIntent.getBroadcast(
         context,

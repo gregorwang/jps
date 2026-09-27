@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="notif_ink">#EDEDE8</color>
+    <color name="notif_ink2">#A9A8A1</color>
+    <color name="notif_ink3">#86857E</color>
+    <color name="notif_line2">#44443E</color>
+    <color name="notif_surface">#1C1C1A</color>
+    <color name="notif_ink_button_bg">#EDEDE8</color>
+    <color name="notif_ink_button_text">#1B1B19</color>
+    <color name="notif_ink_button_meta">#55544F</color>
+</resources>

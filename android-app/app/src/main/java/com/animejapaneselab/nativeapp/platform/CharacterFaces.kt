@@ -19,7 +19,7 @@ object CharacterFaces {
                 val options = BitmapFactory.Options().apply { inSampleSize = 2 }
                 val image = BitmapFactory.decodeResource(context.resources, res, options) ?: return@runCatching null
                 val face = character.face
-                val side = (image.width * face.size).coerceAtMost(minOf(image.width, image.height).toFloat()).toInt()
+                val side = (image.width * face.size * 1.35f).coerceAtMost(minOf(image.width, image.height).toFloat()).toInt()
                 val left = (image.width * face.cx - side / 2f).toInt().coerceIn(0, image.width - side)
                 val top = (image.height * face.cy - side / 2f).toInt().coerceIn(0, image.height - side)
                 Bitmap.createScaledBitmap(Bitmap.createBitmap(image, left, top, side, side), SizePx, SizePx, true)
