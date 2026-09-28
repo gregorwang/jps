@@ -53,7 +53,9 @@ App 课程每集只取前 30 个语法点、30 句台词（worker `order=sort_or
 - App：`exampleZh` 改为读 worker 的 `exampleZh`（以前错把 realWorldNote 当译文）；学习卡 note 的标签从「语气」改为「用法」；辞書语法条目不再显示旧的 AI 增强 `payload`（和新句型对不上）。
 - 没做：练习题里对应**窗口外**（第 31 条以后）语法点 / 台词的约 4500 题仍是旧答案，没清洗（不在本轮范围）。
 
+- 2026-09-28 晚：返工交回，`交回 795/795，改标保留 700，错误 0`；语法点 keep=false 降到 154（6%，碎片 73 + 重复 22 + 第一轮同集重复）。K-ON! 每集恢复到 11–15 条。抽查 30 条句型全对，偶有挑了次要句型（「ならともかく…から」挑了「から」）。`push_cloud.py --dry`：语法题改写 1519、下线 83，练习题共下线 686。
+
 ### 下一步
 
 1. 用户给 `sbp_` token → `SUPABASE_ACCESS_TOKEN=... python push_cloud.py` → 仓库根目录 `npx vite build && npx wrangler deploy` → 发版。
-2. 返工交回 → `python check.py`（要求 `交回 795/795`、错误 0）→ 抽查 → 重跑 `push_cloud.py`（worker 不用再动）。
+2. ~~返工~~：已交回并通过，第 1 步直接用现在的 json。
