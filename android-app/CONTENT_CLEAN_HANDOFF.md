@@ -40,3 +40,8 @@ App 课程每集只取前 30 个语法点、30 句台词（worker `order=sort_or
    - 练习题：按第 1 节表里的规则派生。
 4. 迁移记录写进 `supabase/migrations/`。App 端如需显示 `example_zh`，改 `data/` 解析（这属于数据层改动，按需做）。
 5. 编译、发版，CHANGELOG 写清楚改了哪些数据。
+
+## 4. 进度
+
+- 2026-09-28 上午：包已交给 Antigravity 开工（先台词后语法点）。下一步从第 3 节第 1 步开始。
+- 写回云端需要用户给 `sbp_` token；`keep=false` 的行怎么下线（要改 worker）先问用户。
