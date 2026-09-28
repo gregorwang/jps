@@ -847,7 +847,7 @@ class SampleLearningRepository {
                 exampleZh = point.exampleZh,
                 facts = listOf(
                     StudyFact("意思", compactExplanation),
-                    StudyFact("语气", point.realWorldNote),
+                    StudyFact("用法", point.realWorldNote),
                     StudyFact("场景", point.pragmaticsNote),
                 ).filter { it.text.isNotBlank() },
             )

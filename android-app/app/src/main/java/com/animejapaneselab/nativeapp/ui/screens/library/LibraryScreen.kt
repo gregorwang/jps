@@ -891,7 +891,6 @@ private fun GrammarEntry(
                 if (item.explanationZh.isNotBlank()) Text(item.explanationZh, style = type.body, color = colors.ink)
                 if (item.pragmaticsNote.isNotBlank()) Note("語気", item.pragmaticsNote)
                 if (!isLabelNote(item.realWorldNote)) Note("実際", item.realWorldNote)
-                EnrichmentNote(item.enrichment)
                 LinguisticNote(item.linguistic)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlineButton("講解", onAsk, compact = true)

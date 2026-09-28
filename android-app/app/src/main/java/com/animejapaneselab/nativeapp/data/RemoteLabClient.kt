@@ -503,7 +503,7 @@ class RemoteLabClient(
                 pattern = item.string("pattern", "句末"),
                 titleZh = item.string("functionZh", item.string("titleZh", "语气功能")),
                 exampleJa = item.string("jaExample", item.string("exampleJa")),
-                exampleZh = item.string("realWorldNote", item.string("exampleZh")),
+                exampleZh = item.string("exampleZh"),
                 explanationZh = item.string("explanationZh", item.string("pragmaticsNote", "线上语法点")),
                 pragmaticsNote = item.string("pragmaticsNote"),
                 realWorldNote = item.string("realWorldNote"),

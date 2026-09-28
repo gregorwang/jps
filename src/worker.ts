@@ -385,7 +385,8 @@ async function handleApi(request: Request, env: Env, url: URL) {
         env,
         `/rest/v1/learning_grammar_points?select=*&work_slug=eq.${encodeURIComponent(workSlug)}&episode=eq.${episodeNo}&order=sort_order.asc&limit=30`,
       )
-      const enrichedRows = await attachLinguisticPayloads(env, workSlug, 'grammar', rows)
+      // Same 30-row window as before the content clean; rows it retired drop out instead of letting row 31+ slide in.
+      const enrichedRows = await attachLinguisticPayloads(env, workSlug, 'grammar', rows.filter(isActiveRow))
       return json(enrichedRows.map(mapGrammar))
     }
 
@@ -394,7 +395,7 @@ async function handleApi(request: Request, env: Env, url: URL) {
         env,
         `/rest/v1/learning_sentences?select=*&work_slug=eq.${encodeURIComponent(workSlug)}&episode=eq.${episodeNo}&order=sort_order.asc&limit=30`,
       )
-      const enrichedRows = await attachLinguisticPayloads(env, workSlug, 'sentence', rows)
+      const enrichedRows = await attachLinguisticPayloads(env, workSlug, 'sentence', rows.filter(isActiveRow))
       return json(enrichedRows.map(mapSentence))
     }
 
@@ -404,7 +405,7 @@ async function handleApi(request: Request, env: Env, url: URL) {
       const limit = Number.isInteger(parsedLimit) ? Math.min(Math.max(parsedLimit, 1), 600) : 30
       const rows = await supabase<unknown[]>(
         env,
-        `/rest/v1/learning_exercises?select=*&work_slug=eq.${encodeURIComponent(workSlug)}&episode=eq.${episodeNo}&order=sort_order.asc,id.asc&limit=${limit}`,
+        `/rest/v1/learning_exercises?select=*&work_slug=eq.${encodeURIComponent(workSlug)}&episode=eq.${episodeNo}&is_active=eq.true&order=sort_order.asc,id.asc&limit=${limit}`,
       )
       return json(rows.map(mapExercise))
     }
@@ -4158,6 +4159,10 @@ function mapVocab(input: unknown) {
   }
 }
 
+function isActiveRow(row: unknown) {
+  return (row as Record<string, unknown>).is_active !== false
+}
+
 function mapGrammar(input: unknown) {
   const row = input as Record<string, unknown>
   return {
@@ -4166,6 +4171,7 @@ function mapGrammar(input: unknown) {
     functionZh: readLearningText(row, 'function_zh'),
     jaExample: readLearningText(row, 'ja_example'),
     explanationZh: readLearningText(row, 'explanation_zh'),
+    exampleZh: readLearningText(row, 'example_zh'),
     pragmaticsNote: readLearningText(row, 'pragmatics_note'),
     realWorldNote: readLearningText(row, 'real_world_note'),
     difficulty: readLearningText(row, 'difficulty'),
