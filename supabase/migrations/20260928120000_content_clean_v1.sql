@@ -10,7 +10,9 @@ alter table public.learning_exercises_backup_20260928 enable row level security;
 
 alter table public.learning_grammar_points
   add column if not exists example_zh text not null default '',
-  add column if not exists is_active boolean not null default true;
+  add column if not exists is_active boolean not null default true,
+  -- learning_set_updated_at() was already attached to this table, which had no updated_at: every update failed.
+  add column if not exists updated_at timestamptz not null default now();
 alter table public.learning_sentences add column if not exists is_active boolean not null default true;
 alter table public.learning_exercises add column if not exists is_active boolean not null default true;
 
