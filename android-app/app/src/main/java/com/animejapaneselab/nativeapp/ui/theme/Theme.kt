@@ -55,6 +55,8 @@ data class AjlColors(
     val badSoft: Color,
     /** 朱印 — stamps and seals that mean "done" or "identity". */
     val stamp: Color,
+    /** ♥ 掌握 in the 知識 feed (only the heart, never text). */
+    val heart: Color,
     /** Scrim under sheets and the command palette (already at 28%). */
     val scrim: Color,
     val isDark: Boolean,
@@ -77,6 +79,7 @@ val LightAjlColors = AjlColors(
     bad = Color(0xFFB8432F),
     badSoft = Color(0xFFF8E9E5),
     stamp = Color(0xFFB8432F),
+    heart = Color(0xFFD23B55),
     scrim = Color(0x471B1B19),
     isDark = false,
 )
@@ -98,6 +101,7 @@ val DarkAjlColors = AjlColors(
     bad = Color(0xFFF08E7A),
     badSoft = Color(0xFF3A2420),
     stamp = Color(0xFFF08E7A),
+    heart = Color(0xFFF27A8E),
     scrim = Color(0x8C000000),
     isDark = true,
 )

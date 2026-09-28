@@ -430,7 +430,7 @@ enum class LabTab(val jp: String, val label: String) {
     Jishu("自習", "自习"),
     Learn("練習", "练习"),
     Library("辞書", "资料"),
-    Review("復習", "复盘"),
+    Review("知識", "知识"),
 }
 
 /** Sub-state of [LabTab.Learn]: the 課程 / 言語学 text tabs. */

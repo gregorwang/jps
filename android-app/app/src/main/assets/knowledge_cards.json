@@ -1,0 +1,1758 @@
+{
+ "version": 1,
+ "decks": [
+  {
+   "id": "inf",
+   "title": "不定式在日语里怎么拆",
+   "source": "日语如何拆解英语不定式的功能.md",
+   "cards": [
+    {
+     "id": "inf-01",
+     "kind": "map",
+     "topic": "开篇",
+     "en": "to + V",
+     "title": "一个 to，十种活",
+     "rows": [
+      {
+       "label": "目的",
+       "a": "to buy",
+       "b": "I went to the store to buy milk."
+      },
+      {
+       "label": "动词补语",
+       "a": "want to",
+       "b": "I want to leave. / I decided to go."
+      },
+      {
+       "label": "名词补语",
+       "a": "chance to",
+       "b": "the decision to leave, a chance to win"
+      },
+      {
+       "label": "形容词补语",
+       "a": "easy to",
+       "b": "easy to understand, glad to help"
+      },
+      {
+       "label": "作主语",
+       "a": "To err…",
+       "b": "To err is human. / It is hard to say."
+      },
+      {
+       "label": "结果",
+       "a": "grew up to",
+       "b": "He grew up to become a doctor."
+      },
+      {
+       "label": "用途",
+       "a": "a knife to",
+       "b": "a knife to cut bread with"
+      },
+      {
+       "label": "换主语",
+       "a": "for you to",
+       "b": "It's important for you to be there."
+      }
+     ],
+     "rule": "英语用一个形式包下所有功能；日语给每种功能各开一条路——所以找不到“日语的 to”。",
+     "notes": [
+      {
+       "h": "两大类",
+       "b": "这些用法可以分成两类：表目的（去做、用来做），和把一个动作嵌进另一个谓语（补语、主语、结果）。后面的卡按这两条线拆。"
+      }
+     ]
+    },
+    {
+     "id": "inf-02",
+     "kind": "origin",
+     "topic": "开篇 · 为什么",
+     "en": "where “to” comes from",
+     "title": "to 本来是方向介词",
+     "steps": [
+      {
+       "head": "tō lufienne",
+       "text": "古英语：方向介词 tō ＋ 动名词的与格 = “朝着爱这件事”"
+      },
+      {
+       "head": "词尾脱落",
+       "text": "中古英语格变化崩溃，-enne 掉了，看起来就成了 to ＋ 原形"
+      },
+      {
+       "head": "to 虚化",
+       "text": "不再表“朝向”，只标记“后面是个不定式”，还吞并了 want、decide 后面的位置"
+      }
+     ],
+     "rule": "和日语「に」同一个起点：方向 → 目的。只是英语一路扩张，日语把它锁在移动动词后面。"
+    },
+    {
+     "id": "inf-03",
+     "kind": "pattern",
+     "topic": "类型学",
+     "en": "didn't want to be made to eat",
+     "title": "一个词缀，一个功能",
+     "parts": [
+      {
+       "w": "食べ",
+       "l1": "词干"
+      },
+      {
+       "w": "させ",
+       "l1": "使役"
+      },
+      {
+       "w": "られ",
+       "l1": "被动"
+      },
+      {
+       "w": "たく",
+       "l1": "愿望",
+       "hl": true
+      },
+      {
+       "w": "なかっ",
+       "l1": "否定·过去"
+      },
+      {
+       "w": "た",
+       "l1": "结句"
+      }
+     ],
+     "examples": [
+      {
+       "ja": "食べさせられたくなかった。",
+       "target": "たく",
+       "romaji": "tabesaseraretaku nakatta",
+       "zh": "（那时）不想被逼着吃。"
+      }
+     ],
+     "rule": "日语是黏着语：功能多，就多粘几个词缀，不需要一个 to 去打包。",
+     "notes": [
+      {
+       "h": "动词永远在句末",
+       "b": "日语是核心后置：先说从句内容，再用助词、形式名词把它接上主句。这就是后面「こと」「の」「ため」的土壤。"
+      }
+     ]
+    },
+    {
+     "id": "inf-04",
+     "kind": "pattern",
+     "topic": "連用形",
+     "en": "the “linking” form",
+     "title": "連用形 = 往后接的形",
+     "parts": [
+      {
+       "w": "書き",
+       "l1": "書く",
+       "l2": "連用形",
+       "hl": true
+      },
+      {
+       "w": "ます・たい・始める",
+       "l1": "后面接用言",
+       "l2": ""
+      }
+     ],
+     "examples": [
+      {
+       "ja": "手紙を書き始める。",
+       "target": "書き",
+       "romaji": "tegami o kaki hajimeru",
+       "zh": "开始写信。"
+      },
+      {
+       "ja": "ケーキが食べたい。",
+       "target": "食べ",
+       "romaji": "keeki ga tabetai",
+       "zh": "想吃蛋糕。"
+      }
+     ],
+     "rule": "連用形自己不能结句，专门往后接动词、形容词、助动词——类型学叫 converb。",
+     "notes": [
+      {
+       "h": "怎么变",
+       "b": "五段：書く → 書き（う段变い段）。一段：食べる → 食べ（去掉る）。する → し，来る → き。"
+      }
+     ]
+    },
+    {
+     "id": "inf-05",
+     "kind": "origin",
+     "topic": "連用形 · 为什么",
+     "en": "a half-noun",
+     "title": "連用形本来能当名词",
+     "glyph": {
+      "text": "思ひ",
+      "reading": "おもい",
+      "meaning": "思念 ← 思ふ 的連用形"
+     },
+     "steps": [
+      {
+       "head": "思ひ・祝ひ",
+       "text": "上代日语里，動詞的連用形直接就是名词，今天还留在词典里"
+      },
+      {
+       "head": "見 ＋ に",
+       "text": "所以它能像名词一样接格助词 → 見に行く"
+      },
+      {
+       "head": "見 ＋ 始める",
+       "text": "也能像名词一样和别的词拼成新词 → 复合动词"
+      }
+     ],
+     "rule": "“半名词”的身份，让連用形既能造词，又能接助词表目的。"
+    },
+    {
+     "id": "inf-06",
+     "kind": "pattern",
+     "topic": "連用形",
+     "en": "…, and …",
+     "title": "連用形中顿：连起两句",
+     "parts": [
+      {
+       "w": "降り",
+       "l1": "降る",
+       "l2": "連用形",
+       "hl": true
+      },
+      {
+       "w": "、",
+       "l1": "停顿"
+      },
+      {
+       "w": "吹く",
+       "l1": "下一句"
+      }
+     ],
+     "examples": [
+      {
+       "ja": "雨が降り、風が吹く。",
+       "target": "降り",
+       "romaji": "ame ga furi, kaze ga fuku",
+       "zh": "下着雨，刮着风。"
+      }
+     ],
+     "rule": "这是連用形更古老的“连接小句”用法，现在只在书面语、新闻里见。",
+     "limit": {
+      "mark": "≠",
+      "ja": "雨が降って、風が吹く。",
+      "why": "口语里这个活交给了 て形"
+     }
+    },
+    {
+     "id": "inf-07",
+     "kind": "pattern",
+     "topic": "目的 ①",
+     "en": "go to watch",
+     "title": "連用形 ＋ に ＋ 移動動詞",
+     "parts": [
+      {
+       "w": "見",
+       "l1": "見る",
+       "l2": "連用形"
+      },
+      {
+       "w": "に",
+       "l1": "方向 → 目的",
+       "hl": true
+      },
+      {
+       "w": "行く",
+       "l1": "移动动词"
+      }
+     ],
+     "examples": [
+      {
+       "ja": "映画を見に行く。",
+       "target": "見に行く",
+       "romaji": "eiga o mi ni iku",
+       "zh": "去看电影。"
+      },
+      {
+       "ja": "新しいゲームを買いに行く。",
+       "target": "買いに行く",
+       "romaji": "atarashii geemu o kai ni iku",
+       "zh": "去买新游戏。"
+      },
+      {
+       "ja": "友達に会いに空港まで行った。",
+       "target": "会いに",
+       "romaji": "tomodachi ni ai ni kuukou made itta",
+       "zh": "为了见朋友，去了趟机场。"
+      }
+     ],
+     "rule": "「に」标的是移动的终点——学校に行く 的终点是学校，見に行く 的终点是“看”这件事。",
+     "limit": {
+      "mark": "✕",
+      "ja": "本を読みに食べる",
+      "why": "后面只能是 行く・来る・帰る・戻る・出かける 这类移动动词"
+     }
+    },
+    {
+     "id": "inf-08",
+     "kind": "contrast",
+     "topic": "目的 ①",
+     "en": "go to watch / watch, then go",
+     "title": "に行く か て行く",
+     "a": "見に行く",
+     "b": "見て行く",
+     "rows": [
+      {
+       "label": "意思",
+       "a": "去看（看是目的）",
+       "b": "看了再走"
+      },
+      {
+       "label": "看了吗",
+       "a": "还没，要去看",
+       "b": "先看了"
+      },
+      {
+       "label": "两个动作",
+       "a": "目的 - 手段",
+       "b": "先后顺承"
+      }
+     ],
+     "examples": [
+      {
+       "ja": "日本に留学しに行く。",
+       "target": "留学しに行く",
+       "romaji": "nihon ni ryuugaku shi ni iku",
+       "zh": "去日本留学。"
+      },
+      {
+       "ja": "ちょっと見て行こう。",
+       "target": "見て行こう",
+       "romaji": "chotto mite ikou",
+       "zh": "顺路看一下再走吧。"
+      }
+     ],
+     "rule": "に 接“目标”，て 接“下一个动作”。"
+    },
+    {
+     "id": "inf-09",
+     "kind": "quiz",
+     "topic": "自测 · 目的 ①",
+     "title": "に か て",
+     "quiz": {
+      "before": "新しいゲームを買い",
+      "after": "行く。",
+      "zh": "去买新游戏。",
+      "options": [
+       "に",
+       "て"
+      ],
+      "answer": 0,
+      "why": "买游戏是去的目的，还没买 → 連用形 ＋ に ＋ 行く。買って行く 是“买了再走”。",
+      "tests": "inf-07"
+     }
+    },
+    {
+     "id": "inf-10",
+     "kind": "trap",
+     "topic": "陷阱 · 目的 ①",
+     "en": "study in order to read",
+     "title": "に行く 只跟移动动词",
+     "examples": [
+      {
+       "ja": "本を読みに勉強する。",
+       "target": "読みに勉強する",
+       "romaji": "hon o yomi ni benkyou suru",
+       "zh": ""
+      },
+      {
+       "ja": "本を読むために勉強する。",
+       "target": "読むために",
+       "romaji": "hon o yomu tame ni benkyou suru",
+       "zh": "为了读书而学习。"
+      }
+     ],
+     "rule": "に 在这里还是“移动的终点”，勉強する 没有“去哪儿”这个空位。不是移动，就换 ため。"
+    },
+    {
+     "id": "inf-11",
+     "kind": "origin",
+     "topic": "目的 ② · 为什么",
+     "en": "for the sake of",
+     "title": "「ため」本来是个名词",
+     "glyph": {
+      "text": "為",
+      "reading": "ため",
+      "meaning": "利益 · 缘故"
+     },
+     "steps": [
+      {
+       "head": "彼のためを思う",
+       "text": "为他着想——这里还是实义名词“利益”"
+      },
+      {
+       "head": "合格するために",
+       "text": "连体形 ＋ ため ＋ に——变成目的标记"
+      },
+      {
+       "head": "只接意志动词",
+       "text": "“为了利益去做”，得有人主动去做"
+      }
+     ],
+     "rule": "限制是词源带来的：ため 天生带着“主动去追求”。",
+     "notes": [
+      {
+       "h": "和 見に行く 是一家",
+       "b": "都是“先变成名词性的东西，再用 に 接到主句上”。見に行く 靠連用形的半名词身份，ために 靠 ため 本身就是名词。"
+      }
+     ]
+    },
+    {
+     "id": "inf-12",
+     "kind": "pattern",
+     "topic": "目的 ②",
+     "en": "study to pass",
+     "title": "〜ために：为了",
+     "parts": [
+      {
+       "w": "合格する",
+       "l1": "连体形",
+       "l2": "意志动词"
+      },
+      {
+       "w": "ため",
+       "l1": "为 · 利益",
+       "hl": true
+      },
+      {
+       "w": "に",
+       "l1": "格助词"
+      }
+     ],
+     "examples": [
+      {
+       "ja": "N1に合格するために、毎日勉強している。",
+       "target": "合格するために",
+       "romaji": "enu-wan ni goukaku suru tame ni, mainichi benkyou shite iru",
+       "zh": "为了考过 N1，每天都在学。"
+      },
+      {
+       "ja": "N1に合格するために、毎日文法を復習している。",
+       "target": "ために",
+       "romaji": "enu-wan ni goukaku suru tame ni, mainichi bunpou o fukushuu shite iru",
+       "zh": "为了考过 N1，每天复习语法。"
+      }
+     ],
+     "rule": "前面是意志动词，而且前后通常是同一个人。",
+     "limit": {
+      "mark": "✕",
+      "ja": "合格するために、先生が私を指導する。",
+      "why": "考的是我，指导的是老师，主语不同 → 用 ように"
+     }
+    },
+    {
+     "id": "inf-13",
+     "kind": "origin",
+     "topic": "目的 ② · 为什么",
+     "en": "like → so that → come to",
+     "title": "「ように」来自「様」",
+     "glyph": {
+      "text": "様",
+      "reading": "よう",
+      "meaning": "样子 · 方式"
+     },
+     "steps": [
+      {
+       "head": "鳥のように飛ぶ",
+       "text": "像鸟一样飞——比况，最早的用法"
+      },
+      {
+       "head": "合格するように勉強する",
+       "text": "学习，好让结果变成那个样子——目的"
+      },
+      {
+       "head": "話せるようになった",
+       "text": "变成了那个样子——结果（接 なる）"
+      }
+     ],
+     "rule": "ように 只关心“结果变成什么样”，所以不要求意志，也不要求同一个主语。"
+    },
+    {
+     "id": "inf-14",
+     "kind": "pattern",
+     "topic": "目的 ②",
+     "en": "so that I can…",
+     "title": "〜ように：好让…",
+     "parts": [
+      {
+       "w": "わかる",
+       "l1": "非意志 · 可能",
+       "l2": ""
+      },
+      {
+       "w": "ように",
+       "l1": "様 ＋ に",
+       "l2": "样子",
+       "hl": true
+      }
+     ],
+     "examples": [
+      {
+       "ja": "日本語がわかるように、毎日勉強している。",
+       "target": "わかるように",
+       "romaji": "nihongo ga wakaru you ni, mainichi benkyou shite iru",
+       "zh": "为了能听懂日语，每天都在学。"
+      },
+      {
+       "ja": "N1に合格するように、毎日勉強している。",
+       "target": "ように",
+       "romaji": "enu-wan ni goukaku suru you ni, mainichi benkyou shite iru",
+       "zh": "为了能考过 N1，每天都在学。"
+      }
+     ],
+     "rule": "わかる・聞こえる・治る・間に合う 这类“自己发生”的，只能用 ように。",
+     "limit": {
+      "mark": "✕",
+      "ja": "日本語がわかるために",
+      "why": "わかる 不是你想做就能做的动作，和 ため 不搭"
+     }
+    },
+    {
+     "id": "inf-15",
+     "kind": "contrast",
+     "topic": "目的 ②",
+     "en": "in order to / so that",
+     "title": "ため か ように",
+     "a": "ため",
+     "b": "ように",
+     "rows": [
+      {
+       "label": "前面的动词",
+       "a": "意志动词",
+       "b": "非意志 · 可能形也行"
+      },
+      {
+       "label": "主语",
+       "a": "前后同一个",
+       "b": "可以不同"
+      },
+      {
+       "label": "否定",
+       "a": "很少用",
+       "b": "〜ないように"
+      }
+     ],
+     "examples": [
+      {
+       "ja": "合格するために勉強する。",
+       "target": "ために",
+       "romaji": "goukaku suru tame ni benkyou suru",
+       "zh": "为了考上而学习。"
+      },
+      {
+       "ja": "わかるように毎日聞く。",
+       "target": "ように",
+       "romaji": "wakaru you ni mainichi kiku",
+       "zh": "为了能听懂，每天都听。"
+      }
+     ],
+     "rule": "「ため」问你为了什么去做；「ように」问你想要什么状态。"
+    },
+    {
+     "id": "inf-16",
+     "kind": "pattern",
+     "topic": "目的 ②",
+     "en": "so as not to…",
+     "title": "〜ないように：以免",
+     "parts": [
+      {
+       "w": "忘れない",
+       "l1": "否定形"
+      },
+      {
+       "w": "ように",
+       "l1": "避免那个样子",
+       "hl": true
+      }
+     ],
+     "examples": [
+      {
+       "ja": "忘れないように、メモを取った。",
+       "target": "忘れないように",
+       "romaji": "wasurenai you ni, memo o totta",
+       "zh": "为了不忘，记了笔记。"
+      },
+      {
+       "ja": "風邪をひかないように、気をつけてください。",
+       "target": "ひかないように",
+       "romaji": "kaze o hikanai you ni, ki o tsukete kudasai",
+       "zh": "小心别感冒了。"
+      }
+     ],
+     "rule": "“以免……”几乎都说 〜ないように：它本来就是“避免某种样子出现”。",
+     "limit": {
+      "mark": "≠",
+      "ja": "〜ないために",
+      "why": "能说，但偏书面，像说明书：故障を防ぐため…"
+     }
+    },
+    {
+     "id": "inf-17",
+     "kind": "trap",
+     "topic": "陷阱 · 目的 ②",
+     "en": "listen every day to understand",
+     "title": "わかる 不接 ため",
+     "examples": [
+      {
+       "ja": "日本語がわかるために、毎日聞いている。",
+       "target": "わかるために",
+       "romaji": "nihongo ga wakaru tame ni, mainichi kiite iru",
+       "zh": ""
+      },
+      {
+       "ja": "日本語がわかるように、毎日聞いている。",
+       "target": "わかるように",
+       "romaji": "nihongo ga wakaru you ni, mainichi kiite iru",
+       "zh": "为了能听懂日语，每天都在听。"
+      }
+     ],
+     "rule": "わかる 是自然达成的状态，不是能“主动去做”的动作，满足不了 ため 的意志要求。"
+    },
+    {
+     "id": "inf-18",
+     "kind": "quiz",
+     "topic": "自测 · 目的 ②",
+     "title": "ため か ように",
+     "quiz": {
+      "before": "日本に留学する",
+      "after": "、お金を貯めている。",
+      "zh": "为了去日本留学，在存钱。",
+      "options": [
+       "ため",
+       "ように"
+      ],
+      "answer": 0,
+      "why": "留学する 是意志动作，存钱的也是同一个人 → ため（に）。",
+      "tests": "inf-15"
+     }
+    },
+    {
+     "id": "inf-19",
+     "kind": "quiz",
+     "topic": "自测 · 目的 ②",
+     "title": "ため か ように",
+     "quiz": {
+      "before": "電車に間に合う",
+      "after": "、早く家を出た。",
+      "zh": "为了赶上电车，早早出了门。",
+      "options": [
+       "ため",
+       "ように"
+      ],
+      "answer": 1,
+      "why": "間に合う 说的是“赶不赶得上”这个结果，不是想做就能做到 → ように。",
+      "tests": "inf-15"
+     }
+    },
+    {
+     "id": "inf-20",
+     "kind": "quiz",
+     "topic": "自测 · 目的 ②",
+     "title": "以免……",
+     "quiz": {
+      "before": "風邪を引かない",
+      "after": "、暖かい服を着てください。",
+      "zh": "穿暖和点，别感冒了。",
+      "options": [
+       "ため",
+       "ように"
+      ],
+      "answer": 1,
+      "why": "否定的目的（以免）几乎固定用 〜ないように。",
+      "tests": "inf-16"
+     }
+    },
+    {
+     "id": "inf-21",
+     "kind": "quiz",
+     "topic": "自测 · 目的 ②",
+     "title": "ため か ように",
+     "quiz": {
+      "before": "息子が有名な大学に入れる",
+      "after": "、親は頑張って働いた。",
+      "zh": "为了让儿子能进名牌大学，父母拼命工作。",
+      "options": [
+       "ため",
+       "ように"
+      ],
+      "answer": 1,
+      "why": "入れる 是可能形，而且“进大学”的是儿子、“工作”的是父母——两个条件都指向 ように。",
+      "tests": "inf-15"
+     }
+    },
+    {
+     "id": "inf-22",
+     "kind": "pattern",
+     "topic": "愿望",
+     "en": "want to watch",
+     "title": "連用形 ＋ たい",
+     "parts": [
+      {
+       "w": "見",
+       "l1": "見る",
+       "l2": "連用形"
+      },
+      {
+       "w": "たい",
+       "l1": "想",
+       "l2": "按形容词变",
+       "hl": true
+      }
+     ],
+     "examples": [
+      {
+       "ja": "このアニメの続きが早く見たい。",
+       "target": "見たい",
+       "romaji": "kono anime no tsuzuki ga hayaku mitai",
+       "zh": "好想快点看这部番的续集。"
+      },
+      {
+       "ja": "あの店には、もう行きたくない。",
+       "target": "行きたくない",
+       "romaji": "ano mise ni wa, mou ikitaku nai",
+       "zh": "那家店再也不想去了。"
+      }
+     ],
+     "rule": "英语 want to watch 是两个动词一层嵌套；日语 見たい 是一个词。",
+     "notes": [
+      {
+       "h": "像形容词一样变",
+       "b": "見たい → 見たかった（想看过）→ 見たくない（不想看）→ 見たければ（如果想看）。"
+      }
+     ]
+    },
+    {
+     "id": "inf-23",
+     "kind": "origin",
+     "topic": "愿望 · 为什么",
+     "en": "wanting is a state, not an action",
+     "title": "为什么 たい 是形容词",
+     "steps": [
+      {
+       "head": "見たい",
+       "text": "≈（对我来说）看这件事是“让人想要的”——“想要”是挂在我身上的状态"
+      },
+      {
+       "head": "同一家族",
+       "text": "わかる（能懂）、やすい・にくい（难易）、痛い（疼）：都是说不清是不是自己控制的内在状态"
+      },
+      {
+       "head": "所以",
+       "text": "日语把愿望、能力、难易这类“状态”做成形容词性谓语，而不是动作"
+      }
+     ],
+     "rule": "“想”不是一个动作，是一种状态——日语的语法就是这么分类的。"
+    },
+    {
+     "id": "inf-24",
+     "kind": "trap",
+     "topic": "陷阱 · 愿望",
+     "en": "Tanaka wants to travel.",
+     "title": "别人想要，不说 たい",
+     "examples": [
+      {
+       "ja": "田中さんは旅行に行きたい。",
+       "target": "たい",
+       "romaji": "tanaka-san wa ryokou ni ikitai",
+       "zh": ""
+      },
+      {
+       "ja": "田中さんは旅行に行きたがっている。",
+       "target": "たがっている",
+       "romaji": "tanaka-san wa ryokou ni ikitagatte iru",
+       "zh": "田中很想去旅行（看得出来）。"
+      }
+     ],
+     "rule": "たい 是只有自己能确知的内心状态。说别人，要用 がる 把它变成“看得出来的样子”。",
+     "notes": [
+      {
+       "h": "什么时候第三人称也能用 たい",
+       "b": "问句：行きたいですか。引用：行きたいと言っていた。推测：行きたいらしい。"
+      },
+      {
+       "h": "同类",
+       "b": "ほしい → ほしがる · 怖い → 怖がる · 痛い → 痛がる"
+      }
+     ]
+    },
+    {
+     "id": "inf-25",
+     "kind": "quiz",
+     "topic": "自测 · 愿望",
+     "title": "说别人的愿望",
+     "quiz": {
+      "before": "妹は新しいゲームを買い",
+      "after": "いる。",
+      "zh": "妹妹很想买新游戏。",
+      "options": [
+       "たがって",
+       "たくて"
+      ],
+      "answer": 0,
+      "why": "妹妹是第三人称，她想不想你只能“看出来” → たがっている。",
+      "tests": "inf-24"
+     }
+    },
+    {
+     "id": "inf-26",
+     "kind": "pattern",
+     "topic": "难易",
+     "en": "easy / hard to read",
+     "title": "やすい・にくい・がたい",
+     "parts": [
+      {
+       "w": "読み",
+       "l1": "読む",
+       "l2": "連用形"
+      },
+      {
+       "w": "やすい",
+       "l1": "好…",
+       "l2": "易い",
+       "hl": true
+      }
+     ],
+     "examples": [
+      {
+       "ja": "この本は読みやすい。",
+       "target": "読みやすい",
+       "romaji": "kono hon wa yomiyasui",
+       "zh": "这本书好读。"
+      },
+      {
+       "ja": "このキャラクターの台詞は聞き取りにくい。",
+       "target": "聞き取りにくい",
+       "romaji": "kono kyarakutaa no serifu wa kikitori nikui",
+       "zh": "这个角色的台词很难听清。"
+      },
+      {
+       "ja": "忘れがたい夏だった。",
+       "target": "忘れがたい",
+       "romaji": "wasure gatai natsu datta",
+       "zh": "那是一个难以忘怀的夏天。"
+      }
+     ],
+     "rule": "主语是“被读的东西”，描写它本身好不好读——跟谁想不想读无关。",
+     "notes": [
+      {
+       "h": "三个的区别",
+       "b": "やすい 好做；にくい 难做（和 憎い 同根，难做的事让人烦）；がたい 更书面，多指心理上、情理上做不到。"
+      }
+     ]
+    },
+    {
+     "id": "inf-27",
+     "kind": "contrast",
+     "topic": "难易",
+     "en": "I want to read / It's easy to read",
+     "title": "たい か やすい",
+     "a": "読みたい",
+     "b": "読みやすい",
+     "rows": [
+      {
+       "label": "主语是",
+       "a": "想读的人",
+       "b": "被读的东西"
+      },
+      {
+       "label": "描写",
+       "a": "人的意愿",
+       "b": "东西的属性"
+      },
+      {
+       "label": "英语",
+       "a": "want to read",
+       "b": "easy to read"
+      }
+     ],
+     "examples": [
+      {
+       "ja": "この本が読みたい。",
+       "target": "読みたい",
+       "romaji": "kono hon ga yomitai",
+       "zh": "我想读这本书。"
+      },
+      {
+       "ja": "この本は読みやすい。",
+       "target": "読みやすい",
+       "romaji": "kono hon wa yomiyasui",
+       "zh": "这本书好读。"
+      }
+     ],
+     "rule": "构词一样（連用形 ＋ 形容词词缀），主语完全相反。"
+    },
+    {
+     "id": "inf-28",
+     "kind": "pattern",
+     "topic": "名词化",
+     "en": "To err is human.",
+     "title": "〜こと：把动作变成“事”",
+     "parts": [
+      {
+       "w": "間違える",
+       "l1": "连体形"
+      },
+      {
+       "w": "こと",
+       "l1": "形式名词",
+       "l2": "这件事",
+       "hl": true
+      },
+      {
+       "w": "は",
+       "l1": "主题"
+      }
+     ],
+     "examples": [
+      {
+       "ja": "間違えることは人間らしい。",
+       "target": "間違えること",
+       "romaji": "machigaeru koto wa ningen rashii",
+       "zh": "犯错是人之常情。"
+      },
+      {
+       "ja": "毎日少しずつ勉強することが大事だ。",
+       "target": "勉強すること",
+       "romaji": "mainichi sukoshi zutsu benkyou suru koto ga daiji da",
+       "zh": "每天学一点，这很重要。"
+      }
+     ],
+     "rule": "英语让不定式直接当主语；日语先用 こと／の 把整句名词化，再当名词用。"
+    },
+    {
+     "id": "inf-29",
+     "kind": "contrast",
+     "topic": "名词化",
+     "en": "that-clause / seeing it happen",
+     "title": "こと か の",
+     "a": "こと",
+     "b": "の",
+     "rows": [
+      {
+       "label": "那件事是",
+       "a": "能转述的命题",
+       "b": "看得见听得见的场景"
+      },
+      {
+       "label": "常跟",
+       "a": "言う・伝える・決める・証明する",
+       "b": "見る・聞く・聞こえる"
+      },
+      {
+       "label": "固定搭配",
+       "a": "ことができる",
+       "b": ""
+      }
+     ],
+     "examples": [
+      {
+       "ja": "明日休むことを伝えた。",
+       "target": "休むこと",
+       "romaji": "ashita yasumu koto o tsutaeta",
+       "zh": "转告了明天请假这件事。"
+      },
+      {
+       "ja": "彼が歌を歌っているのを見た。",
+       "target": "歌っているの",
+       "romaji": "kare ga uta o utatte iru no o mita",
+       "zh": "看见他在唱歌。"
+      }
+     ],
+     "rule": "脑子里有画面，用 の；是一句能被转述、决定、证明的话，用 こと。"
+    },
+    {
+     "id": "inf-30",
+     "kind": "trap",
+     "topic": "陷阱 · 名词化",
+     "en": "I told them that he was crying.",
+     "title": "转告用 こと，看见用 の",
+     "examples": [
+      {
+       "ja": "彼が泣いているのを伝えた。",
+       "target": "の",
+       "romaji": "kare ga naite iru no o tsutaeta",
+       "zh": ""
+      },
+      {
+       "ja": "彼が泣いていることを伝えた。",
+       "target": "こと",
+       "romaji": "kare ga naite iru koto o tsutaeta",
+       "zh": "转告了他在哭这件事。"
+      }
+     ],
+     "rule": "伝える 转达的是抽象内容，不是一个画面 → こと。",
+     "notes": [
+      {
+       "h": "反过来也错",
+       "b": "✕ 彼が泣いていることを見た。看见的是具体画面 → ○ 彼が泣いているのを見た。"
+      }
+     ]
+    },
+    {
+     "id": "inf-31",
+     "kind": "quiz",
+     "topic": "自测 · 名词化",
+     "title": "こと か の",
+     "quiz": {
+      "before": "誰かが階段を降りてくる",
+      "after": "が聞こえた。",
+      "zh": "听见有人下楼梯。",
+      "options": [
+       "こと",
+       "の"
+      ],
+      "answer": 1,
+      "why": "聞こえる 是知觉动词，听到的是一个正在发生的场景 → の。",
+      "tests": "inf-29"
+     }
+    },
+    {
+     "id": "inf-32",
+     "kind": "quiz",
+     "topic": "自测 · 名词化",
+     "title": "こと か の",
+     "quiz": {
+      "before": "毎日運動する",
+      "after": "は健康にいい。",
+      "zh": "每天运动对健康有好处。",
+      "options": [
+       "こと",
+       "の"
+      ],
+      "answer": 0,
+      "why": "这是一句一般论断，不是某个具体画面 → こと。",
+      "tests": "inf-29"
+     }
+    },
+    {
+     "id": "inf-33",
+     "kind": "quiz",
+     "topic": "自测 · 名词化",
+     "title": "こと か の",
+     "quiz": {
+      "before": "彼が犯人である",
+      "after": "を証明した。",
+      "zh": "证明了他是犯人。",
+      "options": [
+       "こと",
+       "の"
+      ],
+      "answer": 0,
+      "why": "证明的是一个命题（他是犯人）→ こと。",
+      "tests": "inf-29"
+     }
+    },
+    {
+     "id": "inf-34",
+     "kind": "pattern",
+     "topic": "能力",
+     "en": "be able to run",
+     "title": "〜ことができる",
+     "parts": [
+      {
+       "w": "走る",
+       "l1": "连体形"
+      },
+      {
+       "w": "こと",
+       "l1": "这件事",
+       "hl": true
+      },
+      {
+       "w": "が",
+       "l1": "主格"
+      },
+      {
+       "w": "できる",
+       "l1": "能成立"
+      }
+     ],
+     "examples": [
+      {
+       "ja": "十キロ走ることができる。",
+       "target": "走ることができる",
+       "romaji": "juk-kiro hashiru koto ga dekiru",
+       "zh": "能跑十公里。"
+      }
+     ],
+     "rule": "先把“跑”变成一件事，再说这件事“能成立”——又是“先名词化”。",
+     "limit": {
+      "mark": "≠",
+      "ja": "十キロ走れる。",
+      "why": "意思一样；ことができる 偏书面，可能形 走れる 偏口语"
+     }
+    },
+    {
+     "id": "inf-35",
+     "kind": "pattern",
+     "topic": "打算",
+     "en": "I'm thinking of going",
+     "title": "意志形 ＋ と思う",
+     "parts": [
+      {
+       "w": "行こう",
+       "l1": "意志形",
+       "l2": "“去吧”"
+      },
+      {
+       "w": "と",
+       "l1": "引用",
+       "hl": true
+      },
+      {
+       "w": "思う",
+       "l1": "想"
+      }
+     ],
+     "examples": [
+      {
+       "ja": "来年、日本語能力試験を受けようと思っている。",
+       "target": "受けようと思っている",
+       "romaji": "rainen, nihongo nouryoku shiken o ukeyou to omotte iru",
+       "zh": "我打算明年考日语能力考试。"
+      }
+     ],
+     "rule": "把“打算”说成引用自己心里的一句“去吧！”，再用 思う 包起来。",
+     "notes": [
+      {
+       "h": "意志形怎么变",
+       "b": "五段：行く → 行こう、読む → 読もう。一段：食べる → 食べよう。する → しよう，来る → こよう。"
+      }
+     ]
+    },
+    {
+     "id": "inf-36",
+     "kind": "contrast",
+     "topic": "打算",
+     "en": "I think I'll go / I intend to go",
+     "title": "と思う か つもりだ",
+     "a": "行こうと思う",
+     "b": "行くつもりだ",
+     "rows": [
+      {
+       "label": "语感",
+       "a": "此刻冒出来的念头",
+       "b": "已经定好的计划"
+      },
+      {
+       "label": "接法",
+       "a": "意志形 ＋ と思う",
+       "b": "连体形 ＋ つもりだ"
+      },
+      {
+       "label": "つもり 是",
+       "a": "",
+       "b": "形式名词：心里的盘算"
+      }
+     ],
+     "examples": [
+      {
+       "ja": "今日は早く寝ようと思う。",
+       "target": "寝ようと思う",
+       "romaji": "kyou wa hayaku neyou to omou",
+       "zh": "今天想早点睡。"
+      },
+      {
+       "ja": "夏休みに京都へ行くつもりだ。",
+       "target": "行くつもりだ",
+       "romaji": "natsuyasumi ni kyouto e iku tsumori da",
+       "zh": "暑假打算去京都。"
+      }
+     ],
+     "rule": "つもりだ 和 ことができる 是一家：形式名词把动作“物化”，再用 だ 断言。"
+    },
+    {
+     "id": "inf-37",
+     "kind": "pattern",
+     "topic": "尝试",
+     "en": "try doing",
+     "title": "て形 ＋ みる",
+     "parts": [
+      {
+       "w": "やって",
+       "l1": "て形"
+      },
+      {
+       "w": "みる",
+       "l1": "看 → 试试",
+       "l2": "补助动词",
+       "hl": true
+      }
+     ],
+     "examples": [
+      {
+       "ja": "とりあえず、この文法で例文を作ってみた。",
+       "target": "作ってみた",
+       "romaji": "toriaezu, kono bunpou de reibun o tsukutte mita",
+       "zh": "先试着用这个语法造了个句子。"
+      },
+      {
+       "ja": "一口食べてみる？",
+       "target": "食べてみる",
+       "romaji": "hitokuchi tabete miru?",
+       "zh": "尝一口？"
+      }
+     ],
+     "rule": "みる 已经不是“用眼睛看”，只剩“做一下看看结果”。"
+    },
+    {
+     "id": "inf-38",
+     "kind": "pattern",
+     "topic": "希望别人做",
+     "en": "I want you to go",
+     "title": "〜てほしい",
+     "parts": [
+      {
+       "w": "あなたに",
+       "l1": "对象"
+      },
+      {
+       "w": "行って",
+       "l1": "て形"
+      },
+      {
+       "w": "ほしい",
+       "l1": "想要得到",
+       "hl": true
+      }
+     ],
+     "examples": [
+      {
+       "ja": "もう少しゆっくり話してほしい。",
+       "target": "話してほしい",
+       "romaji": "mou sukoshi yukkuri hanashite hoshii",
+       "zh": "希望（你）说慢一点。"
+      },
+      {
+       "ja": "あなたに行ってほしい。",
+       "target": "行ってほしい",
+       "romaji": "anata ni itte hoshii",
+       "zh": "我希望你去。"
+      }
+     ],
+     "rule": "ほしい 本来是“想要某样东西”（新しい靴が欲しい），这里把“你去”当成想要的东西。",
+     "limit": {
+      "mark": "✕",
+      "ja": "あなたが行きたい",
+      "why": "たい 只能是自己想——这句意思变成“你自己想去”"
+     },
+     "notes": [
+      {
+       "h": "更客气",
+       "b": "行ってもらいたい：もらう（从对方那里得到恩惠）＋ たい，比 てほしい 更委婉。"
+      }
+     ]
+    },
+    {
+     "id": "inf-39",
+     "kind": "contrast",
+     "topic": "希望别人做",
+     "en": "want you to go / make you go",
+     "title": "てほしい か させる",
+     "a": "行ってほしい",
+     "b": "行かせる",
+     "rows": [
+      {
+       "label": "视角",
+       "a": "我的愿望",
+       "b": "我施加的力或许可"
+      },
+      {
+       "label": "英语",
+       "a": "want you to go",
+       "b": "make / let you go"
+      },
+      {
+       "label": "接法",
+       "a": "て形 ＋ ほしい",
+       "b": "五段未然形 ＋ せる，一段 ＋ させる"
+      }
+     ],
+     "examples": [
+      {
+       "ja": "弟に手伝ってほしい。",
+       "target": "手伝ってほしい",
+       "romaji": "otouto ni tetsudatte hoshii",
+       "zh": "希望弟弟来帮忙。"
+      },
+      {
+       "ja": "弟に手伝わせる。",
+       "target": "手伝わせる",
+       "romaji": "otouto ni tetsudawaseru",
+       "zh": "让弟弟帮忙。"
+      }
+     ],
+     "rule": "英语里看着像一回事，日语里是两个系统：想让，和让。"
+    },
+    {
+     "id": "inf-40",
+     "kind": "pattern",
+     "topic": "结果",
+     "en": "come to be able to…",
+     "title": "〜ようになる",
+     "parts": [
+      {
+       "w": "聞き取れる",
+       "l1": "可能形"
+      },
+      {
+       "w": "ように",
+       "l1": "様 ＋ に",
+       "l2": "样子",
+       "hl": true
+      },
+      {
+       "w": "なった",
+       "l1": "なる",
+       "l2": "变成"
+      }
+     ],
+     "examples": [
+      {
+       "ja": "一年間勉強して、ニュースが大体聞き取れるようになった。",
+       "target": "聞き取れるようになった",
+       "romaji": "ichinenkan benkyou shite, nyuusu ga daitai kikitoreru you ni natta",
+       "zh": "学了一年，新闻大致能听懂了。"
+      },
+      {
+       "ja": "日本語が話せるようになった。",
+       "target": "話せるようになった",
+       "romaji": "nihongo ga hanaseru you ni natta",
+       "zh": "会说日语了。"
+      }
+     ],
+     "rule": "不是“为了”，是“慢慢变成了”——结果自己到来，不强调谁促成。"
+    },
+    {
+     "id": "inf-41",
+     "kind": "contrast",
+     "topic": "结果",
+     "en": "came to / make a point of",
+     "title": "ようになる か ようにする",
+     "a": "ようになる",
+     "b": "ようにする",
+     "rows": [
+      {
+       "label": "意思",
+       "a": "自然变成了",
+       "b": "刻意努力做到"
+      },
+      {
+       "label": "谁促成",
+       "a": "不强调",
+       "b": "人为促成、维持"
+      },
+      {
+       "label": "常见",
+       "a": "可能形 ＋ ようになる",
+       "b": "〜ようにしている"
+      }
+     ],
+     "examples": [
+      {
+       "ja": "話せるようになった。",
+       "target": "ようになった",
+       "romaji": "hanaseru you ni natta",
+       "zh": "变得会说了。"
+      },
+      {
+       "ja": "毎日話すようにしている。",
+       "target": "ようにしている",
+       "romaji": "mainichi hanasu you ni shite iru",
+       "zh": "努力做到每天都说。"
+      }
+     ],
+     "rule": "なる 自然达成，する 人为促成——又是一次“结果 vs 意志”。"
+    },
+    {
+     "id": "inf-42",
+     "kind": "pattern",
+     "topic": "复合动词",
+     "en": "two verbs, one word",
+     "title": "連用形 ＋ 動詞 = 一个词",
+     "parts": [
+      {
+       "w": "飛び",
+       "l1": "飛ぶ",
+       "l2": "連用形"
+      },
+      {
+       "w": "出す",
+       "l1": "向外",
+       "l2": "已虚化",
+       "hl": true
+      }
+     ],
+     "examples": [
+      {
+       "ja": "猫が箱から飛び出した。",
+       "target": "飛び出した",
+       "romaji": "neko ga hako kara tobidashita",
+       "zh": "猫从箱子里蹦了出来。"
+      },
+      {
+       "ja": "単語帳を作り始めたが、三日で使い終わった。",
+       "target": "作り始めた",
+       "romaji": "tangochou o tsukuri hajimeta ga, mikka de tsukai owatta",
+       "zh": "开始做单词本，三天就用完了。"
+      },
+      {
+       "ja": "分からない文法が出てくるたびに、調べ回っている。",
+       "target": "調べ回っている",
+       "romaji": "wakaranai bunpou ga dete kuru tabi ni, shirabe mawatte iru",
+       "zh": "每次冒出看不懂的语法，就到处查。"
+      }
+     ],
+     "rule": "这才是真正“两个动作合成一个词”：V1 给动作，V2 给方向、阶段或程度。",
+     "limit": {
+      "mark": "≠",
+      "ja": "見に行く",
+      "why": "那是三个词（見/に/行く），中间的 に 不能省"
+     }
+    },
+    {
+     "id": "inf-43",
+     "kind": "map",
+     "topic": "复合动词",
+     "en": "what V2 adds",
+     "title": "V2 的三种活",
+     "rows": [
+      {
+       "label": "方向",
+       "a": "出す・込む・上がる",
+       "b": "飛び出す（冲出去）· 立ち上がる（站起来）· 追い付く（追上）"
+      },
+      {
+       "label": "阶段",
+       "a": "始める・続ける・終わる",
+       "b": "食べ始める · 読み続ける · 食べ終わる"
+      },
+      {
+       "label": "程度",
+       "a": "果てる・切る・尽くす",
+       "b": "疲れ果てる（累垮）· やり切る（彻底做完）"
+      }
+     ],
+     "rule": "V2 原本都是普通动词，虚化后专门给 V1 加方向、阶段或程度。",
+     "notes": [
+      {
+       "h": "出す 有两副面孔",
+       "b": "飛び出す 里是“向外”；泣き出す 里是“突然开始”（突然哭起来），和 始める 很像。"
+      }
+     ]
+    },
+    {
+     "id": "inf-44",
+     "kind": "origin",
+     "topic": "复合动词 · 为什么",
+     "en": "start eating vs 食べ始める",
+     "title": "日语把语法焊进词里",
+     "steps": [
+      {
+       "head": "start eating",
+       "text": "英语：用独立的词加句法组合表达阶段"
+      },
+      {
+       "head": "食べ始める",
+       "text": "日语：把“开始”直接焊在词干后面，成了一个词"
+      },
+      {
+       "head": "見たい・読みやすい",
+       "text": "同一个手法：愿望、难易也都焊进了词里"
+      }
+     ],
+     "rule": "日语不是没有 to 能干的那些事，而是把它们下放到词法里解决了。"
+    },
+    {
+     "id": "inf-45",
+     "kind": "map",
+     "topic": "て形",
+     "en": "the everyday converb",
+     "title": "て形 能干什么",
+     "rows": [
+      {
+       "label": "先后",
+       "a": "起きて、顔を洗って",
+       "b": "起床，洗脸……按顺序罗列"
+      },
+      {
+       "label": "原因",
+       "a": "疲れて、早く寝た",
+       "b": "累了，所以早早睡了"
+      },
+      {
+       "label": "方式",
+       "a": "歩いて学校に行く",
+       "b": "走着去学校"
+      },
+      {
+       "label": "请求",
+       "a": "ちょっと待って",
+       "b": "省掉了 ください"
+      },
+      {
+       "label": "ている",
+       "a": "食べている",
+       "b": "正在吃 / 窓が開いている 窗开着"
+      },
+      {
+       "label": "てみる",
+       "a": "食べてみる",
+       "b": "尝一尝"
+      },
+      {
+       "label": "てしまう",
+       "a": "食べてしまう",
+       "b": "吃掉了 / 不小心吃了"
+      },
+      {
+       "label": "ておく",
+       "a": "食べておく",
+       "b": "先吃好（为之后准备）"
+      },
+      {
+       "label": "授受",
+       "a": "買ってあげる・買ってもらう",
+       "b": "为别人买 / 请别人为自己买"
+      }
+     ],
+     "rule": "从上往下越来越虚：从“做完 A 再做 B”，一路变成挂在动词后面的体貌和语气。",
+     "notes": [
+      {
+       "h": "音便从哪来",
+       "b": "書きて → 書いて、読みて → 読んで：連用形和 て 连着说太多次，读音磨损融合了。"
+      }
+     ]
+    },
+    {
+     "id": "inf-46",
+     "kind": "contrast",
+     "topic": "て形",
+     "en": "who does what",
+     "title": "連用形 か て形",
+     "a": "連用形",
+     "b": "て形",
+     "rows": [
+      {
+       "label": "能造词",
+       "a": "能：見始める、読みやすい",
+       "b": "不能"
+      },
+      {
+       "label": "能接 に",
+       "a": "能：見に行く",
+       "b": "不能"
+      },
+      {
+       "label": "管什么",
+       "a": "目的、愿望、难易",
+       "b": "先后、原因、体貌"
+      }
+     ],
+     "examples": [
+      {
+       "ja": "見に行く・見たい・見始める",
+       "target": "見",
+       "romaji": "mi ni iku, mitai, mihajimeru",
+       "zh": "去看 · 想看 · 开始看"
+      },
+      {
+       "ja": "見て、笑った・見ている・見てみる",
+       "target": "見て",
+       "romaji": "mite, waratta, mite iru, mite miru",
+       "zh": "看了就笑 · 正在看 · 看看"
+      }
+     ],
+     "rule": "英语一个 to 横跨两边；日语用两套形式各管一片。"
+    },
+    {
+     "id": "inf-47",
+     "kind": "contrast",
+     "topic": "て形",
+     "en": "ended up / in advance",
+     "title": "てしまう か ておく",
+     "a": "てしまう",
+     "b": "ておく",
+     "rows": [
+      {
+       "label": "意思",
+       "a": "做完了 · 不小心",
+       "b": "事先做好"
+      },
+      {
+       "label": "语气",
+       "a": "完结、遗憾",
+       "b": "为之后准备"
+      },
+      {
+       "label": "口语",
+       "a": "ちゃう・じゃう",
+       "b": "とく・どく"
+      }
+     ],
+     "examples": [
+      {
+       "ja": "この文法、もう覚えてしまった。",
+       "target": "覚えてしまった",
+       "romaji": "kono bunpou, mou oboete shimatta",
+       "zh": "这个语法已经记住了（不知不觉就记住了）。"
+      },
+      {
+       "ja": "例文をノートに書いておいた。",
+       "target": "書いておいた",
+       "romaji": "reibun o nooto ni kaite oita",
+       "zh": "先把例句写在了本子上（留着复习）。"
+      }
+     ],
+     "rule": "しまう 往回看（已经完了），おく 往前看（为之后准备）。"
+    },
+    {
+     "id": "inf-48",
+     "kind": "origin",
+     "topic": "对照 · 为什么",
+     "en": "direction → purpose",
+     "title": "同一个起点：方向 → 目的",
+     "steps": [
+      {
+       "head": "to",
+       "text": "英语：方向介词 → go to watch"
+      },
+      {
+       "head": "に",
+       "text": "日语：终点格助词 → 見に行く"
+      },
+      {
+       "head": "for",
+       "text": "英语 for 也一样：受益、方向 → 目的"
+      }
+     ],
+     "rule": "“为了做某事”和“朝着某事去”在概念上几乎一样，很多语言的目的标记都从方向格来。"
+    },
+    {
+     "id": "inf-49",
+     "kind": "origin",
+     "topic": "对照 · 为什么",
+     "en": "one for all / one for each",
+     "title": "英语扩张，日语分工",
+     "steps": [
+      {
+       "head": "to 通吃",
+       "text": "从目的一路吞进 want to、easy to、To err is human"
+      },
+      {
+       "head": "に 守地盘",
+       "text": "只留在移动动词后面；たい、ため、ように、こと 各管一片"
+      },
+      {
+       "head": "为什么",
+       "text": "英语屈折词尾大量脱落，只能靠少数虚词兜底；日语的黏着形态一直够用"
+      }
+     ],
+     "rule": "遇到“只能用在很窄环境”的语法点，别硬推广——去找隔壁那片归谁管。"
+    },
+    {
+     "id": "inf-50",
+     "kind": "map",
+     "topic": "总表",
+     "en": "to-infinitive → Japanese",
+     "title": "to 在日语里的十几条路",
+     "rows": [
+      {
+       "label": "目的（移动）",
+       "a": "見に行く",
+       "b": "只接移动动词"
+      },
+      {
+       "label": "目的（意志·同主语）",
+       "a": "合格するために",
+       "b": "要意志动词"
+      },
+      {
+       "label": "目的（状态·异主语）",
+       "a": "わかるように",
+       "b": "不要求意志"
+      },
+      {
+       "label": "以免",
+       "a": "〜ないように",
+       "b": "几乎不用 ため"
+      },
+      {
+       "label": "想做",
+       "a": "見たい",
+       "b": "只说自己；别人用 たがる"
+      },
+      {
+       "label": "好做 / 难做",
+       "a": "読みやすい・にくい",
+       "b": "主语是被做的东西"
+      },
+      {
+       "label": "当主语",
+       "a": "〜ことは",
+       "b": "画面用 の，命题用 こと"
+      },
+      {
+       "label": "能",
+       "a": "走ることができる",
+       "b": "口语多用 走れる"
+      },
+      {
+       "label": "打算",
+       "a": "行こうと思う・行くつもりだ",
+       "b": "念头 / 计划"
+      },
+      {
+       "label": "试试",
+       "a": "やってみる",
+       "b": "みる 已虚化"
+      },
+      {
+       "label": "希望别人做",
+       "a": "行ってほしい",
+       "b": "更客气：てもらいたい"
+      },
+      {
+       "label": "让别人做",
+       "a": "行かせる",
+       "b": "和 てほしい 不是一回事"
+      },
+      {
+       "label": "渐渐变成",
+       "a": "話せるようになる",
+       "b": "和目的 ように 同源"
+      },
+      {
+       "label": "两个动作一个词",
+       "a": "飛び出す・食べ始める",
+       "b": "复合动词"
+      }
+     ],
+     "rule": "要找的不是一个词，而是这张功能和形式的对照表。"
+    },
+    {
+     "id": "inf-51",
+     "kind": "quiz",
+     "topic": "自测 · 综合",
+     "title": "想变得能……",
+     "quiz": {
+      "before": "頑張って、N1に合格できる",
+      "after": "なりたい。",
+      "zh": "加油，希望有一天能考过 N1。",
+      "options": [
+       "ように",
+       "ために"
+      ],
+      "answer": 0,
+      "why": "なる 前面是“变成什么样子”：可能形 ＋ ようになる，再接 たい。叠了三层：て形、ようになる、たい。",
+      "tests": "inf-40"
+     }
+    }
+   ]
+  }
+ ]
+}

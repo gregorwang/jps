@@ -62,6 +62,14 @@ object KnownWords {
         write(_words.value + headword.trim())
     }
 
+    /** ♥ on a 知識 word card: the headword alone (it is not in 栞). */
+    @Synchronized
+    fun setWord(context: Context, headword: String, known: Boolean) {
+        init(context)
+        val word = headword.trim()
+        write(if (known) _words.value + word else _words.value - word)
+    }
+
     @Synchronized
     fun restore(context: Context, item: VocabItem) {
         init(context)

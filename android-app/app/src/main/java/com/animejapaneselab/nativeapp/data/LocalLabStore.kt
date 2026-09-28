@@ -212,6 +212,11 @@ class LocalLabStore(context: Context) {
 
     fun writeReviewMistakeDue(raw: String) = preferences.edit { putString(ReviewMistakeDueKey, raw) }
 
+    /** 知識 cards: per card `[seen, lastDay, heartDay, checks]` (JSON, see Knowledge). */
+    fun readKnowledgeMarks(): String? = preferences.getString(KnowledgeMarksKey, null)
+
+    fun writeKnowledgeMarks(raw: String) = preferences.edit { putString(KnowledgeMarksKey, raw) }
+
     /** Home-screen 今日の一句 payload (JSON, see TodayWidgetLine). */
     fun readTodayWidgetLine(): String? = preferences.getString(TodayWidgetLineKey, null)
 
@@ -462,6 +467,7 @@ class LocalLabStore(context: Context) {
         const val KnownWordsKey = "known-words"
         const val ReviewFeedSessionKey = "review-feed-session"
         const val ReviewMistakeDueKey = "review-mistake-due"
+        const val KnowledgeMarksKey = "knowledge-marks"
         const val TodayWidgetLineKey = "today-widget-line"
         const val StudyLastAnswerAtKey = "study-last-answer-at"
         const val DrillProgressKey = "conjugation-drill-progress"

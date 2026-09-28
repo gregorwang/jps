@@ -8,6 +8,11 @@ import com.animejapaneselab.nativeapp.data.NotebookEntry
 import com.animejapaneselab.nativeapp.data.NotebookKind
 import com.animejapaneselab.nativeapp.data.ProgressItem
 import com.animejapaneselab.nativeapp.ui.drill.ConjugationDrillState
+import com.animejapaneselab.nativeapp.ui.knowledge.KnowMark
+import com.animejapaneselab.nativeapp.ui.knowledge.Knowledge
+import com.animejapaneselab.nativeapp.ui.knowledge.KnowledgeCard
+import com.animejapaneselab.nativeapp.ui.knowledge.KnowledgeRules
+import com.animejapaneselab.nativeapp.ui.knowledge.VocabWord
 import com.animejapaneselab.nativeapp.ui.notebook.Notebook
 import com.animejapaneselab.nativeapp.ui.screens.jishu.splitTitle
 import com.animejapaneselab.nativeapp.ui.screens.review.ReviewRules
@@ -20,20 +25,25 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /*
- * 復習 刷卡流: every due thing — 活用 lines of learned 課, 栞 cards, local mistakes (merged with
- * their server review task) — becomes one full-screen card in one vertical feed. A verdict on a
- * card is written back to the scheduler it came from (drill Leitner, 栞 box, 错题本, server progress).
+ * 復習 → 知識: an endless vertical feed of knowledge cards (the reading documents, one deck each,
+ * plus words from 資料), with everything due — 活用 lines of learned 課, 收藏 cards, local mistakes
+ * (merged with their server review task) — woven in. A verdict on a due card is written back to the
+ * scheduler it came from (drill Leitner, 栞 box, 错题本, server progress); ♥ on a knowledge card
+ * goes to [Knowledge].
  */
 
-enum class FeedKind { Conj, Word, Listen, Mistake, Weak, End }
+enum class FeedKind { Conj, Word, Listen, Mistake, Weak, Know, Vocab }
 
-enum class FeedSource(val label: String) { Conj("活用"), Shiori("栞"), Mistake("错题") }
+enum class FeedSource(val label: String) { Conj("活用"), Shiori("收藏"), Mistake("错题") }
 
-/** 上划 = [Remembered], 再来 = [Again], 双击盖章 = [Mastered]. */
+/** 上划 = [Remembered], 再来 = [Again], ♥ = [Mastered]. */
 enum class Verdict { Remembered, Again, Mastered }
 
 data class FeedCard(
-    /** `conj:<itemId>`, `shiori:<notebookKey>`, `mistake:<itemId>`, `weak:<name>`, `end`; a requeued copy adds `#n`. */
+    /**
+     * `conj:<itemId>`, `shiori:<notebookKey>`, `mistake:<itemId>`, `weak:<name>`, `know:<cardId>`,
+     * `vocab:<vocabId>`; a requeued copy adds `#n`.
+     */
     val key: String,
     val kind: FeedKind,
     val eyebrow: String = "",
@@ -43,6 +53,8 @@ data class FeedCard(
     val mistake: MistakeRecord? = null,
     val task: ProgressItem? = null,
     val weak: ReviewRules.WeakSpot? = null,
+    val know: KnowledgeCard? = null,
+    val vocab: VocabWord? = null,
 ) {
     val source: FeedSource?
         get() = when (kind) {
@@ -52,7 +64,8 @@ data class FeedCard(
             else -> null
         }
 
-    val isKnowledge: Boolean get() = kind != FeedKind.Weak && kind != FeedKind.End
+    /** Came from a schedule and takes a verdict (上划 remembered, 再来, ♥ mastered). */
+    val isDue: Boolean get() = kind == FeedKind.Conj || kind == FeedKind.Word || kind == FeedKind.Listen || kind == FeedKind.Mistake
 }
 
 /** Everything the feed is built from; read by the screen from the existing holders. */
@@ -64,6 +77,9 @@ class FeedSources(
     val progressItems: List<ProgressItem>,
     val known: Set<String>,
     val mistakeDue: Map<String, Long>,
+    val know: List<KnowledgeCard> = emptyList(),
+    val marks: Map<String, KnowMark> = emptyMap(),
+    val words: List<VocabWord> = emptyList(),
 )
 
 /** Where verdicts go outside the feed: the drill ViewModel and the main ViewModel. */
@@ -83,17 +99,15 @@ data class FeedSession(
     /** Exact keys (with `#n`) already graded, so scrolling back and forth never counts twice. */
     val graded: Set<String> = emptySet(),
     val filter: FeedSource? = null,
-    /** おかわり round: cards not due; a remembered verdict leaves their schedule alone. */
-    val extra: Boolean = false,
+    /** 帳面 → one deck: only that document's cards. */
+    val deck: String? = null,
+    /** Knowledge / word cards scrolled past today. */
+    val read: Int = 0,
+    /** Today's square in 最近 12 週 is lit (once a day). */
     val finished: Boolean = false,
 ) {
-    val knowledgeKeys: List<String> get() = keys.filter(FeedRules::isKnowledgeKey)
-
-    /** Cards of today's round not graded yet (for 今日 三限). */
-    val remaining: Int get() = keys.count { FeedRules.isKnowledgeKey(it) && it !in graded }
-
-    /** 1-based position among knowledge cards (the one on screen or the next one). */
-    val position: Int get() = keys.take(index + 1).count(FeedRules::isKnowledgeKey).coerceAtLeast(1)
+    /** Due cards of today's feed not graded yet (for 今日 三限). */
+    val remaining: Int get() = keys.count { FeedRules.isDueKey(it) && it !in graded }
 }
 
 // ---------------------------------------------------------------------------------- rules
@@ -102,14 +116,25 @@ object FeedRules {
     const val MaxCards = 40
     const val WeakEvery = 8
     const val AgainGap = 4
-    const val ExtraSize = 10
-    const val EndKey = "end"
+    /** Stream cards added at a time; more are added when the reader gets near the end. */
+    const val Batch = 9
+    /** Read this many stream cards (or clear the due ones) and today's square lights up. */
+    const val ReadToFinish = 10
 
     fun baseKey(key: String): String = key.substringBefore('#')
 
-    fun isKnowledgeKey(key: String): Boolean = key != EndKey && !key.startsWith("weak:")
+    fun isDueKey(key: String): Boolean = key.startsWith("conj:") || key.startsWith("shiori:") || key.startsWith("mistake:")
 
     fun dueLabel(dueDay: Long, today: Long): String = if (dueDay < today) "逾期 ${today - dueDay} 天" else "今天"
+
+    fun knowCard(card: KnowledgeCard): FeedCard = FeedCard(
+        key = "know:${card.id}",
+        kind = FeedKind.Know,
+        eyebrow = listOf(card.deckTitle, card.topic).filter { it.isNotBlank() }.joinToString(" · "),
+        know = card,
+    )
+
+    fun vocabCard(word: VocabWord): FeedCard = FeedCard(key = "vocab:${word.id}", kind = FeedKind.Vocab, eyebrow = "資料 · 単語", vocab = word)
 
     fun conjCard(item: ConjugationDrillItem, drill: ConjugationDrillState, dueLabel: String?): FeedCard {
         val (jp, _) = splitTitle(drill.titleOf(item.pointId))
@@ -127,9 +152,9 @@ object FeedRules {
         key = "shiori:${entry.key}",
         kind = if (entry.kind == NotebookKind.Line) FeedKind.Listen else FeedKind.Word,
         eyebrow = when (entry.kind) {
-            NotebookKind.Vocab -> "栞 · 词汇"
-            NotebookKind.Grammar -> "栞 · 文型"
-            NotebookKind.Line -> "栞 · 听辨"
+            NotebookKind.Vocab -> "收藏 · 词汇"
+            NotebookKind.Grammar -> "收藏 · 文型"
+            NotebookKind.Line -> "收藏 · 听辨"
         },
         dueLabel = dueLabel,
         entry = entry,
@@ -183,12 +208,10 @@ object FeedRules {
             .filter { it.accuracy < 0.7f }
             .map { FeedCard(key = "weak:${it.name}", kind = FeedKind.Weak, eyebrow = "苦手 · 最近 7 天", weak = it) }
 
-    /**
-     * Today's round: mistakes, 活用 and 栞 taken in turns (so one kind never runs long while the
-     * others still have cards), most overdue first inside each; a 苦手 card after every 8.
-     */
-    fun build(sources: FeedSources, today: Long): List<FeedCard> {
-        val queues = listOf(mistakesDue(sources, today), conjDue(sources, today), shioriDue(sources, today)).map { ArrayDeque(it) }
+    /** Everything due today: mistakes, 活用 and 收藏 taken in turns, a 苦手 card after every 8. */
+    fun due(sources: FeedSources, today: Long, only: FeedSource? = null): List<FeedCard> {
+        val queues = listOf(mistakesDue(sources, today), conjDue(sources, today), shioriDue(sources, today))
+            .map { q -> ArrayDeque(q.filter { only == null || it.source == only }) }
         val cards = mutableListOf<FeedCard>()
         while (cards.size < MaxCards && queues.any { it.isNotEmpty() }) {
             for (queue in queues) {
@@ -196,7 +219,7 @@ object FeedRules {
                 queue.removeFirstOrNull()?.let(cards::add)
             }
         }
-        return withWeak(cards, weakCards(sources, today))
+        return if (only == null) withWeak(cards, weakCards(sources, today)) else cards
     }
 
     fun withWeak(cards: List<FeedCard>, weak: List<FeedCard>): List<FeedCard> {
@@ -211,32 +234,55 @@ object FeedRules {
         return out
     }
 
-    /** おかわり: learned lines and 栞 cards that are not due, shuffled. */
-    fun extra(sources: FeedSources, today: Long, size: Int = ExtraSize): List<FeedCard> {
-        val drill = sources.drill
-        val lines = drill.items
-            .filter { it.pointId in drill.learned && (drill.progress[it.id]?.dueDay ?: 0L) > today }
-            .map { conjCard(it, drill, "おかわり") }
-        val shiori = sources.notebook
-            .filter { it.dueDay > today && !(it.kind == NotebookKind.Vocab && it.headline.trim() in sources.known) }
-            .map { shioriCard(it, "おかわり") }
-        return (lines + shiori).shuffled().take(size)
+    /**
+     * The next [Batch] stream cards after [recentKeys]: two knowledge cards, then a word from 資料
+     * (knowledge only, inside one deck). Words keep it going once every document is read and ♥.
+     */
+    fun stream(sources: FeedSources, today: Long, recentKeys: List<String>, deck: String?, seed: Long): List<FeedCard> {
+        val recent = recentKeys.map(::baseKey).toSet()
+        val cards = if (deck == null) sources.know else sources.know.filter { it.deckId == deck }
+        val knowRecent = recent.filter { it.startsWith("know:") }.map { it.removePrefix("know:") }.toSet()
+        var know = KnowledgeRules.pick(cards, sources.marks, today, knowRecent, if (deck == null) Batch * 2 / 3 else Batch)
+        // A small deck read through: let the least recent cards come round again.
+        if (know.isEmpty() && deck != null) know = KnowledgeRules.pick(cards, sources.marks, today, emptySet(), Batch)
+        if (deck != null) return know.map(::knowCard)
+        val vocabRecent = recent.filter { it.startsWith("vocab:") }.map { it.removePrefix("vocab:") }.toSet()
+        val words = ArrayDeque(KnowledgeRules.pickVocab(sources.words, vocabRecent, Batch - know.size, seed))
+        val knowQueue = ArrayDeque(know)
+        val out = mutableListOf<FeedCard>()
+        while (knowQueue.isNotEmpty() || words.isNotEmpty()) {
+            repeat(2) { knowQueue.removeFirstOrNull()?.let { out += knowCard(it) } }
+            words.removeFirstOrNull()?.let { out += vocabCard(it) }
+        }
+        return out
+    }
+
+    /** Due cards woven into the stream: one after every two stream cards. */
+    fun weave(stream: List<FeedCard>, due: List<FeedCard>): List<FeedCard> {
+        val d = ArrayDeque(due)
+        val out = mutableListOf<FeedCard>()
+        stream.forEachIndexed { i, card ->
+            out += card
+            if (i % 2 == 1) d.removeFirstOrNull()?.let { out += it }
+        }
+        return out + d
     }
 
     /** A persisted key back to its card, from the current sources; null when it no longer exists. */
     fun resolve(key: String, sources: FeedSources, today: Long): FeedCard? {
         val base = baseKey(key)
         val card = when {
-            base == EndKey -> FeedCard(EndKey, FeedKind.End)
             base.startsWith("conj:") -> sources.drill.items.firstOrNull { it.id == base.removePrefix("conj:") }
                 ?.let { item -> conjCard(item, sources.drill, sources.drill.progress[item.id]?.let { dueLabel(it.dueDay, today) }) }
             base.startsWith("shiori:") -> sources.notebook.firstOrNull { it.key == base.removePrefix("shiori:") }?.let { shioriCard(it, null) }
             base.startsWith("mistake:") -> sources.mistakes.firstOrNull { it.itemId == base.removePrefix("mistake:") }
                 ?.let { mistakeCard(it, taskFor(it, sources.reviewTasks), null) }
             base.startsWith("weak:") -> weakCards(sources, today).firstOrNull { it.key == base }
+            base.startsWith("know:") -> sources.know.firstOrNull { it.id == base.removePrefix("know:") }?.let(::knowCard)
+            base.startsWith("vocab:") -> sources.words.firstOrNull { it.id == base.removePrefix("vocab:") }?.let(::vocabCard)
             else -> null
         }
-        return card?.copy(key = key, dueLabel = if (key != base) "もう一回" else card.dueLabel)
+        return card?.copy(key = key, dueLabel = if (key != base && isDueKey(base)) "もう一回" else card.dueLabel)
     }
 
     fun encode(s: FeedSession): String = JSONObject()
@@ -248,7 +294,8 @@ object FeedRules {
         .put("master", s.mastered)
         .put("graded", JSONArray(s.graded.toList()))
         .put("filter", s.filter?.name ?: "")
-        .put("extra", s.extra)
+        .put("deck", s.deck ?: "")
+        .put("read", s.read)
         .put("finished", s.finished)
         .toString()
 
@@ -264,7 +311,8 @@ object FeedRules {
             mastered = o.optInt("master"),
             graded = strings("graded").toSet(),
             filter = FeedSource.entries.firstOrNull { it.name == o.optString("filter") },
-            extra = o.optBoolean("extra"),
+            deck = o.optString("deck").ifBlank { null },
+            read = o.optInt("read"),
             finished = o.optBoolean("finished"),
         )
     }.getOrNull()
@@ -298,9 +346,9 @@ object ReviewFeed {
     }
 
     /**
-     * Keeps today's round in step with the sources: a new day starts a new round; keys restored
-     * after a restart are resolved again (gone ones dropped); cards that fell due meanwhile join
-     * before the おわり card.
+     * Keeps today's feed in step with the sources: a new day starts a new one; keys restored after
+     * a restart are resolved again (gone ones dropped); cards that fell due meanwhile are woven in
+     * just after the card on screen.
      */
     @Synchronized
     fun sync(context: Context, sources: FeedSources, today: Long) {
@@ -308,7 +356,7 @@ object ReviewFeed {
         val s = _session.value
         if (s == null || s.day != today) {
             cards.clear()
-            start(FeedSession(day = today, keys = emptyList()), FeedRules.build(sources, today))
+            start(FeedSession(day = today, keys = emptyList()), fresh(sources, today, null, null, emptyList()))
             return
         }
         var index = s.index
@@ -318,44 +366,60 @@ object ReviewFeed {
             alive
         }
         val present = kept.map(FeedRules::baseKey).toSet()
-        val added = if (s.extra) emptyList() else FeedRules.build(sources, today)
-            .filter { it.isKnowledge && it.key !in present && (s.filter == null || it.source == s.filter) }
+        val added = if (s.deck != null) emptyList() else FeedRules.due(sources, today, s.filter).filter { it.isDue && it.key !in present }
         added.forEach { cards[it.key] = it }
-        val body = kept.filter { it != FeedRules.EndKey } + added.map { it.key }
-        publish(s.copy(keys = withEnd(body), index = index.coerceIn(0, (body.size).coerceAtLeast(0))))
+        var keys = kept
+        if (added.isNotEmpty()) {
+            val at = (index + 2).coerceAtMost(keys.size)
+            keys = keys.take(at) + added.map { it.key } + keys.drop(at)
+        }
+        if (keys.size - index <= 4) keys = keys + more(sources, today, s.deck, keys)
+        publish(s.copy(keys = keys, index = index.coerceAtLeast(0)))
     }
 
-    /** The pager settled on [index]: cards scrolled past without a verdict count as remembered. */
+    /**
+     * The pager settled on [index]: due cards scrolled past without a verdict count as remembered,
+     * knowledge cards scrolled past count as read, and more cards are added near the end.
+     */
     @Synchronized
-    fun settle(context: Context, index: Int, sinks: ReviewSinks) {
+    fun settle(context: Context, index: Int, sinks: ReviewSinks, sources: FeedSources) {
         val s = _session.value ?: return
         if (index == s.index || index !in s.keys.indices) return
+        var read = s.read
         if (index > s.index) {
             for (i in s.index until index) {
                 val key = s.keys[i]
-                if (FeedRules.isKnowledgeKey(key) && key !in (_session.value?.graded ?: emptySet())) grade(context, key, Verdict.Remembered, sinks)
+                when {
+                    FeedRules.isDueKey(key) && key !in (_session.value?.graded ?: emptySet()) -> grade(context, key, Verdict.Remembered, sinks)
+                    key.startsWith("know:") -> {
+                        Knowledge.seen(context, FeedRules.baseKey(key).removePrefix("know:"), s.day)
+                        read++
+                    }
+                    key.startsWith("vocab:") -> read++
+                }
             }
         }
         val now = _session.value ?: return
-        val atEnd = now.keys.getOrNull(index) == FeedRules.EndKey
-        if (atEnd && !now.finished && now.graded.isNotEmpty()) StudyLog.finishSession(context)
-        publish(now.copy(index = index, finished = now.finished || atEnd))
+        val dueLeft = now.keys.any { FeedRules.isDueKey(it) && it !in now.graded }
+        val lit = !now.finished && (read >= FeedRules.ReadToFinish || (!dueLeft && now.graded.isNotEmpty()))
+        if (lit) StudyLog.finishSession(context)
+        var keys = now.keys
+        if (keys.size - index <= 4) keys = keys + more(sources, now.day, now.deck, keys)
+        publish(now.copy(keys = keys, index = index, read = read, finished = now.finished || lit))
     }
 
-    /** One verdict: counted in StudyLog, written back to where the card came from. */
+    /** One verdict on a due card: counted in StudyLog, written back to where the card came from. */
     @Synchronized
     fun grade(context: Context, key: String, verdict: Verdict, sinks: ReviewSinks) {
         val s = _session.value ?: return
         val card = cards[key] ?: return
-        if (!card.isKnowledge || key in s.graded) return
+        if (!card.isDue || key in s.graded) return
         StudyLog.record(context, answers = 1, correct = if (verdict == Verdict.Again) 0 else 1)
         val today = s.day
-        val keepSchedule = s.extra && verdict == Verdict.Remembered
-        card.line?.let { if (!keepSchedule) sinks.gradeLine(it.id, verdict != Verdict.Again, verdict == Verdict.Mastered) }
+        card.line?.let { sinks.gradeLine(it.id, verdict != Verdict.Again, verdict == Verdict.Mastered) }
         card.entry?.let { entry ->
-            when {
-                keepSchedule -> Unit
-                verdict == Verdict.Mastered -> Notebook.master(context, entry.key)
+            when (verdict) {
+                Verdict.Mastered -> Notebook.master(context, entry.key)
                 else -> Notebook.grade(context, entry.key, verdict == Verdict.Remembered)
             }
         }
@@ -377,8 +441,7 @@ object ReviewFeed {
             val copy = "$base#${keys.count { FeedRules.baseKey(it) == base } + 1}"
             cards[copy] = card.copy(key = copy, dueLabel = "もう一回")
             val at = keys.indexOf(key)
-            val end = keys.indexOf(FeedRules.EndKey).takeIf { it >= 0 } ?: keys.size
-            keys = keys.toMutableList().apply { add(minOf(at + FeedRules.AgainGap + 1, end), copy) }
+            keys = keys.toMutableList().apply { add(minOf(at + FeedRules.AgainGap + 1, size), copy) }
         }
         publish(
             s.copy(
@@ -391,7 +454,7 @@ object ReviewFeed {
         )
     }
 
-    /** 斩 from a word card: the headword is known, its 栞 card goes, and it counts as mastered. */
+    /** 斩 from a 收藏 word card: the headword is known, its card goes, and it counts as mastered. */
     @Synchronized
     fun cut(context: Context, key: String) {
         val s = _session.value ?: return
@@ -402,35 +465,50 @@ object ReviewFeed {
         publish(s.copy(graded = s.graded + key, mastered = s.mastered + 1))
     }
 
-    /** 帳面 → only one kind; null goes back to everything due. */
+    /** 帳面 → only one kind of due card (then the stream); null goes back to everything. */
     @Synchronized
     fun filter(context: Context, source: FeedSource?, sources: FeedSources, today: Long) {
         init(context)
-        val s = _session.value ?: FeedSession(day = today, keys = emptyList())
-        val fresh = FeedRules.build(sources, today).filter { source == null || it.source == source }
-        start(s.copy(filter = source, extra = false, finished = false, index = 0), fresh)
+        val s = _session.value?.takeIf { it.day == today } ?: FeedSession(day = today, keys = emptyList())
+        start(s.copy(filter = source, deck = null), fresh(sources, today, source, null, s.keys))
     }
 
-    /** おかわり after the round: cards that are not due. */
+    /** 帳面 → one document's cards only; null goes back to everything. */
     @Synchronized
-    fun extra(context: Context, sources: FeedSources, today: Long) {
+    fun deck(context: Context, deck: String?, sources: FeedSources, today: Long) {
         init(context)
-        val s = _session.value ?: FeedSession(day = today, keys = emptyList())
-        start(s.copy(filter = null, extra = true, finished = false, index = 0), FeedRules.extra(sources, today))
+        val s = _session.value?.takeIf { it.day == today } ?: FeedSession(day = today, keys = emptyList())
+        start(s.copy(filter = null, deck = deck), fresh(sources, today, null, deck, s.keys))
     }
+
+    private fun fresh(sources: FeedSources, today: Long, only: FeedSource?, deck: String?, recent: List<String>): List<FeedCard> {
+        val stream = FeedRules.stream(sources, today, recent.takeLast(60), deck, seed(today, recent.size))
+        if (deck != null) return stream
+        val due = FeedRules.due(sources, today, only)
+        return if (only != null) due + stream else FeedRules.weave(stream, due)
+    }
+
+    private fun more(sources: FeedSources, today: Long, deck: String?, keys: List<String>): List<String> {
+        val taken = keys.toMutableSet()
+        // A card coming round again gets `#n`: pager keys have to stay unique.
+        return FeedRules.stream(sources, today, keys.takeLast(60), deck, seed(today, keys.size)).map { card ->
+            var key = card.key
+            var n = 1
+            while (key in taken) key = "${card.key}#${++n}"
+            taken += key
+            cards[key] = card.copy(key = key)
+            key
+        }
+    }
+
+    private fun seed(today: Long, n: Int): Long = today * 1_000L + n
 
     private fun start(base: FeedSession, fresh: List<FeedCard>) {
         fresh.forEach { cards[it.key] = it }
-        publish(base.copy(keys = withEnd(fresh.map { it.key }), index = 0))
-    }
-
-    private fun withEnd(body: List<String>): List<String> {
-        val cleaned = body.filter { it != FeedRules.EndKey }
-        return if (cleaned.none(FeedRules::isKnowledgeKey)) emptyList() else cleaned + FeedRules.EndKey
+        publish(base.copy(keys = fresh.map { it.key }, index = 0))
     }
 
     private fun publish(next: FeedSession) {
-        cards.getOrPut(FeedRules.EndKey) { FeedCard(FeedRules.EndKey, FeedKind.End) }
         val clamped = next.copy(index = next.index.coerceIn(0, (next.keys.size - 1).coerceAtLeast(0)))
         _session.value = clamped
         _deck.value = clamped.keys.mapNotNull(cards::get)

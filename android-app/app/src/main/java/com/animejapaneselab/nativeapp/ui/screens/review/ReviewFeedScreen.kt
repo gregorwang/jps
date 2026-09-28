@@ -46,6 +46,8 @@ import androidx.compose.material.icons.rounded.ChatBubbleOutline
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ContentCut
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Replay
 import androidx.compose.material.icons.rounded.Search
@@ -57,6 +59,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -100,6 +103,7 @@ import com.animejapaneselab.nativeapp.ui.audio.AudioPlaybackPhase
 import com.animejapaneselab.nativeapp.ui.audio.LessonAudioController
 import com.animejapaneselab.nativeapp.ui.audio.rememberLessonAudioController
 import com.animejapaneselab.nativeapp.ui.design.EmptyNote
+import com.animejapaneselab.nativeapp.ui.design.HeartBurst
 import com.animejapaneselab.nativeapp.ui.design.Eyebrow
 import com.animejapaneselab.nativeapp.ui.design.Hairline
 import com.animejapaneselab.nativeapp.ui.design.IconButton44
@@ -121,6 +125,12 @@ import com.animejapaneselab.nativeapp.ui.design.screentone
 import com.animejapaneselab.nativeapp.ui.drill.ConjugationDrillState
 import com.animejapaneselab.nativeapp.ui.drill.DrillPhase
 import com.animejapaneselab.nativeapp.ui.jishu.JishuViewModel
+import com.animejapaneselab.nativeapp.ui.knowledge.KnowQuiz
+import com.animejapaneselab.nativeapp.ui.knowledge.Knowledge
+import com.animejapaneselab.nativeapp.ui.knowledge.KnowledgeCard
+import com.animejapaneselab.nativeapp.ui.knowledge.KnowledgeCards
+import com.animejapaneselab.nativeapp.ui.knowledge.KnowledgeDeck
+import com.animejapaneselab.nativeapp.ui.knowledge.KnowledgeRules
 import com.animejapaneselab.nativeapp.ui.notebook.Notebook
 import com.animejapaneselab.nativeapp.ui.notebook.rememberNotebookEntries
 import com.animejapaneselab.nativeapp.ui.notebook.speakEntry
@@ -138,10 +148,12 @@ import com.animejapaneselab.nativeapp.ui.review.FeedSources
 import com.animejapaneselab.nativeapp.ui.review.ReviewFeed
 import com.animejapaneselab.nativeapp.ui.review.ReviewSinks
 import com.animejapaneselab.nativeapp.ui.review.Verdict
+import com.animejapaneselab.nativeapp.ui.study.StudyLog
 import com.animejapaneselab.nativeapp.ui.screens.jishu.FormulaRow
 import com.animejapaneselab.nativeapp.ui.theme.AjlShape
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 import com.animejapaneselab.nativeapp.ui.words.KnownWords
+import com.animejapaneselab.nativeapp.ui.words.VocabCards
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -167,7 +179,7 @@ class ReviewFeedActions(
 
 private enum class Sheet { Ai, Context }
 
-/** 復習 tab: 今日の分 (the vertical card feed) and 帳面 (苦手 + the books, one kind at a time). */
+/** 復習 tab: 知識 (the endless card feed, due cards woven in) and 帳面 (decks, 掌握了的, 苦手, the books). */
 @Composable
 fun ReviewFeedScreen(
     uiState: LabUiState,
@@ -179,89 +191,86 @@ fun ReviewFeedScreen(
     val colors = AjlTheme.colors
     val today = remember { LocalDate.now().toEpochDay() }
     val notebook = rememberNotebookEntries()
-    remember { KnownWords.init(context); ReviewFeed.init(context) }
+    remember { KnownWords.init(context); ReviewFeed.init(context); Knowledge.init(context) }
     val known by KnownWords.words.collectAsState()
     val mistakeDue by ReviewFeed.mistakeDue.collectAsState()
-    val sources = remember(drill, notebook, uiState.mistakes, uiState.reviewTasks, uiState.progressItems, known, mistakeDue) {
-        FeedSources(drill, notebook, uiState.mistakes, uiState.reviewTasks, uiState.progressItems, known, mistakeDue)
+    val marks by Knowledge.marks.collectAsState()
+    // Both assets are read once, off the main thread.
+    val decks by produceState<List<KnowledgeDeck>?>(null) { value = withContext(Dispatchers.IO) { KnowledgeCards.decks(context) } }
+    val vocab by produceState<Map<String, com.animejapaneselab.nativeapp.ui.words.VocabCardFix>?>(null) {
+        value = withContext(Dispatchers.IO) { VocabCards.load(context) }
     }
-    // Restored keys need the 活用 lines: wait for them (or their failure) before the first sync.
-    val ready = drill.phase == DrillPhase.Ready || drill.phase == DrillPhase.Error
+    val know = remember(decks) { decks.orEmpty().flatMap { it.cards } }
+    val words = remember(vocab, known) { KnowledgeRules.vocabPool(vocab.orEmpty(), known) }
+    val sources = remember(drill, notebook, uiState.mistakes, uiState.reviewTasks, uiState.progressItems, known, mistakeDue, know, marks, words) {
+        FeedSources(drill, notebook, uiState.mistakes, uiState.reviewTasks, uiState.progressItems, known, mistakeDue, know, marks, words)
+    }
+    // Restored keys need the 活用 lines and the cards: wait for them (or their failure) before the first sync.
+    val ready = (drill.phase == DrillPhase.Ready || drill.phase == DrillPhase.Error) && decks != null && vocab != null
     LaunchedEffect(Unit) { actions.ensureDrill() }
     LaunchedEffect(sources, ready) { if (ready) ReviewFeed.sync(context, sources, today) }
     val session by ReviewFeed.session.collectAsState()
     val deck by ReviewFeed.deck.collectAsState()
     var tab by rememberSaveable { mutableIntStateOf(0) }
     val current = session?.takeIf { it.day == today }
+    val hearts = remember(marks) { marks.count { it.value.hearted } }
 
     Column(modifier.fillMaxSize().background(colors.bg)) {
         Row(
             Modifier.fillMaxWidth().height(52.dp).padding(start = 20.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            TextTabs(items = listOf("今日の分", "帳面"), selectedIndex = tab, onSelect = { tab = it })
-            if (tab == 0 && current != null && current.remaining > 0) {
-                Text(
-                    "${current.remaining} 枚",
-                    style = AjlTheme.type.meta.copy(fontSize = 12.sp),
-                    color = colors.ink3,
-                    modifier = Modifier.padding(start = 10.dp),
-                )
-            }
+            TextTabs(items = listOf("知識", "帳面"), selectedIndex = tab, onSelect = { tab = it })
             Spacer(Modifier.weight(1f))
-            if (tab == 0 && current != null && current.knowledgeKeys.isNotEmpty()) {
-                val total = current.knowledgeKeys.size
+            if (tab == 0) {
+                Icon(Icons.Rounded.Favorite, contentDescription = null, tint = colors.heart, modifier = Modifier.size(13.dp))
                 Text(
-                    "%02d / %02d".format(current.position.coerceAtMost(total), total),
+                    "$hearts",
                     style = AjlTheme.type.meta.copy(fontSize = 12.sp),
                     color = colors.ink3,
+                    modifier = Modifier.padding(start = 4.dp, end = 10.dp),
                 )
+                if (current != null) {
+                    Text("今日 ${current.read}", style = AjlTheme.type.meta.copy(fontSize = 12.sp), color = colors.ink3)
+                }
             }
             IconButton44(Icons.Rounded.Search, "搜索", actions.openSearch)
         }
+        Hairline(Modifier.padding(horizontal = 20.dp))
         if (tab == 0) {
-            val total = current?.knowledgeKeys?.size ?: 0
-            val done = current?.let { s -> s.knowledgeKeys.count { it in s.graded } } ?: 0
-            ProgressLine(
-                progress = if (total == 0) 0f else done.toFloat() / total,
-                modifier = Modifier.padding(horizontal = 20.dp),
-                thickness = 2.dp,
-                contentDescription = "今日的复习 $done / $total",
-            )
+            val deckTitle = current?.deck?.let { id -> decks?.firstOrNull { it.id == id }?.title }
             when {
                 !ready && deck.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { LoadingDots() }
-                current == null || deck.isEmpty() -> EmptyFeed(
-                    hasExtra = remember(sources) { FeedRules.extra(sources, today, 1).isNotEmpty() },
-                    onExtra = { ReviewFeed.extra(context, sources, today) },
+                current == null || deck.isEmpty() -> EmptyNote("还没有卡片", gloss = "知识点卡片和资料单词都还没装进来")
+                else -> FeedPager(
+                    uiState = uiState,
+                    session = current,
+                    deck = deck,
+                    sources = sources,
+                    filterLabel = current.filter?.label ?: deckTitle,
+                    actions = actions,
+                    onClearFilter = {
+                        if (current.deck != null) ReviewFeed.deck(context, null, sources, today) else ReviewFeed.filter(context, null, sources, today)
+                    },
                 )
-                else -> FeedPager(uiState, current, deck, actions, onClearFilter = { ReviewFeed.filter(context, null, sources, today) }, onExtra = {
-                    ReviewFeed.extra(context, sources, today)
-                }, hasExtra = remember(sources) { FeedRules.extra(sources, today, 1).isNotEmpty() })
             }
         } else {
             Ledger(
                 sources = sources,
+                decks = decks.orEmpty(),
                 today = today,
                 known = known.size,
                 onPick = { source ->
                     ReviewFeed.filter(context, source, sources, today)
                     tab = 0
                 },
+                onPickDeck = { id ->
+                    ReviewFeed.deck(context, id, sources, today)
+                    tab = 0
+                },
                 actions = actions,
             )
         }
-    }
-}
-
-@Composable
-private fun EmptyFeed(hasExtra: Boolean, onExtra: () -> Unit) {
-    Column(
-        Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        EmptyNote("今日の復習はなし", gloss = "到期的都刷完了")
-        if (hasExtra) QuietButton("おかわり · 再刷 ${FeedRules.ExtraSize} 张", onClick = onExtra)
     }
 }
 
@@ -272,10 +281,10 @@ private fun FeedPager(
     uiState: LabUiState,
     session: FeedSession,
     deck: List<FeedCard>,
+    sources: FeedSources,
+    filterLabel: String?,
     actions: ReviewFeedActions,
     onClearFilter: () -> Unit,
-    onExtra: () -> Unit,
-    hasExtra: Boolean,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -285,12 +294,14 @@ private fun FeedPager(
     val furigana = rememberFuriganaAnnotator(settings)
     var sheet by remember { mutableStateOf<Sheet?>(null) }
     var toast by remember { mutableStateOf<String?>(null) }
+    val today = session.day
+    val latestSources by androidx.compose.runtime.rememberUpdatedState(sources)
 
     LaunchedEffect(pager) {
-        snapshotFlow { pager.settledPage }.collect { page -> ReviewFeed.settle(context, page, actions.sinks) }
+        snapshotFlow { pager.settledPage }.collect { page -> ReviewFeed.settle(context, page, actions.sinks, latestSources) }
     }
-    // 帳面 / おかわり restart the round at 0: follow it.
-    LaunchedEffect(session.filter, session.extra, session.keys.firstOrNull()) {
+    // 帳面 restarts the feed at 0: follow it.
+    LaunchedEffect(session.filter, session.deck, session.keys.firstOrNull()) {
         if (pager.settledPage != session.index && !pager.isScrollInProgress) pager.scrollToPage(session.index.coerceIn(0, (deck.size - 1).coerceAtLeast(0)))
     }
     val settledCard = deck.getOrNull(pager.settledPage)
@@ -319,6 +330,8 @@ private fun FeedPager(
             FeedCardView(
                 card = card,
                 session = session,
+                filterLabel = filterLabel,
+                hearted = heartedOf(card, sources),
                 active = page == pager.settledPage,
                 audio = audio,
                 ttsWorkerUrl = settings.ttsWorkerUrl,
@@ -328,7 +341,27 @@ private fun FeedPager(
                     if (verdict == Verdict.Again) toast = "待会儿再来"
                     if (verdict != Verdict.Mastered) advance(page)
                 },
-                onStampLanded = { advance(page) },
+                onHeart = { on ->
+                    when {
+                        card.know != null -> {
+                            Knowledge.heart(context, card.know.id, on, today)
+                            toast = if (on) "掌握了 · 以后少推，30 天后回来考一次" else "取消掌握"
+                        }
+                        card.vocab != null -> {
+                            KnownWords.setWord(context, card.vocab.head, on)
+                            toast = if (on) "掌握了 · 这个词不再出现" else "取消掌握"
+                        }
+                    }
+                },
+                onHeartDone = { if (card.isDue) advance(page) },
+                onAnswer = { quiz, right ->
+                    StudyLog.record(context, answers = 1, correct = if (right) 1 else 0)
+                    val lost = Knowledge.answer(context, quiz, right, today)
+                    if (lost) {
+                        val title = sources.know.firstOrNull { it.id == quiz.tests }?.title.orEmpty()
+                        toast = "「$title」取消掌握，之后再推给你"
+                    }
+                },
                 onCut = {
                     ReviewFeed.cut(context, card.key)
                     toast = "斩 · 不再出现"
@@ -339,8 +372,6 @@ private fun FeedPager(
                 onFilterClear = onClearFilter,
                 onPracticeMistake = actions.practiceMistake,
                 onPracticeWeak = actions.practiceWeak,
-                onDone = actions.done,
-                onExtra = onExtra.takeIf { hasExtra && !session.extra },
             )
         }
         AnimatedVisibility(
@@ -368,6 +399,13 @@ private fun FeedPager(
     }
 }
 
+/** ♥ state of a stream card; due cards show theirs only while it is being given. */
+private fun heartedOf(card: FeedCard, sources: FeedSources): Boolean = when {
+    card.know != null -> sources.marks[card.know.id]?.hearted == true
+    card.vocab != null -> card.vocab.head in sources.known
+    else -> false
+}
+
 private fun play(card: FeedCard, audio: LessonAudioController, ttsWorkerUrl: String) {
     card.line?.let { line ->
         audio.play(
@@ -384,54 +422,71 @@ private class Aids(val ruby: Boolean, val romaji: Boolean, val annotator: Furiga
 private fun FeedCardView(
     card: FeedCard,
     session: FeedSession,
+    filterLabel: String?,
+    hearted: Boolean,
     active: Boolean,
     audio: LessonAudioController,
     ttsWorkerUrl: String,
     aids: Aids,
     onVerdict: (Verdict) -> Unit,
-    onStampLanded: () -> Unit,
+    onHeart: (Boolean) -> Unit,
+    onHeartDone: () -> Unit,
+    onAnswer: (KnowQuiz, Boolean) -> Unit,
     onCut: () -> Unit,
     onToast: (String) -> Unit,
     onSheet: (Sheet) -> Unit,
     onFilterClear: () -> Unit,
     onPracticeMistake: (String) -> Unit,
     onPracticeWeak: (String) -> Unit,
-    onDone: () -> Unit,
-    onExtra: (() -> Unit)?,
 ) {
     val context = LocalContext.current
     val colors = AjlTheme.colors
     val work = AjlTheme.work
     var revealed by rememberSaveable(card.key) { mutableStateOf(false) }
-    var stamping by remember(card.key) { mutableStateOf(false) }
+    var bursting by remember(card.key) { mutableStateOf(false) }
     val graded = card.key in session.graded
+    var dueHeart by rememberSaveable(card.key) { mutableStateOf(false) }
+    val stream = card.know != null || card.vocab != null
+    val heartOn = if (stream) hearted else dueHeart
     val playing = active && (audio.playbackState.phase == AudioPlaybackPhase.Playing || audio.playbackState.phase == AudioPlaybackPhase.Loading)
     val notebook = rememberNotebookEntries()
+
+    // ♥ = 掌握: on a due card it is the 覚えた verdict (then the next card); on a stream card it can be undone.
+    fun heart(on: Boolean) {
+        when {
+            card.isDue -> if (on && !graded) {
+                dueHeart = true
+                revealed = true
+                bursting = true
+                onVerdict(Verdict.Mastered)
+            }
+            stream -> {
+                if (on) bursting = true
+                onHeart(on)
+            }
+        }
+    }
 
     MangaPanel(
         Modifier
             .fillMaxSize()
-            .pointerInput(card.key, graded) {
+            .pointerInput(card.key, graded, heartOn) {
                 detectTapGestures(
-                    onTap = { if (card.isKnowledge) revealed = true },
-                    // Double tap = 覚えた: the 覚 stamp lands, then the next card.
-                    onDoubleTap = {
-                        if (card.isKnowledge && !graded && !stamping) {
-                            revealed = true
-                            stamping = true
-                            onVerdict(Verdict.Mastered)
-                        }
-                    },
+                    onTap = { if (card.isDue) revealed = true },
+                    // Double tap = ♥, like TikTok.
+                    onDoubleTap = { if ((card.isDue || stream) && !heartOn && !bursting) heart(true) },
                 )
             },
     ) {
         Screentone(Modifier.align(Alignment.TopEnd).offset(x = 40.dp, y = (-22).dp).size(190.dp, 80.dp).rotate(-12f))
         Column(Modifier.fillMaxSize().padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 18.dp)) {
-            if (session.filter != null && card.kind != FeedKind.End) {
+            if (filterLabel != null) {
                 Text(
-                    "只看 ${session.filter.label}  ×",
+                    "只看 $filterLabel  ×",
                     style = AjlTheme.type.caption.copy(fontSize = 12.sp),
                     color = work.accent,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .padding(bottom = 10.dp)
                         .clip(RoundedCornerShape(14.dp))
@@ -440,11 +495,20 @@ private fun FeedCardView(
                         .padding(horizontal = 10.dp, vertical = 5.dp),
                 )
             }
-            if (card.kind != FeedKind.End) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Eyebrow(card.eyebrow, Modifier.weight(1f))
-                    val due = if (session.extra) "おかわり" else card.dueLabel
-                    if (due != null) Eyebrow(due, color = work.accent)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Eyebrow(card.eyebrow, Modifier.weight(1f))
+                val label = card.know?.kind?.label ?: card.dueLabel
+                if (label != null) {
+                    if (card.know != null) {
+                        Text(
+                            label,
+                            style = AjlTheme.type.caption.copy(fontSize = 11.sp),
+                            color = work.accent,
+                            modifier = Modifier.border(1.dp, work.accent, RoundedCornerShape(11.dp)).padding(horizontal = 8.dp, vertical = 2.dp),
+                        )
+                    } else {
+                        Eyebrow(label, color = work.accent)
+                    }
                 }
             }
             when (card.kind) {
@@ -453,40 +517,70 @@ private fun FeedCardView(
                 FeedKind.Listen -> ListenBody(card.entry!!, revealed, playing, aids, onPlay = { play(card, audio, ttsWorkerUrl) }, onReveal = { revealed = true })
                 FeedKind.Mistake -> MistakeBody(card.mistake!!, revealed, onReveal = { revealed = true })
                 FeedKind.Weak -> WeakBody(card.weak!!, onPractice = { onPracticeWeak(card.weak.name) })
-                FeedKind.End -> EndBody(session, onDone, onExtra)
+                FeedKind.Know -> KnowBody(card.know!!, aids.romaji, onAnswer)
+                FeedKind.Vocab -> VocabBody(card.vocab!!, aids.romaji)
             }
         }
-        if (card.isKnowledge) {
-            val lineEntry = remember(card.key) { card.line?.let(::lineEntry) }
-            val saved = lineEntry != null && notebook.any { it.key == lineEntry.key }
+        if (card.isDue || stream) {
+            val saveEntry = remember(card.key) { saveEntryOf(card) }
+            val saved = saveEntry != null && notebook.any { it.key == saveEntry.key }
             Column(
                 Modifier.align(Alignment.BottomEnd).padding(end = 8.dp, bottom = 14.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                if (lineEntry != null) {
-                    RailButton(if (saved) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder, if (saved) "已夹" else "栞", active = saved) {
-                        Notebook.toggle(context, lineEntry)
-                        onToast(if (saved) "已从栞取出" else "夹进栞")
+                RailButton(
+                    if (heartOn) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                    if (heartOn) "已掌握" else "掌握",
+                    tint = if (heartOn) colors.heart else null,
+                ) { if (card.isDue) heart(true) else heart(!heartOn) }
+                if (saveEntry != null) {
+                    RailButton(if (saved) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder, if (saved) "已收藏" else "收藏", active = saved) {
+                        Notebook.toggle(context, saveEntry)
+                        onToast(if (saved) "取消收藏" else "已收藏")
                     }
                 }
                 if (card.mistake != null) RailButton(Icons.Rounded.PlayArrow, "再练") { onPracticeMistake(card.mistake.itemId) }
                 if (card.entry?.kind == NotebookKind.Vocab && !graded) RailButton(Icons.Rounded.ContentCut, "斩", onClick = onCut)
-                RailButton(Icons.Rounded.ChatBubbleOutline, "讲解") { onSheet(Sheet.Ai) }
+                if (card.isDue) RailButton(Icons.Rounded.ChatBubbleOutline, "讲解") { onSheet(Sheet.Ai) }
                 if (contextSource(card) != null) RailButton(Icons.AutoMirrored.Rounded.Notes, "前后句") { onSheet(Sheet.Context) }
-                if (!graded) RailButton(Icons.Rounded.Replay, "再来") { onVerdict(Verdict.Again) }
+                if (card.isDue && !graded) RailButton(Icons.Rounded.Replay, "再来") { onVerdict(Verdict.Again) }
             }
         }
-        if (stamping) {
-            StampMark(
+        if (bursting) {
+            HeartBurst(
                 modifier = Modifier.align(Alignment.Center).offset(y = (-40).dp),
-                text = "覚",
-                size = 120.dp,
-                color = work.accent,
-                animateIn = true,
-                onLanded = onStampLanded,
+                onDone = {
+                    bursting = false
+                    onHeartDone()
+                },
             )
         }
     }
+}
+
+/** What 收藏 saves for this card (a 活用 line, a knowledge point, a word); null when nothing. */
+private fun saveEntryOf(card: FeedCard): NotebookEntry? {
+    card.line?.let { return lineEntry(it) }
+    card.know?.let { k ->
+        if (k.kind == com.animejapaneselab.nativeapp.ui.knowledge.KnowKind.Quiz) return null
+        return NotebookEntry(
+            key = NotebookRules.key(NotebookKind.Grammar, "know-" + k.id),
+            kind = NotebookKind.Grammar,
+            headline = k.title,
+            meaning = k.rule,
+            example = k.examples.firstOrNull()?.ja.orEmpty(),
+        )
+    }
+    card.vocab?.let { w ->
+        return NotebookEntry(
+            key = NotebookRules.key(NotebookKind.Vocab, w.id),
+            kind = NotebookKind.Vocab,
+            headline = w.head,
+            reading = w.fix.reading,
+            meaning = w.fix.meaning,
+        )
+    }
+    return null
 }
 
 @Composable
@@ -495,9 +589,9 @@ private fun Screentone(modifier: Modifier) {
 }
 
 @Composable
-private fun RailButton(icon: ImageVector, label: String, active: Boolean = false, onClick: () -> Unit) {
+private fun RailButton(icon: ImageVector, label: String, active: Boolean = false, tint: androidx.compose.ui.graphics.Color? = null, onClick: () -> Unit) {
     val colors = AjlTheme.colors
-    val tint = if (active) AjlTheme.work.accent else colors.ink
+    val tint = tint ?: if (active) AjlTheme.work.accent else colors.ink
     Column(
         Modifier
             .width(52.dp)
@@ -816,36 +910,7 @@ private fun ColumnScope.WeakBody(spot: ReviewRules.WeakSpot, onPractice: () -> U
     OutlineButton("去练这一类", onClick = onPractice, modifier = Modifier.fillMaxWidth())
 }
 
-@Composable
-private fun ColumnScope.EndBody(session: FeedSession, onDone: () -> Unit, onExtra: (() -> Unit)?) {
-    val colors = AjlTheme.colors
-    Column(Modifier.weight(1f).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp, Alignment.CenterVertically)) {
-        StampMark(text = "済", size = 88.dp, color = AjlTheme.work.accent)
-        Text(
-            if (session.extra) "おかわり おわり" else "今日の分 おわり",
-            style = AjlTheme.type.jpTitle.copy(fontSize = 30.sp, lineHeight = 40.sp, fontWeight = FontWeight.Bold),
-            color = colors.ink,
-            modifier = Modifier.padding(top = 10.dp),
-        )
-        Row(Modifier.fillMaxWidth().padding(top = 8.dp)) {
-            Stat(session.remembered, "覚えてる", Modifier.weight(1f))
-            Stat(session.again, "もう一回", Modifier.weight(1f))
-            Stat(session.mastered, "覚えた", Modifier.weight(1f), accent = true)
-        }
-    }
-    InkButton(text = "完成", onClick = onDone)
-    if (onExtra != null) QuietButton("おかわり · 再刷 ${FeedRules.ExtraSize} 张", onClick = onExtra, modifier = Modifier.align(Alignment.CenterHorizontally))
-}
-
-@Composable
-private fun Stat(value: Int, label: String, modifier: Modifier, accent: Boolean = false) {
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(value.toString(), style = AjlTheme.type.meta.copy(fontSize = 30.sp, lineHeight = 36.sp, fontWeight = FontWeight.Medium), color = if (accent) AjlTheme.work.accent else AjlTheme.colors.ink)
-        Text(label, style = AjlTheme.type.caption.copy(fontSize = 12.sp), color = AjlTheme.colors.ink3)
-    }
-}
-
-/** A 活用 line as a 栞 台词 card, so the 栞 button on the rail can save it. */
+/** A 活用 line as a 栞 台词 card, so 收藏 on the rail can save it. */
 private fun lineEntry(line: com.animejapaneselab.nativeapp.data.ConjugationDrillItem): NotebookEntry {
     val episode = JishuViewModel.episodeOf(line.sentenceId)
     return NotebookEntry(
@@ -1142,11 +1207,14 @@ private fun ColumnScope.ContextSheet(card: FeedCard, actions: ReviewFeedActions)
 @Composable
 private fun Ledger(
     sources: FeedSources,
+    decks: List<KnowledgeDeck>,
     today: Long,
     known: Int,
     onPick: (FeedSource) -> Unit,
+    onPickDeck: (String) -> Unit,
     actions: ReviewFeedActions,
 ) {
+    val context = LocalContext.current
     val colors = AjlTheme.colors
     val date = remember(today) { LocalDate.ofEpochDay(today) }
     val weak = remember(sources.progressItems, today) { ReviewRules.weakSpots(sources.progressItems, date) }
@@ -1159,17 +1227,32 @@ private fun Ledger(
         Modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 18.dp, bottom = 28.dp),
     ) {
+        if (decks.isNotEmpty()) {
+            item(key = "decks-heading") { SectionHeading(title = "合集", meta = "点一个，只刷这一个") }
+            items(decks, key = { "deck-" + it.id }) { deck ->
+                val read = deck.cards.count { (sources.marks[it.id]?.seen ?: 0) > 0 }
+                val hearted = deck.cards.count { sources.marks[it.id]?.hearted == true }
+                BookRow(deck.title.take(1), deck.title, "${deck.cards.size} 张 · 读过 $read · ♥ $hearted", null) { onPickDeck(deck.id) }
+            }
+        }
+        val mastered = sources.know.filter { sources.marks[it.id]?.hearted == true }
+        if (mastered.isNotEmpty()) {
+            item(key = "mastered-heading") {
+                SectionHeading(title = "掌握了的", meta = "30 天、90 天各回来考一次", modifier = Modifier.padding(top = 26.dp))
+            }
+            items(mastered, key = { "m-" + it.id }) { card -> MasteredRow(card, onUndo = { Knowledge.heart(context, card.id, false, today) }) }
+        }
         if (weak.isNotEmpty()) {
             item(key = "weak") {
-                Column(Modifier.padding(bottom = 26.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(Modifier.padding(top = 26.dp, bottom = 26.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     SectionHeading(title = "苦手なところ", meta = "最近 7 天")
                     weak.forEach { spot -> WeakSpotRow(spot) }
                 }
             }
         }
-        item(key = "books-heading") { SectionHeading(title = "帳面", meta = "点一类，只刷这一类") }
+        item(key = "books-heading") { SectionHeading(title = "到期复习", meta = "点一类，先刷这一类", modifier = Modifier.padding(top = if (weak.isEmpty()) 26.dp else 0.dp)) }
         item(key = "conj") { BookRow("活", "活用 · 学过的课", "${sources.drill.learned.size} 課 · $learnedLines 句", conjDue) { onPick(FeedSource.Conj) } }
-        item(key = "shiori") { BookRow("栞", "栞 · 生词和句子", "${sources.notebook.size} 枚", shioriDue) { onPick(FeedSource.Shiori) } }
+        item(key = "shiori") { BookRow("收", "收藏 · 生词和句子", "${sources.notebook.size} 枚", shioriDue) { onPick(FeedSource.Shiori) } }
         item(key = "mistake") { BookRow("誤", "間違いノート · 错题本", "${sources.mistakes.size} 题", mistakeDue) { onPick(FeedSource.Mistake) } }
         item(key = "known") { BookRow("斬", "已斩", "$known 词 · 在辞書里可以恢复", null, muted = true, onClick = actions.openKnownWords) }
         if (remote.isNotEmpty()) {
@@ -1208,6 +1291,22 @@ private fun BookRow(mark: String, title: String, meta: String, due: Int?, muted:
                 )
             }
             Icon(Icons.Rounded.ChevronRight, contentDescription = null, tint = colors.ink3, modifier = Modifier.size(16.dp))
+        }
+        Hairline()
+    }
+}
+
+@Composable
+private fun MasteredRow(card: KnowledgeCard, onUndo: () -> Unit) {
+    val colors = AjlTheme.colors
+    Column {
+        Row(Modifier.fillMaxWidth().heightIn(min = 52.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Icon(Icons.Rounded.Favorite, contentDescription = null, tint = colors.heart, modifier = Modifier.size(14.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(card.title, style = AjlTheme.type.jpBody.copy(fontSize = 16.sp), color = colors.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(listOf(card.kind.label, card.topic).joinToString(" · "), style = AjlTheme.type.meta.copy(fontSize = 11.sp), color = colors.ink3)
+            }
+            QuietButton("取消", onClick = onUndo)
         }
         Hairline()
     }

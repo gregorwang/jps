@@ -130,7 +130,7 @@ fun TodayScreen(
     remember { ReviewFeed.init(context) }
     // 三限 復習 shows what is left of today's 復習 round once it exists (same count as the feed).
     val feed by ReviewFeed.session.collectAsState()
-    val feedLeft = feed?.takeIf { it.day == today.toEpochDay() && it.filter == null && !it.extra }?.remaining
+    val feedLeft = feed?.takeIf { it.day == today.toEpochDay() && it.filter == null && it.deck == null }?.remaining
     val slots = remember(uiState.lesson, uiState.lessonMode, uiState.reviewTasks, uiState.mistakes, uiState.readAir, uiState.shadowing, candidates, episodeLabel, mainLine, shioriDue, jishuDoneToday, feedLeft) {
         val plan = buildSmartReviewPlan(uiState.reviewTasks, uiState.mistakes, today)
         val slug = normalizeWorkSlug(workSlug)
