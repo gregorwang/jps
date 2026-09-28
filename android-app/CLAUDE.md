@@ -58,7 +58,8 @@ v3 重写派了 6 个页面包、7 个子代理，合计约 120 万 token。钱�
 - `ui/study/StudyLog.kt`：全局学习日志（每天答题数、正确数、时长、自習句数 `recordStudy`），喂给 Today 的「最近 12 週」格点（`screens/today/StudyHeatmap.kt`）。**新增任何答题型 session，判定对错的地方都要调 `StudyLog.record(...)`**，否则格点和时长不计。
 - `platform/LearningSessionNotifier.kt`：学习中的常驻通知（Android 16 ProgressStyle 分段、作品色、角色头像、计时）；内容来自 `ui/LearningSessionStatus.kt`。
 - `platform/StudyReminder.kt`：放課後チャイム，每天定时（非精确闹钟）检查 StudyLog，当天没答题才发通知；开机/更新/换时区时重新排程。
-- `ui/review/ReviewFeed.kt` + `screens/review/ReviewFeedScreen.kt`：復習刷卡流（0.11.0）。`FeedRules.build` 把活用到期句、栞、本地错题（合并同 id 的服务端任务）轮流排成一条流，`ReviewFeed`（进程级 object）存当天卡序和位置；判定经 `ReviewSinks` 写回 `ConjugationDrillViewModel.gradeLine` / `Notebook.grade|master` / `markMistakeReviewed` / `LabViewModel.gradeReviewTask`。卡片本身只加新的 `FeedKind`，不要再做单独的复习入口。
+- **知識（底栏第 5 个，0.12.0 起，原「復習」）**：无限刷的知识点卡片流。卡片数据 `assets/knowledge_cards.json`（每份学习文档一个合集），模型和解析在 `ui/knowledge/KnowledgeCards.kt`，♥ / 读过 / 30·90 天检查存在 `ui/knowledge/Knowledge.kt`（`KnowledgeRules.pick` 是推送顺序），卡面在 `screens/review/KnowledgeCardBody.kt`。**新文档交给 Antigravity**：`archive-content-sources/knowledge-cards/`（`ANTIGRAVITY_PROMPT.md`、`check.py --install`、范例 `decks/inf.json`，gitignore），装入后发版即可。卡上内容全部直接摊开，**不要再加展开面板或「相关」跳转**（用户明确不要）。
+- `ui/review/ReviewFeed.kt` + `screens/review/ReviewFeedScreen.kt`：知識流的外壳（0.11.0 的復習刷卡流改造而来）。流 = 知识卡（2 张）+ 资料单词卡（1 张）循环，快到底时 `settle` 自动接一批；到期卡（活用/收藏/错题/苦手）用 `FeedRules.weave` 穿插。`FeedRules.build` 把活用到期句、栞、本地错题（合并同 id 的服务端任务）轮流排成一条流，`ReviewFeed`（进程级 object）存当天卡序和位置；判定经 `ReviewSinks` 写回 `ConjugationDrillViewModel.gradeLine` / `Notebook.grade|master` / `markMistakeReviewed` / `LabViewModel.gradeReviewTask`。卡片本身只加新的 `FeedKind`，不要再做单独的复习入口。
 - `ui/notebook/`：栞（跨集生词本）。`data/NotebookModels.kt` 是模型、Leitner 规则（1/2/4/8/16 天）和编码；辞書第 4 个标签、翻卡复习（辞書和復習都有入口）、今日の一句和字幕页的栞按钮都在这里汇总。
 - `widget/TodayWidget.kt`：桌面小组件「今日の一句」。RemoteViews 不支持竖排，所以整块画成位图；数据由 Today 页写入 `LocalLabStore`。
 - `data/Conjugator.kt`：按规则推导动词/形容词活用表（不需要数据），辞書词条展开时显示。
@@ -119,6 +120,14 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 - 登录是必须的，不做手写功能，Web 前端不是规范；默认只改 `android-app/` 下的文件。
 
 ## 8. 经验记录（每次会话结束补几条）
+
+**2026-09-28 · 0.12.0（復習 → 知識 无限流）**
+- 用户的本意：復習应该是「知识点卡片流」而不是「到期错题流」——到期的东西刷几张就没了，达不到抖音效果。现在知识卡是主体、到期卡穿插；没有おわり卡，也没有おかわり。
+- 用户读卡是「直接看」：画布上的「展开」「相关」按钮被否了，内容一律摊在卡上（卡内可滚动）。「栞」这个字用户不认识，界面上改叫「收藏」，新文案别再用 栞。
+- ♥ = 掌握；和抖音一样双击也是 ♥。知识卡 ♥ 后 30/90 天用 `quiz.tests` 指向它的自测题回来考，答错自动取消。
+- 推荐算法的结论：单用户不做云端推荐（没有数据可学），排序规则留在本地；云端以后只做卡片内容下发和 ♥ 同步（还没做）。
+- Pager 的 key 必须唯一：同一张卡再次出现时 `ReviewFeed.more` 给它加 `#n`。
+- 还没做：知识卡和 ♥ 状态上云；把 0.9.x 以来积压的本地数据（notes3 备注等）推到 Supabase（用户说以后再解决）。
 
 **2026-09-27 · 0.11.0（復習刷卡流）**
 - 用户想要的是「像抖音一样好玩」：全屏竖滑、上划即记得、双击盖章、右侧按钮栏、底部面板像评论区。先在画布画了「復習 · 刷卡流（预览）」页（`Reel*.dc.html`，一个可交互模板生成多块画板），用户确认后一次实现。
