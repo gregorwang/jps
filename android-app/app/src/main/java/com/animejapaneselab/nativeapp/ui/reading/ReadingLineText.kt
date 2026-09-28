@@ -36,8 +36,10 @@ fun ReadingLineText(
     modifier: Modifier = Modifier,
     style: TextStyle = AjlTheme.type.jpBody,
     color: Color = AjlTheme.colors.ink,
+    /** How many characters of [mark] have faded in (the 句型卡 reveal); null = all of them. */
+    revealed: Float? = null,
 ) {
-    if (!showRuby && !showRomaji) {
+    if (!showRuby && !showRomaji && revealed == null) {
         MarkedLine(reading.text, mark, modifier, style = style, color = color)
         return
     }
@@ -70,7 +72,16 @@ fun ReadingLineText(
                         if (mark != null) {
                             val from = (mark.first - unit.start).coerceAtLeast(0)
                             val to = (mark.last + 1 - unit.start).coerceAtMost(unit.text.length)
-                            if (from < to) addStyle(SpanStyle(color = accent, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline), from, to)
+                            if (from < to && revealed == null) {
+                                addStyle(SpanStyle(color = accent, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline), from, to)
+                            } else if (from < to) {
+                                val count = mark.last - mark.first + 1
+                                for (k in from until to) {
+                                    val alpha = (revealed!! - (unit.start + k - mark.first)).coerceIn(0f, 1f)
+                                    addStyle(SpanStyle(color = accent.copy(alpha = alpha), fontWeight = FontWeight.Bold), k, k + 1)
+                                }
+                                if (revealed!! >= count + 0.5f) addStyle(SpanStyle(textDecoration = TextDecoration.Underline), from, to)
+                            }
                         }
                     },
                     style = bodyStyle,

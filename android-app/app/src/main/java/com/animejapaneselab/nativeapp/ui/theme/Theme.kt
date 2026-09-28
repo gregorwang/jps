@@ -53,6 +53,9 @@ data class AjlColors(
     val okSoft: Color,
     val bad: Color,
     val badSoft: Color,
+    /** Light-blue note labels (讲解 / 语气 on the 句型卡); 易错 uses [bad]. */
+    val info: Color,
+    val infoSoft: Color,
     /** 朱印 — stamps and seals that mean "done" or "identity". */
     val stamp: Color,
     /** ♥ 掌握 in the 知識 feed (only the heart, never text). */
@@ -78,6 +81,8 @@ val LightAjlColors = AjlColors(
     okSoft = Color(0xFFE6F1EA),
     bad = Color(0xFFB8432F),
     badSoft = Color(0xFFF8E9E5),
+    info = Color(0xFF2F6DB5),
+    infoSoft = Color(0xFFE4EEF9),
     stamp = Color(0xFFB8432F),
     heart = Color(0xFFD23B55),
     scrim = Color(0x471B1B19),
@@ -100,6 +105,8 @@ val DarkAjlColors = AjlColors(
     okSoft = Color(0xFF1E3328),
     bad = Color(0xFFF08E7A),
     badSoft = Color(0xFF3A2420),
+    info = Color(0xFF8DB8EC),
+    infoSoft = Color(0xFF1E2A3A),
     stamp = Color(0xFFF08E7A),
     heart = Color(0xFFF27A8E),
     scrim = Color(0x8C000000),

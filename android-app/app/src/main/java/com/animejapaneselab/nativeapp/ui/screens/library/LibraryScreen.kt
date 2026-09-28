@@ -137,6 +137,8 @@ fun LibraryScreen(
     val notebook = rememberNotebookEntries()
     val savedKeys = remember(notebook) { notebook.mapTo(HashSet()) { it.key } }
     var studyIds by rememberSaveable { mutableStateOf<List<String>?>(null) }
+    val audioBusy = audio.playbackState.phase == AudioPlaybackPhase.Loading || audio.playbackState.phase == AudioPlaybackPhase.Playing
+    var playingLineId by remember { mutableStateOf<String?>(null) }
 
     val tabs = listOf(
         DictTab("词汇", uiState.vocab.size),
@@ -168,7 +170,7 @@ fun LibraryScreen(
                     key = scope,
                     uiState = uiState,
                     savedKeys = savedKeys,
-                    audioBusy = audio.playbackState.phase == AudioPlaybackPhase.Loading || audio.playbackState.phase == AudioPlaybackPhase.Playing,
+                    audioBusy = audioBusy,
                     onSpeak = { audio.speakText(it, uiState.settings.ttsWorkerUrl) },
                     onPlayExample = { line -> audio.play(promptAudioForSentence(workSlug, line, autoPlay = false), uiState.settings.ttsWorkerUrl) },
                     onAsk = { item -> onAskAi(item.aiKey(), "vocab", item.surface, item.aiContext(episodeLabel)) },
@@ -179,6 +181,9 @@ fun LibraryScreen(
                     key = scope,
                     uiState = uiState,
                     savedKeys = savedKeys,
+                    audioBusy = audioBusy,
+                    onSpeak = { audio.speakText(it, uiState.settings.ttsWorkerUrl) },
+                    onPlayLine = { line -> audio.play(promptAudioForSentence(workSlug, line, autoPlay = false), uiState.settings.ttsWorkerUrl) },
                     onAsk = { item -> onAskAi(item.aiKey(), "grammar", item.pattern, item.aiContext(episodeLabel)) },
                     onLearn = { onTargetLesson(LessonTarget.Grammar(it.id)) },
                 )
@@ -190,7 +195,19 @@ fun LibraryScreen(
                     key = scope,
                     uiState = uiState,
                     savedKeys = savedKeys,
-                    onPlay = { line -> audio.play(promptAudioForSentence(workSlug, line, autoPlay = false), uiState.settings.ttsWorkerUrl) },
+                    playingId = playingLineId.takeIf { audioBusy },
+                    onPlay = { line, tts ->
+                        playingLineId = line.id
+                        if (tts) {
+                            audio.speakText(parseSpokenLine(line.ja).text, uiState.settings.ttsWorkerUrl)
+                        } else {
+                            audio.play(promptAudioForSentence(workSlug, line, autoPlay = false), uiState.settings.ttsWorkerUrl)
+                        }
+                    },
+                    onSpeak = {
+                        playingLineId = null
+                        audio.speakText(it, uiState.settings.ttsWorkerUrl)
+                    },
                     onDeepDive = { line ->
                         deepDive.request(
                             DeepDiveTarget(
@@ -773,7 +790,7 @@ private fun VocabEntry(
 
 /** ① meaning — the work-colour circled number, as in a paper dictionary. */
 @Composable
-private fun Meaning(text: String) {
+internal fun Meaning(text: String) {
     if (text.isBlank()) return
     val accent = AjlTheme.work.accent
     val numbered = text.trim().firstOrNull() in '①'..'⑳'
@@ -787,227 +804,6 @@ private fun Meaning(text: String) {
         style = AjlTheme.type.body.copy(fontSize = 14.sp, lineHeight = 21.sp),
         color = AjlTheme.colors.ink,
     )
-}
-
-/** 「example」 with its mono source on the right (L12 憂). */
-@Composable
-private fun ExampleLine(text: String, source: String) {
-    if (text.isBlank()) return
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            "「$text」",
-            style = AjlTheme.type.jpBody.copy(fontSize = 14.sp, lineHeight = 22.sp),
-            color = AjlTheme.colors.ink2,
-            modifier = Modifier.weight(1f),
-        )
-        if (source.isNotBlank()) {
-            Text(source, style = AjlTheme.type.metaSmall.copy(lineHeight = 22.sp), color = AjlTheme.colors.ink3)
-        }
-    }
-}
-
-// ---------------------------------------------------------------------------
-// 语法
-// ---------------------------------------------------------------------------
-
-@Composable
-private fun GrammarPage(
-    key: String,
-    uiState: LabUiState,
-    savedKeys: Set<String>,
-    onAsk: (GrammarPoint) -> Unit,
-    onLearn: (GrammarPoint) -> Unit,
-) {
-    var query by rememberSaveable(key) { mutableStateOf("") }
-    var expanded by rememberExpandedKey(key)
-    val grammar = uiState.grammar
-    val filtered = remember(grammar, query) { grammar.filter { it.matches(query) } }
-    val groups = remember(filtered) { groupByGojuon(filtered) { it.indexReading() } }
-    val empty = when {
-        grammar.isEmpty() -> DictRow.Empty("この話の文法はまだない", null)
-        filtered.isEmpty() -> DictRow.Empty("見つからない", query.takeIf { it.isNotBlank() })
-        else -> null
-    }
-    val (rows, starts) = remember(groups, empty) { buildDictRows(groups, { "g-${it.id}" }, empty) }
-    IndexedList(
-        key = key,
-        rows = rows,
-        starts = starts,
-        tools = {
-            FindField(query, { query = it }, placeholder = "引く · 句型、例句", modifier = Modifier.padding(top = 12.dp))
-        },
-        entry = { row ->
-            val item = row.value as GrammarPoint
-            GrammarEntry(
-                item = item,
-                saved = NotebookRules.key(NotebookKind.Grammar, item.id) in savedKeys,
-                expanded = expanded == item.id,
-                onToggle = { expanded = if (expanded == item.id) null else item.id },
-                onAsk = { onAsk(item) },
-                onLearn = { onLearn(item) },
-                uiState = uiState,
-            )
-        },
-    )
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun GrammarEntry(
-    item: GrammarPoint,
-    saved: Boolean,
-    expanded: Boolean,
-    onToggle: () -> Unit,
-    onAsk: () -> Unit,
-    onLearn: () -> Unit,
-    uiState: LabUiState,
-) {
-    val colors = AjlTheme.colors
-    val type = AjlTheme.type
-    Column(Modifier.fillMaxWidth()) {
-        Column(
-            Modifier.fillMaxWidth().clickableNoRipple(onToggle).padding(top = 16.dp, bottom = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    item.pattern,
-                    style = type.jpDisplay.copy(fontSize = 22.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold),
-                    color = colors.ink,
-                    modifier = Modifier.weight(1f, fill = false).alignByBaseline(),
-                )
-                Spacer(Modifier.weight(1f))
-                if (saved) NotebookMark(Modifier.align(Alignment.CenterVertically))
-                if (item.difficulty.isNotBlank()) {
-                    Text(item.difficulty.trim().uppercase(), style = type.meta, color = AjlTheme.work.accent, modifier = Modifier.alignByBaseline())
-                }
-            }
-            Meaning(item.titleZh)
-            ExampleLine(item.exampleJa, item.sourceLineNo.takeIf { it > 0 }?.let { "L$it" }.orEmpty())
-        }
-        if (expanded) {
-            Column(Modifier.fillMaxWidth().padding(bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (item.exampleZh.isNotBlank()) Text(item.exampleZh, style = type.caption, color = colors.ink3)
-                if (item.explanationZh.isNotBlank()) Text(item.explanationZh, style = type.body, color = colors.ink)
-                if (item.pragmaticsNote.isNotBlank()) Note("語気", item.pragmaticsNote)
-                if (!isLabelNote(item.realWorldNote)) Note("実際", item.realWorldNote)
-                LinguisticNote(item.linguistic)
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlineButton("講解", onAsk, compact = true)
-                    OutlineButton("この文型を練習", onLearn, compact = true)
-                    NotebookToggleButton(
-                        entry = { item.toNotebookEntry(uiState.selection.workSlug, uiState.selection.episode) },
-                        saved = saved,
-                    )
-                }
-                LibraryAiNote(item.aiKey(), uiState)
-            }
-        }
-        Hairline()
-    }
-}
-
-@Composable
-private fun Note(label: String, text: String) {
-    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text(label, style = AjlTheme.type.jpLabel.copy(fontSize = 12.sp), color = AjlTheme.work.accent, modifier = Modifier.width(32.dp))
-        Text(text, style = AjlTheme.type.body, color = AjlTheme.colors.ink2, modifier = Modifier.weight(1f))
-    }
-}
-
-// ---------------------------------------------------------------------------
-// 台词
-// ---------------------------------------------------------------------------
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun LinesPage(
-    key: String,
-    uiState: LabUiState,
-    savedKeys: Set<String>,
-    onPlay: (ShadowingSentence) -> Unit,
-    onDeepDive: (ShadowingSentence) -> Unit,
-    onAsk: (ShadowingSentence) -> Unit,
-    onLearn: (ShadowingSentence) -> Unit,
-) {
-    var query by rememberSaveable(key) { mutableStateOf("") }
-    var expanded by rememberExpandedKey(key)
-    val lines = uiState.shadowing
-    val filtered = remember(lines, query) { lines.filter { it.matches(query) } }
-    val listState = remember(key) { LazyListState() }
-    val colors = AjlTheme.colors
-    val type = AjlTheme.type
-    LazyColumn(
-        state = listState,
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 32.dp),
-    ) {
-        item(key = "tools", contentType = "tools") {
-            FindField(query, { query = it }, placeholder = "引く · 台词、中文", modifier = Modifier.padding(top = 12.dp, bottom = 4.dp))
-        }
-        if (filtered.isEmpty()) {
-            item(key = "empty", contentType = "empty") {
-                if (lines.isEmpty()) EmptyNote("この話の台詞はまだない") else EmptyNote("見つからない", gloss = query)
-            }
-        }
-        items(filtered, key = { "s-${it.id}" }, contentType = { "line" }) { line ->
-            val spoken = remember(line.ja) { parseSpokenLine(line.ja) }
-            val open = expanded == line.id
-            val saved = NotebookRules.key(NotebookKind.Line, line.id) in savedKeys
-            Column(Modifier.fillMaxWidth()) {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .clickableNoRipple(onClick = { expanded = if (open) null else line.id })
-                        .padding(vertical = 14.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    Box(Modifier.width(36.dp).padding(top = 2.dp)) {
-                        if (spoken.speaker != null) Avatar(WorkIdentity.character(spoken.speaker), size = 36.dp)
-                    }
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                        val meta = listOfNotNull(
-                            spoken.speaker,
-                            line.sourceLineNo.takeIf { it > 0 }?.let { "L$it" },
-                            "原声".takeIf { line.hasSourceAudio },
-                        ).joinToString(" · ")
-                        if (meta.isNotEmpty() || saved) {
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                Text(meta, style = type.metaSmall, color = colors.ink3, modifier = Modifier.weight(1f))
-                                if (saved) NotebookMark()
-                            }
-                        }
-                        Text(spoken.text, style = type.jpBody.copy(fontSize = 17.sp, lineHeight = 26.sp), color = colors.ink)
-                        if (line.meaningZh.isNotBlank()) {
-                            Text(line.meaningZh, style = type.caption.copy(fontSize = 13.sp, lineHeight = 19.sp), color = colors.ink3)
-                        }
-                    }
-                }
-                if (open) {
-                    Column(
-                        Modifier.fillMaxWidth().padding(start = 48.dp, bottom = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        if (line.romaji.isNotBlank()) Text(line.romaji, style = type.meta, color = colors.ink3)
-                        EnrichmentNote(line.enrichment)
-                        LinguisticNote(line.linguistic)
-                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlineButton("聞く", { onPlay(line) }, compact = true, leadingIcon = Icons.AutoMirrored.Rounded.VolumeUp)
-                            OutlineButton("精読", { onDeepDive(line) }, compact = true)
-                            OutlineButton("講解", { onAsk(line) }, compact = true)
-                            OutlineButton("シャドーイング", { onLearn(line) }, compact = true)
-                            NotebookToggleButton(
-                                entry = { line.toNotebookEntry(uiState.selection.workSlug, uiState.selection.episode) },
-                                saved = saved,
-                            )
-                        }
-                        LibraryAiNote(line.aiKey(), uiState)
-                    }
-                }
-                Hairline()
-            }
-        }
-    }
 }
 
 /** Pick-mode check: an empty ring, or an ink disc with ✓. */

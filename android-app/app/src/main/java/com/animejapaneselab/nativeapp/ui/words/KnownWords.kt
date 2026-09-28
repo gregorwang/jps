@@ -70,6 +70,25 @@ object KnownWords {
         write(if (known) _words.value + word else _words.value - word)
     }
 
+    /** 斩 for a 语法 / 台词 entry: its own prefixed key, so it never collides with a headword. */
+    fun grammarKey(pattern: String): String = "文型:" + pattern.trim()
+
+    fun lineKey(sentenceId: String): String = "台詞:$sentenceId"
+
+    @Synchronized
+    fun cutKey(context: Context, key: String, notebookKey: String) {
+        init(context)
+        Notebook.init(context)
+        Notebook.remove(context, notebookKey)
+        write(_words.value + key)
+    }
+
+    @Synchronized
+    fun restoreKey(context: Context, key: String) {
+        init(context)
+        write(_words.value - key)
+    }
+
     @Synchronized
     fun restore(context: Context, item: VocabItem) {
         init(context)
