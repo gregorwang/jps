@@ -93,11 +93,11 @@ object Conjugator {
                 ConjugatedForm("て形", te),
                 ConjugatedForm("た形", ta),
                 ConjugatedForm("可能", "${e}る"),
-                ConjugatedForm("受身", "${a}れる"),
+                ConjugatedForm("被动", "${a}れる"),
                 ConjugatedForm("使役", "${a}せる"),
-                ConjugatedForm("意向", "${o}う"),
+                ConjugatedForm("意志", "${o}う"),
                 ConjugatedForm("命令", if (honorific) "${stem}い" else e),
-                ConjugatedForm("仮定", "${e}ば"),
+                ConjugatedForm("假定", "${e}ば"),
             ),
         )
     }
@@ -112,11 +112,11 @@ object Conjugator {
                 ConjugatedForm("て形", "${stem}て"),
                 ConjugatedForm("た形", "${stem}た"),
                 ConjugatedForm("可能", "${stem}られる"),
-                ConjugatedForm("受身", "${stem}られる"),
+                ConjugatedForm("被动", "${stem}られる"),
                 ConjugatedForm("使役", "${stem}させる"),
-                ConjugatedForm("意向", "${stem}よう"),
+                ConjugatedForm("意志", "${stem}よう"),
                 ConjugatedForm("命令", "${stem}ろ"),
-                ConjugatedForm("仮定", "${stem}れば"),
+                ConjugatedForm("假定", "${stem}れば"),
             ),
         )
     }
@@ -129,11 +129,11 @@ object Conjugator {
             ConjugatedForm("て形", "${noun}して"),
             ConjugatedForm("た形", "${noun}した"),
             ConjugatedForm("可能", "${noun}できる"),
-            ConjugatedForm("受身", "${noun}される"),
+            ConjugatedForm("被动", "${noun}される"),
             ConjugatedForm("使役", "${noun}させる"),
-            ConjugatedForm("意向", "${noun}しよう"),
+            ConjugatedForm("意志", "${noun}しよう"),
             ConjugatedForm("命令", "${noun}しろ"),
-            ConjugatedForm("仮定", "${noun}すれば"),
+            ConjugatedForm("假定", "${noun}すれば"),
         ),
     )
 
@@ -148,11 +148,11 @@ object Conjugator {
                 ConjugatedForm("て形", k("来て（きて）", "きて")),
                 ConjugatedForm("た形", k("来た（きた）", "きた")),
                 ConjugatedForm("可能", k("来られる（こられる）", "こられる")),
-                ConjugatedForm("受身", k("来られる", "こられる")),
+                ConjugatedForm("被动", k("来られる", "こられる")),
                 ConjugatedForm("使役", k("来させる（こさせる）", "こさせる")),
-                ConjugatedForm("意向", k("来よう（こよう）", "こよう")),
+                ConjugatedForm("意志", k("来よう（こよう）", "こよう")),
                 ConjugatedForm("命令", k("来い（こい）", "こい")),
-                ConjugatedForm("仮定", k("来れば（くれば）", "くれば")),
+                ConjugatedForm("假定", k("来れば（くれば）", "くれば")),
             ),
         )
     }
@@ -170,7 +170,7 @@ object Conjugator {
                 ConjugatedForm("过去否定", "${stem}くなかった"),
                 ConjugatedForm("て形", "${stem}くて"),
                 ConjugatedForm("副词", "${stem}く"),
-                ConjugatedForm("仮定", "${stem}ければ"),
+                ConjugatedForm("假定", "${stem}ければ"),
                 ConjugatedForm("样态", if (yoi || word.endsWith("良い")) "${stem}さそう" else "${stem}そう"),
                 ConjugatedForm("名词化", "${stem}さ"),
             ),
@@ -189,7 +189,7 @@ object Conjugator {
                 ConjugatedForm("过去否定", "${stem}じゃなかった"),
                 ConjugatedForm("て形", "${stem}で"),
                 ConjugatedForm("副词", "${stem}に"),
-                ConjugatedForm("仮定", "${stem}なら"),
+                ConjugatedForm("假定", "${stem}なら"),
                 ConjugatedForm("礼貌", "${stem}です"),
             ),
         )

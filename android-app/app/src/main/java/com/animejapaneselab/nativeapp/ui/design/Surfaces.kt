@@ -30,7 +30,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.VisualTransformation
@@ -56,38 +61,52 @@ fun AjlBottomSheet(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val colors = AjlTheme.colors
+    // The outline is drawn inside the sheet: a border on ModalBottomSheet's own modifier sits at
+    // the sheet's un-slid position and shows up as a black frame across the screen.
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        modifier = modifier.border(AjlStroke.Ink, colors.ink, AjlShape.Sheet),
+        modifier = modifier,
         sheetState = sheetState,
         shape = AjlShape.Sheet,
         containerColor = colors.bg,
         contentColor = colors.ink,
         tonalElevation = 0.dp,
         scrimColor = colors.scrim,
-        dragHandle = {
+        dragHandle = null,
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .drawWithContent {
+                    drawContent()
+                    val w = AjlStroke.Ink.toPx()
+                    // Taller than the sheet so the bottom edge falls outside and only top + sides show.
+                    val outline = AjlShape.Sheet.createOutline(Size(size.width - w, size.height + 48.dp.toPx()), layoutDirection, this)
+                    translate(w / 2, w / 2) { drawOutline(outline, colors.ink, style = Stroke(w)) }
+                },
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             Box(
                 Modifier
                     .padding(top = 8.dp, bottom = 8.dp)
                     .size(width = 36.dp, height = 4.dp)
                     .background(colors.line2, RoundedCornerShape(2.dp)),
             )
-        },
-    ) {
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(start = 20.dp, end = 20.dp, bottom = 28.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            if (title != null) {
-                Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text(title, style = AjlTheme.type.jpTitle.copy(fontSize = 20.sp, lineHeight = 26.sp), color = colors.ink)
-                    if (gloss != null) Text(gloss, style = AjlTheme.type.caption, color = colors.ink3)
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(start = 20.dp, end = 20.dp, bottom = 28.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                if (title != null) {
+                    Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text(title, style = AjlTheme.type.jpTitle.copy(fontSize = 20.sp, lineHeight = 26.sp), color = colors.ink)
+                        if (gloss != null) Text(gloss, style = AjlTheme.type.caption, color = colors.ink3)
+                    }
                 }
+                content()
             }
-            content()
         }
     }
 }

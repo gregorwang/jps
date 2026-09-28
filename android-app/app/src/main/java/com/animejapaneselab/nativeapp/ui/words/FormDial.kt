@@ -5,11 +5,12 @@ import com.animejapaneselab.nativeapp.data.ConjugationTable
 /**
  * The word card's 活用 dial: every form of a word split into the unchanged stem and the ending
  * that moves, plus the column of kana the endings start with (ま み む め も ん for 挑む,
- * い く か け そ さ for an い形容词). Tapping a cell cycles the forms that start with it.
+ * る ま な て た ら … for 逃れる, い く か け そ さ for an い形容词). Every word gets the column, so
+ * the card looks the same for all of them. Tapping a cell cycles the forms that start with it.
  * Pure rules on top of [ConjugationTable]; no data needed.
  */
 data class DialForm(
-    /** ます形 / ない形 / 仮定 … as the table labels it; 辞書形 for the dictionary form. */
+    /** ます形 / ない形 / 假定 … as the table labels it; 原形 for the dictionary form. */
     val label: String,
     val value: String,
     val stem: String,
@@ -28,7 +29,6 @@ data class DialCell(val kana: String, val tag: String)
 data class FormDial(
     val typeLabel: String,
     val forms: List<DialForm>,
-    /** Empty for words whose stem never changes (一段, する, 来る, な形容词): chips and swipes only. */
     val cells: List<DialCell>,
 ) {
     fun index(label: String): Int = forms.indexOfFirst { it.label == label }.coerceAtLeast(0)
@@ -42,7 +42,7 @@ data class FormDial(
     }
 
     companion object {
-        const val Dictionary = "辞書形"
+        const val Dictionary = "原形"
         private val Dan = listOf("あ段", "い段", "う段", "え段", "お段")
         private val GodanRows = mapOf(
             'う' to "わいうえお", 'く' to "かきくけこ", 'ぐ' to "がぎぐげご", 'す' to "さしすせそ", 'つ' to "たちつてと",
@@ -64,24 +64,28 @@ data class FormDial(
             val kanaStem = if (dropped in 0..kana.length) kana.dropLast(dropped) else ""
             val core = coreMeaning(meaning)
             val godan = table.typeLabel.startsWith("五段")
-            val iAdjective = table.typeLabel.startsWith("い形")
             val row = if (godan) GodanRows[word.last()] else null
 
             val cells = mutableListOf<DialCell>()
             if (row != null) row.forEachIndexed { i, c -> cells += DialCell(c.toString(), "aiueo"[i].toString()) }
-            fun cellOf(ending: String): Int {
-                if (!(godan || iAdjective) || ending.isEmpty()) return -1
+            // Godan cells are tagged by 段; the rest by the form(s) they lead to (可能+ = 可能 and more).
+            val cellLabels = mutableMapOf<Int, MutableList<String>>()
+            fun cellOf(ending: String, label: String): Int {
+                if (ending.isEmpty()) return -1
                 val head = ending.first().toString()
-                val found = cells.indexOfFirst { it.kana == head }
-                if (found >= 0) return found
-                cells += DialCell(head, if (godan) "て·た" else "")
-                return cells.lastIndex
+                var found = cells.indexOfFirst { it.kana == head }
+                if (found < 0) {
+                    cells += DialCell(head, if (godan) "て·た" else "")
+                    found = cells.lastIndex
+                }
+                cellLabels.getOrPut(found) { mutableListOf() } += label
+                return found
             }
 
             val forms = raw.map { (label, pair) ->
                 val (value, bracketReading) = pair
                 val ending = value.removePrefix(stem)
-                val cell = cellOf(ending)
+                val cell = cellOf(ending, label)
                 val dan = if (row != null && cell in 0..4) Dan[cell] else if (godan && cell > 4) "音便" else null
                 DialForm(
                     label = label,
@@ -94,7 +98,21 @@ data class FormDial(
                     rule = ruleFor(ending, dan),
                 )
             }
-            return FormDial(table.typeLabel, forms, if (godan || iAdjective) cells else emptyList())
+            if (row == null) {
+                cellLabels.forEach { (i, labels) ->
+                    cells[i] = cells[i].copy(tag = shortLabel(labels.first()) + if (labels.size > 1) "+" else "")
+                }
+            }
+            return FormDial(table.typeLabel, forms, cells)
+        }
+
+        private fun shortLabel(label: String): String = when (label) {
+            "ます形" -> "ます"
+            "ない形" -> "ない"
+            "て形" -> "て"
+            "た形" -> "た"
+            "过去否定" -> "过去否"
+            else -> label
         }
 
         /** 挑战、迎战 → 挑战; ① 努力；加油 → 努力. */
@@ -111,11 +129,11 @@ data class FormDial(
                 "た形", "过去" -> "${m}了"
                 "过去否定" -> "没$m"
                 "可能" -> "能$m"
-                "受身" -> "被$m"
+                "被动" -> "被$m"
                 "使役" -> "让人$m"
-                "意向" -> "${m}吧"
+                "意志" -> "${m}吧"
                 "命令" -> "给我$m！"
-                "仮定" -> "如果$m"
+                "假定" -> "如果$m"
                 "副词" -> "${m}地"
                 "样态" -> "看起来$m"
                 "名词化" -> "${m}的程度"

@@ -231,7 +231,7 @@ internal fun WordCardSheet(
             LibraryAiNote(item.aiKey(), uiState)
 
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 4.dp)) {
-                OutlineButton("講解", onAsk, modifier = Modifier.height(52.dp))
+                OutlineButton("讲解", onAsk, modifier = Modifier.height(52.dp))
                 InkButton("练这个词", onLearn, modifier = Modifier.weight(1f))
             }
         }
@@ -356,7 +356,7 @@ private fun WordStage(
                         Modifier
                             .fillMaxWidth()
                             .weight(1f)
-                            .heightIn(min = 44.dp)
+                            .heightIn(min = if (dial.cells.size > 7) 34.dp else 44.dp)
                             .background(if (on) work.accent else colors.surface)
                             .clickableNoRipple(onClick = { onCell(index) })
                             .semantics { contentDescription = "${cell.kana} 段" },
