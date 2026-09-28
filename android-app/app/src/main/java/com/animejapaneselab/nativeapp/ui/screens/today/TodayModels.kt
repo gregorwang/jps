@@ -310,7 +310,7 @@ object TimetableRules {
         if (input.reviewDue > 0) {
             drafts += Draft(
                 action = SlotAction.Review,
-                title = "復習 · 快忘的卡片和栞",
+                title = "復習 · 快忘的卡片和收藏",
                 meta = "${input.reviewDue} 枚",
                 done = false,
                 caption = "到期 ${input.reviewDue} 枚",

@@ -158,7 +158,7 @@ object ReminderPlanner {
     }
 
     private fun comeback(input: ReminderInput): ReminderMessage = if (input.due > 0) {
-        message(input, "comeback", ReminderChannel.Review, ReminderTarget.Review, listOf("回来复习 5 句就好", "栞还在这里"), dueBody(input))
+        message(input, "comeback", ReminderChannel.Review, ReminderTarget.Review, listOf("回来复习 5 句就好", "收藏还在这里"), dueBody(input))
     } else {
         message(input, "comeback", ReminderChannel.Study, ReminderTarget.Jishu, listOf("回来学一句就好"), lineBody(input) ?: "今天的一句还在等你。")
     }
@@ -175,7 +175,7 @@ object ReminderPlanner {
     private fun dueBody(input: ReminderInput): String = buildString {
         append(
             listOfNotNull(
-                input.shioriDue.takeIf { it > 0 }?.let { "栞 $it 枚" },
+                input.shioriDue.takeIf { it > 0 }?.let { "收藏 $it 张" },
                 input.drillDue.takeIf { it > 0 }?.let { "活用 $it 句" },
             ).joinToString(" · ").ifBlank { "到期 ${input.due}" },
         )

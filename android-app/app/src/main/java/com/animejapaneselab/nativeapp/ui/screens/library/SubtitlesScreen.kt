@@ -523,7 +523,7 @@ private fun PlayerDock(
         }
         IconButton44(
             icon = if (saved) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder,
-            contentDescription = if (saved) "取下栞" else "夹进栞",
+            contentDescription = if (saved) "取消收藏" else "收藏",
             onClick = onToggleSaved,
             tint = if (saved) AjlTheme.work.accent else colors.ink3,
         )

@@ -246,7 +246,7 @@ internal class LabArt(context: Context, private val scale: Float, private val da
     fun reviewCard(drill: Int, shiori: Int, point: String?, gapDays: Int, workSlug: String, widthDp: Int): Bitmap {
         val rows = listOfNotNull(
             drill.takeIf { it > 0 }?.let { Triple("活用", point?.let { p -> "活用 · $p" } ?: "活用", "$it 句") },
-            shiori.takeIf { it > 0 }?.let { Triple("栞", "栞 · 台词和生词", "$it 枚") },
+            shiori.takeIf { it > 0 }?.let { Triple("收藏", "收藏 · 台词和生词", "$it 张") },
         )
         val heightDp = 60 + 8 + rows.size * 36
         val (bitmap, canvas) = canvasOf(widthDp, heightDp)

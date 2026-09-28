@@ -1,5 +1,7 @@
 package com.animejapaneselab.nativeapp.ui.notebook
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.rounded.Bookmark
 import com.animejapaneselab.nativeapp.ui.words.KnownWords
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
@@ -88,23 +90,21 @@ fun rememberNotebookEntries(): List<NotebookEntry> {
 fun NotebookToggleButton(entry: () -> NotebookEntry, saved: Boolean) {
     val context = LocalContext.current
     OutlineButton(
-        text = if (saved) "栞を外す" else "栞に挟む",
+        text = if (saved) "取消收藏" else "收藏",
         onClick = { Notebook.toggle(context, entry()) },
         compact = true,
         ink = false,
     )
 }
 
-/** A work-colour bookmark notch shown on saved rows. */
+/** A work-colour bookmark shown on saved (收藏) rows. */
 @Composable
 fun NotebookMark(modifier: Modifier = Modifier) {
-    Text(
-        "栞",
-        style = AjlTheme.type.metaSmall.copy(fontSize = 10.sp),
-        color = AjlTheme.work.onAccent,
-        modifier = modifier
-            .background(AjlTheme.work.accent, RoundedCornerShape(bottomStart = 3.dp, bottomEnd = 3.dp))
-            .padding(horizontal = 4.dp, vertical = 2.dp),
+    androidx.compose.material3.Icon(
+        androidx.compose.material.icons.Icons.Rounded.Bookmark,
+        contentDescription = "已收藏",
+        tint = AjlTheme.work.accent,
+        modifier = modifier.size(16.dp),
     )
 }
 
@@ -163,7 +163,7 @@ fun NotebookPage(
             Column(Modifier.padding(top = 14.dp, bottom = 4.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (entries.isNotEmpty()) {
                     OutlineButton(
-                        text = if (due > 0) "めくる · 到期 $due 枚" else "今日の栞は全部めくった",
+                        text = if (due > 0) "めくる · 到期 $due 枚" else "今天的收藏都翻完了",
                         onClick = { reviewing = true },
                         enabled = due > 0,
                         ink = true,
@@ -181,8 +181,8 @@ fun NotebookPage(
         if (shown.isEmpty()) {
             item(key = "empty", contentType = "empty") {
                 EmptyNote(
-                    if (entries.isEmpty()) "栞はまだない" else "この種類の栞はない",
-                    gloss = if (entries.isEmpty()) "在词汇、语法、台词或今日の一句里点「栞に挟む」" else null,
+                    if (entries.isEmpty()) "还没有收藏" else "这一类还没有收藏",
+                    gloss = if (entries.isEmpty()) "词汇左滑就能收藏，语法、台词、今日の一句点「收藏」" else null,
                 )
             }
         }
@@ -237,7 +237,7 @@ fun NotebookPage(
                             if (entry.workSlug.isNotBlank() && entry.episode > 0) {
                                 OutlineButton("原場面", { onViewSource(entry.workSlug, entry.episode, entry.lineNo) }, compact = true)
                             }
-                            OutlineButton("栞を外す", {
+                            OutlineButton("取消收藏", {
                                 expanded = null
                                 Notebook.remove(context, entry.key)
                             }, compact = true)

@@ -148,7 +148,7 @@ object StudyReminder {
             append("「").append(source.ja).append("」")
             if (source.zh.isNotBlank()) append("\n").append(source.zh)
         }
-        post(app, ReminderMessage("morning", ReminderChannel.Study, "今日の一句 · 已挟入栞", body, ReminderTarget.Today), saved = true)
+        post(app, ReminderMessage("morning", ReminderChannel.Study, "今日の一句 · 已收藏", body, ReminderTarget.Today), saved = true)
     }
 
     internal fun morningClip(context: Context) = morningSource(LocalLabStore(context))?.let { TodayLineAudio.cached(context, it.ja) }
@@ -230,7 +230,7 @@ object StudyReminder {
         )
         manager.createNotificationChannel(
             NotificationChannel(ReviewChannelId, "復習到期", NotificationManager.IMPORTANCE_DEFAULT).apply {
-                description = "栞和活用按遗忘曲线到期时提醒"
+                description = "收藏和活用按遗忘曲线到期时提醒"
             },
         )
         val store = LocalLabStore(context)
@@ -284,7 +284,7 @@ object StudyReminder {
             val small = RemoteViews(pkg, R.layout.notif_small).apply {
                 setImageViewBitmap(R.id.notif_badge, art.stamp(due, workSlug, 40))
                 setTextViewText(R.id.notif_title, fading?.let { "「$it」が薄れてきた" } ?: "復習の時間 · $due 枚")
-                setTextViewText(R.id.notif_meta, listOfNotNull(drill.takeIf { it > 0 }?.let { "活用 $it" }, shiori.takeIf { it > 0 }?.let { "栞 $it" }).joinToString(" · "))
+                setTextViewText(R.id.notif_meta, listOfNotNull(drill.takeIf { it > 0 }?.let { "活用 $it" }, shiori.takeIf { it > 0 }?.let { "收藏 $it" }).joinToString(" · "))
             }
             val big = RemoteViews(pkg, R.layout.notif_review_big).apply {
                 setImageViewBitmap(R.id.notif_card, art.reviewCard(drill, shiori, fading, gap, workSlug, ContentWidthDp))
@@ -309,7 +309,7 @@ object StudyReminder {
         val small = RemoteViews(pkg, R.layout.notif_small).apply {
             setImageViewBitmap(R.id.notif_badge, art.nameplate(markFor(source.workSlug), source.workSlug, 40))
             setTextViewText(R.id.notif_title, source.ja)
-            setTextViewText(R.id.notif_meta, if (saved) "已挟入栞" else if (morning) source.eyebrow else message.title)
+            setTextViewText(R.id.notif_meta, if (saved) "已收藏" else if (morning) source.eyebrow else message.title)
         }
         val big = RemoteViews(pkg, R.layout.notif_line_big).apply {
             setImageViewBitmap(
@@ -326,7 +326,7 @@ object StudyReminder {
                 setOnClickPendingIntent(R.id.notif_play, actionIntent(context, ActionPlayLine))
             }
             if (canSave) {
-                val label = android.text.SpannableString("挟む · 存进栞").apply {
+                val label = android.text.SpannableString("收藏").apply {
                     setSpan(android.text.style.TypefaceSpan("serif"), 0, 2, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     setSpan(android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, 2, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }

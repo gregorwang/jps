@@ -92,6 +92,21 @@ import com.animejapaneselab.nativeapp.ui.reading.rememberSentenceDeepDive
 import com.animejapaneselab.nativeapp.ui.theme.AjlStroke
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.material.icons.rounded.Bookmark
+import androidx.compose.material.icons.rounded.BookmarkBorder
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.style.TextDecoration
+import com.animejapaneselab.nativeapp.ui.audio.AudioPlaybackPhase
+import com.animejapaneselab.nativeapp.ui.design.SwipeAction
+import com.animejapaneselab.nativeapp.ui.design.SwipeActionRow
+import com.animejapaneselab.nativeapp.ui.design.UndoBar
+import com.animejapaneselab.nativeapp.ui.design.VoiceBars
+import com.animejapaneselab.nativeapp.ui.notebook.Notebook
+import kotlinx.coroutines.delay
 
 /** 辞書 tab: 词汇 / 语法 / 台词, dictionary entries, 五十音 index. */
 @Composable
@@ -127,7 +142,7 @@ fun LibraryScreen(
         DictTab("词汇", uiState.vocab.size),
         DictTab("语法", uiState.grammar.size),
         DictTab("台词", uiState.shadowing.size),
-        DictTab("栞", notebook.size),
+        DictTab("收藏", notebook.size),
     )
 
     Column(modifier.fillMaxSize().background(colors.bg)) {
@@ -153,7 +168,9 @@ fun LibraryScreen(
                     key = scope,
                     uiState = uiState,
                     savedKeys = savedKeys,
+                    audioBusy = audio.playbackState.phase == AudioPlaybackPhase.Loading || audio.playbackState.phase == AudioPlaybackPhase.Playing,
                     onSpeak = { audio.speakText(it, uiState.settings.ttsWorkerUrl) },
+                    onPlayExample = { line -> audio.play(promptAudioForSentence(workSlug, line, autoPlay = false), uiState.settings.ttsWorkerUrl) },
                     onAsk = { item -> onAskAi(item.aiKey(), "vocab", item.surface, item.aiContext(episodeLabel)) },
                     onLearn = { studyIds = listOf(it.id) },
                     onLearnMany = { ids -> studyIds = ids },
@@ -328,7 +345,9 @@ private fun IndexedList(
                 }
             }
         }
-        if (starts.size > 1) {
+        // The index only earns its place when the list runs past one screen.
+        val scrolls by remember(listState) { derivedStateOf { listState.canScrollForward || listState.canScrollBackward } }
+        if (starts.size > 1 && scrolls) {
             KanaIndexRail(
                 present = starts.keys,
                 current = current,
@@ -361,20 +380,25 @@ private fun VocabPage(
     key: String,
     uiState: LabUiState,
     savedKeys: Set<String>,
+    audioBusy: Boolean,
     onSpeak: (String) -> Unit,
+    onPlayExample: (ShadowingSentence) -> Unit,
     onAsk: (VocabItem) -> Unit,
     onLearn: (VocabItem) -> Unit,
     onLearnMany: (List<String>) -> Unit,
 ) {
     var query by rememberSaveable(key) { mutableStateOf("") }
-    // 選んで練習: tap words to pick them, then practise them together.
+    // Long-press a word to start picking; tap more to add, then 斩 / 收藏 / 練習 them together.
     var picking by rememberSaveable(key) { mutableStateOf(false) }
     var picked by rememberSaveable(key) { mutableStateOf(listOf<String>()) }
     var level by rememberSaveable(key) { mutableStateOf(Jlpt.All) }
-    var expanded by rememberExpandedKey(key)
+    var openId by rememberSaveable(key) { mutableStateOf<String?>(null) }
+    var speakingId by remember(key) { mutableStateOf<String?>(null) }
+    var undo by remember(key) { mutableStateOf<Pair<String, () -> Unit>?>(null) }
     // 斩: the 已斩 archive replaces the list while open; words can be restored from there.
     var archive by rememberSaveable(key) { mutableStateOf(false) }
     val appContext = LocalContext.current.applicationContext
+    val haptics = LocalHapticFeedback.current
     remember { KnownWords.init(appContext) }
     val known by KnownWords.words.collectAsState()
     // Fragments the checked word cards marked keep=false (って, 〜ちゃ) are not listed.
@@ -386,6 +410,13 @@ private fun VocabPage(
     // Words every anime viewer knows (marked easy on the checked cards), offered to 斩 in one go.
     val easy = remember(vocab, archive) { if (archive) emptyList() else vocab.filter { VocabCards.get(appContext, it.id)?.easy == true || KnownWords.isObvious(it) } }
     LaunchedEffect(cut.isEmpty()) { if (cut.isEmpty()) archive = false }
+    LaunchedEffect(audioBusy) { if (!audioBusy) speakingId = null }
+    LaunchedEffect(undo) {
+        if (undo != null) {
+            delay(4000)
+            undo = null
+        }
+    }
     val buckets = remember(vocab) { levelBuckets(vocab) }
     val filtered = remember(vocab, level, query) { filterByLevel(vocab, level).filter { it.matches(query) } }
     val groups = remember(filtered) { groupByGojuon(filtered) { it.indexReading() } }
@@ -396,111 +427,177 @@ private fun VocabPage(
         else -> null
     }
     val (rows, starts) = remember(groups, empty) { buildDictRows(groups, { "v-${it.id}" }, empty) }
-    val examples = remember(vocab, uiState.shadowing) {
-        vocab.associate { it.id to findExampleLine(it.surface, it.reading, uiState.shadowing) }
+    val examples = remember(studyable, uiState.shadowing) {
+        studyable.associate { it.id to findExampleLine(it.surface, it.reading, uiState.shadowing) }
+    }
+    val workSlug = uiState.selection.workSlug
+    val episode = uiState.selection.episode
+    fun entryOf(item: VocabItem) = item.toNotebookEntry(workSlug, episode, examples[item.id])
+    fun speak(item: VocabItem, text: String = item.surface) {
+        speakingId = item.id
+        onSpeak(text)
+    }
+    fun cutWord(item: VocabItem) {
+        KnownWords.cut(appContext, listOf(item))
+        undo = "已斩「${item.surface}」" to { KnownWords.restore(appContext, item) }
+    }
+    fun toggleSave(item: VocabItem) {
+        val wasSaved = NotebookRules.key(NotebookKind.Vocab, item.id) in savedKeys
+        Notebook.toggle(appContext, entryOf(item))
+        undo = (if (wasSaved) "已取消收藏「${item.surface}」" else "已收藏「${item.surface}」") to { Notebook.toggle(appContext, entryOf(item)) }
+    }
+    fun endPicking() {
+        picking = false
+        picked = emptyList()
     }
     Box(Modifier.fillMaxSize()) {
-    IndexedList(
-        key = key,
-        rows = rows,
-        starts = starts,
-        tools = {
-            Column(Modifier.padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Box(Modifier.weight(1f)) { FindField(query, { query = it }, placeholder = "引く · 词、读音、中文") }
-                    if (!archive) {
-                        FilterPill(
-                            text = if (picking) "取消" else "選ぶ",
-                            selected = picking,
-                            onClick = {
-                                picking = !picking
-                                picked = emptyList()
-                            },
-                        )
+        IndexedList(
+            key = key,
+            rows = rows,
+            starts = starts,
+            tools = {
+                Column(Modifier.padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Box(Modifier.weight(1f)) { FindField(query, { query = it }, placeholder = "引く · 词、读音、中文") }
+                        if (picking) FilterPill(text = "取消", selected = true, onClick = { endPicking() })
+                        if (cut.isNotEmpty()) {
+                            FilterPill(
+                                text = "已斩 ${cut.size}",
+                                selected = archive,
+                                onClick = {
+                                    archive = !archive
+                                    endPicking()
+                                },
+                            )
+                        }
                     }
-                    if (cut.isNotEmpty()) {
-                        FilterPill(
-                            text = "已斩 ${cut.size}",
-                            selected = archive,
-                            onClick = {
-                                archive = !archive
-                                picking = false
-                                picked = emptyList()
-                            },
-                        )
+                    if (easy.isNotEmpty() && !picking) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                "动漫里天天听的词 ${easy.size} 个",
+                                style = AjlTheme.type.caption,
+                                color = AjlTheme.colors.ink3,
+                                modifier = Modifier.weight(1f),
+                            )
+                            QuietButton("一键斩掉", onClick = { KnownWords.cut(appContext, easy) }, color = AjlTheme.work.accent)
+                        }
                     }
+                    if (buckets.size > 2) LevelPills(buckets, level) { level = it }
                 }
-                if (easy.isNotEmpty() && !picking) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            "动漫里天天听的词 ${easy.size} 个",
-                            style = AjlTheme.type.caption,
-                            color = AjlTheme.colors.ink3,
-                            modifier = Modifier.weight(1f),
-                        )
-                        QuietButton("一键斩掉", onClick = { KnownWords.cut(appContext, easy) }, color = AjlTheme.work.accent)
-                    }
-                }
-                if (buckets.size > 2) LevelPills(buckets, level) { level = it }
+            },
+            entry = { row ->
+                val item = row.value as VocabItem
+                VocabEntry(
+                    item = item,
+                    saved = NotebookRules.key(NotebookKind.Vocab, item.id) in savedKeys,
+                    picked = if (picking) item.id in picked else null,
+                    known = archive,
+                    speaking = speakingId == item.id && audioBusy,
+                    onOpen = {
+                        if (picking) {
+                            picked = if (item.id in picked) picked - item.id else (picked + item.id).takeLast(10)
+                            if (picked.isEmpty()) picking = false
+                        } else {
+                            openId = item.id
+                        }
+                    },
+                    onLongPress = {
+                        if (!archive) {
+                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                            picking = true
+                            if (item.id !in picked) picked = (picked + item.id).takeLast(10)
+                        }
+                    },
+                    onSpeak = { speak(item) },
+                    onCut = { cutWord(item) },
+                    onToggleSave = { toggleSave(item) },
+                )
+            },
+        )
+        if (picking && picked.isNotEmpty()) {
+            Row(
+                Modifier.align(Alignment.BottomCenter).padding(start = 20.dp, end = 20.dp, bottom = 16.dp).fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                OutlineButton(
+                    "斩",
+                    onClick = {
+                        val words = vocab.filter { it.id in picked }
+                        KnownWords.cut(appContext, words)
+                        undo = "已斩 ${words.size} 个词" to { words.forEach { KnownWords.restore(appContext, it) } }
+                        endPicking()
+                    },
+                    ink = true,
+                    modifier = Modifier.height(52.dp),
+                )
+                OutlineButton(
+                    "收藏",
+                    onClick = {
+                        val words = vocab.filter { it.id in picked }
+                        val added = words.filter { Notebook.save(appContext, entryOf(it)) }
+                        undo = "已收藏 ${words.size} 个词" to { added.forEach { Notebook.remove(appContext, NotebookRules.key(NotebookKind.Vocab, it.id)) } }
+                        endPicking()
+                    },
+                    modifier = Modifier.height(52.dp),
+                )
+                InkButton(
+                    "${picked.size} 語を練習",
+                    onClick = {
+                        onLearnMany(picked)
+                        endPicking()
+                    },
+                    trailingArrow = true,
+                    height = 52.dp,
+                    modifier = Modifier.weight(1f),
+                )
             }
-        },
-        entry = { row ->
-            val item = row.value as VocabItem
-            VocabEntry(
-                item = item,
-                example = examples[item.id],
-                saved = NotebookRules.key(NotebookKind.Vocab, item.id) in savedKeys,
-                expanded = !picking && expanded == item.id,
-                picked = if (picking) item.id in picked else null,
-                onToggle = {
-                    if (picking) {
-                        picked = if (item.id in picked) picked - item.id else (picked + item.id).takeLast(10)
-                    } else {
-                        expanded = if (expanded == item.id) null else item.id
-                    }
+        }
+        undo?.let { (text, restore) ->
+            UndoBar(
+                text = text,
+                onUndo = {
+                    restore()
+                    undo = null
                 },
-                onSpeak = { onSpeak(item.surface) },
-                onSpeakText = onSpeak,
-                onAsk = { onAsk(item) },
-                onLearn = { onLearn(item) },
-                uiState = uiState,
-                known = archive,
-                onKnown = {
-                    expanded = null
-                    if (archive) KnownWords.restore(appContext, item) else KnownWords.cut(appContext, listOf(item))
-                },
-            )
-        },
-    )
-    if (picking && picked.isNotEmpty()) {
-        Row(
-            Modifier.align(Alignment.BottomCenter).padding(start = 20.dp, end = 20.dp, bottom = 16.dp).fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            OutlineButton(
-                "斩",
-                onClick = {
-                    KnownWords.cut(appContext, vocab.filter { it.id in picked })
-                    picking = false
-                    picked = emptyList()
-                },
-                ink = true,
-                modifier = Modifier.height(52.dp),
-            )
-            InkButton(
-                "${picked.size} 語を練習",
-                onClick = {
-                    onLearnMany(picked)
-                    picking = false
-                    picked = emptyList()
-                },
-                trailingArrow = true,
-                height = 52.dp,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.align(Alignment.BottomCenter).padding(horizontal = 16.dp, vertical = 12.dp),
             )
         }
     }
+
+    openId?.let { id ->
+        val item = studyable.firstOrNull { it.id == id }
+        if (item == null) {
+            openId = null
+        } else {
+            val example = examples[item.id]
+            WordCardSheet(
+                item = item,
+                example = example,
+                saved = NotebookRules.key(NotebookKind.Vocab, item.id) in savedKeys,
+                known = archive,
+                speaking = speakingId == item.id && audioBusy,
+                uiState = uiState,
+                onSpeak = { speak(item, it) },
+                onPlayExample = {
+                    if (example != null) {
+                        speakingId = null
+                        onPlayExample(example)
+                    }
+                },
+                onToggleSave = { toggleSave(item) },
+                onCut = {
+                    openId = null
+                    if (archive) KnownWords.restore(appContext, item) else cutWord(item)
+                },
+                onAsk = { onAsk(item) },
+                onLearn = {
+                    openId = null
+                    onLearn(item)
+                },
+                onDismiss = { openId = null },
+            )
+        }
     }
 }
 
@@ -548,109 +645,126 @@ private fun LevelPills(buckets: List<LevelBucket>, selected: String, onSelect: (
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun VocabEntry(
     item: VocabItem,
-    example: ShadowingSentence?,
     saved: Boolean,
-    expanded: Boolean,
-    onToggle: () -> Unit,
-    onSpeak: () -> Unit,
-    onSpeakText: (String) -> Unit,
     /** Non-null in pick mode: whether this word is picked. */
-    picked: Boolean? = null,
-    onAsk: () -> Unit,
-    onLearn: () -> Unit,
-    uiState: LabUiState,
-    /** Shown in the 已斩 archive: the action restores it instead of cutting it. */
-    known: Boolean = false,
-    onKnown: () -> Unit = {},
+    picked: Boolean?,
+    /** Shown in the 已斩 archive: no swiping, the card offers 恢复. */
+    known: Boolean,
+    speaking: Boolean,
+    onOpen: () -> Unit,
+    onLongPress: () -> Unit,
+    onSpeak: () -> Unit,
+    onCut: () -> Unit,
+    onToggleSave: () -> Unit,
 ) {
     val colors = AjlTheme.colors
     val type = AjlTheme.type
-    val accent = AjlTheme.work.accent
-    // The stored reading is sometimes the dictionary form's (戻れ · もどる): show the one that spells the headword.
-    val appContext = LocalContext.current.applicationContext
-    val fix = remember(item.id) { VocabCards.get(appContext, item.id) }
-    val shownReading = remember(item.id) { WordRules.card(item, null, emptyList(), fix).reading ?: item.reading }
+    val work = AjlTheme.work
+    val shownReading = rememberShownReading(item)
+    val meaning = rememberShownMeaning(item)
     Column(Modifier.fillMaxWidth()) {
-        Column(
-            Modifier.fillMaxWidth().clickableNoRipple(onToggle).padding(top = 16.dp, bottom = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+        SwipeActionRow(
+            enabled = picked == null && !known,
+            right = SwipeAction(
+                label = "斩",
+                armedLabel = "松手斩掉",
+                background = colors.ink,
+                content = colors.onInk,
+                dismiss = true,
+                icon = { armed -> SealMark(armed = armed, tint = colors.onInk, fill = colors.onInk, size = 36.dp) },
+                onCommit = onCut,
+            ),
+            left = SwipeAction(
+                label = if (saved) "取消收藏" else "收藏",
+                armedLabel = if (saved) "松手取消" else "松手收藏",
+                background = work.accent,
+                content = work.onAccent,
+                dismiss = false,
+                icon = { armed ->
+                    Icon(
+                        if (armed != saved) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder,
+                        contentDescription = null,
+                        tint = work.onAccent,
+                        modifier = Modifier.size(28.dp),
+                    )
+                },
+                onCommit = onToggleSave,
+            ),
         ) {
-            // Headword + plain reading; the level sits right as a small work-colour tag.
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(
-                    item.surface,
-                    style = type.jpDisplay.copy(fontSize = 25.sp, lineHeight = 32.sp, fontWeight = FontWeight.Bold),
-                    color = colors.ink,
-                    modifier = Modifier.alignByBaseline(),
-                )
-                if (shownReading.isNotBlank() && shownReading != item.surface) {
-                    Text(shownReading, style = type.jpBody.copy(fontSize = 14.sp), color = colors.ink3, modifier = Modifier.alignByBaseline())
-                }
-                Spacer(Modifier.weight(1f))
-                if (picked != null) PickMark(picked, Modifier.align(Alignment.CenterVertically))
-                if (saved) NotebookMark(Modifier.alignByBaseline())
-                val level = Jlpt.normalize(item.level).takeIf { it in Jlpt.Levels }
-                if (level != null) {
-                    Text(
-                        level,
-                        style = type.metaSmall.copy(fontSize = 10.sp),
-                        color = accent,
-                        modifier = Modifier
-                            .alignByBaseline()
-                            .background(AjlTheme.work.soft, RoundedCornerShape(4.dp))
-                            .padding(horizontal = 6.dp, vertical = 1.dp),
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .background(if (picked == true) work.soft else colors.bg)
+                    .combinedClickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onOpen,
+                        onLongClick = onLongPress,
                     )
-                }
-            }
-            // Part of speech in plain Chinese (名词 / 五段动词 / な形容词) ahead of the meaning.
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Top) {
-                val pos = partOfSpeechLabel(item.partOfSpeech)
-                if (pos.isNotEmpty()) {
-                    Text(
-                        pos,
-                        style = type.caption.copy(fontSize = 11.sp, lineHeight = 14.sp),
-                        color = colors.ink2,
-                        modifier = Modifier
-                            .padding(top = 3.dp)
-                            .border(AjlStroke.Hair, colors.line2, RoundedCornerShape(4.dp))
-                            .padding(horizontal = 5.dp, vertical = 1.dp),
-                    )
-                }
-                Box(Modifier.weight(1f)) { Meaning(fix?.meaning?.takeIf { fix.keep && it.isNotBlank() } ?: item.meaningZh) }
-            }
-            if (example != null) ExampleLine(parseSpokenLine(example.ja).text, exampleSource(example))
-        }
-        if (expanded) {
-            Column(Modifier.fillMaxWidth().padding(bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (shownReading.isNotBlank()) Text(Kana.romaji(shownReading), style = type.meta, color = colors.ink3)
-                // A checked card's empty note is deliberate: never fall back to the row's unreliable one.
-                val note = if (fix?.keep == true) fix.note else item.realWorldNote
-                if (!WordRules.isFiller(note)) NoteText(note)
-                val conjugation = remember(item.surface, item.reading, item.partOfSpeech) {
-                    Conjugator.tableFor(item.surface, item.reading, item.partOfSpeech)
-                }
-                ConjugationGrid(conjugation, onSpeak = onSpeakText)
-                EnrichmentNote(item.enrichment)
-                LinguisticNote(item.linguistic)
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlineButton("発音", onSpeak, compact = true, leadingIcon = Icons.AutoMirrored.Rounded.VolumeUp)
-                    OutlineButton("講解", onAsk, compact = true)
-                    if (known) {
-                        OutlineButton("恢复", onKnown, compact = true)
-                    } else {
-                        OutlineButton("この語を練習", onLearn, compact = true)
-                        NotebookToggleButton(
-                            entry = { item.toNotebookEntry(uiState.selection.workSlug, uiState.selection.episode, example) },
-                            saved = saved,
+                    .padding(top = 14.dp, bottom = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                if (picked != null) PickMark(picked)
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    // Headword (tap = 発音) + reading + romaji; the level sits right as a small work-colour tag.
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            item.surface,
+                            style = type.jpDisplay.copy(fontSize = 28.sp, lineHeight = 36.sp, fontWeight = FontWeight.Bold),
+                            color = colors.ink,
+                            textDecoration = if (speaking) TextDecoration.Underline else null,
+                            maxLines = 1,
+                            modifier = Modifier
+                                .then(if (picked == null) Modifier.clickableNoRipple(onClick = onSpeak) else Modifier)
+                                .semantics { contentDescription = "${item.surface}，点一下发音" },
                         )
-                        OutlineButton("斩 · 已会", onKnown, compact = true)
+                        if (speaking) VoiceBars(active = true, color = work.accent)
+                        Row(
+                            Modifier.weight(1f),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            if (shownReading.isNotBlank() && shownReading != item.surface) {
+                                Text(shownReading, style = type.jpBody.copy(fontSize = 14.sp), color = colors.ink2, maxLines = 1)
+                            }
+                            val roma = remember(shownReading) { Kana.romaji(shownReading.ifBlank { item.surface }) }
+                            if (roma.isNotBlank()) Text(roma, style = type.metaSmall, color = colors.ink3, maxLines = 1)
+                        }
+                        if (saved) NotebookMark()
+                        val level = Jlpt.normalize(item.level).takeIf { it in Jlpt.Levels }
+                        if (level != null) {
+                            Text(
+                                level,
+                                style = type.metaSmall.copy(fontSize = 10.sp),
+                                color = work.accent,
+                                modifier = Modifier
+                                    .background(work.soft, RoundedCornerShape(4.dp))
+                                    .padding(horizontal = 6.dp, vertical = 1.dp),
+                            )
+                        }
+                    }
+                    // Part of speech in plain Chinese (名词 / 五段动词 / な形容词) ahead of the meaning.
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Top) {
+                        val pos = partOfSpeechLabel(item.partOfSpeech)
+                        if (pos.isNotEmpty()) {
+                            Text(
+                                pos,
+                                style = type.caption.copy(fontSize = 11.sp, lineHeight = 14.sp),
+                                color = colors.ink2,
+                                modifier = Modifier
+                                    .padding(top = 3.dp)
+                                    .border(AjlStroke.Hair, colors.line2, RoundedCornerShape(4.dp))
+                                    .padding(horizontal = 5.dp, vertical = 1.dp),
+                            )
+                        }
+                        Box(Modifier.weight(1f)) { Meaning(meaning) }
                     }
                 }
-                LibraryAiNote(item.aiKey(), uiState)
             }
         }
         Hairline()
@@ -763,7 +877,7 @@ private fun GrammarEntry(
                     modifier = Modifier.weight(1f, fill = false).alignByBaseline(),
                 )
                 Spacer(Modifier.weight(1f))
-                if (saved) NotebookMark(Modifier.alignByBaseline())
+                if (saved) NotebookMark(Modifier.align(Alignment.CenterVertically))
                 if (item.difficulty.isNotBlank()) {
                     Text(item.difficulty.trim().uppercase(), style = type.meta, color = AjlTheme.work.accent, modifier = Modifier.alignByBaseline())
                 }

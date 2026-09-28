@@ -207,7 +207,7 @@ internal fun WordStudyDialog(
                     tally = ReadAirRules.tally(answered, correctCount),
                     meta = ReadAirRules.accuracy(answered, correctCount),
                     noted = ready.orEmpty().filter { it.item.id in missed }.map { TsuzukuLine(it.surface, true, it.meaning) },
-                    notedTitle = "放进栞的 ${missed.size} 个词",
+                    notedTitle = "放进收藏的 ${missed.size} 个词",
                     // The words are done: finishing goes back to 辞書 (missed ones already came back once and sit in 栞).
                     primaryLabel = "完成",
                     onPrimary = onDismiss,
