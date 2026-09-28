@@ -56,7 +56,8 @@ import com.animejapaneselab.nativeapp.ui.design.ProgressLine
 import com.animejapaneselab.nativeapp.ui.design.ToolPanel
 import com.animejapaneselab.nativeapp.ui.design.rememberTypewriterState
 import com.animejapaneselab.nativeapp.ui.motion.rememberReducedMotion
-import com.animejapaneselab.nativeapp.ui.reading.RubyText
+import com.animejapaneselab.nativeapp.ui.reading.LineReading
+import com.animejapaneselab.nativeapp.ui.reading.ReadingLineText
 import com.animejapaneselab.nativeapp.ui.reading.rememberFuriganaAnnotator
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 import kotlinx.coroutines.CancellationException
@@ -89,8 +90,8 @@ internal fun ShadowingQuestion(
 ) {
     val sentence = node.sentence
     val furigana = rememberFuriganaAnnotator(settings)
-    LaunchedEffect(sentence.ja, settings.showFurigana) {
-        if (settings.showFurigana) furigana.request("sentence", listOf(sentence.ja))
+    LaunchedEffect(sentence.ja, settings.showFurigana, settings.showRomaji) {
+        if (settings.showFurigana || settings.showRomaji) furigana.request("sentence", listOf(sentence.ja))
     }
     val typewriter = rememberTypewriterState(sentence.ja)
     var selfCheck by rememberSaveable(node.id) { mutableStateOf(node.pronunciationSentenceId == null) }
@@ -99,14 +100,9 @@ internal fun ShadowingQuestion(
     val scene: @Composable () -> Unit = {
         SceneDialogue(env.character, env.speaker, node.audio, env, typewriter) { visible ->
             if (typewriter.isComplete) {
-                RubyText(
-                    text = sentence.ja,
-                    furigana = if (settings.showFurigana) furigana.resultFor(sentence.ja) else null,
-                    style = dialogueStyle(),
-                    rubyStyle = AjlTheme.type.jpLabel,
-                    color = AjlTheme.colors.ink,
-                    rubyColor = AjlTheme.colors.ink3,
-                )
+                // Romaji and kana sit over each word, not as a sentence-long line underneath.
+                val reading = remember(sentence.ja, furigana.resultFor(sentence.ja)) { LineReading.build(sentence.ja, furigana.resultFor(sentence.ja)) }
+                ReadingLineText(reading, null, showRuby = settings.showFurigana, showRomaji = settings.showRomaji, style = dialogueStyle())
             } else {
                 Text(visible, style = dialogueStyle(), color = AjlTheme.colors.ink)
             }
@@ -117,9 +113,6 @@ internal fun ShadowingQuestion(
                     color = AjlTheme.colors.ink3,
                     modifier = Modifier.graphicsLayer { alpha = if (typewriter.isComplete) 1f else 0f },
                 )
-            }
-            if (settings.showRomaji && sentence.romaji.isNotBlank() && typewriter.isComplete) {
-                Text(sentence.romaji, style = AjlTheme.type.meta, color = AjlTheme.colors.ink3)
             }
         }
     }

@@ -517,7 +517,7 @@ private fun FeedCardView(
                 FeedKind.Listen -> ListenBody(card.entry!!, revealed, playing, aids, onPlay = { play(card, audio, ttsWorkerUrl) }, onReveal = { revealed = true })
                 FeedKind.Mistake -> MistakeBody(card.mistake!!, revealed, onReveal = { revealed = true })
                 FeedKind.Weak -> WeakBody(card.weak!!, onPractice = { onPracticeWeak(card.weak.name) })
-                FeedKind.Know -> KnowBody(card.know!!, aids.romaji, onAnswer)
+                FeedKind.Know -> KnowBody(card.know!!, aids.annotator.takeIf { aids.romaji }, onAnswer)
                 FeedKind.Vocab -> VocabBody(card.vocab!!, aids.romaji)
             }
         }

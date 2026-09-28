@@ -22,8 +22,8 @@ import com.animejapaneselab.nativeapp.ui.design.MarkedLine
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 
 /**
- * A Japanese line with reading aids: kana over each kanji word ([showRuby]) and romaji under
- * every unit ([showRomaji]), so each sound sits right under what spells it. The [mark] range
+ * A Japanese line with reading aids stacked over every unit, Duolingo-style: romaji on top
+ * ([showRomaji]), then kana over each kanji word ([showRuby]), then the text itself. The [mark] range
  * (the point of the line) is bold, work-coloured and underlined, its romaji too.
  */
 @OptIn(ExperimentalLayoutApi::class)
@@ -51,6 +51,16 @@ fun ReadingLineText(
         reading.units.forEach { unit ->
             val marked = mark != null && unit.start <= mark.last && unit.end > mark.first
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                if (showRomaji) {
+                    Text(
+                        unit.romaji.ifEmpty { " " },
+                        style = romajiStyle,
+                        color = if (marked) accent else ink3,
+                        maxLines = 1,
+                        softWrap = false,
+                        modifier = Modifier.padding(horizontal = 1.dp),
+                    )
+                }
                 if (showRuby) {
                     Text(unit.ruby.ifEmpty { " " }, style = rubyStyle, color = if (unit.ruby.isEmpty()) Color.Transparent else if (marked) accent else ink3, maxLines = 1, softWrap = false)
                 }
@@ -67,16 +77,6 @@ fun ReadingLineText(
                     color = color,
                     softWrap = false,
                 )
-                if (showRomaji) {
-                    Text(
-                        unit.romaji.ifEmpty { " " },
-                        style = romajiStyle,
-                        color = if (marked) accent else ink3,
-                        maxLines = 1,
-                        softWrap = false,
-                        modifier = Modifier.padding(horizontal = 1.dp),
-                    )
-                }
             }
         }
     }

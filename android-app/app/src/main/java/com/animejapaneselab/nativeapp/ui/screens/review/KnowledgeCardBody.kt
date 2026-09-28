@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -47,7 +48,10 @@ import com.animejapaneselab.nativeapp.ui.knowledge.KnowKind
 import com.animejapaneselab.nativeapp.ui.knowledge.KnowQuiz
 import com.animejapaneselab.nativeapp.ui.knowledge.KnowledgeCard
 import com.animejapaneselab.nativeapp.ui.knowledge.VocabWord
+import com.animejapaneselab.nativeapp.ui.reading.FuriganaAnnotator
 import com.animejapaneselab.nativeapp.ui.reading.Kana
+import com.animejapaneselab.nativeapp.ui.reading.LineReading
+import com.animejapaneselab.nativeapp.ui.reading.ReadingLineText
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 
 /*
@@ -59,7 +63,7 @@ import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 private val RailRoom = 54.dp
 
 @Composable
-internal fun ColumnScope.KnowBody(card: KnowledgeCard, romaji: Boolean, onAnswer: (quiz: KnowQuiz, right: Boolean) -> Unit) {
+internal fun ColumnScope.KnowBody(card: KnowledgeCard, romaji: FuriganaAnnotator?, onAnswer: (quiz: KnowQuiz, right: Boolean) -> Unit) {
     val colors = AjlTheme.colors
     Column(
         Modifier
@@ -124,9 +128,9 @@ private fun Parts(card: KnowledgeCard) {
     }
 }
 
-/** A Japanese line with its target underlined in [tint], then romaji and Chinese. */
+/** A Japanese line with its target underlined in [tint] (romaji over each word when on), then Chinese. */
 @Composable
-private fun Example(ex: KnowExample, romaji: Boolean, tint: Color = AjlTheme.work.accent, size: Int = 19, struck: Boolean = false) {
+private fun Example(ex: KnowExample, romaji: FuriganaAnnotator?, tint: Color = AjlTheme.work.accent, size: Int = 19, struck: Boolean = false) {
     val colors = AjlTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         val range = ex.targetRange
@@ -143,8 +147,14 @@ private fun Example(ex: KnowExample, romaji: Boolean, tint: Color = AjlTheme.wor
                 }
             }
         }
-        Text(text, style = AjlTheme.type.jpBody.copy(fontSize = size.sp, lineHeight = (size * 1.6f).sp, fontWeight = FontWeight.Medium), color = colors.ink)
-        if (romaji && ex.romaji.isNotBlank()) Text(ex.romaji, style = AjlTheme.type.meta.copy(fontSize = 12.sp, lineHeight = 17.sp), color = colors.ink3)
+        val lineStyle = AjlTheme.type.jpBody.copy(fontSize = size.sp, lineHeight = (size * 1.6f).sp, fontWeight = FontWeight.Medium)
+        if (romaji != null) {
+            LaunchedEffect(ex.ja) { romaji.request("sentence", listOf(ex.ja)) }
+            val reading = remember(ex.ja, romaji.resultFor(ex.ja)) { LineReading.build(ex.ja, romaji.resultFor(ex.ja)) }
+            ReadingLineText(reading, range, showRuby = false, showRomaji = true, style = lineStyle)
+        } else {
+            Text(text, style = lineStyle, color = colors.ink)
+        }
         if (ex.zh.isNotBlank()) Text(ex.zh, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 22.sp), color = colors.ink)
     }
 }
@@ -160,7 +170,7 @@ private fun Rule(text: String) {
 }
 
 @Composable
-private fun Contrast(card: KnowledgeCard, romaji: Boolean) {
+private fun Contrast(card: KnowledgeCard, romaji: FuriganaAnnotator?) {
     val colors = AjlTheme.colors
     val work = AjlTheme.work
     Column {
@@ -190,7 +200,7 @@ private fun Contrast(card: KnowledgeCard, romaji: Boolean) {
 }
 
 @Composable
-private fun Trap(card: KnowledgeCard, romaji: Boolean) {
+private fun Trap(card: KnowledgeCard, romaji: FuriganaAnnotator?) {
     val colors = AjlTheme.colors
     card.examples.forEachIndexed { i, ex ->
         val bad = i == 0
@@ -201,7 +211,7 @@ private fun Trap(card: KnowledgeCard, romaji: Boolean) {
                 color = if (bad) colors.bad else colors.ok,
                 modifier = Modifier.width(20.dp),
             )
-            Example(ex, romaji = romaji && !bad, tint = if (bad) colors.bad else colors.ok, size = 18, struck = bad)
+            Example(ex, romaji = romaji.takeIf { !bad }, tint = if (bad) colors.bad else colors.ok, size = 18, struck = bad)
         }
     }
 }

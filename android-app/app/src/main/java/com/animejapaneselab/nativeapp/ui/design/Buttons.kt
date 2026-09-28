@@ -283,7 +283,7 @@ fun WordTile(
     used: Boolean = false,
     enabled: Boolean = true,
     shape: Shape = AjlShape.Tile,
-    /** Small mono line under the text (e.g. the romaji of a kana tile). */
+    /** Small mono line over the text (e.g. the romaji of a kana tile). */
     sub: String? = null,
 ) {
     val colors = AjlTheme.colors
@@ -327,8 +327,8 @@ fun WordTile(
             Text(text, style = AjlTheme.type.jpBody, color = if (enabled) colors.ink else colors.faint, maxLines = 1)
         } else {
             androidx.compose.foundation.layout.Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text, style = AjlTheme.type.jpBody.copy(fontSize = 20.sp, lineHeight = 26.sp), color = if (enabled) colors.ink else colors.faint, maxLines = 1)
                 Text(sub, style = AjlTheme.type.meta.copy(fontSize = 10.sp, lineHeight = 12.sp), color = if (enabled) colors.ink3 else colors.faint, maxLines = 1)
+                Text(text, style = AjlTheme.type.jpBody.copy(fontSize = 20.sp, lineHeight = 26.sp), color = if (enabled) colors.ink else colors.faint, maxLines = 1)
             }
         }
     }

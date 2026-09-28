@@ -414,8 +414,8 @@ private fun MoraCell(kana: String, romaji: String) {
             .padding(horizontal = 10.dp, vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(kana, style = AjlTheme.type.jpBody.copy(fontSize = 22.sp, lineHeight = 28.sp), color = colors.ink)
         Text(romaji.ifEmpty { " " }, style = AjlTheme.type.meta.copy(fontSize = 11.sp, lineHeight = 14.sp), color = colors.ink3)
+        Text(kana, style = AjlTheme.type.jpBody.copy(fontSize = 22.sp, lineHeight = 28.sp), color = colors.ink)
     }
 }
 
