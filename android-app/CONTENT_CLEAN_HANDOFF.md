@@ -43,5 +43,17 @@ App 课程每集只取前 30 个语法点、30 句台词（worker `order=sort_or
 
 ## 4. 进度
 
-- 2026-09-28 上午：包已交给 Antigravity 开工（先台词后语法点）。下一步从第 3 节第 1 步开始。
-- 写回云端需要用户给 `sbp_` token；`keep=false` 的行怎么下线（要改 worker）先问用户。
+- 2026-09-28 上午：包已交给 Antigravity 开工（先台词后语法点）。
+- 2026-09-28 下午：第一轮交回，`check.py` 全过（语法点 2397，keep=false 854 = 35%；台词 2340，keep=false 11）。
+  - 抽查台词 30 句：意思全对，3–4 句有润色或添字（「小さな王国」→「虚妄的王国」），没有概述式译文。
+  - 抽查语法点 20 条：改标准确，1 处错译（ハーフエルフ→「半年精灵」，已在 `g_25.json` 改成「半精灵」）；`explain` 偏华丽、爱复述剧情，不影响教学。
+  - **问题出在我的提示词**：句型标错就删、不改标，外加约 250 条以「太初级」删。K-ON! 每集 15 条只剩 1–5 条。用户同意**返工**：`export_rework.py` 生成 `batches/rw_00..15.md`（795 条，同集重复的不返工），提示词 `ANTIGRAVITY_REWORK_PROMPT.md`；`check.py` 让 `rw_NN.json` 覆盖同 id 的 g 行，返工里 keep=false 只能以「重复：」「碎片：」开头。
+- 下线方式（用户定）：三张表加 `is_active`。worker 仍取前 30 条（按 sort_order），**在这 30 条里**滤掉 is_active=false，避免第 31 条以后没清洗的行补上来；练习题直接 `is_active=eq.true`。已提交（cd63600），**worker 还没部署**：必须先跑 `push_cloud.py` 建好列再部署，否则练习题查询会报错。
+- `push_cloud.py`：幂等，每次从 `grammar_cards.json`、`sentence_cards.json`、`exercises_orig.json`（首次写回前的练习题快照，不要删）重新计算，返工回来后直接重跑。`--dry` 看统计。练习题派生：匹配到清洗行的语法题 / 台词题换答案（语法题 hint 换成 explain、题干换新句型）；删掉的行对应的题下线；单字母答案（A/B，选项没存）下线；非学习词的词汇题下线；vocab_meaning 答案同步云端释义；假名题按云端单词重出；流水线 / 高频套话 hint 清空（词汇题的标签式 hint 保留，那是释义或读音）。
+- App：`exampleZh` 改为读 worker 的 `exampleZh`（以前错把 realWorldNote 当译文）；学习卡 note 的标签从「语气」改为「用法」；辞書语法条目不再显示旧的 AI 增强 `payload`（和新句型对不上）。
+- 没做：练习题里对应**窗口外**（第 31 条以后）语法点 / 台词的约 4500 题仍是旧答案，没清洗（不在本轮范围）。
+
+### 下一步
+
+1. 用户给 `sbp_` token → `SUPABASE_ACCESS_TOKEN=... python push_cloud.py` → 仓库根目录 `npx vite build && npx wrangler deploy` → 发版。
+2. 返工交回 → `python check.py`（要求 `交回 795/795`、错误 0）→ 抽查 → 重跑 `push_cloud.py`（worker 不用再动）。
