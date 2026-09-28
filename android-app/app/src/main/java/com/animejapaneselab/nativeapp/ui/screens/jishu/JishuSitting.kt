@@ -36,6 +36,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import com.animejapaneselab.nativeapp.data.LabSettings
 import com.animejapaneselab.nativeapp.data.LocalLabStore
+import com.animejapaneselab.nativeapp.ui.design.CoveredLine
 import com.animejapaneselab.nativeapp.ui.design.ProgressLine
 import com.animejapaneselab.nativeapp.ui.design.VoiceSwitchPill
 import com.animejapaneselab.nativeapp.ui.design.VoiceTone
@@ -474,26 +475,6 @@ private fun SceneBand(text: String, top: Boolean) {
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
         )
         if (top) Hairline()
-    }
-}
-
-/** 遮る: a screentoned dashed slot standing in for the translation; tap to show it. */
-@Composable
-private fun CoveredLine(onReveal: () -> Unit) {
-    val colors = AjlTheme.colors
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .height(48.dp)
-            .clip(RoundedCornerShape(4.dp))
-            .background(colors.surface)
-            .border(1.dp, colors.line2, RoundedCornerShape(4.dp))
-            .clickableNoRipple(onReveal)
-            .semantics { contentDescription = "轻点看中文" },
-        contentAlignment = Alignment.Center,
-    ) {
-        Screentone(Modifier.fillMaxSize(), color = colors.ink.copy(alpha = 0.08f), spacing = 6.dp, dotRadius = 1.1.dp)
-        Text("轻点看中文", style = AjlTheme.type.caption.copy(fontSize = 13.sp), color = colors.ink3)
     }
 }
 

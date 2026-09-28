@@ -6,7 +6,6 @@ import com.animejapaneselab.nativeapp.data.LinguisticExerciseAnswer
 import com.animejapaneselab.nativeapp.data.LinguisticSceneLine
 import com.animejapaneselab.nativeapp.data.ShadowingSentence
 import com.animejapaneselab.nativeapp.data.SubtitleLine
-import com.animejapaneselab.nativeapp.ui.design.SlotState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -146,79 +145,6 @@ class TodayRulesTest {
     }
 
     // ---- 本日の時間割 -------------------------------------------------------------------
-
-    private fun input(
-        lessonTotal: Int = 12,
-        lessonDone: Int = 0,
-        reviewDue: Int = 0,
-        readAirTotal: Int? = null,
-        readAirAnswered: Int = 0,
-        shadowing: Int = 0,
-    ) = TimetableInput(
-        episodeLabel = "第三話",
-        lessonModeLabel = "综合",
-        lessonTotal = lessonTotal,
-        lessonDone = lessonDone,
-        reviewDue = reviewDue,
-        readAirTotal = readAirTotal,
-        readAirAnswered = readAirAnswered,
-        shadowingCount = shadowing,
-        shadowingSpeaker = "憂",
-    )
-
-    @Test
-    fun fullDayMapsToFourPeriods() {
-        val slots = TimetableRules.build(input(lessonDone = 12, reviewDue = 18, readAirTotal = 3, shadowing = 5))
-        assertEquals(listOf("一限", "二限", "三限", "放課後"), slots.map { it.period })
-        assertEquals(listOf(SlotAction.Lesson, SlotAction.Review, SlotAction.ReadAir, SlotAction.Shadowing), slots.map { it.action })
-        assertEquals(SlotState.Done, slots[0].state)
-        assertEquals("済", slots[0].meta)
-        assertEquals(SlotState.Current, slots[1].state)
-        assertEquals("18 枚", slots[1].meta)
-        assertEquals(SlotState.Upcoming, slots[2].state)
-        assertEquals("3 问", slots[2].meta)
-        assertEquals("跟读 · 憂的台词", slots[3].title)
-        assertEquals("5 句", slots[3].meta)
-        assertEquals(3, TimetableRules.remaining(slots))
-        assertEquals(SlotAction.Review, TimetableRules.current(slots)?.action)
-    }
-
-    @Test
-    fun missingDataDropsSlotsInsteadOfInventingNumbers() {
-        val slots = TimetableRules.build(input(lessonTotal = 0, reviewDue = 0, readAirTotal = 0, shadowing = 0))
-        assertTrue(slots.isEmpty())
-        assertNull(TimetableRules.current(slots))
-    }
-
-    @Test
-    fun unloadedReadAirShowsWithoutACount() {
-        val slots = TimetableRules.build(input(lessonTotal = 0, readAirTotal = null))
-        val readAir = slots.single()
-        assertEquals(SlotAction.ReadAir, readAir.action)
-        assertEquals("", readAir.meta)
-        assertNull(readAir.progress)
-        assertEquals("一限", readAir.period)
-    }
-
-    @Test
-    fun lessonInProgressIsCurrentWithProgress() {
-        val slots = TimetableRules.build(input(lessonDone = 7, shadowing = 4))
-        val lesson = slots.first()
-        assertEquals(SlotState.Current, lesson.state)
-        assertEquals("7/12", lesson.meta)
-        assertEquals("综合 · 7/12", lesson.caption)
-        assertNotNull(lesson.progress)
-        assertEquals(7f / 12f, lesson.progress!!, 0.0001f)
-        assertEquals("放課後", slots.last().period)
-    }
-
-    @Test
-    fun finishedReadAirIsStruckThrough() {
-        val slots = TimetableRules.build(input(lessonTotal = 0, readAirTotal = 3, readAirAnswered = 3, shadowing = 2))
-        assertEquals(SlotState.Done, slots[0].state)
-        assertEquals("済", slots[0].meta)
-        assertEquals(SlotState.Current, slots[1].state)
-    }
 
     @Test
     fun dominantSpeakerCountsOnlyGivenLines() {

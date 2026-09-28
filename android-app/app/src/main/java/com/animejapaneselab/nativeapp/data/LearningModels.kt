@@ -562,10 +562,18 @@ data class StudyCardNode(
     override val audio: PromptAudio = PromptAudio.Tts(japanese, autoPlay = false, label = "播放语音"),
     val linguistic: LinguisticCardPayload? = null,
     val enrichment: CardEnrichment? = null,
+    /** 「N3」 / 词性: shown as small tags above the headword. */
+    val tags: List<String> = emptyList(),
+    /** Translation of [japanese] when it is an example line (grammar). */
+    val exampleZh: String = "",
+    /** Labelled notes (意思 / 语气 / 场景 / 注意); unlabelled lines never reach the card. */
+    val facts: List<StudyFact> = emptyList(),
 ) : LessonNode {
     override val typeLabel = "学习卡"
     override val expectedAnswer = "studied"
 }
+
+data class StudyFact(val label: String, val text: String)
 
 data class PairMatchNode(
     override val id: String,

@@ -138,6 +138,7 @@ internal fun LessonQuestionScaffold(
     env: LessonQuestionEnv,
     modifier: Modifier = Modifier,
     heading: String? = LessonRules.heading(env.node),
+    eyebrow: String = env.eyebrow,
     scroll: ScrollState = remember { ScrollState(0) },
     bottomBar: (@Composable () -> Unit)? = null,
     overlay: (@Composable BoxScope.() -> Unit)? = null,
@@ -167,8 +168,8 @@ internal fun LessonQuestionScaffold(
                     .padding(start = 20.dp, end = 20.dp, top = 4.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    if (env.eyebrow.isNotBlank()) Eyebrow(env.eyebrow)
+                if (eyebrow.isNotBlank() || !heading.isNullOrBlank()) Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (eyebrow.isNotBlank()) Eyebrow(eyebrow)
                     if (!heading.isNullOrBlank()) {
                         Text(
                             heading,

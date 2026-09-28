@@ -802,6 +802,8 @@ class SampleLearningRepository {
                 audio = PromptAudio.Tts(item.surface, autoPlay = false, label = "播放语音"),
                 linguistic = item.linguistic,
                 enrichment = item.enrichment,
+                tags = listOf(item.partOfSpeech, item.level).filter { it.isNotBlank() },
+                facts = listOfNotNull(item.realWorldNote.takeIf { it.isNotBlank() }?.let { StudyFact("注意", it) }),
             )
         }
     }
@@ -841,6 +843,13 @@ class SampleLearningRepository {
                 audio = grammarPromptAudio(selection, point, sentences, autoPlay = false),
                 linguistic = point.linguistic,
                 enrichment = point.enrichment,
+                tags = listOf(point.difficulty).filter { it.isNotBlank() },
+                exampleZh = point.exampleZh,
+                facts = listOf(
+                    StudyFact("意思", compactExplanation),
+                    StudyFact("语气", point.realWorldNote),
+                    StudyFact("场景", point.pragmaticsNote),
+                ).filter { it.text.isNotBlank() },
             )
         }
     }

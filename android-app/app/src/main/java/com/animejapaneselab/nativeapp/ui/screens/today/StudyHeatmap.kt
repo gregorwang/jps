@@ -1,6 +1,13 @@
 package com.animejapaneselab.nativeapp.ui.screens.today
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import com.animejapaneselab.nativeapp.ui.design.clickableNoRipple
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,10 +58,7 @@ data class StudyStats(
     val seconds: Int = 0,
 )
 
-/**
- * One square. [level] 1–3 = sessions finished that day (3 = three or more); a day with answers but
- * nothing finished stays unlit and only gets a dot ([touched]).
- */
+/** One square. [level] 0–4 = how long was studied that day (0, <10, <20, <40, 40+ minutes). */
 data class StudyHeatCell(val date: LocalDate, val level: Int, val touched: Boolean, val stats: StudyStats)
 
 data class StudyHeatmapModel(
@@ -92,20 +96,25 @@ object StudyHeatmapRules {
             val day = gridStart.plusDays(i.toLong())
             if (day.isAfter(today)) return@map null
             val stats = statsOf(listOf(day))
-            val level = level(stats.finished)
-            StudyHeatCell(day, level, touched = level == 0 && (stats.answers > 0 || stats.studied > 0), stats = stats)
+            StudyHeatCell(day, level(stats.seconds), touched = false, stats = stats)
         }
         return StudyHeatmapModel(
             cells = cells,
             gridStart = gridStart,
             todayIndex = (Weeks - 1) * 7 + (today.dayOfWeek.value - 1),
-            week = statsOf((0..6).map { weekStart.plusDays(it.toLong()) }.filter { !it.isAfter(today) }),
+            week = statsOf((0..6).map { today.minusDays(it.toLong()) }),
             totalSeconds = maxOf(totalSeconds, log.values.sumOf { it.seconds.toLong() }),
             mastered = progress.count { it.state == ReviewState.Known || it.state == ReviewState.Good },
         )
     }
 
-    fun level(finished: Int): Int = finished.coerceIn(0, 3)
+    /** Minutes that start each shade: <10, <20, <40, 40+. */
+    val LevelMinutes = listOf(1, 10, 20, 40)
+
+    fun level(seconds: Int): Int {
+        val minutes = seconds / 60
+        return LevelMinutes.count { minutes >= it }
+    }
 
     fun duration(seconds: Long): String {
         val minutes = seconds / 60
@@ -138,8 +147,8 @@ object StudyHeatmapRules {
 }
 
 /**
- * 最近 12 週: one square a day, lit only by a finished session (deeper for 2, 3+), a dot for a day
- * touched but not finished. Tap a square for that day's numbers; tap it again for the week.
+ * 学習記録: one square a day, shaded by how long was studied (the progress line's ramp: the work
+ * colour from pale to full). Tap a square for that day's numbers; tap it again for the last 7 days.
  */
 @Composable
 fun StudyHeatmapSection(model: StudyHeatmapModel, modifier: Modifier = Modifier) {
@@ -147,102 +156,112 @@ fun StudyHeatmapSection(model: StudyHeatmapModel, modifier: Modifier = Modifier)
     val work = AjlTheme.work
     val shades = listOf(
         colors.sunken,
-        lerp(colors.sunken, work.accent, 0.32f),
-        lerp(colors.sunken, work.accent, 0.62f),
+        lerp(colors.sunken, work.accent, 0.22f),
+        lerp(colors.sunken, work.accent, 0.45f),
+        lerp(colors.sunken, work.accent, 0.72f),
         work.accent,
     )
-    val dot = lerp(colors.sunken, work.accent, 0.62f)
-    val cell = 13.dp
-    val gap = 3.dp
-    val gridWidth = cell * StudyHeatmapRules.Weeks + gap * (StudyHeatmapRules.Weeks - 1)
+    val gap = 4.dp
     var selected by rememberSaveable { mutableStateOf<Int?>(null) }
     val picked = selected?.let { model.cells.getOrNull(it) }
     val months = remember(model.gridStart) { StudyHeatmapRules.monthLabels(model.gridStart) }
-    val labelStyle = AjlTheme.type.meta.copy(fontSize = 9.sp, lineHeight = 11.sp)
+    val labelStyle = AjlTheme.type.meta.copy(fontSize = 10.sp, lineHeight = 12.sp)
 
-    Column(modifier.fillMaxWidth()) {
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         SectionHeading(
-            title = "最近 12 週",
-            meta = "累计 ${StudyHeatmapRules.duration(model.totalSeconds)} · 已掌握 ${model.mastered}",
+            title = "学習記録",
+            meta = "12 週 · 累计 ${StudyHeatmapRules.duration(model.totalSeconds)}",
         )
-        Spacer(Modifier.height(14.dp))
-        Row(verticalAlignment = Alignment.Top) {
-            // 月 水 金 日 beside the rows.
-            Column(Modifier.padding(top = 14.dp).width(14.dp), verticalArrangement = Arrangement.spacedBy(gap)) {
-                listOf("月", "", "水", "", "金", "", "日").forEach { label ->
-                    Box(Modifier.height(cell), contentAlignment = Alignment.CenterStart) {
-                        if (label.isNotEmpty()) Text(label, style = labelStyle, color = colors.ink3)
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val labelWidth = 20.dp
+            val cell = ((maxWidth - labelWidth - gap * (StudyHeatmapRules.Weeks - 1)) / StudyHeatmapRules.Weeks).coerceAtMost(26.dp)
+            val gridWidth = cell * StudyHeatmapRules.Weeks + gap * (StudyHeatmapRules.Weeks - 1)
+            Row(verticalAlignment = Alignment.Top) {
+                // 月 水 金 日 beside the rows.
+                Column(Modifier.padding(top = 16.dp).width(labelWidth), verticalArrangement = Arrangement.spacedBy(gap)) {
+                    listOf("月", "", "水", "", "金", "", "日").forEach { label ->
+                        Box(Modifier.height(cell), contentAlignment = Alignment.CenterStart) {
+                            if (label.isNotEmpty()) Text(label, style = labelStyle, color = colors.ink3)
+                        }
                     }
                 }
-            }
-            Column {
-                Box(Modifier.width(gridWidth).height(14.dp)) {
-                    months.forEach { (col, label) ->
-                        Text(label, style = labelStyle, color = colors.ink3, modifier = Modifier.offset(x = (cell + gap) * col))
+                Column {
+                    Box(Modifier.width(gridWidth).height(16.dp)) {
+                        months.forEach { (col, label) ->
+                            Text(label, style = labelStyle, color = colors.ink3, modifier = Modifier.offset(x = (cell + gap) * col))
+                        }
                     }
-                }
-                Canvas(
-                    Modifier
-                        .size(width = gridWidth, height = cell * 7 + gap * 6)
-                        .pointerInput(model.cells) {
-                            detectTapGestures { pos ->
-                                val step = (cell + gap).toPx()
-                                val col = (pos.x / step).toInt()
-                                val row = (pos.y / step).toInt()
-                                if (col !in 0 until StudyHeatmapRules.Weeks || row !in 0..6) return@detectTapGestures
-                                val index = col * 7 + row
-                                if (model.cells.getOrNull(index) == null) return@detectTapGestures
-                                selected = if (selected == index) null else index
+                    Canvas(
+                        Modifier
+                            .size(width = gridWidth, height = cell * 7 + gap * 6)
+                            .pointerInput(model.cells, cell) {
+                                detectTapGestures { pos ->
+                                    val step = (cell + gap).toPx()
+                                    val col = (pos.x / step).toInt()
+                                    val row = (pos.y / step).toInt()
+                                    if (col !in 0 until StudyHeatmapRules.Weeks || row !in 0..6) return@detectTapGestures
+                                    val index = col * 7 + row
+                                    if (model.cells.getOrNull(index) == null) return@detectTapGestures
+                                    selected = if (selected == index) null else index
+                                }
+                            }
+                            .semantics { contentDescription = "最近 12 周学习记录，最近 7 天学了 ${StudyHeatmapRules.duration(model.week.seconds.toLong())}" },
+                    ) {
+                        val c = cell.toPx()
+                        val step = c + gap.toPx()
+                        val radius = CornerRadius(4.dp.toPx())
+                        model.cells.forEachIndexed { i, day ->
+                            if (day == null) return@forEachIndexed
+                            val topLeft = Offset((i / 7) * step, (i % 7) * step)
+                            drawRoundRect(shades[day.level.coerceIn(0, 4)], topLeft, Size(c, c), radius)
+                            if (i == model.todayIndex) {
+                                val w = 1.5.dp.toPx()
+                                drawRoundRect(colors.ink, topLeft + Offset(w / 2, w / 2), Size(c - w, c - w), radius, style = Stroke(w))
+                            }
+                            if (i == selected) {
+                                val w = 2.dp.toPx()
+                                val out = 2.dp.toPx()
+                                drawRoundRect(work.accent, topLeft - Offset(out, out), Size(c + out * 2, c + out * 2), CornerRadius(5.dp.toPx()), style = Stroke(w))
                             }
                         }
-                        .semantics { contentDescription = "最近 12 周学习记录，本周学完 ${model.week.finished} 次" },
-                ) {
-                    val c = cell.toPx()
-                    val step = c + gap.toPx()
-                    val radius = CornerRadius(3.dp.toPx())
-                    model.cells.forEachIndexed { i, day ->
-                        if (day == null) return@forEachIndexed
-                        val topLeft = Offset((i / 7) * step, (i % 7) * step)
-                        drawRoundRect(shades[day.level], topLeft, Size(c, c), radius)
-                        if (day.touched) drawCircle(dot, radius = 2.dp.toPx(), center = topLeft + Offset(c / 2, c / 2))
-                        // Ink ring on the picked day (today when none); today keeps a thin ring either way.
-                        val ring = i == selected || (i == model.todayIndex && selected == null)
-                        if (ring || i == model.todayIndex) {
-                            val w = (if (ring) 1.5.dp else 1.dp).toPx()
-                            drawRoundRect(
-                                if (ring) colors.ink else colors.ink3,
-                                topLeft + Offset(w / 2, w / 2),
-                                Size(c - w, c - w),
-                                radius,
-                                style = Stroke(w),
-                            )
-                        }
                     }
                 }
             }
-            Spacer(Modifier.width(16.dp))
-            val stats = picked?.stats ?: model.week
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End), verticalAlignment = Alignment.CenterVertically) {
+            Text("按学习时长  少", style = labelStyle, color = colors.ink3, modifier = Modifier.padding(end = 2.dp))
+            shades.forEach { shade -> Box(Modifier.size(12.dp).clip(RoundedCornerShape(3.dp)).background(shade)) }
+            Text("多", style = labelStyle, color = colors.ink3, modifier = Modifier.padding(start = 2.dp))
+        }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(
+                picked?.let { StudyHeatmapRules.dayLabel(it.date) } ?: "最近 7 天",
+                style = AjlTheme.type.jpLabel.copy(fontSize = 14.sp, fontWeight = FontWeight.Bold),
+                color = work.accent,
+            )
+            if (picked != null) {
                 Text(
-                    picked?.let { StudyHeatmapRules.dayLabel(it.date) } ?: "本周",
-                    style = AjlTheme.type.meta.copy(fontSize = 11.sp, lineHeight = 14.sp),
-                    color = work.accent,
-                    modifier = Modifier.padding(bottom = 2.dp),
+                    "回到最近 7 天",
+                    style = AjlTheme.type.meta.copy(fontSize = 11.sp, textDecoration = TextDecoration.Underline),
+                    color = colors.ink3,
+                    modifier = Modifier.clickableNoRipple(onClick = { selected = null }),
                 )
-                StatRow("学完", "${stats.finished} 回")
-                StatRow("答题", "${stats.answers}")
-                StatRow("自習", "${stats.studied} 句")
-                StatRow("正确率", stats.accuracy?.let { "$it%" } ?: "—")
-                StatRow("时长", StudyHeatmapRules.duration(stats.seconds.toLong()))
             }
+        }
+        val stats = picked?.stats ?: model.week
+        Row(Modifier.fillMaxWidth()) {
+            Stat("时长", StudyHeatmapRules.duration(stats.seconds.toLong()), Modifier.weight(1f))
+            Stat("学完", "${stats.finished} 回", Modifier.weight(1f))
+            Stat("答题", "${stats.answers}", Modifier.weight(1f))
+            Stat("正确率", stats.accuracy?.let { "$it%" } ?: "—", Modifier.weight(1f))
         }
     }
 }
 
 @Composable
-private fun StatRow(label: String, value: String) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-        Text(label, style = AjlTheme.type.caption.copy(fontSize = 12.sp, lineHeight = 17.sp), color = AjlTheme.colors.ink3)
-        Text(value, style = AjlTheme.type.meta.copy(fontSize = 12.sp, lineHeight = 17.sp), color = AjlTheme.colors.ink)
+private fun Stat(label: String, value: String, modifier: Modifier = Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(value, style = AjlTheme.type.meta.copy(fontSize = 19.sp, lineHeight = 24.sp, fontWeight = FontWeight.Medium), color = AjlTheme.colors.ink)
+        Text(label, style = AjlTheme.type.caption.copy(fontSize = 11.sp, lineHeight = 14.sp), color = AjlTheme.colors.ink3)
     }
 }

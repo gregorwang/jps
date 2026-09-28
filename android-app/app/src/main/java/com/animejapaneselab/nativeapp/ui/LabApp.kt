@@ -80,6 +80,7 @@ import com.animejapaneselab.nativeapp.ui.screens.session.LessonSessionScreen
 import com.animejapaneselab.nativeapp.ui.screens.session.ReadAirSessionScreen
 import com.animejapaneselab.nativeapp.ui.screens.settings.AiHistoryScreen
 import com.animejapaneselab.nativeapp.ui.screens.settings.SettingsScreen
+import com.animejapaneselab.nativeapp.ui.screens.today.TodaySample
 import com.animejapaneselab.nativeapp.ui.screens.today.TodayScreen
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 import com.animejapaneselab.nativeapp.ui.theme.ProvideWorkTheme
@@ -557,15 +558,33 @@ private fun ShellPage(
     }
 }
 
-/** 今日's 自習 / 練習 periods: the 課 to continue and the 活用 lines due (null before any 課 is learned). */
+/** 今日's 自習 / 練習 periods: the 課 to continue with its next line, and the 活用 lines due (null before any 課 is learned). */
 private fun todayMainLine(drill: ConjugationDrillState, jishu: JishuState): TodayMainLine {
     val point = jishu.currentPoint(drill)
+    val (headline, gloss) = point?.let { splitTitle(drill.titleOf(it)) } ?: ("" to "")
+    val next = point?.let { p ->
+        val lines = drill.linesOf(p).sortedBy { it.sortOrder }.distinctBy { it.sentenceId }
+        lines.firstOrNull { JishuState.key(p, it.sentenceId) !in jishu.studied } ?: lines.firstOrNull()
+    }
+    val today = java.time.LocalDate.now().toEpochDay()
+    val dueLine = drill.items.firstOrNull { it.pointId in drill.learned && (drill.progress[it.id]?.dueDay ?: Long.MAX_VALUE) <= today }
+    fun sample(item: com.animejapaneselab.nativeapp.data.ConjugationDrillItem) = TodaySample(
+        ja = item.jaText,
+        zh = item.zh,
+        mark = (item.spanStart until item.spanEnd).takeIf { item.spanStart in 0 until item.spanEnd && item.spanEnd <= item.jaText.length },
+        audioUrl = item.audioUrl,
+    )
     return TodayMainLine(
         jishuPoint = point,
-        jishuTitle = point?.let { "第 ${drill.lessonNumber(it)} 課 · ${splitTitle(drill.titleOf(it)).first}" },
+        jishuLesson = point?.let { "第 ${drill.lessonNumber(it)} 課" },
+        jishuHeadline = headline,
+        jishuGloss = gloss,
         jishuStudied = point?.let { jishu.studiedIn(it, drill.linesOf(it)) } ?: 0,
         jishuTotal = point?.let { jishu.totalIn(drill, it) } ?: 0,
+        jishuSample = next?.let(::sample),
         practiceDue = if (drill.learned.isEmpty()) null else drill.dueToday,
+        practiceLessons = drill.learned.size,
+        practiceSample = dueLine?.let(::sample),
     )
 }
 

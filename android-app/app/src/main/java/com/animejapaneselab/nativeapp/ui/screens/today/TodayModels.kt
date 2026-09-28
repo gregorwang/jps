@@ -7,7 +7,6 @@ import com.animejapaneselab.nativeapp.data.NotebookRules
 import com.animejapaneselab.nativeapp.data.toNotebookEntry
 import com.animejapaneselab.nativeapp.data.ShadowingSentence
 import com.animejapaneselab.nativeapp.data.SubtitleLine
-import com.animejapaneselab.nativeapp.ui.design.SlotState
 import com.animejapaneselab.nativeapp.ui.theme.normalizeWorkSlug
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -203,174 +202,184 @@ object TodayRules {
 }
 
 // ---------------------------------------------------------------------------
-// 本日の時間割
+// 本日の時間割 = the main line: 一限 自習 → 二限 練習 → 三限 復習
 // ---------------------------------------------------------------------------
+
+/** One anime line shown in a period's card, its target marked. */
+data class TodaySample(
+    val ja: String,
+    val zh: String = "",
+    val mark: IntRange? = null,
+    /** 原声 clip; blank = TTS only. */
+    val audioUrl: String = "",
+)
 
 /** 自習 → 練習 state for the 時間割, read from the 自習 / 活用 holders in LabApp. */
 data class TodayMainLine(
     val jishuPoint: String? = null,
-    /** 「第 3 課 · ている」 */
-    val jishuTitle: String? = null,
+    /** 「第 3 課」 */
+    val jishuLesson: String? = null,
+    /** 「ている」 and its gloss 「正在…」 */
+    val jishuHeadline: String = "",
+    val jishuGloss: String = "",
     val jishuStudied: Int = 0,
     val jishuTotal: Int = 0,
+    /** The next line the sitting will show. */
+    val jishuSample: TodaySample? = null,
     /** 活用 lines due over the learned 課; null before anything is learned. */
     val practiceDue: Int? = null,
+    /** 課 learned so far (practice only asks those). */
+    val practiceLessons: Int = 0,
+    val practiceSample: TodaySample? = null,
 )
 
-enum class SlotAction { Jishu, Practice, Lesson, Review, ReadAir, Shadowing }
+enum class PeriodKind { Jishu, Practice, Review }
 
-data class TimetableSlot(
-    val action: SlotAction,
-    val period: String,
+enum class PeriodState {
+    /** Has work left today. */
+    Open,
+    /** Worked through today. */
+    Done,
+    /** Nothing to do (nothing due / nothing learned yet); not stamped 済. */
+    Idle,
+}
+
+data class TodayPeriod(
+    val kind: PeriodKind,
+    /** 一限 */
+    val no: String,
+    /** 自習 / 練習 / 復習 */
+    val tab: String,
+    /** Row title after the tab: 「五段 未然形」 */
     val title: String,
+    /** Row meta: 「9 / 39 句」「12 句到期」「无到期」「済」 */
     val meta: String,
-    val state: SlotState,
-    /** Line under the primary button when this slot is current. */
-    val caption: String,
-    /** 0..1 when the slot has a measurable position. */
-    val progress: Float? = null,
+    val state: PeriodState,
+    /** Card: mono line over the headline. */
+    val kicker: String,
+    val headline: String,
+    val sub: String,
+    val sample: TodaySample?,
+    /** 0..1, null = no measurable position. */
+    val progress: Float?,
+    val progressLeft: String,
+    val progressRight: String,
+    /** The one ink button in the open card. */
+    val action: String,
 )
 
-/** Everything the timetable is derived from; unknown numbers are null, never guessed. */
-data class TimetableInput(
-    /** 第三話 */
-    val episodeLabel: String,
-    /** 综合 / 词汇 … (LessonMode.label). */
-    val lessonModeLabel: String,
-    val lessonTotal: Int,
-    val lessonDone: Int,
-    /** Review cards due now (overdue + today + unscheduled mistakes). */
+/** Everything the three periods are derived from. */
+data class PeriodInput(
+    val main: TodayMainLine,
+    /** 自習 lines gone through today. */
+    val studiedToday: Int,
+    /** Answers logged today (any drill). */
+    val answeredToday: Int,
+    /** 復習 cards due now (feed round left, or due count before a round starts). */
     val reviewDue: Int,
-    /** Read-air questions of this episode, or null while not loaded. */
-    val readAirTotal: Int?,
-    val readAirAnswered: Int,
-    val shadowingCount: Int,
-    /** Character whose lines dominate the shadowing set (憂の台词). */
-    val shadowingSpeaker: String? = null,
-    /** 自習: the 課 to continue (「第 3 課 · ている」), null while the lessons are not loaded. */
-    val jishuTitle: String? = null,
-    /** 自習 lines of that 課 learned / its total. */
-    val jishuStudied: Int = 0,
-    val jishuTotal: Int = 0,
-    /** A 自習 sitting was already gone through today. */
-    val jishuDoneToday: Boolean = false,
-    /** 練習: 活用 lines due over the learned 課; null when nothing has been learned yet. */
-    val practiceDue: Int? = null,
+    /** Today's 復習 round exists and is worked through. */
+    val reviewRoundDone: Boolean,
 )
 
-object TimetableRules {
-    private val Periods = listOf("一限", "二限", "三限", "四限")
-    const val AfterSchool = "放課後"
+object PeriodRules {
+    /** A sitting is 8 lines. */
+    const val SittingLines = 8
 
-    fun build(input: TimetableInput): List<TimetableSlot> {
-        data class Draft(
-            val action: SlotAction,
-            val title: String,
-            val meta: String,
-            val done: Boolean,
-            val caption: String,
-            val progress: Float?,
+    fun build(input: PeriodInput): List<TodayPeriod> {
+        val main = input.main
+        val periods = mutableListOf<TodayPeriod>()
+
+        // 一限 自習: continue the current 課; done once a sitting's worth was studied today.
+        main.jishuPoint?.let {
+            val total = main.jishuTotal
+            val left = (total - main.jishuStudied).coerceAtLeast(0)
+            val done = input.studiedToday >= SittingLines || (input.studiedToday > 0 && left == 0)
+            val batch = if (left in 1 until SittingLines) left else SittingLines
+            periods += TodayPeriod(
+                kind = PeriodKind.Jishu,
+                no = "一限",
+                tab = "自習",
+                title = main.jishuHeadline,
+                meta = if (done) "済" else if (total > 0) "${main.jishuStudied} / $total 句" else "",
+                state = if (done) PeriodState.Done else PeriodState.Open,
+                kicker = listOfNotNull("自習", main.jishuLesson).joinToString(" · "),
+                headline = main.jishuHeadline,
+                sub = main.jishuGloss,
+                sample = main.jishuSample,
+                progress = if (total > 0) main.jishuStudied.toFloat() / total else null,
+                progressLeft = if (total > 0) "${main.jishuStudied} / $total 句" else "",
+                progressRight = "今天 $batch 句 · 约 ${minutesFor(batch)} 分钟",
+                action = "开始 · $batch 句",
+            )
+        }
+
+        // 二限 練習: 活用 due over learned 課 only.
+        val due = main.practiceDue
+        val practiced = due == 0 && input.answeredToday > 0
+        periods += TodayPeriod(
+            kind = PeriodKind.Practice,
+            no = "二限",
+            tab = "練習",
+            title = "活用",
+            meta = when {
+                due == null -> "学过才考"
+                due > 0 -> "$due 句到期"
+                practiced -> "済"
+                else -> "无到期"
+            },
+            state = when {
+                due != null && due > 0 -> PeriodState.Open
+                practiced -> PeriodState.Done
+                else -> PeriodState.Idle
+            },
+            kicker = "練習 · 只考学过的課",
+            headline = "活用 ${due ?: 0} 句",
+            sub = if (main.practiceLessons > 0) "学过 ${main.practiceLessons} 課 · 到期的先考" else "",
+            sample = main.practiceSample,
+            progress = null,
+            progressLeft = "${due ?: 0} 句到期",
+            progressRight = "约 ${minutesFor(due ?: 0)} 分钟",
+            action = "开始 · ${due ?: 0} 句",
         )
-        val drafts = mutableListOf<Draft>()
 
-        // The main line first: 自習 (learn) → 練習 (drill what was learned) → 復習.
-        input.jishuTitle?.let { title ->
-            val total = input.jishuTotal
-            drafts += Draft(
-                action = SlotAction.Jishu,
-                title = "自習 · $title",
-                meta = if (input.jishuDoneToday) "済" else if (total > 0) "${input.jishuStudied}/$total 句" else "",
-                done = input.jishuDoneToday,
-                caption = if (total > 0) "本课 ${input.jishuStudied}/$total 句" else "自習",
-                progress = if (total > 0) input.jishuStudied.toFloat() / total else null,
-            )
-        }
-        input.practiceDue?.let { due ->
-            drafts += Draft(
-                action = SlotAction.Practice,
-                title = "練習 · 活用",
-                meta = if (due > 0) "$due 句" else "済",
-                done = due <= 0,
-                caption = "学过的课 · 到期 $due 句",
-                progress = null,
-            )
-        }
-        if (input.lessonTotal > 0) {
-            val done = input.lessonDone.coerceIn(0, input.lessonTotal)
-            val complete = done >= input.lessonTotal
-            drafts += Draft(
-                action = SlotAction.Lesson,
-                title = "${input.lessonModeLabel} · ${input.episodeLabel}",
-                meta = if (complete) "済" else "$done/${input.lessonTotal}",
-                done = complete,
-                caption = "${input.lessonModeLabel} · $done/${input.lessonTotal}",
-                progress = done.toFloat() / input.lessonTotal,
-            )
-        }
-        if (input.reviewDue > 0) {
-            drafts += Draft(
-                action = SlotAction.Review,
-                title = "復習 · 快忘的卡片和收藏",
-                meta = "${input.reviewDue} 枚",
-                done = false,
-                caption = "到期 ${input.reviewDue} 枚",
-                progress = null,
-            )
-        }
-        val readAirTotal = input.readAirTotal
-        if (readAirTotal == null || readAirTotal > 0) {
-            val answered = input.readAirAnswered.coerceIn(0, readAirTotal ?: Int.MAX_VALUE)
-            val complete = readAirTotal != null && answered >= readAirTotal
-            val left = readAirTotal?.minus(answered)
-            drafts += Draft(
-                action = SlotAction.ReadAir,
-                title = "读空气 · ${input.episodeLabel}",
-                meta = when {
-                    complete -> "済"
-                    left != null -> "$left 问"
-                    else -> ""
-                },
-                done = complete,
-                caption = if (readAirTotal != null) "读空气 · $answered/$readAirTotal" else "读空气 · ${input.episodeLabel}",
-                progress = readAirTotal?.let { answered.toFloat() / it },
-            )
-        }
-        if (input.shadowingCount > 0) {
-            val who = input.shadowingSpeaker?.takeIf { it.isNotBlank() }
-            drafts += Draft(
-                action = SlotAction.Shadowing,
-                title = if (who != null) "跟读 · ${who}的台词" else "跟读 · 本集台词",
-                meta = "${input.shadowingCount} 句",
-                done = false,
-                caption = "跟读 · ${input.shadowingCount} 句",
-                progress = null,
-            )
-        }
-
-        val currentIndex = drafts.indexOfFirst { !it.done }
-        return drafts.mapIndexed { index, d ->
-            val period = when {
-                d.action == SlotAction.Shadowing && drafts.size > 1 -> AfterSchool
-                else -> Periods.getOrElse(index) { AfterSchool }
-            }
-            TimetableSlot(
-                action = d.action,
-                period = period,
-                title = d.title,
-                meta = d.meta,
-                state = when {
-                    d.done -> SlotState.Done
-                    index == currentIndex -> SlotState.Current
-                    else -> SlotState.Upcoming
-                },
-                caption = d.caption,
-                progress = d.progress,
-            )
-        }
+        // 三限 復習: the due cards of the 知識 feed.
+        val reviewDue = input.reviewDue
+        periods += TodayPeriod(
+            kind = PeriodKind.Review,
+            no = "三限",
+            tab = "復習",
+            title = "到期卡",
+            meta = when {
+                reviewDue > 0 -> "$reviewDue 张到期"
+                input.reviewRoundDone -> "済"
+                else -> "无到期"
+            },
+            state = when {
+                reviewDue > 0 -> PeriodState.Open
+                input.reviewRoundDone -> PeriodState.Done
+                else -> PeriodState.Idle
+            },
+            kicker = "復習 · 收藏 · 错题 · 苦手",
+            headline = "到期 $reviewDue 张",
+            sub = "刷完到期的，知識流还能接着刷",
+            sample = null,
+            progress = null,
+            progressLeft = "$reviewDue 张到期",
+            progressRight = "约 ${(reviewDue + 1) / 2} 分钟",
+            action = "去刷 · $reviewDue 张",
+        )
+        return periods
     }
 
-    /** 还剩 N 节 */
-    fun remaining(slots: List<TimetableSlot>): Int = slots.count { it.state != SlotState.Done }
+    /** The period to open: the first with work left; null when none has. */
+    fun current(periods: List<TodayPeriod>): Int? = periods.indexOfFirst { it.state == PeriodState.Open }.takeIf { it >= 0 }
 
-    fun current(slots: List<TimetableSlot>): TimetableSlot? = slots.firstOrNull { it.state == SlotState.Current }
+    fun doneCount(periods: List<TodayPeriod>): Int = periods.count { it.state == PeriodState.Done }
+
+    /** Every period is 済 or has nothing to do, and at least one was worked through. */
+    fun allDone(periods: List<TodayPeriod>): Boolean =
+        periods.none { it.state == PeriodState.Open } && periods.any { it.state == PeriodState.Done }
+
+    /** Rough minutes for [lines] (about 45s a line). */
+    fun minutesFor(lines: Int): Int = ((lines * 45) + 59) / 60
 }
