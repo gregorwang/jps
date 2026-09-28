@@ -122,6 +122,14 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 ## 8. 经验记录（每次会话结束补几条）
 
+**2026-09-28 · 0.15.0（辞書 语法 / 台词重做 + 罗马音在上）**
+- 语法、台词两页照词汇页的手势做（点听、点行拉卡、右滑斩、左滑收藏），代码在 `screens/library/GrammarPage.kt`、`LinesPage.kt`，两张卡共用的零件（`SwipeStage` 左右滑换条目、`CardHeader`、`ColoredNote`、`FormulaChips`、`RevealLine`）在 `DictCards.kt`。语法 / 台词的斩存在 `KnownWords` 里，带前缀键（`文型:` / `台詞:`），不会和词头冲突。
+- **罗马音一律在最上面，假名在它下面，然后才是字**（用户要「像多邻国」）。`ReadingLineText`、公式词块、`WordTile` 的 sub、音拍格都已改；新界面不要再放「整句一条罗马音」，一律用 `ReadingLineText` 逐词对齐。
+- 用户说辞書是「用来看的」：句型卡不要遮挡 / 挖空，改成打开卡片时句型逐字浮现（`ReadingLineText` 的 `revealed` 参数）；播放音频不重放浮现。
+- 笔记标签颜色：讲解 / 语气 / 实际 / 场景 用浅蓝（新令牌 `colors.info` / `infoSoft`），易错用 `bad`。
+- `AjlBottomSheet` 的描边不能加在 `ModalBottomSheet` 的 modifier 上（会画在未滑动的位置，出现横穿屏幕的黑框），已改成在弹窗内容里画。
+- 画布「辞書 · 语法 / 台词（预览）」页（`JitenGram*`、`JitenLine*`）由 scratchpad 里的生成脚本产出；画布默认打开这一页。
+
 **2026-09-28 · 0.14.0（今日页重排 + 学习卡重做）**
 - 今日 = 本日の時間割（固定三节：一限 自習 / 二限 練習 / 三限 復習，`PeriodRules` 在 `screens/today/TodayModels.kt`）+ 学習記録。当前节展开成卡（这课的下一句台词 + 原声/TTS + 唯一黑按钮），数据来自 `LabApp.todayMainLine`。没到期 = `Idle`「无到期」，不盖済。按话课程 / 读空气 / 跟读不再上今日。今日の一句只剩给小组件和朝の一句喂数据。
 - 学習記録格子按当天 `seconds` 分 5 档（`StudyHeatmapRules.LevelMinutes` = 1/10/20/40 分钟），用户明确要「颜色深浅 = 学习时长」，取代 0.8.4 的「学完才点亮 + 小点」。
