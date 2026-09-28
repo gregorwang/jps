@@ -122,6 +122,12 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 ## 8. 经验记录（每次会话结束补几条）
 
+**2026-09-28 · 0.14.0（今日页重排 + 学习卡重做）**
+- 今日 = 本日の時間割（固定三节：一限 自習 / 二限 練習 / 三限 復習，`PeriodRules` 在 `screens/today/TodayModels.kt`）+ 学習記録。当前节展开成卡（这课的下一句台词 + 原声/TTS + 唯一黑按钮），数据来自 `LabApp.todayMainLine`。没到期 = `Idle`「无到期」，不盖済。按话课程 / 读空气 / 跟读不再上今日。今日の一句只剩给小组件和朝の一句喂数据。
+- 学習記録格子按当天 `seconds` 分 5 档（`StudyHeatmapRules.LevelMinutes` = 1/10/20/40 分钟），用户明确要「颜色深浅 = 学习时长」，取代 0.8.4 的「学完才点亮 + 小点」。
+- 学习卡（`StudyCardQuestion`）：标题就是语法点 / 词 / 台词；补充只用带标签的 `StudyFact`（在 `SampleLearningRepository` 里组装），言語学不上卡。新通用组件在 `ui/design/Notes.kt`：`TagChip`、`LabeledNote`、`WordBlocks`、`CoveredLine`（遮る）。声音一律 `VoiceSwitchPill`（原声/TTS 可滑），别再用单按钮。
+- 设计教训：用户嫌保守时，我把今日改成「上划一条流 + 底栏 4 个」、学习卡加 SVG 线稿角色，被说「还不如上一版」立刻回退。别为了「大胆」推翻结构；方向提议直接画在画布上给他看，别写长段文字方案。
+
 **2026-09-28 · 0.13.0（辞書手势化）**
 - 用户嫌「一排按钮 + 10 格表」死板：手机就该用点、滑、长按。规矩：**点词 = 发音，点行 = 拉起词卡，右滑 = 斩，左滑 = 收藏，长按 = 多选**；破坏性手势（斩）都要过线才生效、震一下，并给 4 秒撤销。新做列表类界面照这个来。
 - 通用组件：`ui/design/Gestures.kt`（`SwipeActionRow`、`UndoBar`）。词卡是 `screens/library/WordCard.kt`，变形规则是 `ui/words/FormDial.kt`（在 `Conjugator` 的表上切出词干 / 变的部分 / 五段那一列），`data/Conjugator.kt` 没改。
