@@ -68,6 +68,7 @@ v3 重写派了 6 个页面包、7 个子代理，合计约 120 万 token。钱�
 - `data/Conjugator.kt`：按规则推导动词/形容词活用表（不需要数据），辞書词条展开时显示。
 - `data/CardEnrichment.kt`：解析 worker 下发的 AI 增强卡 `cardPayload`，**解析时会过滤模板话术和对不上词头的卡**；新发现的模板句加进 `FillerMarkers`。
 - 登录：`LocalLabStore.readCachedUser()` 有值就直接进 App，`refreshAuthState()` 在后台校验，遇到 401 才退回登录页。不要改回「先等网络再放行」。
+- `ui/voicepack/VoicePack.kt`：爱蜜莉亚语音包（设置 → 接続 → 语音包，导入一次 zip 到 `filesDir/voice-pack`）。`LessonAudioController.playTts` 最先按 sha1(原文.strip())[:16] 查它，没有再走本机 / 远程 TTS。语音包由 `archive-content-sources/emilia-voice/batch.py` 生成，**音频不进仓库**。
 - `update/`：App 自更新，包括下载、校验、交给系统安装器。
 - 调试时 `src/debug` 里有 `DesignGalleryActivity`（组件画廊）。
 
@@ -123,6 +124,12 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 - 登录是必须的，不做手写功能，Web 前端不是规范；默认只改 `android-app/` 下的文件。
 
 ## 8. 经验记录（每次会话结束补几条）
+
+**2026-09-29 · 0.16.0（爱蜜莉亚语音包）**
+- 声线模型全流程在 `../archive-content-sources/emilia-voice/HANDOFF.md`：最终方案 SBV2 + 情绪参考 + Seed-VC 音色转换（单词不转换，会念糊）。**Modal 一天花了约 14.7 美元，用户很在意**：跑任何 GPU 任务前先报预估花费，推理优先用本机 2060。
+- 字幕切出来的原声片段常混着前后别人的台词，训练前必须用 Whisper 逐词时间戳裁一遍（`align_cut.py`），这是第一轮模型句尾乱念的根因。
+- 让用户听 / 标东西之前，先说要多久、多少就够；标注都做成页面上能点的（A/B 选择 + 问题标签 + 一键复制），别让用户口述。
+- 语音包按「App 实际传给 `playTts` 的原文」做 key，所以清单要从 Supabase 拉（单词 `surface`、语法 `ja_example`、台词 `ja_text`），不是从本地 assets 猜。APK 更新是整包下载，大文件（语音包 35MB）别打进 APK，做成一次性导入。
 
 **2026-09-28 · 0.15.0（辞書 语法 / 台词重做 + 罗马音在上）**
 - 语法、台词两页照词汇页的手势做（点听、点行拉卡、右滑斩、左滑收藏），代码在 `screens/library/GrammarPage.kt`、`LinesPage.kt`，两张卡共用的零件（`SwipeStage` 左右滑换条目、`CardHeader`、`ColoredNote`、`FormulaChips`、`RevealLine`）在 `DictCards.kt`。语法 / 台词的斩存在 `KnownWords` 里，带前缀键（`文型:` / `台詞:`），不会和词头冲突。
