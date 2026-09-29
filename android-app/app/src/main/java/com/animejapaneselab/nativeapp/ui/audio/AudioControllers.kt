@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.animejapaneselab.nativeapp.data.PromptAudio
+import com.animejapaneselab.nativeapp.ui.voicepack.VoicePack
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -194,6 +195,10 @@ class LessonAudioController(context: Context) {
         stopMedia()
         ttsJob?.cancel()
         localTts?.stop()
+        VoicePack.fileFor(appContext, clean)?.let { clip ->
+            playFile(clip)
+            return
+        }
         val request = TtsRequest(clean, ttsWorkerUrl)
         if (!localTtsInitialized) {
             pendingTtsRequest = request
@@ -229,36 +234,41 @@ class LessonAudioController(context: Context) {
                 postPlaybackState(AudioPlaybackPhase.Error, "语音请求失败：${error.message ?: "未知错误"}")
                 return@launch
             }
-            stopMedia()
-            runCatching {
-                val player = MediaPlayer()
-                mediaPlayer = player
-                player.setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                        .build(),
-                )
-                player.setDataSource(file.absolutePath)
-                player.setOnPreparedListener { prepared ->
-                    postPlaybackState(AudioPlaybackPhase.Playing, "语音播放中")
-                    prepared.start()
-                }
-                player.setOnCompletionListener { completed ->
-                    if (mediaPlayer === completed) mediaPlayer = null
-                    completed.release()
-                    postPlaybackState(AudioPlaybackPhase.Idle, "")
-                }
-                player.setOnErrorListener { failed, _, _ ->
-                    if (mediaPlayer === failed) mediaPlayer = null
-                    failed.release()
-                    postPlaybackState(AudioPlaybackPhase.Error, "语音播放失败")
-                    true
-                }
-                player.prepareAsync()
-            }.onFailure { error ->
-                postPlaybackState(AudioPlaybackPhase.Error, "语音播放失败：${error.message ?: "未知错误"}")
+            playFile(file)
+        }
+    }
+
+    /** Plays a TTS clip already on disk (remote-TTS cache or the imported voice pack). */
+    private fun playFile(file: File) {
+        stopMedia()
+        runCatching {
+            val player = MediaPlayer()
+            mediaPlayer = player
+            player.setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build(),
+            )
+            player.setDataSource(file.absolutePath)
+            player.setOnPreparedListener { prepared ->
+                postPlaybackState(AudioPlaybackPhase.Playing, "语音播放中")
+                prepared.start()
             }
+            player.setOnCompletionListener { completed ->
+                if (mediaPlayer === completed) mediaPlayer = null
+                completed.release()
+                postPlaybackState(AudioPlaybackPhase.Idle, "")
+            }
+            player.setOnErrorListener { failed, _, _ ->
+                if (mediaPlayer === failed) mediaPlayer = null
+                failed.release()
+                postPlaybackState(AudioPlaybackPhase.Error, "语音播放失败")
+                true
+            }
+            player.prepareAsync()
+        }.onFailure { error ->
+            postPlaybackState(AudioPlaybackPhase.Error, "语音播放失败：${error.message ?: "未知错误"}")
         }
     }
 

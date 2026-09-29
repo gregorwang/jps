@@ -1,5 +1,7 @@
 package com.animejapaneselab.nativeapp.ui.screens.settings
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -25,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,6 +72,7 @@ import com.animejapaneselab.nativeapp.ui.design.UnderlineTextField
 import com.animejapaneselab.nativeapp.ui.feedback.FeedbackEvent
 import com.animejapaneselab.nativeapp.ui.feedback.LocalFeedbackEngine
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
+import com.animejapaneselab.nativeapp.ui.voicepack.VoicePack
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -86,7 +90,7 @@ private const val ReasoningModel = "grok-4.3"
 private val ReasoningEfforts = listOf("low" to "低", "medium" to "中", "high" to "高")
 
 /** Which inline editor under a row is open (one at a time). */
-private enum class Open { None, Model, Api, Voice, SoundTest, Device, Password }
+private enum class Open { None, Model, Api, Voice, VoicePack, SoundTest, Device, Password }
 
 private data class PasswordFeedback(val message: String, val isError: Boolean)
 
@@ -398,6 +402,40 @@ fun SettingsScreen(
                                     playback.message,
                                     style = AjlTheme.type.caption,
                                     color = if (playback.phase == AudioPlaybackPhase.Error) colors.bad else colors.ink3,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f),
+                                )
+                            }
+                        }
+                    }
+                }
+                val pack by VoicePack.state.collectAsState()
+                val pickPack = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+                    if (uri != null) scope.launch { VoicePack.import(context, uri) }
+                }
+                DisclosureRow(
+                    "语音包",
+                    open == Open.VoicePack,
+                    value = if (pack.clips > 0) "${pack.clips} 条" else "未导入",
+                    onClick = { VoicePack.init(context); toggle(Open.VoicePack) },
+                )
+                if (open == Open.VoicePack) {
+                    InlinePanel {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            OutlineButton(
+                                text = if (pack.importing) "导入中…" else if (pack.clips > 0) "重新导入" else "导入语音包",
+                                compact = true,
+                                onClick = { if (!pack.importing) pickPack.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) },
+                            )
+                            if (pack.clips > 0 && !pack.importing) {
+                                OutlineButton(text = "移除", compact = true, onClick = { VoicePack.remove(context) })
+                            }
+                            if (pack.message.isNotBlank()) {
+                                Text(
+                                    pack.message,
+                                    style = AjlTheme.type.caption,
+                                    color = if (pack.message.startsWith("导入失败")) colors.bad else colors.ink3,
                                     maxLines = 2,
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier.weight(1f),
