@@ -23,11 +23,13 @@ Supabase 文本 ──batch_items.py──> batch_items.json（要念的清单�
   - `batch_checks.json`：每条的 Whisper 回听结果 `hyp / cer / ok`。
   - `out/manifest.json` + `out/opus/*.ogg`：已生成、已通过的音频（5113 条）。
   - `pack_tools.py`：**本地工具，不花钱**（见第 3 节）。
-- 包里现在是：单词 2694、语法例句 2415、台词 4。清单来源：单词 `learning_vocab_items.surface`（念的是 `vocab_cards.json` / `reading` 的假名 +「。」）、语法 `learning_grammar_points.ja_example`、台词 `learning_sentences.ja_text`（只取没原声的，还没批量生成）。
+- 包里现在是（2026-09-29 第二版，11753 条）：单词 2486 / 3466、词卡变形 6848 / 8239、语法例句 2415 / 2705、台词 4 / 3395。清单来源：单词 `learning_vocab_items.surface`（念的是 `vocab_cards.json` / `reading` 的假名 +「。」）、语法 `learning_grammar_points.ja_example`、台词 `learning_sentences.ja_text`（只取没原声的，还没批量生成）。
 
 ## 2. 已知问题（写文档时已经发现）
 
-1. **单词校验太松，有念错的混进包里**。单词的通过线是「回听结果和词头或假名的字错率 ≤ 0.5」，因为 Whisper 对单个词会随意写成汉字或假名。结果 603 个通过的单词字错率 > 0，里面有真念错的：齟齬→「そこ」、高校→「ここ」、黙る→「黙れ」、魔女因子→「魔女陰死」；也有只是同音字的（龍剣→龍拳，读音一样，没问题）。
+0. ~~**词卡的变形（ます形 / 意志 / 假定 …）全都没有**~~：已补（2026-09-29）。变形是 App 用 `Conjugator` + `FormDial` 现场推的，Supabase 里没有，所以第一版清单漏了。做法：`forms_in.tsv`（词头 / 读音 / 词性，从 Supabase + `vocab_cards.json` 导出）→ 临时写一个 JVM 单测调 `FormDial.of(Conjugator.tableFor(...))` 输出 `forms_out.tsv`（跑完删掉测试，不提交）→ `batch_items.py` 把它加成 `kind=form`（当单词处理：不做音色转换）→ `modal run batch.py::run --kinds form`。**改了 `Conjugator` / `FormDial` 的输出，就要重导 `forms_out.tsv` 再补生成**。实际花费约 1.3 美元（SBV2 1488 GPU 秒、Whisper 3833 GPU 秒）。
+   - 顺带发现的 App bug：词性标成动词的「戻りましょう」会推出「戻りましょおう」之类的怪形（词表数据问题）。
+1. ~~**单词校验太松，有念错的混进包里**~~：已改成按读音判定（2026-09-29，`recheck_words.py`）。Whisper 结果和 `say` / 原文都转成平假名（pykakasi + MeCab/unidic-lite 两种读法，任一一致就算对），读音一致才进包：同音字被误删的收回 334 条，读音对不上的 1407 条记进 `pack_drop.json`。还缺的 980 个单词、1391 个变形多数是模型真念错了，可以换个随机种子重录一遍再判（约 2400 条，预估 0.4 美元，还没做）。以下是原来的记录：单词的通过线是「回听结果和词头或假名的字错率 ≤ 0.5」，因为 Whisper 对单个词会随意写成汉字或假名。结果 603 个通过的单词字错率 > 0，里面有真念错的：齟齬→「そこ」、高校→「ここ」、黙る→「黙れ」、魔女因子→「魔女陰死」；也有只是同音字的（龍剣→龍拳，读音一样，没问题）。
    - 修法：把 Whisper 结果转成假名再和 `say` 比（本机装 `pyopenjtalk` 或 `pykakasi` 做汉字→读音），读音不一致的 `pack_tools.py drop`，然后 `build` 重新打包。最省事的临时办法：`python pack_tools.py build --word-cer 0`，只留完全一致的单词（会少 600 个左右，不在包里的会退回原来的语音，不会出错）。
 2. **有些地方播的文字和清单对不上，所以没用上语音包**（听到的还是微软 / 手机的声音）。语音包按「App 传给 `playTts` 的原文」精确匹配，下面这些原文不在清单里：
    - 辞書语法页点句型，念的是 `pattern` 去掉「〜」（`GrammarPage.speak`），清单里只有例句。
