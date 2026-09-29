@@ -19,17 +19,25 @@ Supabase 文本 ──batch_items.py──> batch_items.json（要念的清单�
   - `ui/audio/AudioControllers.kt`：`playTts` 最开始查语音包，命中就调 `playFile`（本来是远程 TTS 播缓存文件用的，抽出来共用）。
   - `ui/screens/settings/SettingsScreen.kt`：「接続」组里的「语音包」一栏（导入 / 重新导入 / 移除）。
 - **生成端**：`../archive-content-sources/emilia-voice/`（gitignore，只在本机）。整个声线项目的来龙去脉在同目录的 `HANDOFF.md`；这里只需要：
-  - `batch_items.json`：清单，每条 `key / text（App 会念的原文）/ say（模型实际念的）/ kind / emo`。
+  - `batch_items.json`：清单，每条 `key / text（App 会念的原文）/ say（模型实际念的）/ kind / emo`。`kind` 有 `word`（词头）、`form`（词卡变形，当单词处理）、`grammar`、`sentence`。
+  - `forms_in.tsv` → `forms_out.tsv`：词卡变形的来源（见第 2 节 0 条），`batch_items.py` 读 `forms_out.tsv`。
   - `batch_checks.json`：每条的 Whisper 回听结果 `hyp / cer / ok`。
-  - `out/manifest.json` + `out/opus/*.ogg`：已生成、已通过的音频（5113 条）。
+  - `out/manifest.json` + `out/opus/*.ogg`：已生成、已通过的音频（13162 条，打包时再减去 `pack_drop.json`）。
+  - `recheck_words.py` / `recheck_words.json`：按读音复查单词和变形（第 2 节 1 条），json 里分三组 `rescue`（收回）/ `misread_in_pack`（在包里但读音不对，已剔除）/ `still_rejected`（从没进包）。
+  - **`problem_words.tsv`：人能直接看的问题清单**（Excel 可开）：状态 / 类型 / 原文 / 该念 / Whisper 听成，共 2615 行（单词 978、变形 1391、语法例句回听不过 246）。
+  - `pack_drop.json`：打包时排除的 key（只有 key，要看是哪个词查上面的 tsv 或 `pack_tools.py lookup`）。
   - `pack_tools.py`：**本地工具，不花钱**（见第 3 节）。
-- 包里现在是（2026-09-29 第二版，11753 条）：单词 2486 / 3466、词卡变形 6848 / 8239、语法例句 2415 / 2705、台词 4 / 3395。清单来源：单词 `learning_vocab_items.surface`（念的是 `vocab_cards.json` / `reading` 的假名 +「。」）、语法 `learning_grammar_points.ja_example`、台词 `learning_sentences.ja_text`（只取没原声的，还没批量生成）。
+- 包里现在是（2026-09-29 第二版，11755 条）：单词 2488 / 3466、词卡变形 6848 / 8239、语法例句 2415 / 2705、台词 4 / 3395。清单来源：单词 `learning_vocab_items.surface`（念的是 `vocab_cards.json` / `reading` 的假名 +「。」）、语法 `learning_grammar_points.ja_example`、台词 `learning_sentences.ja_text`（只取没原声的，还没批量生成）。
 
 ## 2. 已知问题（写文档时已经发现）
 
 0. ~~**词卡的变形（ます形 / 意志 / 假定 …）全都没有**~~：已补（2026-09-29）。变形是 App 用 `Conjugator` + `FormDial` 现场推的，Supabase 里没有，所以第一版清单漏了。做法：`forms_in.tsv`（词头 / 读音 / 词性，从 Supabase + `vocab_cards.json` 导出）→ 临时写一个 JVM 单测调 `FormDial.of(Conjugator.tableFor(...))` 输出 `forms_out.tsv`（跑完删掉测试，不提交）→ `batch_items.py` 把它加成 `kind=form`（当单词处理：不做音色转换）→ `modal run batch.py::run --kinds form`。**改了 `Conjugator` / `FormDial` 的输出，就要重导 `forms_out.tsv` 再补生成**。实际花费约 1.3 美元（SBV2 1488 GPU 秒、Whisper 3833 GPU 秒）。
    - 顺带发现的 App bug：词性标成动词的「戻りましょう」会推出「戻りましょおう」之类的怪形（词表数据问题）。
-1. ~~**单词校验太松，有念错的混进包里**~~：已改成按读音判定（2026-09-29，`recheck_words.py`）。Whisper 结果和 `say` / 原文都转成平假名（pykakasi + MeCab/unidic-lite 两种读法，任一一致就算对），读音一致才进包：同音字被误删的收回 334 条，读音对不上的 1407 条记进 `pack_drop.json`。还缺的 980 个单词、1391 个变形多数是模型真念错了，可以换个随机种子重录一遍再判（约 2400 条，预估 0.4 美元，还没做）。以下是原来的记录：单词的通过线是「回听结果和词头或假名的字错率 ≤ 0.5」，因为 Whisper 对单个词会随意写成汉字或假名。结果 603 个通过的单词字错率 > 0，里面有真念错的：齟齬→「そこ」、高校→「ここ」、黙る→「黙れ」、魔女因子→「魔女陰死」；也有只是同音字的（龍剣→龍拳，读音一样，没问题）。
+1. ~~**单词校验太松，有念错的混进包里**~~：已改成按读音判定（2026-09-29，`recheck_words.py`）。Whisper 结果和 `say` / 原文都转成平假名（pykakasi + MeCab/unidic-lite 两种读法，任一一致就算对），读音一致才进包：同音字被误删的收回 336 条，读音对不上的 1407 条记进 `pack_drop.json`。还缺 978 个单词、1391 个变形，逐条在 `problem_words.tsv`。
+   - 问题的类型（抽样 60 条看的）：**多数是模型真念错**，① 吞尾音（愛されよう→愛されよ、守り抜こう→まもりぬこ、夢見ます→ゆめみま），② 近音替换（告げます→継ぎます、秘めろ→決めろ、頼る→頼れ、善意→戦意），③ 清浊 / 促音错（罰しない→はしない、強欲→こうよく、絶頂→せっちょ）；**少数是 Whisper 对孤立短词听错、其实念对了**（聡明→ソメイ 丢长音）。宁可退回原来的语音也不教错音，所以全剔；误剔的那部分可以人工 `pack_tools.py play` 听了再从 `pack_drop.json` 里拿出来。
+   - 下一步（没做）：给这约 2400 条各重录一遍再按读音判（约 0.4 美元）。**注意 `batch.py` 的 `sbv2_chunk` 见到 `raw/<key>.wav` 已存在就跳过**，重录要先让它写到另一个目录（如 `raw2/`）或换 key 后缀，Whisper / encode 也要跟着读新目录；SBV2 每次推理本身有随机性，不用改参数。吞尾音类可以试着在 `say` 末尾多给一点停顿（「。」换成「。。」或加「…」），先 `--limit 30` 小批验证。
+   - 语法例句缺的 290 句：246 句是回听字错率 > 0.3 没过（在 tsv 里），44 句是当时预算到了没做音色转换（第 4 条）。
+   - 以下是原来的记录（已按上面的方法修掉）：单词的通过线是「回听结果和词头或假名的字错率 ≤ 0.5」，因为 Whisper 对单个词会随意写成汉字或假名。结果 603 个通过的单词字错率 > 0，里面有真念错的：齟齬→「そこ」、高校→「ここ」、黙る→「黙れ」、魔女因子→「魔女陰死」；也有只是同音字的（龍剣→龍拳，读音一样，没问题）。
    - 修法：把 Whisper 结果转成假名再和 `say` 比（本机装 `pyopenjtalk` 或 `pykakasi` 做汉字→读音），读音不一致的 `pack_tools.py drop`，然后 `build` 重新打包。最省事的临时办法：`python pack_tools.py build --word-cer 0`，只留完全一致的单词（会少 600 个左右，不在包里的会退回原来的语音，不会出错）。
 2. **有些地方播的文字和清单对不上，所以没用上语音包**（听到的还是微软 / 手机的声音）。语音包按「App 传给 `playTts` 的原文」精确匹配，下面这些原文不在清单里：
    - 辞書语法页点句型，念的是 `pattern` 去掉「〜」（`GrammarPage.speak`），清单里只有例句。
@@ -48,7 +56,10 @@ python pack_tools.py lookup 齟齬 "それなら 私の出番じゃないかし�
 python pack_tools.py play 齟齬                          # 用电脑默认播放器放这条
 python pack_tools.py drop 齟齬 高校                      # 记进 pack_drop.json，以后打包都排除
 python pack_tools.py build [--word-cer 0] [--sent-cer 0.3]   # 按排除表和阈值重打 emilia-voice.zip
+python recheck_words.py [--apply]                      # 按读音复查单词 / 变形：报告 → recheck_words.json；--apply 从 Modal volume 下载收回的 wav（免费）、本地转 opus、写 pack_drop.json
 ```
+
+`recheck_words.py` 需要 `python -m pip install pykakasi fugashi unidic-lite`（已装）；下载 Modal volume 里的文件不花 GPU 钱，Git Bash 里要加 `MSYS_NO_PATHCONV=1`。
 
 重打包后把 `emilia-voice.zip` 复制到用户「下载」，让用户在手机上「设置 → 语音包 → 重新导入」。**只改语音包不用发版**；改了 App 代码才走 `CLAUDE.md` 第 6 节发版。
 
