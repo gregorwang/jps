@@ -95,7 +95,12 @@ data class GrammarPoint(
     val sourceLineNo: Int = 0,
     val linguistic: LinguisticCardPayload? = null,
     val enrichment: CardEnrichment? = null,
+    /** N5 → N1 dictionary only: how many episode lines use this pattern, and up to eight of them. */
+    val count: Int = 0,
+    val examples: List<GrammarExample> = emptyList(),
 )
+
+data class GrammarExample(val ja: String, val zh: String)
 
 data class ShadowingSentence(
     val id: String,
@@ -402,6 +407,8 @@ data class LabSettings(
     val cloudSync: Boolean = true,
     val showFurigana: Boolean = true,
     val showRomaji: Boolean = false,
+    /** 辞書 词汇 / 语法: off = grouped by N5 → N1 (the whole dictionary), on = per episode. */
+    val dictByEpisode: Boolean = false,
     /** 放課後チャイム: smart study reminders (see platform/ReminderPlanner). */
     val studyReminder: Boolean = true,
     /** Fixed reminder hour, used when [studyReminderAuto] is off or there is no habit yet. */

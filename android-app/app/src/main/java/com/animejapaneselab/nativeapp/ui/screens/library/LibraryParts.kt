@@ -150,7 +150,7 @@ internal fun DictTabs(
                         ),
                         color = if (selected) colors.ink else colors.ink3,
                     )
-                    Text(tab.count.toString(), style = AjlTheme.type.meta, color = colors.ink3)
+                    if (tab.count >= 0) Text(tab.count.toString(), style = AjlTheme.type.meta, color = colors.ink3)
                 }
             }
             Spacer(Modifier.weight(1f))

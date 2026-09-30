@@ -318,6 +318,12 @@ fun SettingsScreen(
             }
         }
 
+        item(key = "jisho") {
+            SettingsGroup("辞書") {
+                ToggleRow("词汇和语法按话浏览", settings.dictByEpisode) { onSettingsChange(settings.copy(dictByEpisode = it)) }
+            }
+        }
+
         item(key = "ai") {
             SettingsGroup("AI") {
                 val modelValue = if (settings.aiModel == ReasoningModel) {

@@ -468,57 +468,12 @@ class RemoteLabClient(
 
     private fun fetchVocab(selection: EpisodeSelection): List<VocabItem> {
         val json = get("/api/works/${selection.workSlug.urlEncoded()}/episodes/${selection.episode}/vocab")
-        return JSONArray(json).mapObjects { item ->
-            VocabItem(
-                id = item.string("id", "${selection.workSlug}-vocab-${item.string("surface")}"),
-                surface = item.string("surface"),
-                reading = item.string("reading", item.string("surface")),
-                romanization = item.string("romaji", item.string("romanization")),
-                meaningZh = item.string("meaningZh", item.string("meaning_zh", item.string("hint"))),
-                partOfSpeech = item.string("pos", item.string("partOfSpeech", "表达")),
-                level = item.string("jlptLevel", item.string("level", "N?")),
-                occurrence = item.string("animeToneNote", item.string("occurrence", "线上词库")),
-                toneTags = listOfNotNull(
-                    item.string("animeToneNote").takeIf { it.isNotBlank() },
-                    item.string("realWorldNote").takeIf { it.isNotBlank() },
-                ).ifEmpty { listOf("线上") },
-                realWorldNote = item.string("realWorldNote"),
-                linguistic = parseLinguisticCardPayload(
-                    item.optJSONObject("linguisticPayload") ?: item.optJSONObject("linguistic_payload"),
-                ),
-                enrichment = parseCardEnrichment(
-                    item.optJSONObject("cardPayload"),
-                    ownGloss = item.string("meaningZh", item.string("meaning_zh")),
-                    headword = item.string("surface"),
-                ),
-            )
-        }
+        return JSONArray(json).mapObjects { item -> vocabFromJson(item, selection.workSlug) }
     }
 
     private fun fetchGrammar(selection: EpisodeSelection): List<GrammarPoint> {
         val json = get("/api/works/${selection.workSlug.urlEncoded()}/episodes/${selection.episode}/grammar")
-        return JSONArray(json).mapObjects { item ->
-            GrammarPoint(
-                id = item.string("id", "${selection.workSlug}-grammar-${item.string("pattern")}"),
-                pattern = item.string("pattern", "句末"),
-                titleZh = item.string("functionZh", item.string("titleZh", "语气功能")),
-                exampleJa = item.string("jaExample", item.string("exampleJa")),
-                exampleZh = item.string("exampleZh"),
-                explanationZh = item.string("explanationZh", item.string("pragmaticsNote", "线上语法点")),
-                pragmaticsNote = item.string("pragmaticsNote"),
-                realWorldNote = item.string("realWorldNote"),
-                difficulty = item.string("difficulty"),
-                sourceLineNo = item.optInt("sourceLineNo", item.optInt("source_line_no", 0)),
-                linguistic = parseLinguisticCardPayload(
-                    item.optJSONObject("linguisticPayload") ?: item.optJSONObject("linguistic_payload"),
-                ),
-                enrichment = parseCardEnrichment(
-                    item.optJSONObject("cardPayload"),
-                    ownGloss = item.string("functionZh", item.string("titleZh")),
-                    headword = item.string("pattern"),
-                ),
-            )
-        }
+        return JSONArray(json).mapObjects { item -> grammarFromJson(item, selection.workSlug) }
     }
 
     private fun fetchSentences(selection: EpisodeSelection): List<ShadowingSentence> {
@@ -1145,6 +1100,60 @@ private fun readLinguisticOptions(options: JSONArray): List<LinguisticExerciseOp
         }
     }
 }
+
+/** One vocab row in the Worker's JSON shape (also the shape of assets/dict_vocab.json). */
+internal fun vocabFromJson(item: JSONObject, workSlug: String): VocabItem = VocabItem(
+    id = item.string("id", "$workSlug-vocab-${item.string("surface")}"),
+    surface = item.string("surface"),
+    reading = item.string("reading", item.string("surface")),
+    romanization = item.string("romaji", item.string("romanization")),
+    meaningZh = item.string("meaningZh", item.string("meaning_zh", item.string("hint"))),
+    partOfSpeech = item.string("pos", item.string("partOfSpeech", "表达")),
+    level = item.string("jlptLevel", item.string("level", "N?")),
+    occurrence = item.string("animeToneNote", item.string("occurrence", "线上词库")),
+    toneTags = listOfNotNull(
+        item.string("animeToneNote").takeIf { it.isNotBlank() },
+        item.string("realWorldNote").takeIf { it.isNotBlank() },
+    ).ifEmpty { listOf("线上") },
+    realWorldNote = item.string("realWorldNote"),
+    linguistic = parseLinguisticCardPayload(
+        item.optJSONObject("linguisticPayload") ?: item.optJSONObject("linguistic_payload"),
+    ),
+    enrichment = parseCardEnrichment(
+        item.optJSONObject("cardPayload"),
+        ownGloss = item.string("meaningZh", item.string("meaning_zh")),
+        headword = item.string("surface"),
+    ),
+)
+
+/** One grammar row in the Worker's JSON shape; the merged asset adds `count` and `examples`. */
+internal fun grammarFromJson(item: JSONObject, workSlug: String): GrammarPoint = GrammarPoint(
+    id = item.string("id", "$workSlug-grammar-${item.string("pattern")}"),
+    pattern = item.string("pattern", "句末"),
+    titleZh = item.string("functionZh", item.string("titleZh", "语气功能")),
+    exampleJa = item.string("jaExample", item.string("exampleJa")),
+    exampleZh = item.string("exampleZh"),
+    explanationZh = item.string("explanationZh", item.string("pragmaticsNote", "线上语法点")),
+    pragmaticsNote = item.string("pragmaticsNote"),
+    realWorldNote = item.string("realWorldNote"),
+    difficulty = item.string("difficulty"),
+    sourceLineNo = item.optInt("sourceLineNo", item.optInt("source_line_no", 0)),
+    linguistic = parseLinguisticCardPayload(
+        item.optJSONObject("linguisticPayload") ?: item.optJSONObject("linguistic_payload"),
+    ),
+    enrichment = parseCardEnrichment(
+        item.optJSONObject("cardPayload"),
+        ownGloss = item.string("functionZh", item.string("titleZh")),
+        headword = item.string("pattern"),
+    ),
+    count = item.optInt("count", 0),
+    examples = item.optJSONArray("examples")?.let { array ->
+        (0 until array.length()).mapNotNull { i ->
+            val e = array.optJSONObject(i) ?: return@mapNotNull null
+            GrammarExample(ja = e.string("ja"), zh = e.string("zh"))
+        }
+    }.orEmpty(),
+)
 
 private inline fun <T> JSONArray.mapObjects(transform: (JSONObject) -> T): List<T> {
     val items = mutableListOf<T>()

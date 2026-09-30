@@ -135,7 +135,6 @@ internal fun GrammarPage(
         ) {
             item(key = "tools", contentType = "tools") {
                 Column(Modifier.padding(top = 12.dp, bottom = 4.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    FindField(query, { query = it }, placeholder = "引く · 句型、意思、例句")
                     if (levels.size > 1 || cut.isNotEmpty()) {
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             if (levels.size > 1) {
@@ -286,7 +285,11 @@ private fun GrammarRow(
                         modifier = Modifier.weight(1f),
                     )
                     if (saved) NotebookMark()
-                    Jlpt.normalize(item.difficulty).takeIf { it in Jlpt.Levels }?.let { LevelTag(it, fontSize = 10) }
+                    if (item.count > 1) {
+                        Text("${item.count} 例", style = type.metaSmall, color = colors.ink3)
+                    } else {
+                        Jlpt.normalize(item.difficulty).takeIf { it in Jlpt.Levels }?.let { LevelTag(it, fontSize = 10) }
+                    }
                 }
                 Meaning(item.titleZh)
                 if (item.exampleJa.isNotBlank()) {
@@ -393,6 +396,30 @@ private fun GrammarCardSheet(
                         style = type.jpBody.copy(fontSize = 19.sp, lineHeight = 30.sp),
                     )
                     if (item.exampleZh.isNotBlank()) Text(item.exampleZh, style = type.body.copy(fontSize = 14.sp, lineHeight = 21.sp), color = colors.ink2)
+                }
+            }
+
+            val more = item.examples.filter { it.ja != item.exampleJa }.take(7)
+            if (more.isNotEmpty()) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("原作里的其他用法", style = type.caption.copy(fontSize = 12.sp, fontWeight = FontWeight.SemiBold), color = work.accent)
+                        Text("${item.count} 例", style = type.metaSmall, color = colors.ink3)
+                    }
+                    more.forEach { ex ->
+                        val range = patternRange(ex.ja, item.pattern)
+                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            Text(
+                                buildAnnotatedString {
+                                    append(ex.ja)
+                                    if (range != null) addStyle(SpanStyle(color = work.accent, fontWeight = FontWeight.SemiBold), range.first, range.last + 1)
+                                },
+                                style = type.jpBody.copy(fontSize = 16.sp, lineHeight = 25.sp),
+                                color = colors.ink,
+                            )
+                            if (ex.zh.isNotBlank()) Text(ex.zh, style = type.body.copy(fontSize = 13.sp, lineHeight = 20.sp), color = colors.ink2)
+                        }
+                    }
                 }
             }
 

@@ -107,6 +107,12 @@ import com.animejapaneselab.nativeapp.ui.design.UndoBar
 import com.animejapaneselab.nativeapp.ui.design.VoiceBars
 import com.animejapaneselab.nativeapp.ui.notebook.Notebook
 import kotlinx.coroutines.delay
+import androidx.compose.runtime.produceState
+import com.animejapaneselab.nativeapp.data.LevelDict
+import com.animejapaneselab.nativeapp.ui.words.TangoLines
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import com.animejapaneselab.nativeapp.data.AudioKind
 
 /** 辞書 tab: 词汇 / 语法 / 台词, dictionary entries, 五十音 index. */
 @Composable
@@ -140,9 +146,42 @@ fun LibraryScreen(
     val audioBusy = audio.playbackState.phase == AudioPlaybackPhase.Loading || audio.playbackState.phase == AudioPlaybackPhase.Playing
     var playingLineId by remember { mutableStateOf<String?>(null) }
 
+    // 词汇 / 语法 with 按话浏览 off: the whole dictionary by level (assets/dict_*.json), a 词类 drawer for words.
+    val appContext = LocalContext.current.applicationContext
+    val levelMode = !uiState.settings.dictByEpisode && (selectedTab == 0 || selectedTab == 1)
+    var level by rememberSaveable { mutableStateOf(LevelDict.lastLevel(appContext)) }
+    var pos by rememberSaveable { mutableStateOf(PosCat.All) }
+    var drawerOpen by rememberSaveable { mutableStateOf(false) }
+    val dictLoaded by produceState<LevelDict.Loaded?>(LevelDict.peek(), uiState.settings.dictByEpisode) {
+        if (!uiState.settings.dictByEpisode && value == null) value = withContext(Dispatchers.Default) { LevelDict.load(appContext) }
+    }
+    val dictVocab = dictLoaded?.vocab.orEmpty()
+    val dictGrammar = dictLoaded?.grammar.orEmpty()
+    // Grammar has no 級外: on that tab the chip falls back to N5.
+    val shownLevel = if (selectedTab == 1 && level == LevelDict.Outside) "N5" else level
+    val levelOptions = remember(dictLoaded, selectedTab) {
+        val counts = if (selectedTab == 1) dictGrammar.groupingBy { it.difficulty }.eachCount() else dictVocab.groupingBy { it.level }.eachCount()
+        (Jlpt.Levels + if (selectedTab == 1) emptyList() else listOf(LevelDict.Outside)).map { LevelOption(it, levelLabel(it), counts[it] ?: 0) }
+    }
+    val baseVocab = remember(levelMode, dictLoaded, shownLevel, uiState.vocab) {
+        if (levelMode) dictVocab.filter { it.level == shownLevel } else uiState.vocab
+    }
+    val posIndex = remember(baseVocab) { PosCat.index(baseVocab) }
+    val posCounts = remember(posIndex) { PosCat.counts(posIndex) }
+    val shownVocab = remember(baseVocab, posIndex, pos) {
+        if (pos == PosCat.All) baseVocab else baseVocab.filter { PosCat.matches(posIndex[it.id], pos) }
+    }
+    val pageState = remember(uiState, levelMode, shownVocab, dictLoaded, shownLevel) {
+        if (levelMode) {
+            uiState.copy(vocab = shownVocab, grammar = dictGrammar.filter { it.difficulty == shownLevel }, shadowing = emptyList())
+        } else {
+            uiState.copy(vocab = shownVocab)
+        }
+    }
+
     val tabs = listOf(
-        DictTab("词汇", uiState.vocab.size),
-        DictTab("语法", uiState.grammar.size),
+        DictTab("词汇", if (levelMode) -1 else uiState.vocab.size),
+        DictTab("语法", if (levelMode) -1 else uiState.grammar.size),
         DictTab("台词", uiState.shadowing.size),
         DictTab("收藏", notebook.size),
     )
@@ -161,14 +200,39 @@ fun LibraryScreen(
             selectedIndex = selectedTab,
             onSelect = { selectedTab = it },
             modifier = Modifier.padding(horizontal = 20.dp),
-            trailing = { if (selectedTab != NotebookTab) EpisodeChip(episodeTitle(episode), onClick = { pickerOpen = true }) },
+            trailing = {
+                when {
+                    selectedTab == NotebookTab -> Unit
+                    levelMode -> LevelChip(
+                        selected = shownLevel,
+                        options = levelOptions,
+                        onSelect = {
+                            level = it
+                            pos = PosCat.All
+                            drawerOpen = false
+                            LevelDict.setLastLevel(appContext, it)
+                        },
+                    )
+                    else -> EpisodeChip(episodeTitle(episode), onClick = { pickerOpen = true })
+                }
+            },
         )
+        if (selectedTab == 0) {
+            PosHandle(
+                selected = pos,
+                open = drawerOpen,
+                onToggle = { drawerOpen = !drawerOpen },
+                onOpen = { drawerOpen = true },
+                onClear = { pos = PosCat.All },
+                modifier = Modifier.padding(horizontal = 20.dp),
+            )
+        }
         Box(Modifier.fillMaxWidth().weight(1f)) {
-            val scope = "$workSlug#$episode#$selectedTab"
+            val scope = if (levelMode) "lv#$shownLevel#$pos#$selectedTab" else "$workSlug#$episode#$selectedTab#$pos"
             when (selectedTab) {
                 0 -> VocabPage(
                     key = scope,
-                    uiState = uiState,
+                    uiState = pageState,
                     savedKeys = savedKeys,
                     audioBusy = audioBusy,
                     onSpeak = { audio.speakText(it, uiState.settings.ttsWorkerUrl) },
@@ -179,7 +243,7 @@ fun LibraryScreen(
                 )
                 1 -> GrammarPage(
                     key = scope,
-                    uiState = uiState,
+                    uiState = pageState,
                     savedKeys = savedKeys,
                     audioBusy = audioBusy,
                     onSpeak = { audio.speakText(it, uiState.settings.ttsWorkerUrl) },
@@ -223,18 +287,29 @@ fun LibraryScreen(
                     onLearn = { onTargetLesson(LessonTarget.Sentence(it.id)) },
                 )
             }
+            if (selectedTab == 0 && drawerOpen) {
+                PosPanel(
+                    selected = pos,
+                    counts = posCounts,
+                    onSelect = {
+                        pos = it
+                        if (it != PosCat.Verb) drawerOpen = false
+                    },
+                    onClose = { drawerOpen = false },
+                )
+            }
         }
     }
 
     studyIds?.let { ids ->
-        val words = ids.mapNotNull { id -> uiState.vocab.firstOrNull { it.id == id } }
+        val words = ids.mapNotNull { id -> pageState.vocab.firstOrNull { it.id == id } }
         if (words.isEmpty()) {
             studyIds = null
         } else {
             WordStudyDialog(
                 words = words,
-                pool = uiState.vocab,
-                lines = uiState.shadowing,
+                pool = pageState.vocab,
+                lines = pageState.shadowing,
                 settings = uiState.settings,
                 workSlug = workSlug,
                 episode = episode,
@@ -444,8 +519,9 @@ private fun VocabPage(
         else -> null
     }
     val (rows, starts) = remember(groups, empty) { buildDictRows(groups, { "v-${it.id}" }, empty) }
+    val offlineLines = remember { TangoLines.load(appContext) }
     val examples = remember(studyable, uiState.shadowing) {
-        studyable.associate { it.id to findExampleLine(it.surface, it.reading, uiState.shadowing) }
+        studyable.associate { it.id to (findExampleLine(it.surface, it.reading, uiState.shadowing) ?: offlineExample(offlineLines[it.id], it.id)) }
     }
     val workSlug = uiState.selection.workSlug
     val episode = uiState.selection.episode
@@ -475,7 +551,6 @@ private fun VocabPage(
             tools = {
                 Column(Modifier.padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Box(Modifier.weight(1f)) { FindField(query, { query = it }, placeholder = "引く · 词、读音、中文") }
                         if (picking) FilterPill(text = "取消", selected = true, onClick = { endPicking() })
                         if (cut.isNotEmpty()) {
                             FilterPill(
@@ -499,7 +574,6 @@ private fun VocabPage(
                             QuietButton("一键斩掉", onClick = { KnownWords.cut(appContext, easy) }, color = AjlTheme.work.accent)
                         }
                     }
-                    if (buckets.size > 2) LevelPills(buckets, level) { level = it }
                 }
             },
             entry = { row ->
@@ -820,4 +894,18 @@ private fun PickMark(on: Boolean, modifier: Modifier = Modifier) {
     ) {
         if (on) Icon(Icons.Rounded.Check, contentDescription = "已选", tint = colors.onInk, modifier = Modifier.size(14.dp))
     }
+}
+
+/** The offline anime line of a word (vocab_lines.json) as a shadowing line, so its card can play it. */
+private fun offlineExample(line: com.animejapaneselab.nativeapp.ui.words.TangoLine?, id: String): ShadowingSentence? {
+    if (line == null) return null
+    return ShadowingSentence(
+        id = "offline-$id",
+        ja = line.ja,
+        reading = "",
+        meaningZh = "",
+        sourceLabel = "",
+        audioKind = if (line.audioUrl.isBlank()) AudioKind.Tts else AudioKind.Source,
+        audioUrl = line.audioUrl,
+    )
 }
