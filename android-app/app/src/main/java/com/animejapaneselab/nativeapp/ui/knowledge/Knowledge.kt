@@ -48,7 +48,7 @@ object KnowledgeRules {
         val pool = cards.filter { it.id !in recent }
         val checks = ArrayDeque(
             cards.filter { checkDue(mark(it), today) }.mapNotNull { held ->
-                pool.firstOrNull { it.quiz?.tests == held.id } ?: pool.firstOrNull { it.id == held.id }
+                pool.firstOrNull { it.testsId == held.id } ?: pool.firstOrNull { it.id == held.id }
             },
         )
         val unread = ArrayDeque(pool.filter { mark(it).seen == 0 && !mark(it).hearted })

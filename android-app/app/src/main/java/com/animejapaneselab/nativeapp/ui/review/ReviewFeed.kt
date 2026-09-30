@@ -130,7 +130,7 @@ object FeedRules {
     fun knowCard(card: KnowledgeCard): FeedCard = FeedCard(
         key = "know:${card.id}",
         kind = FeedKind.Know,
-        eyebrow = listOf(card.deckTitle, card.topic).filter { it.isNotBlank() }.joinToString(" · "),
+        eyebrow = listOf(card.deckShort.ifBlank { card.deckTitle }, card.topic).filter { it.isNotBlank() }.joinToString(" · "),
         know = card,
     )
 

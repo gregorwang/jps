@@ -73,12 +73,21 @@ internal fun ColumnScope.KnowBody(card: KnowledgeCard, romaji: FuriganaAnnotator
             .padding(top = 18.dp, end = RailRoom, bottom = 8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        card.prev?.let { PrevStrip(it) }
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            if (card.en.isNotBlank()) Text(card.en, style = AjlTheme.type.meta.copy(fontSize = 12.sp), color = colors.ink3)
-            if (card.title.isNotBlank() && card.kind != KnowKind.Quiz) {
-                Text(card.title, style = AjlTheme.type.jpTitle.copy(fontSize = 25.sp, lineHeight = 35.sp, fontWeight = FontWeight.Bold), color = colors.ink)
+            if (card.title.isNotBlank() && (card.v2 || card.kind != KnowKind.Quiz)) {
+                Text(
+                    marked(card.title, AjlTheme.work.accent),
+                    style = AjlTheme.type.jpTitle.copy(fontSize = if (card.v2) 23.sp else 25.sp, lineHeight = if (card.v2) 32.sp else 35.sp, fontWeight = FontWeight.Bold),
+                    color = colors.ink,
+                )
             }
+            if (card.en.isNotBlank()) Text(card.en, style = AjlTheme.type.meta.copy(fontSize = 12.sp), color = colors.ink3)
         }
+        if (card.v2) {
+            KnowKindBody(card, onAnswer)
+            if (card.rule.isNotBlank()) Rule(card.rule.replace("【", "").replace("】", ""))
+        } else {
         when (card.kind) {
             KnowKind.Pattern -> {
                 if (card.parts.isNotEmpty()) Parts(card)
@@ -89,6 +98,7 @@ internal fun ColumnScope.KnowBody(card: KnowledgeCard, romaji: FuriganaAnnotator
             KnowKind.Origin -> Origin(card)
             KnowKind.Map -> MapRows(card)
             KnowKind.Quiz -> card.quiz?.let { Quiz(card.id, it, onAnswer) }
+            else -> Unit
         }
         if (card.rule.isNotBlank()) Rule(card.rule)
         card.limit?.let { limit ->
@@ -106,6 +116,7 @@ internal fun ColumnScope.KnowBody(card: KnowledgeCard, romaji: FuriganaAnnotator
                 Text(note.h, style = AjlTheme.type.body.copy(fontSize = 12.sp, fontWeight = FontWeight.SemiBold), color = AjlTheme.work.accent)
                 NoteText(note.b)
             }
+        }
         }
     }
 }
