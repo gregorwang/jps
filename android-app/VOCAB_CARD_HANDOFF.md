@@ -1,5 +1,8 @@
 # 単語卡重做 + 帳面重排 · 交接
 
+> **2026-09-30 · 0.19.0 已做完主体**（用户看过画布，说「照画布来」，第 0 节三个问题按提议默认通过）：単語标签（`ui/words/Tango.kt` + `screens/review/TangoScreen.kt`）、帳面重排、错题 / 期日の課題 / 苦手搬进「復習の順番」页（`SmartReviewQueueScreen`，練習 → 課程 場面 06 打开）、`assets/vocab_lines.json`（生成脚本 `archive-content-sources/vocab-cards-v1/fetch_subtitles.py` + `build_lines.py`）。
+> **还没做**：① 「常一起出现」目前只从 note 里抽「…」片段（4.3 的 a），没有中文释义；要做 b 就交给 Antigravity 补 `collocations` 列。② 排序的「出现次数」用的是字幕里含这个词的行数（`freq`），不是 `learning_vocab_items.total_occurrences`。③ 用户手机上看后的反馈。下面是原始交接，供查。
+
 这份文档写给**专门做单词卡的新会话**。先读 `CLAUDE.md`（第 2、3、4 节和第 8 节 0.18.0 那条），再读这里。
 
 ## 0. 开工前先问用户这 3 件事

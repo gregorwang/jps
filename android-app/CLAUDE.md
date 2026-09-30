@@ -19,7 +19,7 @@ Anime Japanese Lab 的原生 Android App（Kotlin + Jetpack Compose）。**私�
 | 罗马音 / 读音显示逐屏修正（用户发截图指导） | `ROMAJI_FIX_HANDOFF.md` |
 | 爱蜜莉亚声线 TTS（批量预生成音频，替掉微软 TTS） | `../archive-content-sources/emilia-voice/HANDOFF.md`（本地，gitignore） |
 | 语音包（设置 → 语音包）的 bug、念错的词、重新打包 | `VOICE_PACK_HANDOFF.md` |
-| 単語卡重做（5 个一组、先想再看）、帳面重排、错题搬去練習 | `VOCAB_CARD_HANDOFF.md` |
+| 単語卡（5 个一组、先想再看，0.19.0 已做）、帳面重排、错题搬去練習 | `VOCAB_CARD_HANDOFF.md` |
 | 自習（学习台）的产品逻辑 | 本文第 3 节「产品主线」；画布「自習 · 学习台（预览）」页 |
 
 设计画布：https://claude.ai/artifact/9x3RkMeAtAYTN64i8T8HN4 （用 Artifact 工具的 `read` 读取，只看 `V3*`、`X*` 开头的画板）。**只在要实现画布上某一屏时才读，且只读那一屏**：`path=project/<画板>.dc.html`。
@@ -126,6 +126,14 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 - 登录是必须的，不做手写功能，Web 前端不是规范；默认只改 `android-app/` 下的文件。
 
 ## 8. 经验记录（每次会话结束补几条）
+
+**2026-09-30 · 0.19.0（単語重做 + 帳面重排）**
+- 用户看完画布说「照那个来」，就不必再逐条确认交接文档里的问题，直接做。
+- 単語是**独立的 pager**（`TangoScreen`），不走 `FeedRules` / `ReviewFeed`：5 张词卡 + 1 张小测卡，`Tango`（`ui/words/Tango.kt`）存 Leitner 箱和当前组，小测答完才动箱；♥ 掌握 = `KnownWords.setWord`（和辞書的已斩是同一份），收藏 = `Notebook.toggle`。旧的 `VocabDeck` 伪合集和 `VocabBody` 已经没有入口，可以删。
+- 单词的原作台词是**离线配好的**：`fetch_subtitles.py` 从 Supabase 拉 `subtitle_lines`（Re:ゼロ 的 `usable_for_analysis` 是 null，别加这个过滤）+ `learning_sentences` 里有原声的，`build_lines.py` 每词挑 1 句（有原声 > 整词命中 > 长度适中），写 `assets/vocab_lines.json`（音频路径去掉公共前缀）。没有台词的词不进単語。缓存在 `vocab-cards-v1/cache/`（gitignore 的 archive 里）。
+- 错题 / 期日の課題 / 苦手不再在知識页：入口是 練習 → 課程 場面 06 →「復習の順番」（`openSmartReviewQueue`），从那里开始的练习做完回 練習 tab（`LabViewModel` 里复习流程的 `selectedTab` 都改成了 `Learn`）。今日的三限 復習 仍指向知識 tab。
+- `v3build.ps1` 的日志是 UTF-16，`grep` 要先 `tr -d ' '`；编译错误在日志里的行号会被折行。
+- 待用户手机验证：単語 卡的翻页手感（没翻开不能划走）、小测里「挖空 + 听」够不够答、5 个一组的节奏。
 
 **2026-09-30 · 0.18.0（知識流手感 + 掌握/收藏 + 单词移出）**
 - 翻页卡顿的根因：卡内 `verticalScroll` 抢走手势，Pager 的 page nested-scroll connection 在 `onPostFling` 吞掉剩余速度，只能靠拖过半张翻页。修法在 `screens/review/FeedSwipe.kt`：`feedFlingBehavior`（18% 就翻）+ `rememberFeedPageHandoff`（卡已经带动 Pager 时，在 `onPreFling` 自己翻页）；`KnowBody` 内容放得下时关掉卡内滚动。以后 Pager 里放可滚内容都照这个做。
