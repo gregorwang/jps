@@ -62,7 +62,7 @@ v3 重写派了 6 个页面包、7 个子代理，合计约 120 万 token。钱�
 - `ui/study/StudyLog.kt`：全局学习日志（每天答题数、正确数、时长、自習句数 `recordStudy`），喂给 Today 的「最近 12 週」格点（`screens/today/StudyHeatmap.kt`）。**新增任何答题型 session，判定对错的地方都要调 `StudyLog.record(...)`**，否则格点和时长不计。
 - `platform/LearningSessionNotifier.kt`：学习中的常驻通知（Android 16 ProgressStyle 分段、作品色、角色头像、计时）；内容来自 `ui/LearningSessionStatus.kt`。
 - `platform/StudyReminder.kt`：放課後チャイム，每天定时（非精确闹钟）检查 StudyLog，当天没答题才发通知；开机/更新/换时区时重新排程。
-- **知識（底栏第 5 个，0.12.0 起，原「復習」）**：无限刷的知识点卡片流。卡片数据 `assets/knowledge_cards.json`（每份学习文档一个合集），模型和解析在 `ui/knowledge/KnowledgeCards.kt`，♥ / 读过 / 30·90 天检查存在 `ui/knowledge/Knowledge.kt`（`KnowledgeRules.pick` 是推送顺序），卡面在 `screens/review/KnowledgeCardBody.kt`。**知识卡由主会话（强模型）自己读完文档来做，不再交给 Antigravity**（用户 2026-09-30 定：理解得越深，卡越好）。卡片数据写在 `archive-content-sources/knowledge-cards/decks/`（`s2.json`、`s4.json`、`threads.json`，卡片内容 `canvas-gen/decks_data.py`，24 种卡型的画法 `canvas-gen/gen_decks.py`（路径常量指向当时的 scratchpad，重跑前改掉）），画布「知識 · 第二篇 / 第四篇（卡片）」「系列线索」三页是预览；App 还只认 6 种旧卡型，新卡型要照画布实现后才能装入。**0.16.1 起 App 里没有知识卡合集**：唯一的 `inf` 被用户否了（整张卡在讲英语本身）。英语**可以当锚点**（一行小字「英语里是 wait for」），卡的主角必须是日语；专讲英语的章节不做卡。用户的文档是一个系列（不定式→影山→词性→补语定语→介词…），后篇反复回收前篇的知识点（連用形、に、の/こと、ように），**这是承上启下，不是重复，不要去重**。卡上内容全部直接摊开，**不要再加展开面板或「相关」跳转**（用户明确不要）。
+- **知識（底栏第 5 个，0.12.0 起，原「復習」）**：无限刷的知识点卡片流。卡片数据 `assets/knowledge_cards.json`（每份学习文档一个合集），模型和解析在 `ui/knowledge/KnowledgeCards.kt`，♥ / 读过 / 30·90 天检查存在 `ui/knowledge/Knowledge.kt`（`KnowledgeRules.pick` 是推送顺序），卡面在 `screens/review/KnowledgeCardBody.kt`。**知识卡由主会话（强模型）自己读完文档来做，不再交给 Antigravity**（用户 2026-09-30 定：理解得越深，卡越好）。卡片数据写在 `archive-content-sources/knowledge-cards/decks/`（`s2.json`、`s4.json`、`threads.json`，卡片内容 `canvas-gen/decks_data.py`，24 种卡型的画法 `canvas-gen/gen_decks.py`（路径常量指向当时的 scratchpad，重跑前改掉）），画布「知識 · 第二篇 / 第四篇（卡片）」「系列线索」三页是预览。**0.17.0 起 asset 是格式 2**（`version: 2`，deck 带 `order`/`short`，卡片字段原样放在 `KnowledgeCard.data`），24 种卡型画在 `screens/review/KnowledgeKinds.kt`（【x】= 目标词，［］= 括号）；新增卡型 = `KnowKind` 加一项 + 这里加一个画法。装入：在 `canvas-gen` 里把 decks 写成 `{version:2, decks:[…]}` 覆盖 `assets/knowledge_cards.json`。**0.16.1 起 App 里没有知识卡合集**：唯一的 `inf` 被用户否了（整张卡在讲英语本身）。英语**可以当锚点**（一行小字「英语里是 wait for」），卡的主角必须是日语；专讲英语的章节不做卡。用户的文档是一个系列（不定式→影山→词性→补语定语→介词…），后篇反复回收前篇的知识点（連用形、に、の/こと、ように），**这是承上启下，不是重复，不要去重**。卡上内容全部直接摊开，**不要再加展开面板或「相关」跳转**（用户明确不要）。
 - `ui/review/ReviewFeed.kt` + `screens/review/ReviewFeedScreen.kt`：知識流的外壳（0.11.0 的復習刷卡流改造而来）。流 = 知识卡（2 张）+ 资料单词卡（1 张）循环，快到底时 `settle` 自动接一批；到期卡（活用/收藏/苦手）用 `FeedRules.weave` 穿插；**错题不进知識流**（0.16.1，用户不要），只在帳面 → 错题本里刷。资料单词卡的词头来自 `vocab_cards.json` 的 `heads`（id 是 UUID/编号的词条，约 2400 个），不能从 id 里切。`FeedRules.due` 把活用到期句、收藏、本地错题（合并同 id 的服务端任务）轮流排成一条流，`ReviewFeed`（进程级 object）存当天卡序和位置；判定经 `ReviewSinks` 写回 `ConjugationDrillViewModel.gradeLine` / `Notebook.grade|master` / `markMistakeReviewed` / `LabViewModel.gradeReviewTask`。卡片本身只加新的 `FeedKind`，不要再做单独的复习入口。
 - `ui/notebook/`：栞（跨集生词本）。`data/NotebookModels.kt` 是模型、Leitner 规则（1/2/4/8/16 天）和编码；辞書第 4 个标签、翻卡复习（辞書和復習都有入口）、今日の一句和字幕页的栞按钮都在这里汇总。
 - `widget/TodayWidget.kt`：桌面小组件「今日の一句」。RemoteViews 不支持竖排，所以整块画成位图；数据由 Today 页写入 `LocalLabStore`。
@@ -125,6 +125,11 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 - 登录是必须的，不做手写功能，Web 前端不是规范；默认只改 `android-app/` 下的文件。
 
 ## 8. 经验记录（每次会话结束补几条）
+
+**2026-09-30 · 0.17.0（知識卡重做）**
+- 用户的日语文档是一个系列（不定式 → 影山 → 词性 → 补语定语 → 介词），后篇反复回收前篇的点；**读文档必须通读，不能看目录下结论**（我只看目录就说「重复要去重」，被用户指出是承上启下）。
+- 知识卡由主会话自己做（用户明确：强模型理解更深，卡更好）；英语只当一行锚点。第一、三、五篇还没做成格式 2 的卡，第三篇只有画布上的 12 张样例（`canvas-gen/gen_forms.py`）。
+- 用户说「等会还有任务」时只 commit，不发版；发版前看一眼 `git diff`，上次被打断的命令其实已经改了版本号。
 
 **2026-09-29 · 0.16.0（爱蜜莉亚语音包）**
 - 声线模型全流程在 `../archive-content-sources/emilia-voice/HANDOFF.md`：最终方案 SBV2 + 情绪参考 + Seed-VC 音色转换（单词不转换，会念糊）。**Modal 一天花了约 14.7 美元，用户很在意**：跑任何 GPU 任务前先报预估花费，推理优先用本机 2060。
