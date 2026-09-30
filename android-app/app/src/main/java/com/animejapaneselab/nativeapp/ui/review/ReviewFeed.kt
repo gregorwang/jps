@@ -239,26 +239,25 @@ object FeedRules {
     }
 
     /**
-     * The next [Batch] stream cards after [recentKeys]: two knowledge cards, then a word from 資料
-     * (knowledge only, inside one deck). Words keep it going once every document is read and ♥.
+     * The next [Batch] stream cards after [recentKeys]: knowledge cards only (all decks, one deck, or
+     * the 收藏 ones); words from 資料 only when 帳面 switches the feed to them.
      */
     fun stream(sources: FeedSources, today: Long, recentKeys: List<String>, deck: String?, seed: Long): List<FeedCard> {
         val recent = recentKeys.map(::baseKey).toSet()
-        val cards = if (deck == null) sources.know else sources.know.filter { it.deckId == deck }
-        val knowRecent = recent.filter { it.startsWith("know:") }.map { it.removePrefix("know:") }.toSet()
-        var know = KnowledgeRules.pick(cards, sources.marks, today, knowRecent, if (deck == null) Batch * 2 / 3 else Batch)
-        // A small deck read through: let the least recent cards come round again.
-        if (know.isEmpty() && deck != null) know = KnowledgeRules.pick(cards, sources.marks, today, emptySet(), Batch)
-        if (deck != null) return know.map(::knowCard)
-        val vocabRecent = recent.filter { it.startsWith("vocab:") }.map { it.removePrefix("vocab:") }.toSet()
-        val words = ArrayDeque(KnowledgeRules.pickVocab(sources.words, vocabRecent, Batch - know.size, seed))
-        val knowQueue = ArrayDeque(know)
-        val out = mutableListOf<FeedCard>()
-        while (knowQueue.isNotEmpty() || words.isNotEmpty()) {
-            repeat(2) { knowQueue.removeFirstOrNull()?.let { out += knowCard(it) } }
-            words.removeFirstOrNull()?.let { out += vocabCard(it) }
+        if (deck == KnowledgeRules.VocabDeck) {
+            val vocabRecent = recent.filter { it.startsWith("vocab:") }.map { it.removePrefix("vocab:") }.toSet()
+            return KnowledgeRules.pickVocab(sources.words, vocabRecent, Batch, seed).map(::vocabCard)
         }
-        return out
+        val cards = when (deck) {
+            null -> sources.know
+            KnowledgeRules.StarDeck -> sources.know.filter { sources.marks[it.id]?.starred == true }
+            else -> sources.know.filter { it.deckId == deck }
+        }
+        val knowRecent = recent.filter { it.startsWith("know:") }.map { it.removePrefix("know:") }.toSet()
+        val know = KnowledgeRules.pick(cards, sources.marks, today, knowRecent, Batch)
+            // Read through: let the least recent cards come round again.
+            .ifEmpty { KnowledgeRules.pick(cards, sources.marks, today, emptySet(), Batch) }
+        return know.map(::knowCard)
     }
 
     /** Due cards woven into the stream: one after every two stream cards. */

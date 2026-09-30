@@ -65,11 +65,13 @@ private val RailRoom = 54.dp
 @Composable
 internal fun ColumnScope.KnowBody(card: KnowledgeCard, romaji: FuriganaAnnotator?, onAnswer: (quiz: KnowQuiz, right: Boolean) -> Unit) {
     val colors = AjlTheme.colors
+    val scroll = rememberScrollState()
     Column(
         Modifier
             .weight(1f)
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
+            // A card that fits leaves the gesture to the pager, so a flick turns the page natively.
+            .verticalScroll(scroll, enabled = scroll.maxValue in 1 until Int.MAX_VALUE)
             .padding(top = 18.dp, end = RailRoom, bottom = 8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {

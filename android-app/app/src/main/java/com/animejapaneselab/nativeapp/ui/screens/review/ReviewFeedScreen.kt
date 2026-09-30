@@ -73,6 +73,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
@@ -208,6 +209,15 @@ fun ReviewFeedScreen(
     // Restored keys need the 活用 lines and the cards: wait for them (or their failure) before the first sync.
     val ready = (drill.phase == DrillPhase.Ready || drill.phase == DrillPhase.Error) && decks != null && vocab != null
     LaunchedEffect(Unit) { actions.ensureDrill() }
+    // Knowledge points saved to the 收藏 notebook before 0.18 become 收藏 stars of the card itself.
+    LaunchedEffect(notebook) {
+        val prefix = NotebookRules.key(NotebookKind.Grammar, "know-")
+        val old = notebook.filter { it.key.startsWith(prefix) }
+        if (old.isNotEmpty()) {
+            Knowledge.adoptStars(context, old.map { it.key.removePrefix(prefix) }, today)
+            old.forEach { Notebook.remove(context, it.key) }
+        }
+    }
     LaunchedEffect(sources, ready) { if (ready) ReviewFeed.sync(context, sources, today) }
     val session by ReviewFeed.session.collectAsState()
     val deck by ReviewFeed.deck.collectAsState()
@@ -238,10 +248,16 @@ fun ReviewFeedScreen(
         }
         Hairline(Modifier.padding(horizontal = 20.dp))
         if (tab == 0) {
-            val deckTitle = current?.deck?.let { id -> decks?.firstOrNull { it.id == id }?.title }
+            val deckTitle = current?.deck?.let { id ->
+                when (id) {
+                    KnowledgeRules.StarDeck -> "收藏的知识点"
+                    KnowledgeRules.VocabDeck -> "单词"
+                    else -> decks?.firstOrNull { it.id == id }?.title
+                }
+            }
             when {
                 !ready && deck.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { LoadingDots() }
-                current == null || deck.isEmpty() -> EmptyNote("还没有卡片", gloss = "知识点卡片和资料单词都还没装进来")
+                current == null || deck.isEmpty() -> EmptyNote("还没有卡片", gloss = "知识点卡片还没装进来")
                 else -> FeedPager(
                     uiState = uiState,
                     session = current,
@@ -313,6 +329,8 @@ private fun FeedPager(
     }
     LaunchedEffect(toast) { if (toast != null) { delay(1400); toast = null } }
 
+    val handoff = rememberFeedPageHandoff(pager)
+
     fun advance(from: Int) {
         scope.launch { if (from + 1 < deck.size) pager.animateScrollToPage(from + 1) }
     }
@@ -324,14 +342,17 @@ private fun FeedPager(
             contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 26.dp),
             pageSpacing = 12.dp,
             beyondViewportPageCount = 1,
+            flingBehavior = feedFlingBehavior(pager),
             key = { deck.getOrNull(it)?.key ?: it },
         ) { page ->
             val card = deck[page]
             FeedCardView(
                 card = card,
-                session = session,
+                graded = card.key in session.graded,
+                modifier = Modifier.nestedScroll(handoff),
                 filterLabel = filterLabel,
                 hearted = heartedOf(card, sources),
+                starred = card.know != null && sources.marks[card.know.id]?.starred == true,
                 active = page == pager.settledPage,
                 audio = audio,
                 ttsWorkerUrl = settings.ttsWorkerUrl,
@@ -345,13 +366,17 @@ private fun FeedPager(
                     when {
                         card.know != null -> {
                             Knowledge.heart(context, card.know.id, on, today)
-                            toast = if (on) "掌握了 · 以后少推，30 天后回来考一次" else "取消掌握"
+                            toast = if (on) "掌握了 · 不再推，30 天后回来考一次" else "取消掌握"
                         }
                         card.vocab != null -> {
                             KnownWords.setWord(context, card.vocab.head, on)
                             toast = if (on) "掌握了 · 这个词不再出现" else "取消掌握"
                         }
                     }
+                },
+                onStar = { on ->
+                    card.know?.let { Knowledge.star(context, it.id, on, today) }
+                    toast = if (on) "收藏了 · 每天回来一次" else "取消收藏"
                 },
                 onHeartDone = { if (card.isDue) advance(page) },
                 onAnswer = { quiz, right ->
@@ -421,15 +446,18 @@ private class Aids(val ruby: Boolean, val romaji: Boolean, val annotator: Furiga
 @Composable
 private fun FeedCardView(
     card: FeedCard,
-    session: FeedSession,
+    graded: Boolean,
+    modifier: Modifier,
     filterLabel: String?,
     hearted: Boolean,
+    starred: Boolean,
     active: Boolean,
     audio: LessonAudioController,
     ttsWorkerUrl: String,
     aids: Aids,
     onVerdict: (Verdict) -> Unit,
     onHeart: (Boolean) -> Unit,
+    onStar: (Boolean) -> Unit,
     onHeartDone: () -> Unit,
     onAnswer: (KnowQuiz, Boolean) -> Unit,
     onCut: () -> Unit,
@@ -444,7 +472,6 @@ private fun FeedCardView(
     val work = AjlTheme.work
     var revealed by rememberSaveable(card.key) { mutableStateOf(false) }
     var bursting by remember(card.key) { mutableStateOf(false) }
-    val graded = card.key in session.graded
     var dueHeart by rememberSaveable(card.key) { mutableStateOf(false) }
     val stream = card.know != null || card.vocab != null
     val heartOn = if (stream) hearted else dueHeart
@@ -468,7 +495,7 @@ private fun FeedCardView(
     }
 
     MangaPanel(
-        Modifier
+        modifier
             .fillMaxSize()
             .pointerInput(card.key, graded, heartOn) {
                 detectTapGestures(
@@ -533,7 +560,11 @@ private fun FeedCardView(
                     if (heartOn) "已掌握" else "掌握",
                     tint = if (heartOn) colors.heart else null,
                 ) { if (card.isDue) heart(true) else heart(!heartOn) }
-                if (saveEntry != null) {
+                if (card.know != null && card.know.kind != com.animejapaneselab.nativeapp.ui.knowledge.KnowKind.Quiz) {
+                    RailButton(if (starred) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder, if (starred) "已收藏" else "收藏", active = starred) {
+                        onStar(!starred)
+                    }
+                } else if (saveEntry != null) {
                     RailButton(if (saved) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder, if (saved) "已收藏" else "收藏", active = saved) {
                         Notebook.toggle(context, saveEntry)
                         onToast(if (saved) "取消收藏" else "已收藏")
@@ -558,19 +589,9 @@ private fun FeedCardView(
     }
 }
 
-/** What 收藏 saves for this card (a 活用 line, a knowledge point, a word); null when nothing. */
+/** What 收藏 saves to the notebook for this card (a 活用 line, a word); knowledge cards are starred instead. */
 private fun saveEntryOf(card: FeedCard): NotebookEntry? {
     card.line?.let { return lineEntry(it) }
-    card.know?.let { k ->
-        if (k.kind == com.animejapaneselab.nativeapp.ui.knowledge.KnowKind.Quiz) return null
-        return NotebookEntry(
-            key = NotebookRules.key(NotebookKind.Grammar, "know-" + k.id),
-            kind = NotebookKind.Grammar,
-            headline = k.title,
-            meaning = k.rule,
-            example = k.examples.firstOrNull()?.ja.orEmpty(),
-        )
-    }
     card.vocab?.let { w ->
         return NotebookEntry(
             key = NotebookRules.key(NotebookKind.Vocab, w.id),
@@ -1234,6 +1255,13 @@ private fun Ledger(
                 val hearted = deck.cards.count { sources.marks[it.id]?.hearted == true }
                 BookRow(deck.title.take(1), deck.title, "${deck.cards.size} 张 · 读过 $read · ♥ $hearted", null) { onPickDeck(deck.id) }
             }
+        }
+        val starred = sources.know.count { sources.marks[it.id]?.starred == true }
+        if (starred > 0) {
+            item(key = "stars") { BookRow("★", "收藏的知识点", "$starred 张 · 每天回来一次", null) { onPickDeck(KnowledgeRules.StarDeck) } }
+        }
+        if (sources.words.isNotEmpty()) {
+            item(key = "vocab") { BookRow("単", "单词", "${sources.words.size} 词 · 只刷单词", null) { onPickDeck(KnowledgeRules.VocabDeck) } }
         }
         val mastered = sources.know.filter { sources.marks[it.id]?.hearted == true }
         if (mastered.isNotEmpty()) {

@@ -19,8 +19,11 @@ data class KnowMark(
     val heartDay: Long = -1L,
     /** How many of the 30 / 90-day checks after ♥ it has passed. */
     val checks: Int = 0,
+    /** Epoch day of 收藏 (important: keep bringing it back); -1 = not starred. */
+    val starDay: Long = -1L,
 ) {
     val hearted: Boolean get() = heartDay >= 0
+    val starred: Boolean get() = starDay >= 0
 }
 
 /** A word from 資料 (`vocab_cards.json`) shown as a 知識 card. */
@@ -29,15 +32,22 @@ data class VocabWord(val id: String, val head: String, val fix: VocabCardFix)
 /*
  * Order of the endless feed, all on the phone (one user: nothing to learn from other people):
  * unread cards in document order, so a point's contrast / origin / quiz cards follow it; read ones
- * come back after 1, 3, 7, 14, 30 days; ♥ takes a card out, except a check at 30 and 90 days
- * (its quiz when it has one) — a wrong answer there takes the ♥ back.
+ * come back after 1, 3, 7, 14, 30 days; ♥ 掌握 takes a card out, except a check at 30 and 90 days
+ * (its quiz when it has one) — a wrong answer there takes the ♥ back; 收藏 brings a card back every
+ * day until it is un-starred. ♥ and 收藏 exclude each other.
  */
 object KnowledgeRules {
+    /** 帳面 → only the 收藏 cards / only words from 資料: pseudo deck ids of the feed. */
+    const val StarDeck = "@star"
+    const val VocabDeck = "@vocab"
+
     private val Gaps = longArrayOf(1, 3, 7, 14, 30)
     private val CheckAfter = longArrayOf(30, 90)
 
     fun reviewDue(m: KnowMark, today: Long): Boolean =
         !m.hearted && m.seen > 0 && today - m.lastDay >= Gaps[(m.seen - 1).coerceIn(0, Gaps.lastIndex)]
+
+    fun starDue(m: KnowMark, today: Long): Boolean = m.starred && m.lastDay < today
 
     fun checkDue(m: KnowMark, today: Long): Boolean =
         m.hearted && m.checks < CheckAfter.size && today - m.heartDay >= CheckAfter[m.checks]
@@ -52,6 +62,7 @@ object KnowledgeRules {
             },
         )
         val unread = ArrayDeque(pool.filter { mark(it).seen == 0 && !mark(it).hearted })
+        val stars = ArrayDeque(pool.filter { starDue(mark(it), today) }.sortedBy { mark(it).lastDay })
         val reviews = ArrayDeque(pool.filter { reviewDue(mark(it), today) }.sortedBy { mark(it).lastDay })
         val rest = ArrayDeque(pool.filter { !mark(it).hearted && mark(it).seen > 0 }.sortedWith(compareBy({ mark(it).lastDay }, { it.id })))
         val out = LinkedHashMap<String, KnowledgeCard>()
@@ -59,8 +70,9 @@ object KnowledgeRules {
         while (out.size < count) {
             val next = when {
                 slot == 1 && checks.isNotEmpty() -> checks.removeFirst()
+                slot % 4 == 0 && stars.isNotEmpty() -> stars.removeFirst()
                 slot % 3 == 2 && reviews.isNotEmpty() -> reviews.removeFirst()
-                else -> unread.removeFirstOrNull() ?: reviews.removeFirstOrNull() ?: rest.removeFirstOrNull() ?: checks.removeFirstOrNull()
+                else -> unread.removeFirstOrNull() ?: reviews.removeFirstOrNull() ?: stars.removeFirstOrNull() ?: rest.removeFirstOrNull() ?: checks.removeFirstOrNull()
             } ?: break
             out.putIfAbsent(next.id, next)
             slot++
@@ -111,7 +123,23 @@ object Knowledge {
     fun heart(context: Context, id: String, on: Boolean, today: Long) {
         init(context)
         val m = _marks.value[id] ?: KnowMark()
-        write(_marks.value + (id to m.copy(heartDay = if (on) today else -1L, checks = 0)))
+        write(_marks.value + (id to m.copy(heartDay = if (on) today else -1L, checks = 0, starDay = if (on) -1L else m.starDay)))
+    }
+
+    /** 收藏: comes back every day until taken off; takes the ♥ away (a starred card is not 掌握). */
+    @Synchronized
+    fun star(context: Context, id: String, on: Boolean, today: Long) {
+        init(context)
+        val m = _marks.value[id] ?: KnowMark()
+        write(_marks.value + (id to m.copy(starDay = if (on) today else -1L, heartDay = if (on) -1L else m.heartDay, checks = if (on) 0 else m.checks)))
+    }
+
+    /** Before 0.18 收藏 on a knowledge card went to the 收藏 notebook: take those over as stars. */
+    @Synchronized
+    fun adoptStars(context: Context, ids: List<String>, today: Long) {
+        init(context)
+        if (ids.isEmpty()) return
+        write(_marks.value + ids.associateWith { id -> (_marks.value[id] ?: KnowMark()).copy(starDay = today, heartDay = -1L, checks = 0) })
     }
 
     /** A quiz answer; returns true when it took the ♥ away from the card it checks. */
@@ -136,7 +164,7 @@ object Knowledge {
 
     fun encode(marks: Map<String, KnowMark>): String {
         val o = JSONObject()
-        marks.forEach { (id, m) -> o.put(id, JSONArray(listOf(m.seen, m.lastDay, m.heartDay, m.checks))) }
+        marks.forEach { (id, m) -> o.put(id, JSONArray(listOf(m.seen, m.lastDay, m.heartDay, m.checks, m.starDay))) }
         return o.toString()
     }
 
@@ -144,7 +172,7 @@ object Knowledge {
         val o = JSONObject(raw ?: return emptyMap())
         o.keys().asSequence().associateWith { id ->
             val a = o.getJSONArray(id)
-            KnowMark(a.optInt(0), a.optLong(1, -1L), a.optLong(2, -1L), a.optInt(3))
+            KnowMark(a.optInt(0), a.optLong(1, -1L), a.optLong(2, -1L), a.optInt(3), a.optLong(4, -1L))
         }
     }.getOrDefault(emptyMap())
 }
