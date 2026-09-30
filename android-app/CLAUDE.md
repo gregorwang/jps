@@ -126,6 +126,11 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 ## 8. 经验记录（每次会话结束补几条）
 
+**2026-09-30 · 0.18.0（知識流手感 + 掌握/收藏 + 单词移出）**
+- 翻页卡顿的根因：卡内 `verticalScroll` 抢走手势，Pager 的 page nested-scroll connection 在 `onPostFling` 吞掉剩余速度，只能靠拖过半张翻页。修法在 `screens/review/FeedSwipe.kt`：`feedFlingBehavior`（18% 就翻）+ `rememberFeedPageHandoff`（卡已经带动 Pager 时，在 `onPreFling` 自己翻页）；`KnowBody` 内容放得下时关掉卡内滚动。以后 Pager 里放可滚内容都照这个做。
+- 用户对两个按钮的理解（已照此实现）：**♥ 掌握 = 不再推**（30/90 天回来考），**收藏 = 重要、每天回来一次**，两者互斥。知识卡的收藏存在 `KnowMark.starDay`，不再进收藏本；伪合集 `KnowledgeRules.StarDeck` / `VocabDeck` 让帳面只刷收藏 / 只刷单词。
+- 知識流默认只有知识卡；单词只在「帳面 → 单词」。单词卡重做（5 个一组、先想再看、组末小测）和帳面重排（错题 / 期日の課題 / 苦手 移出帳面）画在画布「知識 · 単語 重构 / 帳面（预览）」页，**等用户确认后再做**。单词卡要显示原作台词，得先从 Supabase 把每个词的出处句 + 音频拉进 asset。
+
 **2026-09-30 · 0.17.0（知識卡重做）**
 - 用户的日语文档是一个系列（不定式 → 影山 → 词性 → 补语定语 → 介词），后篇反复回收前篇的点；**读文档必须通读，不能看目录下结论**（我只看目录就说「重复要去重」，被用户指出是承上启下）。
 - 知识卡由主会话自己做（用户明确：强模型理解更深，卡更好）；英语只当一行锚点。第一、三、五篇还没做成格式 2 的卡，第三篇只有画布上的 12 张样例（`canvas-gen/gen_forms.py`）。
