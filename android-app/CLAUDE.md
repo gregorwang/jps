@@ -132,7 +132,7 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 - 単語是**独立的 pager**（`TangoScreen`），不走 `FeedRules` / `ReviewFeed`：5 张词卡 + 1 张小测卡，`Tango`（`ui/words/Tango.kt`）存 Leitner 箱和当前组，小测答完才动箱；♥ 掌握 = `KnownWords.setWord`（和辞書的已斩是同一份），收藏 = `Notebook.toggle`。旧的 `VocabDeck` 伪合集和 `VocabBody` 已经没有入口，可以删。
 - 单词的原作台词是**离线配好的**：`fetch_subtitles.py` 从 Supabase 拉 `subtitle_lines`（Re:ゼロ 的 `usable_for_analysis` 是 null，别加这个过滤）+ `learning_sentences` 里有原声的，`build_lines.py` 每词挑 1 句（有原声 > 整词命中 > 长度适中），写 `assets/vocab_lines.json`（音频路径去掉公共前缀）。没有台词的词不进単語。缓存在 `vocab-cards-v1/cache/`（gitignore 的 archive 里）。
 - 错题 / 期日の課題 / 苦手不再在知識页：入口是 練習 → 課程 場面 06 →「復習の順番」（`openSmartReviewQueue`），从那里开始的练习做完回 練習 tab（`LabViewModel` 里复习流程的 `selectedTab` 都改成了 `Learn`）。今日的三限 復習 仍指向知識 tab。
-- `v3build.ps1` 的日志是 UTF-16，`grep` 要先 `tr -d ' '`；编译错误在日志里的行号会被折行。
+- `v3build.ps1` 的日志是 UTF-16，`grep` 要先用 `tr -d` 去掉 NUL 字节；编译错误在日志里的行号会被折行。
 - 待用户手机验证：単語 卡的翻页手感（没翻开不能划走）、小测里「挖空 + 听」够不够答、5 个一组的节奏。
 
 **2026-09-30 · 0.18.0（知識流手感 + 掌握/收藏 + 单词移出）**
