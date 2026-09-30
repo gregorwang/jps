@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -28,11 +30,13 @@ import com.animejapaneselab.nativeapp.domain.SmartReviewPlan
 import com.animejapaneselab.nativeapp.ui.design.EmptyNote
 import com.animejapaneselab.nativeapp.ui.design.InkButton
 import com.animejapaneselab.nativeapp.ui.design.LineRow
+import com.animejapaneselab.nativeapp.ui.design.ProgressLine
 import com.animejapaneselab.nativeapp.ui.design.SectionHeading
 import com.animejapaneselab.nativeapp.ui.design.TopBar
 import com.animejapaneselab.nativeapp.ui.design.TopBarNav
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 import java.time.LocalDate
+import kotlin.math.roundToInt
 
 /**
  * Smart review queue (secondary screen, no artboard — derived from V3Review): the planner's
@@ -45,6 +49,7 @@ fun SmartReviewQueueScreen(
     onBack: () -> Unit,
     onStartItem: (String) -> Unit,
     modifier: Modifier = Modifier,
+    weak: List<ReviewRules.WeakSpot> = emptyList(),
     today: LocalDate = LocalDate.now(),
 ) {
     val colors = AjlTheme.colors
@@ -100,6 +105,14 @@ fun SmartReviewQueueScreen(
             if (groups.isEmpty()) {
                 item(key = "empty", contentType = "empty") {
                     EmptyNote("今日の復習はなし", gloss = "没有到期的卡片")
+                }
+            }
+            if (weak.isNotEmpty()) {
+                item(key = "weak", contentType = "weak") {
+                    Column(Modifier.padding(top = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        SectionHeading(title = "苦手なところ", meta = "最近 7 天", modifier = Modifier.semantics { heading() })
+                        weak.forEach { spot -> WeakSpotRow(spot) }
+                    }
                 }
             }
             groups.forEach { group ->
@@ -170,5 +183,21 @@ private fun QueueRow(
                 overflow = TextOverflow.Ellipsis,
             )
         }
+    }
+}
+
+@Composable
+private fun WeakSpotRow(spot: ReviewRules.WeakSpot) {
+    val pct = (spot.accuracy * 100).roundToInt()
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(spot.name, style = AjlTheme.type.body.copy(fontSize = 14.sp), color = AjlTheme.colors.ink, modifier = Modifier.weight(1f))
+        Box(Modifier.width(96.dp)) { ProgressLine(progress = spot.accuracy, contentDescription = "${spot.name} 正确率 $pct%") }
+        Text(
+            "$pct%",
+            style = AjlTheme.type.meta.copy(fontSize = 12.sp),
+            color = AjlTheme.colors.ink2,
+            modifier = Modifier.width(36.dp),
+            textAlign = androidx.compose.ui.text.style.TextAlign.End,
+        )
     }
 }

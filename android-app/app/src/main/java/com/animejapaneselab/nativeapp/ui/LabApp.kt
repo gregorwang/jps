@@ -74,6 +74,7 @@ import com.animejapaneselab.nativeapp.ui.screens.login.LoginScreen
 import com.animejapaneselab.nativeapp.ui.screens.review.ReviewFeedActions
 import com.animejapaneselab.nativeapp.ui.screens.review.ReviewFeedScreen
 import com.animejapaneselab.nativeapp.ui.review.ReviewSinks
+import com.animejapaneselab.nativeapp.ui.screens.review.ReviewRules
 import com.animejapaneselab.nativeapp.ui.screens.review.SmartReviewQueueScreen
 import com.animejapaneselab.nativeapp.ui.screens.search.CommandPalette
 import com.animejapaneselab.nativeapp.ui.screens.session.LessonSessionScreen
@@ -399,6 +400,7 @@ private fun ShellPage(
                 plan = uiState.smartReviewPlan,
                 onBack = viewModel::closeSecondaryScreen,
                 onStartItem = viewModel::startSmartReviewItem,
+                weak = remember(uiState.progressItems) { ReviewRules.weakSpots(uiState.progressItems, java.time.LocalDate.now()) },
             )
 
             // Never a page: the palette is drawn as an overlay by the shell.
@@ -472,7 +474,7 @@ private fun ShellPage(
                 onStartExercise = viewModel::startExerciseLab,
                 onStartExerciseMix = viewModel::startExerciseLabMix,
                 onStartReadAirBatch = viewModel::startReadAirPathBatch,
-                onStartReview = { viewModel.selectTab(LabTab.Review) },
+                onStartReview = viewModel::openSmartReviewQueue,
                 onWorkSelected = viewModel::selectWork,
                 onEpisodeSelected = viewModel::selectEpisode,
                 onTrackSelected = viewModel::selectLinguisticsTrack,

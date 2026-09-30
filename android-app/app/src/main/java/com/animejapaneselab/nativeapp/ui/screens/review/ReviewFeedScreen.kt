@@ -154,6 +154,7 @@ import com.animejapaneselab.nativeapp.ui.screens.jishu.FormulaRow
 import com.animejapaneselab.nativeapp.ui.theme.AjlShape
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 import com.animejapaneselab.nativeapp.ui.words.KnownWords
+import com.animejapaneselab.nativeapp.ui.words.Tango
 import com.animejapaneselab.nativeapp.ui.words.VocabCards
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -230,7 +231,7 @@ fun ReviewFeedScreen(
             Modifier.fillMaxWidth().height(52.dp).padding(start = 20.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            TextTabs(items = listOf("知識", "帳面"), selectedIndex = tab, onSelect = { tab = it })
+            TextTabs(items = listOf("知識", "単語", "帳面"), selectedIndex = tab, onSelect = { tab = it })
             Spacer(Modifier.weight(1f))
             if (tab == 0) {
                 Icon(Icons.Rounded.Favorite, contentDescription = null, tint = colors.heart, modifier = Modifier.size(13.dp))
@@ -243,6 +244,14 @@ fun ReviewFeedScreen(
                 if (current != null) {
                     Text("今日 ${current.read}", style = AjlTheme.type.meta.copy(fontSize = 12.sp), color = colors.ink3)
                 }
+            }
+            if (tab == 1) {
+                val tango by Tango.state.collectAsState()
+                Text(
+                    "今日 ${tango.today(today)} · 已会 ${tango.learnedCount}",
+                    style = AjlTheme.type.meta.copy(fontSize = 12.sp),
+                    color = colors.ink3,
+                )
             }
             IconButton44(Icons.Rounded.Search, "搜索", actions.openSearch)
         }
@@ -270,12 +279,17 @@ fun ReviewFeedScreen(
                     },
                 )
             }
+        } else if (tab == 1) {
+            if (!ready) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { LoadingDots() }
+            } else {
+                TangoScreen(uiState = uiState, vocab = vocab.orEmpty(), pool = words, know = know, drill = drill)
+            }
         } else {
             Ledger(
                 sources = sources,
                 decks = decks.orEmpty(),
                 today = today,
-                known = known.size,
                 onPick = { source ->
                     ReviewFeed.filter(context, source, sources, today)
                     tab = 0
@@ -284,7 +298,7 @@ fun ReviewFeedScreen(
                     ReviewFeed.deck(context, id, sources, today)
                     tab = 0
                 },
-                actions = actions,
+                onOpenWords = { tab = 1 },
             )
         }
     }
@@ -605,12 +619,12 @@ private fun saveEntryOf(card: FeedCard): NotebookEntry? {
 }
 
 @Composable
-private fun Screentone(modifier: Modifier) {
+internal fun Screentone(modifier: Modifier) {
     Box(modifier.screentone(AjlTheme.work.tone(0.22f)))
 }
 
 @Composable
-private fun RailButton(icon: ImageVector, label: String, active: Boolean = false, tint: androidx.compose.ui.graphics.Color? = null, onClick: () -> Unit) {
+internal fun RailButton(icon: ImageVector, label: String, active: Boolean = false, tint: androidx.compose.ui.graphics.Color? = null, onClick: () -> Unit) {
     val colors = AjlTheme.colors
     val tint = tint ?: if (active) AjlTheme.work.accent else colors.ink
     Column(
@@ -635,7 +649,7 @@ private fun RailButton(icon: ImageVector, label: String, active: Boolean = false
 
 /** The 遮る box under a card: tap to see the answer. */
 @Composable
-private fun RevealBox(modifier: Modifier = Modifier, onClick: () -> Unit, content: @Composable () -> Unit) {
+internal fun RevealBox(modifier: Modifier = Modifier, tone: Boolean = false, onClick: () -> Unit, content: @Composable () -> Unit) {
     val colors = AjlTheme.colors
     Box(
         modifier
@@ -643,6 +657,7 @@ private fun RevealBox(modifier: Modifier = Modifier, onClick: () -> Unit, conten
             .heightIn(min = 56.dp)
             .clip(RoundedCornerShape(4.dp))
             .background(colors.sunken)
+            .then(if (tone) Modifier.screentone(AjlTheme.work.tone(0.22f)) else Modifier)
             .clickable(onClickLabel = "翻开", onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 10.dp),
         contentAlignment = Alignment.Center,
@@ -650,7 +665,7 @@ private fun RevealBox(modifier: Modifier = Modifier, onClick: () -> Unit, conten
 }
 
 @Composable
-private fun VoicePill(playing: Boolean, label: String, onClick: () -> Unit) {
+internal fun VoicePill(playing: Boolean, label: String, onClick: () -> Unit) {
     val colors = AjlTheme.colors
     val work = AjlTheme.work
     val tint = if (playing) work.accent else colors.ink
@@ -1230,20 +1245,15 @@ private fun Ledger(
     sources: FeedSources,
     decks: List<KnowledgeDeck>,
     today: Long,
-    known: Int,
-    onPick: (FeedSource) -> Unit,
     onPickDeck: (String) -> Unit,
-    actions: ReviewFeedActions,
+    onPick: (FeedSource) -> Unit,
+    onOpenWords: () -> Unit,
 ) {
     val context = LocalContext.current
-    val colors = AjlTheme.colors
-    val date = remember(today) { LocalDate.ofEpochDay(today) }
-    val weak = remember(sources.progressItems, today) { ReviewRules.weakSpots(sources.progressItems, date) }
     val conjDue = remember(sources, today) { FeedRules.conjDue(sources, today).size }
-    val shioriDue = remember(sources, today) { FeedRules.shioriDue(sources, today).size }
-    val mistakeDue = remember(sources, today) { FeedRules.mistakesDue(sources, today).size }
     val learnedLines = remember(sources.drill) { sources.drill.items.count { it.pointId in sources.drill.learned } }
-    val remote = remember(sources) { FeedRules.remoteOnly(sources) }
+    val known by KnownWords.words.collectAsState()
+    val tango by Tango.state.collectAsState()
     LazyColumn(
         Modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 18.dp, bottom = 28.dp),
@@ -1260,9 +1270,6 @@ private fun Ledger(
         if (starred > 0) {
             item(key = "stars") { BookRow("★", "收藏的知识点", "$starred 张 · 每天回来一次", null) { onPickDeck(KnowledgeRules.StarDeck) } }
         }
-        if (sources.words.isNotEmpty()) {
-            item(key = "vocab") { BookRow("単", "单词", "${sources.words.size} 词 · 只刷单词", null) { onPickDeck(KnowledgeRules.VocabDeck) } }
-        }
         val mastered = sources.know.filter { sources.marks[it.id]?.hearted == true }
         if (mastered.isNotEmpty()) {
             item(key = "mastered-heading") {
@@ -1270,27 +1277,18 @@ private fun Ledger(
             }
             items(mastered, key = { "m-" + it.id }) { card -> MasteredRow(card, onUndo = { Knowledge.heart(context, card.id, false, today) }) }
         }
-        if (weak.isNotEmpty()) {
-            item(key = "weak") {
-                Column(Modifier.padding(top = 26.dp, bottom = 26.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    SectionHeading(title = "苦手なところ", meta = "最近 7 天")
-                    weak.forEach { spot -> WeakSpotRow(spot) }
-                }
-            }
+        item(key = "words-heading") { SectionHeading(title = "単語", meta = "和知識分开刷", modifier = Modifier.padding(top = 26.dp)) }
+        item(key = "words") {
+            BookRow(
+                "単",
+                "单词",
+                "已会 ${tango.learnedCount} · 在学 ${tango.learningCount} · 斩 ${known.size}",
+                null,
+                onClick = onOpenWords,
+            )
         }
-        item(key = "books-heading") { SectionHeading(title = "到期复习", meta = "点一类，先刷这一类", modifier = Modifier.padding(top = if (weak.isEmpty()) 26.dp else 0.dp)) }
+        item(key = "books-heading") { SectionHeading(title = "活用", meta = "学过的课", modifier = Modifier.padding(top = 26.dp)) }
         item(key = "conj") { BookRow("活", "活用 · 学过的课", "${sources.drill.learned.size} 課 · $learnedLines 句", conjDue) { onPick(FeedSource.Conj) } }
-        item(key = "shiori") { BookRow("收", "收藏 · 生词和句子", "${sources.notebook.size} 枚", shioriDue) { onPick(FeedSource.Shiori) } }
-        item(key = "mistake") { BookRow("誤", "間違いノート · 错题本", "${sources.mistakes.size} 题", mistakeDue) { onPick(FeedSource.Mistake) } }
-        item(key = "known") { BookRow("斬", "已斩", "$known 词 · 在辞書里可以恢复", null, muted = true, onClick = actions.openKnownWords) }
-        if (remote.isNotEmpty()) {
-            item(key = "tasks-heading") {
-                SectionHeading(title = "期日の課題", gloss = "到期任务", meta = "${remote.size} 项", modifier = Modifier.padding(top = 26.dp))
-            }
-            items(remote, key = { "t-" + ReviewRules.taskIdentity(it) }) { task ->
-                TaskRow(task, date, onPractice = { actions.practiceTask(task) })
-            }
-        }
     }
 }
 
@@ -1335,44 +1333,6 @@ private fun MasteredRow(card: KnowledgeCard, onUndo: () -> Unit) {
                 Text(listOf(card.kind.label, card.topic).joinToString(" · "), style = AjlTheme.type.meta.copy(fontSize = 11.sp), color = colors.ink3)
             }
             QuietButton("取消", onClick = onUndo)
-        }
-        Hairline()
-    }
-}
-
-@Composable
-private fun WeakSpotRow(spot: ReviewRules.WeakSpot) {
-    val pct = (spot.accuracy * 100).roundToInt()
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(spot.name, style = AjlTheme.type.body.copy(fontSize = 14.sp), color = AjlTheme.colors.ink, modifier = Modifier.weight(1f))
-        Box(Modifier.width(96.dp)) { ProgressLine(progress = spot.accuracy, contentDescription = "${spot.name} 正确率 $pct%") }
-        Text(
-            "$pct%",
-            style = AjlTheme.type.meta.copy(fontSize = 12.sp),
-            color = AjlTheme.colors.ink2,
-            modifier = Modifier.width(36.dp),
-            textAlign = androidx.compose.ui.text.style.TextAlign.End,
-        )
-    }
-}
-
-@Composable
-private fun TaskRow(task: ProgressItem, today: LocalDate, onPractice: () -> Unit) {
-    val colors = AjlTheme.colors
-    val due = ReviewRules.dueLabel(task.nextReviewOn, today)
-    Column(Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Eyebrow(listOfNotNull(ReviewRules.typeLabel(task.itemType), due).joinToString(" · "))
-                Text(
-                    ReviewRules.taskLabel(task.label).ifBlank { "待复习内容" },
-                    style = AjlTheme.type.body.copy(fontWeight = FontWeight.SemiBold),
-                    color = colors.ink,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            OutlineButton("练习", onClick = onPractice, compact = true)
         }
         Hairline()
     }

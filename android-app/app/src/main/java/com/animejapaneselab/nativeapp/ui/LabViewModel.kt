@@ -648,28 +648,25 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         _uiState.update { it.copy(subtitleFocusLineNo = null) }
     }
 
+    /** 練習 → 課程 場面 06: the mistake book and the due tasks (they left 帳面 in 0.19). */
     fun openSmartReviewQueue() {
         _uiState.update { state ->
-            val plan = buildSmartReviewPlan(
-                reviewTasks = state.reviewTasks,
-                mistakes = state.mistakes,
+            state.copy(
+                selectedTab = LabTab.Learn,
+                learnSection = LearnSection.Course,
+                activeSession = null,
+                secondaryScreen = SecondaryScreen.SmartReviewQueue,
+                smartReviewPlan = buildSmartReviewPlan(
+                    reviewTasks = state.reviewTasks,
+                    mistakes = state.mistakes,
+                ),
             )
-            if (plan.entries.isEmpty()) {
-                state.copy(selectedTab = LabTab.Learn, learnSection = LearnSection.Course, activeSession = null, secondaryScreen = null)
-            } else {
-                state.copy(
-                    selectedTab = LabTab.Review,
-                    activeSession = null,
-                    secondaryScreen = SecondaryScreen.SmartReviewQueue,
-                    smartReviewPlan = plan,
-                )
-            }
         }
     }
 
     fun startSmartReviewItem(entryKey: String) {
         val entry = _uiState.value.smartReviewPlan.entries.firstOrNull { it.key == entryKey } ?: return
-        _uiState.update { it.copy(secondaryScreen = null, selectedTab = LabTab.Review) }
+        _uiState.update { it.copy(secondaryScreen = null, selectedTab = LabTab.Learn) }
         val localMistakeId = entry.localMistakeId
         if (localMistakeId != null) {
             practiceLocalMistake(localMistakeId)
@@ -2329,7 +2326,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         reviewContentJob?.cancel()
         _uiState.update { state ->
             state.copy(
-                selectedTab = LabTab.Review,
+                selectedTab = LabTab.Learn,
                 activeSession = null,
                 sync = state.sync.copy(
                     status = SyncStatus.Loading,
@@ -2380,7 +2377,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
             }.onFailure { error ->
                 _uiState.update { state ->
                     state.copy(
-                        selectedTab = LabTab.Review,
+                        selectedTab = LabTab.Learn,
                         activeSession = null,
                         sync = state.sync.copy(
                             status = SyncStatus.Error,
@@ -2487,7 +2484,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
             state.copy(
-                selectedTab = LabTab.Review,
+                selectedTab = LabTab.Learn,
                 activeSession = TrainingSessionKind.Lesson,
                 isExerciseLabSession = false,
                 activeExerciseLabKind = null,
@@ -2529,7 +2526,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         _uiState.update { state ->
             val selection = task.selectionOrFallback(state.selection)
             state.copy(
-                selectedTab = LabTab.Review,
+                selectedTab = LabTab.Learn,
                 activeSession = TrainingSessionKind.Lesson,
                 isExerciseLabSession = false,
                 activeExerciseLabKind = null,
@@ -2552,7 +2549,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
 
         _uiState.update { state ->
             state.copy(
-                selectedTab = LabTab.Review,
+                selectedTab = LabTab.Learn,
                 activeSession = null,
                 sync = state.sync.copy(
                     status = SyncStatus.Loading,
@@ -2589,7 +2586,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
             }.onFailure { error ->
                 _uiState.update { state ->
                     state.copy(
-                        selectedTab = LabTab.Review,
+                        selectedTab = LabTab.Learn,
                         activeSession = null,
                         sync = state.sync.copy(
                             status = SyncStatus.Error,
@@ -2611,7 +2608,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
             if (showMissingMessage) {
                 _uiState.update { state ->
                     state.copy(
-                        selectedTab = LabTab.Review,
+                        selectedTab = LabTab.Learn,
                         activeSession = null,
                         sync = state.sync.copy(
                             status = SyncStatus.Error,
@@ -2654,7 +2651,7 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
             )
             val pinnedIndex = nextReadAir.filteredExercises.indexOfFirst { it.id == exercise.id }.coerceAtLeast(0)
             state.copy(
-                selectedTab = LabTab.Review,
+                selectedTab = LabTab.Learn,
                 activeSession = TrainingSessionKind.ReadAir,
                 sessionXp = 0,
                 readAir = nextReadAir.copy(currentIndex = pinnedIndex),

@@ -217,6 +217,11 @@ class LocalLabStore(context: Context) {
 
     fun writeKnowledgeMarks(raw: String) = preferences.edit { putString(KnowledgeMarksKey, raw) }
 
+    /** 単語 (5 per group): per-word Leitner box and the current group (JSON, see Tango). */
+    fun readTango(): String? = preferences.getString(TangoKey, null)
+
+    fun writeTango(raw: String) = preferences.edit { putString(TangoKey, raw) }
+
     /** Home-screen 今日の一句 payload (JSON, see TodayWidgetLine). */
     fun readTodayWidgetLine(): String? = preferences.getString(TodayWidgetLineKey, null)
 
@@ -468,6 +473,7 @@ class LocalLabStore(context: Context) {
         const val ReviewFeedSessionKey = "review-feed-session"
         const val ReviewMistakeDueKey = "review-mistake-due"
         const val KnowledgeMarksKey = "knowledge-marks"
+        const val TangoKey = "tango-state"
         const val TodayWidgetLineKey = "today-widget-line"
         const val StudyLastAnswerAtKey = "study-last-answer-at"
         const val DrillProgressKey = "conjugation-drill-progress"
