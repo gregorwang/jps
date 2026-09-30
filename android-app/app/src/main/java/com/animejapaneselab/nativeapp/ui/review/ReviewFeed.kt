@@ -208,9 +208,13 @@ object FeedRules {
             .filter { it.accuracy < 0.7f }
             .map { FeedCard(key = "weak:${it.name}", kind = FeedKind.Weak, eyebrow = "苦手 · 最近 7 天", weak = it) }
 
-    /** Everything due today: mistakes, 活用 and 收藏 taken in turns, a 苦手 card after every 8. */
+    /**
+     * Everything due today: 活用 and 收藏 taken in turns, a 苦手 card after every 8. Mistakes only come
+     * through 帳面 → 错题本: they are old questions that need their scene, not knowledge cards.
+     */
     fun due(sources: FeedSources, today: Long, only: FeedSource? = null): List<FeedCard> {
-        val queues = listOf(mistakesDue(sources, today), conjDue(sources, today), shioriDue(sources, today))
+        val mistakes = if (only == FeedSource.Mistake) mistakesDue(sources, today) else emptyList()
+        val queues = listOf(mistakes, conjDue(sources, today), shioriDue(sources, today))
             .map { q -> ArrayDeque(q.filter { only == null || it.source == only }) }
         val cards = mutableListOf<FeedCard>()
         while (cards.size < MaxCards && queues.any { it.isNotEmpty() }) {
@@ -361,7 +365,8 @@ object ReviewFeed {
         }
         var index = s.index
         val kept = s.keys.filterIndexed { i, key ->
-            val alive = key in cards || FeedRules.resolve(key, sources, today)?.also { cards[key] = it } != null
+            val stale = key.startsWith("mistake:") && s.filter != FeedSource.Mistake
+            val alive = !stale && (key in cards || FeedRules.resolve(key, sources, today)?.also { cards[key] = it } != null)
             if (!alive && i < s.index) index--
             alive
         }

@@ -68,13 +68,15 @@ object KnowledgeRules {
         return out.values.toList()
     }
 
-    fun headOf(vocabId: String): String = vocabId.substringAfter("-vocab-", vocabId).trim()
+    /** The word: from the asset's heads, else the id's tail (`k-on-vocab-大丈夫`); blank when neither is Japanese. */
+    fun headOf(vocabId: String, fix: VocabCardFix): String =
+        fix.head.ifBlank { vocabId.substringAfter("-vocab-", "") }.trim().takeIf { h -> h.any { it.code in 0x3040..0x30FF || it.code in 0x4E00..0x9FFF } }.orEmpty()
 
     /** Words worth a card: checked, not a fragment, not obvious, not 斩. */
     fun vocabPool(cards: Map<String, VocabCardFix>, known: Set<String>): List<VocabWord> =
         cards.entries
-            .filter { (id, fix) -> fix.keep && !fix.easy && fix.meaning.isNotBlank() && headOf(id).isNotBlank() && headOf(id) !in known }
-            .map { (id, fix) -> VocabWord(id, headOf(id), fix) }
+            .map { (id, fix) -> VocabWord(id, headOf(id, fix), fix) }
+            .filter { w -> w.fix.keep && !w.fix.easy && w.fix.meaning.isNotBlank() && w.head.isNotBlank() && w.head !in known }
             .distinctBy { it.head }
             .sortedBy { it.id }
 

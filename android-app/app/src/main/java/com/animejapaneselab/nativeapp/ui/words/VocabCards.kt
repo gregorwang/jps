@@ -19,6 +19,8 @@ data class VocabCardFix(
     val note: String,
     /** Anime viewers know it already (なるほど, ありがとう): 辞書 offers to 斩 these in one go. */
     val easy: Boolean = false,
+    /** The word itself, for ids that don't end in it (uuid / numbered ids). */
+    val head: String = "",
 )
 
 object VocabCards {
@@ -40,7 +42,9 @@ object VocabCards {
             cards?.let { return it }
             val parsed = runCatching {
                 val json = context.applicationContext.assets.open(Asset).bufferedReader().use { it.readText() }
-                val root = JSONObject(json).getJSONObject("cards")
+                val top = JSONObject(json)
+                val root = top.getJSONObject("cards")
+                val heads = top.optJSONObject("heads")
                 root.keys().asSequence().associateWith { id ->
                     val row = root.getJSONArray(id)
                     VocabCardFix(
@@ -52,6 +56,7 @@ object VocabCards {
                         meaning = row.optString(5),
                         note = tidyNote(row.optString(6)),
                         easy = row.optInt(7, 0) == 1,
+                        head = heads?.optString(id).orEmpty(),
                     )
                 }
             }.getOrDefault(emptyMap())
