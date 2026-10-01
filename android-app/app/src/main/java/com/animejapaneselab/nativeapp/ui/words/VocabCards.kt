@@ -26,6 +26,9 @@ data class VocabCardFix(
 object VocabCards {
     private const val Asset = "vocab_cards.json"
 
+    /** 辞書 高频补充 words that have an anime line (archive-content-sources/jlpt-freq/build_tango.py); merged under the main file. */
+    private const val FreqAsset = "vocab_cards_freq.json"
+
     /** 「台词「…」，」 at the start of a note repeats the line the card already shows under 原作里. */
     private val QuotedLine = Regex("""^台词[里中]?[：:]?「[^」]*」(?:中|里)?[，,、。：:]?\s*""")
 
@@ -43,28 +46,30 @@ object VocabCards {
         cards?.let { return it }
         synchronized(this) {
             cards?.let { return it }
-            val parsed = runCatching {
-                val json = context.applicationContext.assets.open(Asset).bufferedReader().use { it.readText() }
-                val top = JSONObject(json)
-                val root = top.getJSONObject("cards")
-                val heads = top.optJSONObject("heads")
-                root.keys().asSequence().associateWith { id ->
-                    val row = root.getJSONArray(id)
-                    VocabCardFix(
-                        keep = row.optInt(0, 1) == 1,
-                        reading = row.optString(1),
-                        lemma = row.optString(2),
-                        lemmaReading = row.optString(3),
-                        pos = row.optString(4),
-                        meaning = row.optString(5),
-                        note = tidyNote(row.optString(6)),
-                        easy = row.optInt(7, 0) == 1,
-                        head = heads?.optString(id).orEmpty(),
-                    )
-                }
-            }.getOrDefault(emptyMap())
+            val parsed = parse(context, FreqAsset) + parse(context, Asset)
             cards = parsed
             return parsed
         }
     }
+
+    private fun parse(context: Context, asset: String): Map<String, VocabCardFix> = runCatching {
+        val json = context.applicationContext.assets.open(asset).bufferedReader().use { it.readText() }
+        val top = JSONObject(json)
+        val root = top.getJSONObject("cards")
+        val heads = top.optJSONObject("heads")
+        root.keys().asSequence().associateWith { id ->
+            val row = root.getJSONArray(id)
+            VocabCardFix(
+                keep = row.optInt(0, 1) == 1,
+                reading = row.optString(1),
+                lemma = row.optString(2),
+                lemmaReading = row.optString(3),
+                pos = row.optString(4),
+                meaning = row.optString(5),
+                note = tidyNote(row.optString(6)),
+                easy = row.optInt(7, 0) == 1,
+                head = heads?.optString(id).orEmpty(),
+            )
+        }
+    }.getOrDefault(emptyMap())
 }

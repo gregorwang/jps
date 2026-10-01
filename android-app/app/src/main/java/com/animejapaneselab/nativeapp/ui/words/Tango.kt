@@ -203,6 +203,9 @@ object Tango {
 object TangoLines {
     private const val Asset = "vocab_lines.json"
 
+    /** Lines for the 辞書 高频补充 words (vocab_cards_freq.json), same shape; merged under the main file. */
+    private const val FreqAsset = "vocab_lines_freq.json"
+
     @Volatile
     private var lines: Map<String, TangoLine>? = null
 
@@ -213,18 +216,20 @@ object TangoLines {
         lines?.let { return it }
         synchronized(this) {
             lines?.let { return it }
-            val parsed = runCatching {
-                val top = JSONObject(context.applicationContext.assets.open(Asset).bufferedReader().use { it.readText() })
-                val base = top.optString("audioBase")
-                val root = top.getJSONObject("lines")
-                root.keys().asSequence().associateWith { id ->
-                    val a = root.getJSONArray(id)
-                    val path = a.optString(1)
-                    TangoLine(a.getString(0), if (path.isEmpty() || path.startsWith("http")) path else base + path, a.optInt(2))
-                }
-            }.getOrDefault(emptyMap())
+            val parsed = parse(context, FreqAsset) + parse(context, Asset)
             lines = parsed
             return parsed
         }
     }
+
+    private fun parse(context: Context, asset: String): Map<String, TangoLine> = runCatching {
+        val top = JSONObject(context.applicationContext.assets.open(asset).bufferedReader().use { it.readText() })
+        val base = top.optString("audioBase")
+        val root = top.getJSONObject("lines")
+        root.keys().asSequence().associateWith { id ->
+            val a = root.getJSONArray(id)
+            val path = a.optString(1)
+            TangoLine(a.getString(0), if (path.isEmpty() || path.startsWith("http")) path else base + path, a.optInt(2))
+        }
+    }.getOrDefault(emptyMap())
 }
