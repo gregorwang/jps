@@ -179,7 +179,7 @@ fun SubtitlesScreen(
             onNav = onBack,
             center = {
                 Column(Modifier.weight(1f)) {
-                    Text("字幕", style = AjlTheme.type.jpTitle.copy(fontSize = 17.sp, lineHeight = 22.sp), color = colors.ink)
+                    Text("原作", style = AjlTheme.type.jpTitle.copy(fontSize = 17.sp, lineHeight = 22.sp), color = colors.ink)
                     val meta = listOfNotNull(
                         workTitle(uiState).takeIf { it.isNotBlank() },
                         lines.size.takeIf { it > 0 }?.let { "$it 行" },
@@ -190,7 +190,7 @@ fun SubtitlesScreen(
             },
             actions = {
                 EpisodeChip(episodeTitle(episode), onClick = { pickerOpen = true })
-                IconButton44(Icons.Rounded.Search, "搜索字幕", onOpenSearch)
+                IconButton44(Icons.Rounded.Search, "按场景找台词", onOpenSearch)
             },
         )
         Hairline()

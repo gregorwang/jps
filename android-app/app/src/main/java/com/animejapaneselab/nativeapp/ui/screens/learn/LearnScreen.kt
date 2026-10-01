@@ -61,7 +61,6 @@ fun LearnScreen(
     onTrackSelected: (LinguisticsTrack) -> Unit,
     readAir: ReadAirHomeActions,
     foundation: FoundationActions,
-    onOpenSearch: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var foundationOpen by rememberSaveable { mutableStateOf(false) }
@@ -115,11 +114,7 @@ fun LearnScreen(
                 onSelect = { onSectionSelected(if (it == 0) LearnSection.Course else LearnSection.Linguistics) },
             )
             Spacer(Modifier.weight(1f))
-            if (course) {
-                IconButton44(Icons.Rounded.Search, "搜索", onOpenSearch)
-            } else {
-                IconButton44(Icons.Rounded.Tune, "筛选", { filtersOpen = true })
-            }
+            if (!course) IconButton44(Icons.Rounded.Tune, "筛选", { filtersOpen = true })
         }
         if (course) {
             CourseScreen(

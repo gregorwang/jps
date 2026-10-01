@@ -77,8 +77,16 @@ import com.animejapaneselab.nativeapp.data.LocalLabStore
 import com.animejapaneselab.nativeapp.data.RagSearchResult
 import com.animejapaneselab.nativeapp.data.RemoteLabClient
 import com.animejapaneselab.nativeapp.ui.LabUiState
-import com.animejapaneselab.nativeapp.data.GrammarPoint
-import com.animejapaneselab.nativeapp.data.VocabItem
+import com.animejapaneselab.nativeapp.data.LevelDict
+import com.animejapaneselab.nativeapp.data.RagSceneSuggestion
+import com.animejapaneselab.nativeapp.ui.knowledge.KnowledgeCard
+import com.animejapaneselab.nativeapp.ui.knowledge.KnowledgeCards
+import com.animejapaneselab.nativeapp.ui.screens.library.DictTarget
+import com.animejapaneselab.nativeapp.ui.screens.library.partOfSpeechLabel
+import androidx.compose.runtime.key
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import com.animejapaneselab.nativeapp.ui.design.FilterPill
 import com.animejapaneselab.nativeapp.ui.design.Hairline
 import com.animejapaneselab.nativeapp.ui.design.IconButton44
@@ -102,6 +110,7 @@ private sealed interface SearchState {
     data class Ready(val result: RagSearchResult) : SearchState
 }
 
+/** Scene descriptions to try in the vector search (fixed examples, not AI picks). */
 private val Suggestions = listOf(
     "傲娇地拒绝别人",
     "ありがとう的场景",
@@ -111,18 +120,21 @@ private val Suggestions = listOf(
 )
 
 /**
- * 全局搜索 · 命令面板. An overlay above the current page: 28% scrim + a hairline tool panel that
+ * 搜索 · 命令面板. An overlay above the current page: 28% scrim + a hairline tool panel that
  * scales 0.98→1 and fades in over 160ms (closes in 120ms, no translation). No cancel button and
- * no keyboard hints — tap the scrim or go back to close. Search is the v2 RAG subtitle search;
- * a hit jumps to the line in the subtitle browser.
+ * no keyboard hints — tap the scrim or go back to close. [scope] decides what it looks in:
+ * 辞書 entries and knowledge cards match while typing (a hit opens the card itself); the lines
+ * go through the vector search on the IME action, and a hit jumps to the line in 原作.
  */
 @Composable
 fun CommandPalette(
     visible: Boolean,
+    scope: SearchScope,
     uiState: LabUiState,
     onDismiss: () -> Unit,
     onOpenSubtitleLine: (workSlug: String, episode: Int, lineNo: Int) -> Unit,
-    onOpenLibrary: () -> Unit,
+    onOpenEntry: (DictTarget) -> Unit,
+    onOpenKnowledge: (KnowledgeCard) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val reduced = rememberReducedMotion()
@@ -169,16 +181,27 @@ fun CommandPalette(
                 .windowInsetsPadding(WindowInsets.safeDrawing)
                 .padding(start = 10.dp, end = 10.dp, top = 8.dp, bottom = 16.dp),
         ) {
-            PalettePanel(uiState = uiState, onOpenSubtitleLine = onOpenSubtitleLine, onOpenLibrary = onOpenLibrary)
+            // A fresh panel per scope: what was typed in 辞書 does not follow you to 知識.
+            key(scope) {
+                PalettePanel(
+                    scope = scope,
+                    uiState = uiState,
+                    onOpenSubtitleLine = onOpenSubtitleLine,
+                    onOpenEntry = onOpenEntry,
+                    onOpenKnowledge = onOpenKnowledge,
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun PalettePanel(
+    scope: SearchScope,
     uiState: LabUiState,
     onOpenSubtitleLine: (workSlug: String, episode: Int, lineNo: Int) -> Unit,
-    onOpenLibrary: () -> Unit,
+    onOpenEntry: (DictTarget) -> Unit,
+    onOpenKnowledge: (KnowledgeCard) -> Unit,
 ) {
     val colors = AjlTheme.colors
     val context = LocalContext.current.applicationContext
@@ -186,12 +209,16 @@ private fun PalettePanel(
     val apiBaseUrl = uiState.settings.apiBaseUrl
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
+    val coroutines = rememberCoroutineScope()
 
     var query by rememberSaveable { mutableStateOf("") }
     var workSlug by rememberSaveable { mutableStateOf(uiState.selection.workSlug) }
     var seq by remember { mutableIntStateOf(0) }
     var request by remember { mutableStateOf<SearchRequest?>(null) }
     var state by remember { mutableStateOf<SearchState>(SearchState.Idle) }
+    // 「AI 挑一个场景」: the worker's training planner picks what to look for, then it is searched.
+    var pick by remember { mutableStateOf<RagSceneSuggestion?>(null) }
+    var picking by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) { runCatching { focusRequester.requestFocus() } }
 
@@ -220,9 +247,25 @@ private fun PalettePanel(
         )
     }
 
-    // 词汇 / 语法 of the current episode match while typing; subtitles wait for the IME search.
-    val localHits = remember(query, uiState.vocab, uiState.grammar) {
-        localEntryHits(query, uiState.vocab, uiState.grammar)
+    // Local indexes, built once off the main thread: the whole dictionary and every knowledge card.
+    val dictIndex by produceState<List<Indexed<DictTarget>>>(emptyList(), scope, uiState.vocab, uiState.grammar) {
+        if (!scope.dict) return@produceState
+        value = withContext(Dispatchers.Default) {
+            val dict = LevelDict.load(context)
+            indexDict(dict.vocab + uiState.vocab, dict.grammar + uiState.grammar)
+        }
+    }
+    val knowIndex by produceState<List<Indexed<KnowledgeCard>>>(emptyList(), scope) {
+        if (!scope.know) return@produceState
+        value = withContext(Dispatchers.Default) { indexKnowledge(KnowledgeCards.all(context)) }
+    }
+    val entryLimit = if (scope == SearchScope.Dict) 40 else 5
+    val knowLimit = if (scope == SearchScope.Knowledge) 40 else 3
+    val entryHits by produceState(emptyList<DictTarget>(), query, dictIndex) {
+        value = if (query.isBlank()) emptyList() else withContext(Dispatchers.Default) { rank(dictIndex, query, entryLimit) }
+    }
+    val knowHits by produceState(emptyList<KnowledgeCard>(), query, knowIndex) {
+        value = if (query.isBlank()) emptyList() else withContext(Dispatchers.Default) { rank(knowIndex, query, knowLimit) }
     }
 
     val submit: (String) -> Unit = submit@{ raw ->
@@ -230,14 +273,35 @@ private fun PalettePanel(
         if (trimmed.isBlank()) return@submit
         query = trimmed
         focusManager.clearFocus()
+        if (!scope.scenes) return@submit
         seq += 1
         request = SearchRequest(trimmed, workSlug, seq)
+    }
+    val aiPick: () -> Unit = aiPick@{
+        if (picking) return@aiPick
+        picking = true
+        focusManager.clearFocus()
+        coroutines.launch {
+            val settings = store.readSettings()
+            val suggestion = runCatching {
+                withContext(Dispatchers.IO) {
+                    RemoteLabClient(apiBaseUrl, store.readSessionCookie()).suggestSceneQuery(workSlug, settings.aiModel, store.deviceId())
+                }
+            }.getOrNull()?.takeIf { it.query.isNotBlank() }
+            picking = false
+            if (suggestion == null) {
+                state = SearchState.Failed("AI 没挑出来，稍后再试")
+            } else {
+                pick = suggestion
+                submit(suggestion.query)
+            }
+        }
     }
 
     Column(
         Modifier
             .fillMaxWidth()
-            .semantics { paneTitle = "全局搜索" }
+            .semantics { paneTitle = scope.title }
             .background(colors.surface, AjlShape.Tool)
             .border(AjlStroke.Hair, colors.line2, AjlShape.Tool)
             // Swallow taps so they never reach the scrim.
@@ -255,11 +319,14 @@ private fun PalettePanel(
             Icon(Icons.Rounded.Search, contentDescription = null, tint = colors.ink3, modifier = Modifier.size(18.dp))
             Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                 if (query.isEmpty()) {
-                    Text("描述一个场景，或输入台词", style = AjlTheme.type.body.copy(fontSize = 16.sp), color = colors.faint, maxLines = 1)
+                    Text(scope.placeholder, style = AjlTheme.type.body.copy(fontSize = 15.sp), color = colors.faint, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 BasicTextField(
                     value = query,
-                    onValueChange = { query = it },
+                    onValueChange = {
+                        query = it
+                        if (pick != null && it.trim() != pick?.query) pick = null
+                    },
                     singleLine = true,
                     textStyle = AjlTheme.type.jpBody.copy(fontSize = 17.sp, lineHeight = 24.sp, color = colors.ink),
                     cursorBrush = SolidColor(colors.ink),
@@ -268,7 +335,7 @@ private fun PalettePanel(
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester)
-                        .semantics { contentDescription = "搜索字幕" },
+                        .semantics { contentDescription = scope.title },
                 )
             }
             when (val s = state) {
@@ -279,13 +346,15 @@ private fun PalettePanel(
                     color = colors.ink3,
                     modifier = Modifier.padding(end = 10.dp),
                 )
-                else -> if (query.isNotEmpty()) {
+                else -> if (picking) {
+                    LoadingDots(delayMillis = 0, modifier = Modifier.padding(end = 10.dp))
+                } else if (query.isNotEmpty()) {
                     IconButton44(Icons.Rounded.Close, "清空", onClick = { query = "" }, tint = colors.ink3, iconSize = 18.dp)
                 }
             }
         }
         Hairline()
-        if (uiState.works.size > 1) {
+        if (scope.scenes && uiState.works.size > 1) {
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -298,6 +367,7 @@ private fun PalettePanel(
                         onClick = {
                             if (work.slug != workSlug) {
                                 workSlug = work.slug
+                                pick = null
                                 val pending = query.trim()
                                 if (pending.isNotBlank() && request != null) {
                                     seq += 1
@@ -309,18 +379,84 @@ private fun PalettePanel(
                 }
             }
         }
+        val q = query.trim()
         LazyColumn(
             modifier = Modifier.weight(1f, fill = false),
             contentPadding = PaddingValues(start = 6.dp, end = 6.dp, bottom = 8.dp),
         ) {
-            if (localHits.isNotEmpty()) {
-                sectionLabel("entries", "词汇")
-                items(localHits, key = { "entry-${it.key}" }) { hit ->
-                    EntryHitRow(hit = hit, query = query.trim(), onClick = onOpenLibrary)
+            if (entryHits.isNotEmpty()) {
+                val words = entryHits.filterIsInstance<DictTarget.Word>()
+                val patterns = entryHits.filterIsInstance<DictTarget.Pattern>()
+                if (words.isNotEmpty()) {
+                    sectionLabel("words", "词汇")
+                    items(words, key = { "w-${it.item.id}" }) { hit ->
+                        val v = hit.item
+                        EntryHitRow(
+                            head = v.surface,
+                            gloss = v.meaningZh,
+                            meta = listOf(partOfSpeechLabel(v.partOfSpeech), v.level).filter { it.isNotBlank() }.joinToString(" · "),
+                            query = q,
+                            onClick = { onOpenEntry(hit) },
+                        )
+                    }
+                }
+                if (patterns.isNotEmpty()) {
+                    sectionLabel("patterns", "语法")
+                    items(patterns, key = { "g-${it.item.id}" }) { hit ->
+                        val g = hit.item
+                        EntryHitRow(head = g.pattern, gloss = g.titleZh, meta = g.difficulty, query = q, onClick = { onOpenEntry(hit) })
+                    }
+                }
+            }
+            if (knowHits.isNotEmpty()) {
+                sectionLabel("know", "知识点")
+                items(knowHits, key = { "k-${it.id}" }) { card ->
+                    EntryHitRow(
+                        head = card.title,
+                        gloss = "",
+                        meta = card.deckShort.ifBlank { card.deckTitle },
+                        query = q,
+                        onClick = { onOpenKnowledge(card) },
+                    )
+                }
+            }
+            if (!scope.scenes) {
+                if (q.isNotEmpty() && entryHits.isEmpty() && knowHits.isEmpty()) {
+                    item(key = "none") {
+                        Text(
+                            "見つからない",
+                            style = AjlTheme.type.jpTitle.copy(fontSize = 15.sp),
+                            color = colors.ink3,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 14.dp),
+                        )
+                    }
+                }
+                return@LazyColumn
+            }
+            pick?.takeIf { it.query == q }?.let { p ->
+                sectionLabel("pick", "AI 挑的场景")
+                item(key = "pick") {
+                    Column(
+                        Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                    ) {
+                        if (p.focus.isNotBlank()) Text(p.focus, style = AjlTheme.type.label.copy(fontSize = 15.sp), color = colors.ink)
+                        if (p.reason.isNotBlank()) Text(p.reason, style = AjlTheme.type.caption.copy(lineHeight = 20.sp), color = colors.ink2)
+                    }
                 }
             }
             when (val s = state) {
-                SearchState.Idle -> suggestionSection("试试", onPick = submit)
+                SearchState.Idle -> {
+                    if (q.isNotEmpty()) {
+                        item(key = "find-lines") { ActionRow("在台词里找「$q」", onClick = { submit(q) }) }
+                    } else {
+                        sectionLabel("ai", "按场景找")
+                        item(key = "ai-pick") { ActionRow(if (picking) "AI 正在挑…" else "AI 挑一个值得练的场景", onClick = aiPick) }
+                        items(Suggestions, key = { "suggest-$it" }) { suggestion ->
+                            ActionRow(suggestion, onClick = { submit(suggestion) })
+                        }
+                    }
+                }
                 SearchState.Loading -> item(key = "loading") { Box(Modifier.fillMaxWidth().height(64.dp)) }
                 is SearchState.Failed -> {
                     item(key = "failed") {
@@ -337,6 +473,8 @@ private fun PalettePanel(
                             if (pending != null) {
                                 seq += 1
                                 request = pending.copy(seq = seq)
+                            } else {
+                                state = SearchState.Idle
                             }
                         })
                     }
@@ -476,67 +614,33 @@ private fun LineHit(ja: String, zh: String, meta: String, query: String, onClick
     }
 }
 
-internal data class EntryHit(val key: String, val head: String, val gloss: String, val meta: String)
-
-/** Literal matches in the loaded 词汇 / 语法 (surface, reading, pattern or Chinese gloss). */
-internal fun localEntryHits(
-    query: String,
-    vocab: List<VocabItem>,
-    grammar: List<GrammarPoint>,
-    limit: Int = 4,
-): List<EntryHit> {
-    val q = query.trim()
-    if (q.isEmpty()) return emptyList()
-    val words = vocab.asSequence()
-        .filter { it.surface.contains(q) || it.reading.contains(q) || it.meaningZh.contains(q) }
-        .map { v ->
-            EntryHit(
-                key = "v-${v.id}",
-                head = v.surface,
-                gloss = v.meaningZh,
-                meta = listOf(v.partOfSpeech, v.level).filter { it.isNotBlank() }.joinToString(" · "),
-            )
-        }
-    val patterns = grammar.asSequence()
-        .filter { it.pattern.contains(q) || it.titleZh.contains(q) }
-        .map { g ->
-            EntryHit(
-                key = "g-${g.id}",
-                head = g.pattern,
-                gloss = g.titleZh,
-                meta = listOf("文法", g.difficulty).filter { it.isNotBlank() }.joinToString(" · "),
-            )
-        }
-    return (words + patterns).take(limit).toList()
-}
-
 @Composable
-private fun EntryHitRow(hit: EntryHit, query: String, onClick: () -> Unit) {
+private fun EntryHitRow(head: String, gloss: String, meta: String, query: String, onClick: () -> Unit) {
     val colors = AjlTheme.colors
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val accent = AjlTheme.work.accent
-    val head = remember(hit.head, query, accent) { highlight(hit.head, query, SpanStyle(color = accent, fontWeight = FontWeight.SemiBold)) }
+    val headText = remember(head, query, accent) { highlight(head, query, SpanStyle(color = accent, fontWeight = FontWeight.SemiBold)) }
     Row(
         Modifier
             .fillMaxWidth()
             .height(48.dp)
             .background(if (pressed) colors.sunken else colors.surface, RoundedCornerShape(8.dp))
-            .clickable(interaction, indication = null, role = Role.Button, onClickLabel = "在辞書里查看", onClick = onClick)
+            .clickable(interaction, indication = null, role = Role.Button, onClickLabel = "打开", onClick = onClick)
             .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(head, style = AjlTheme.type.jpBody.copy(fontSize = 17.sp, lineHeight = 24.sp), color = colors.ink, maxLines = 1)
-        Text(
-            hit.gloss,
+        Text(headText, style = AjlTheme.type.jpBody.copy(fontSize = 17.sp, lineHeight = 24.sp), color = colors.ink, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = if (gloss.isBlank()) Modifier.weight(1f) else Modifier)
+        if (gloss.isNotBlank()) Text(
+            gloss,
             style = AjlTheme.type.body.copy(fontSize = 14.sp),
             color = colors.ink2,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
         )
-        if (hit.meta.isNotBlank()) Text(hit.meta, style = AjlTheme.type.meta, color = colors.ink3, maxLines = 1)
+        if (meta.isNotBlank()) Text(meta, style = AjlTheme.type.meta, color = colors.ink3, maxLines = 1)
     }
 }
 

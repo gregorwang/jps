@@ -514,6 +514,13 @@ data class RagSearchResult(
     val analysis: RagAnalysis? = null,
 )
 
+/** `/api/rag/suggest-training-query`: a vector-search query the AI chose, with its training focus. */
+data class RagSceneSuggestion(
+    val query: String,
+    val focus: String,
+    val reason: String,
+)
+
 /** `/api/ai/character-profile` result: AI explain payload plus cache metadata. */
 data class CharacterProfile(
     val result: AiExplainResult,

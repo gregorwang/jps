@@ -337,6 +337,42 @@ object ReviewFeed {
 
     private val cards = mutableMapOf<String, FeedCard>()
 
+    /** A knowledge card picked in search, placed once today's feed exists. */
+    private var pending: KnowledgeCard? = null
+
+    /** Bumped when search puts a card on screen: the pager follows and 知識 comes to the front. */
+    private val _jumps = MutableStateFlow(0)
+    val jumps: StateFlow<Int> = _jumps.asStateFlow()
+    private var jumpSeen = 0
+
+    /** True once per jump: the screen switches back to its 知識 tab. */
+    fun takeJump(): Boolean = (_jumps.value != jumpSeen).also { jumpSeen = _jumps.value }
+
+    /** Search hit → that card goes right after the one on screen and the feed moves onto it. */
+    @Synchronized
+    fun show(context: Context, card: KnowledgeCard, today: Long) {
+        init(context)
+        if (_session.value?.day == today) place(card) else pending = card
+    }
+
+    private fun place(card: KnowledgeCard) {
+        val s = _session.value ?: return
+        val base = "know:${card.id}"
+        var key = base
+        var n = 1
+        while (key in s.keys) key = "$base#${++n}"
+        cards[key] = FeedRules.knowCard(card).copy(key = key)
+        val at = if (s.keys.isEmpty()) 0 else (s.index + 1).coerceAtMost(s.keys.size)
+        publish(s.copy(keys = s.keys.take(at) + key + s.keys.drop(at), index = at))
+        _jumps.value += 1
+    }
+
+    private fun placePending() {
+        val card = pending ?: return
+        pending = null
+        place(card)
+    }
+
     fun init(context: Context) {
         if (store != null) return
         val s = LocalLabStore(context.applicationContext)
@@ -360,6 +396,7 @@ object ReviewFeed {
         if (s == null || s.day != today) {
             cards.clear()
             start(FeedSession(day = today, keys = emptyList()), fresh(sources, today, null, null, emptyList()))
+            placePending()
             return
         }
         var index = s.index
@@ -379,6 +416,7 @@ object ReviewFeed {
         }
         if (keys.size - index <= 4) keys = keys + more(sources, today, s.deck, keys)
         publish(s.copy(keys = keys, index = index.coerceAtLeast(0)))
+        placePending()
     }
 
     /**

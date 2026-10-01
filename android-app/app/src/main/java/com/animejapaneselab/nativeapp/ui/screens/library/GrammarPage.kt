@@ -316,7 +316,7 @@ private fun GrammarRow(
  */
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
-private fun GrammarCardSheet(
+internal fun GrammarCardSheet(
     points: List<GrammarPoint>,
     openId: String,
     uiState: LabUiState,

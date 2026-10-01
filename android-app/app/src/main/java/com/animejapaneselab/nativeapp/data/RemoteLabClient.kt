@@ -439,6 +439,20 @@ class RemoteLabClient(
         return parseRagSearchJson(post("/api/rag/search", body))
     }
 
+    /** `/api/rag/suggest-training-query`: the AI picks a scene to look for (the worker falls back to a fixed one). */
+    fun suggestSceneQuery(workSlug: String, model: String, deviceId: String): RagSceneSuggestion {
+        val body = JSONObject()
+            .put("workSlug", ragWorkSlug(workSlug))
+            .put("model", model)
+            .put("deviceId", deviceId)
+        val o = JSONObject(post("/api/rag/suggest-training-query", body))
+        return RagSceneSuggestion(
+            query = o.optString("query"),
+            focus = o.optString("focus"),
+            reason = o.optString("reason"),
+        )
+    }
+
     fun fetchCharacterProfile(
         workSlug: String,
         characterKey: String,

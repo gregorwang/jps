@@ -224,6 +224,9 @@ fun ReviewFeedScreen(
     val session by ReviewFeed.session.collectAsState()
     val deck by ReviewFeed.deck.collectAsState()
     var tab by rememberSaveable { mutableIntStateOf(0) }
+    // A knowledge card picked in search: show the 知識 feed, which has moved onto it.
+    val jumps by ReviewFeed.jumps.collectAsState()
+    LaunchedEffect(jumps) { if (ReviewFeed.takeJump()) tab = 0 }
     val current = session?.takeIf { it.day == today }
     val hearts = remember(marks) { marks.count { it.value.hearted } }
 
@@ -254,7 +257,7 @@ fun ReviewFeedScreen(
                     color = colors.ink3,
                 )
             }
-            IconButton44(Icons.Rounded.Search, "搜索", actions.openSearch)
+            IconButton44(Icons.Rounded.Search, "搜知识点", actions.openSearch)
         }
         Hairline(Modifier.padding(horizontal = 20.dp))
         if (tab == 0) {
@@ -327,8 +330,9 @@ private fun FeedPager(
     LaunchedEffect(pager) {
         snapshotFlow { pager.settledPage }.collect { page -> ReviewFeed.settle(context, page, actions.sinks, latestSources) }
     }
-    // 帳面 restarts the feed at 0: follow it.
-    LaunchedEffect(session.filter, session.deck, session.keys.firstOrNull()) {
+    // 帳面 restarts the feed at 0, a search hit moves it onto the picked card: follow it.
+    val jumps by ReviewFeed.jumps.collectAsState()
+    LaunchedEffect(session.filter, session.deck, session.keys.firstOrNull(), jumps) {
         if (pager.settledPage != session.index && !pager.isScrollInProgress) pager.scrollToPage(session.index.coerceIn(0, (deck.size - 1).coerceAtLeast(0)))
     }
     val settledCard = deck.getOrNull(pager.settledPage)

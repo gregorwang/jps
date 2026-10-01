@@ -77,6 +77,10 @@ import com.animejapaneselab.nativeapp.ui.review.ReviewSinks
 import com.animejapaneselab.nativeapp.ui.screens.review.ReviewRules
 import com.animejapaneselab.nativeapp.ui.screens.review.SmartReviewQueueScreen
 import com.animejapaneselab.nativeapp.ui.screens.search.CommandPalette
+import com.animejapaneselab.nativeapp.ui.screens.search.SearchScope
+import com.animejapaneselab.nativeapp.ui.screens.library.DictEntrySheet
+import com.animejapaneselab.nativeapp.ui.screens.library.DictTarget
+import com.animejapaneselab.nativeapp.ui.review.ReviewFeed
 import com.animejapaneselab.nativeapp.ui.screens.session.LessonSessionScreen
 import com.animejapaneselab.nativeapp.ui.screens.session.ReadAirSessionScreen
 import com.animejapaneselab.nativeapp.ui.screens.settings.AiHistoryScreen
@@ -156,6 +160,20 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
         if (secondaryScreen != SecondaryScreen.Search) underlay = secondaryScreen
     }
     val paletteOpen = secondaryScreen == SecondaryScreen.Search
+    // Each page searches its own things (原作 the lines, 辞書 its entries, 知識 the cards); 今日 searches everything.
+    // Fixed when it opens, so a hit that changes page does not swap the panel while it fades out.
+    val lastScope = remember { arrayOf(SearchScope.All) }
+    val paletteScope = remember(paletteOpen) {
+        if (!paletteOpen) return@remember lastScope[0]
+        when {
+            underlay == SecondaryScreen.Subtitles -> SearchScope.Scenes
+            uiState.selectedTab == LabTab.Library -> SearchScope.Dict
+            uiState.selectedTab == LabTab.Review -> SearchScope.Knowledge
+            else -> SearchScope.All
+        }.also { lastScope[0] = it }
+    }
+    // A 辞書 entry picked in search opens right here, over the page.
+    var dictTarget by remember { mutableStateOf<DictTarget?>(null) }
     val route = shellRouteOf(secondaryScreen, activeSession, uiState.selectedTab, underlay)
     // A 自習 sitting (or its 小テスト) takes the whole screen, like a lesson.
     val jishu: JishuViewModel = viewModel()
@@ -333,11 +351,29 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
                         }
                         CommandPalette(
                             visible = paletteOpen,
+                            scope = paletteScope,
                             uiState = uiState,
                             onDismiss = closePalette,
                             onOpenSubtitleLine = viewModel::openSubtitlesAt,
-                            onOpenLibrary = { viewModel.selectTab(LabTab.Library) },
+                            onOpenEntry = {
+                                closePalette()
+                                dictTarget = it
+                            },
+                            onOpenKnowledge = { card ->
+                                ReviewFeed.show(context, card, java.time.LocalDate.now().toEpochDay())
+                                closePalette()
+                                viewModel.selectTab(LabTab.Review)
+                            },
                         )
+                        dictTarget?.let { target ->
+                            DictEntrySheet(
+                                target = target,
+                                uiState = uiState,
+                                onAskAi = viewModel::askAiAboutLibraryItem,
+                                onTargetLesson = viewModel::startTargetLesson,
+                                onDismiss = { dictTarget = null },
+                            )
+                        }
                     }
                 }
             }
@@ -503,7 +539,6 @@ private fun ShellPage(
                     onNext = viewModel::nextFoundationQuestion,
                     onRestart = viewModel::restartFoundationQuestions,
                 ),
-                onOpenSearch = viewModel::openSearch,
             )
 
             LabTab.Library -> LibraryScreen(

@@ -36,7 +36,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.Subtitles
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -86,9 +85,7 @@ import com.animejapaneselab.nativeapp.ui.design.TopBar
 import com.animejapaneselab.nativeapp.ui.design.TopBarNav
 import com.animejapaneselab.nativeapp.ui.design.WorkIdentity
 import com.animejapaneselab.nativeapp.ui.design.clickableNoRipple
-import com.animejapaneselab.nativeapp.ui.reading.DeepDiveTarget
 import com.animejapaneselab.nativeapp.ui.reading.rememberCharacterProfile
-import com.animejapaneselab.nativeapp.ui.reading.rememberSentenceDeepDive
 import com.animejapaneselab.nativeapp.ui.theme.AjlStroke
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 import kotlinx.coroutines.launch
@@ -137,14 +134,12 @@ fun LibraryScreen(
     var selectedTab by rememberSaveable { mutableStateOf(0) }
     var pickerOpen by rememberSaveable { mutableStateOf(false) }
     val audio = rememberLessonAudioController()
-    val deepDive = rememberSentenceDeepDive(uiState.settings)
     val characterProfile = rememberCharacterProfile(uiState.settings, workSlug)
     val episodeLabel = uiState.focus.episodeLabel.ifBlank { episodeTitle(episode) }
     val notebook = rememberNotebookEntries()
     val savedKeys = remember(notebook) { notebook.mapTo(HashSet()) { it.key } }
     var studyIds by rememberSaveable { mutableStateOf<List<String>?>(null) }
     val audioBusy = audio.playbackState.phase == AudioPlaybackPhase.Loading || audio.playbackState.phase == AudioPlaybackPhase.Playing
-    var playingLineId by remember { mutableStateOf<String?>(null) }
 
     // 词汇 / 语法 with 按话浏览 off: the whole dictionary by level (assets/dict_*.json), a 词类 drawer for words.
     val appContext = LocalContext.current.applicationContext
@@ -182,7 +177,6 @@ fun LibraryScreen(
     val tabs = listOf(
         DictTab("词汇", if (levelMode) -1 else uiState.vocab.size),
         DictTab("语法", if (levelMode) -1 else uiState.grammar.size),
-        DictTab("台词", uiState.shadowing.size),
         DictTab("收藏", notebook.size),
     )
 
@@ -191,8 +185,9 @@ fun LibraryScreen(
             nav = TopBarNav.None,
             title = "辞書",
             actions = {
-                IconButton44(Icons.Rounded.Subtitles, "字幕", onOpenSubtitles)
-                IconButton44(Icons.Rounded.Search, "搜索", onOpenSearch)
+                // 原作 = every line of the episodes (the whole source library); 辞書 keeps words and patterns.
+                QuietButton("原作", onClick = onOpenSubtitles, color = colors.ink)
+                IconButton44(Icons.Rounded.Search, "搜辞書", onOpenSearch)
             },
         )
         DictTabs(
@@ -255,37 +250,7 @@ fun LibraryScreen(
                     ttsWorkerUrl = uiState.settings.ttsWorkerUrl,
                     onViewSource = onViewSource,
                 )
-                else -> LinesPage(
-                    key = scope,
-                    uiState = uiState,
-                    savedKeys = savedKeys,
-                    playingId = playingLineId.takeIf { audioBusy },
-                    onPlay = { line, tts ->
-                        playingLineId = line.id
-                        if (tts) {
-                            audio.speakText(parseSpokenLine(line.ja).text, uiState.settings.ttsWorkerUrl)
-                        } else {
-                            audio.play(promptAudioForSentence(workSlug, line, autoPlay = false), uiState.settings.ttsWorkerUrl)
-                        }
-                    },
-                    onSpeak = {
-                        playingLineId = null
-                        audio.speakText(it, uiState.settings.ttsWorkerUrl)
-                    },
-                    onDeepDive = { line ->
-                        deepDive.request(
-                            DeepDiveTarget(
-                                workSlug = workSlug,
-                                episode = episode,
-                                lineNo = line.sourceLineNo,
-                                jaText = line.ja,
-                                zhText = line.meaningZh,
-                            ),
-                        )
-                    },
-                    onAsk = { item -> onAskAi(item.aiKey(), "sentence", item.ja, item.aiContext(episodeLabel)) },
-                    onLearn = { onTargetLesson(LessonTarget.Sentence(it.id)) },
-                )
+                else -> Unit
             }
             if (selectedTab == 0 && drawerOpen) {
                 PosPanel(
@@ -351,11 +316,10 @@ fun LibraryScreen(
             },
         )
     }
-    DeepDiveSheet(deepDive)
     CharacterSheet(characterProfile)
 }
 
-private const val NotebookTab = 3
+private const val NotebookTab = 2
 
 // ---------------------------------------------------------------------------
 // Row model
@@ -897,7 +861,7 @@ private fun PickMark(on: Boolean, modifier: Modifier = Modifier) {
 }
 
 /** The offline anime line of a word (vocab_lines.json) as a shadowing line, so its card can play it. */
-private fun offlineExample(line: com.animejapaneselab.nativeapp.ui.words.TangoLine?, id: String): ShadowingSentence? {
+internal fun offlineExample(line: com.animejapaneselab.nativeapp.ui.words.TangoLine?, id: String): ShadowingSentence? {
     if (line == null) return null
     return ShadowingSentence(
         id = "offline-$id",
