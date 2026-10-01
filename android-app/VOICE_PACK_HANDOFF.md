@@ -27,7 +27,8 @@ Supabase 文本 ──batch_items.py──> batch_items.json（要念的清单�
   - **`problem_words.tsv`：人能直接看的问题清单**（Excel 可开）：状态 / 类型 / 原文 / 该念 / Whisper 听成，共 2615 行（单词 978、变形 1391、语法例句回听不过 246）。
   - `pack_drop.json`：打包时排除的 key（只有 key，要看是哪个词查上面的 tsv 或 `pack_tools.py lookup`）。
   - `pack_tools.py`：**本地工具，不花钱**（见第 3 节）。
-- 包里现在是（**2026-10-01 第三版，19163 条，127MB**）：单词 3006 / 3466、词卡变形 7753 / 8239、语法例句 2685 / 2705、台词 4717 / 4832、语法句型 1004 / 1226（`kind=pattern`，第三版新增）。（2026-09-29 第二版是 11755 条。）清单来源：单词 `learning_vocab_items.surface`（念的是 `vocab_cards.json` / `reading` 的假名 +「。」）、语法 `learning_grammar_points.ja_example`、台词 `learning_sentences.ja_text`（只取没原声的，还没批量生成）。
+- 包里现在是（**2026-10-01 第四版，28525 条，207MB**）：第三版 + 有原声的台词 `line` 3864（`learning_sentences.ja_text`）+ 原作页挂原声的字幕行 `subline` 1188 + K-ON 全部字幕 `kon` 4310。这三类**不做 Whisper 回听**（`batch.py::lines`），App 的声音按钮能切回原声 / TTS（`ui/voicepack/VoiceChoice.kt`，三档：原声 / エミリア / TTS，TTS 档跳过语音包）。实际约 2 万 L4 GPU 秒。
+- 第三版是（2026-10-01，19163 条，127MB）：单词 3006 / 3466、词卡变形 7753 / 8239、语法例句 2685 / 2705、台词 4717 / 4832、语法句型 1004 / 1226（`kind=pattern`，第三版新增）。（2026-09-29 第二版是 11755 条。）清单来源：单词 `learning_vocab_items.surface`（念的是 `vocab_cards.json` / `reading` 的假名 +「。」）、语法 `learning_grammar_points.ja_example`、台词 `learning_sentences.ja_text`（只取没原声的，还没批量生成）。
 
 ## 2. 已知问题（写文档时已经发现）
 
@@ -87,6 +88,12 @@ python recheck_words.py [--apply]                      # 按读音复查单词 /
 - 换音色那一步有 335 句没出结果，日志里没有报错，原因没查（第二轮重录补上了）。下次先查清楚 `vc_chunk` 跳过的是「源文件不存在」还是别的。
 - 写脚本时别在 bash heredoc 里写正则（`\{\\[` 被吃掉一层，去说话人标记的正则写错了），改用 Edit 或先写成文件；大列表先建索引，别每条都扫一遍全部日志。
 - 别把猜测说成结论：我说 dots.tts「可能念错孤立单词」只是推测，用户据此就放弃了。推测要明说「没实测」，并给出最便宜的验证办法。
+
+**2026-10-01 · 第四版（台词全量、不回听）**
+- 字幕页一行的文字和它挂的原声句（`learning_sentences.ja_text`）经常不一样（worker 按 `source_line_no` = 字幕 `line_no` 挂，句子常是好几行拼起来的），所以两种文字都要进清单：`line` 和 `subline`。原作页播エミリア时先找这行文字，找不到再用句子的文字（`SubtitlesScreen` 的 `packText`）。
+- 句子的音色转换实测每句约 2 GPU 秒、SBV2 约 0.3，和第三版一致；6 个容器跑 5500 句约 40 分钟。
+- 两个 `lines` 不要同时下载：都会删本地 `out/opus_new` 再拉，并写 `out/manifest.json`。现在写清单前会重读，但下载目录仍共用，排队跑。
+- **`import batch_items` 会把整个脚本跑一遍**（拉 Supabase、重写 `batch_items.json`），要用里面的函数就复制出来，别 import。
 
 ## 6. 做完之后
 
