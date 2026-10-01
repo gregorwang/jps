@@ -122,7 +122,39 @@ class LessonAudioController(context: Context) {
         }
     }
 
+    /** What the last [play] / [speakText] was for (url or text), so [toggle] knows "the same one". */
+    private var currentKey: String? = null
+
+    val isSounding: Boolean
+        get() = playbackState.phase == AudioPlaybackPhase.Loading || playbackState.phase == AudioPlaybackPhase.Playing
+
+    /** Whether [cue] is the one loading or playing right now. */
+    fun isSounding(cue: PromptAudio): Boolean = isSounding && currentKey == keyOf(cue)
+
+    /**
+     * A tap on a play control: stops when this same [cue] is sounding, otherwise plays it (a
+     * different line cuts the current one off). Auto-plays keep calling [play].
+     */
+    fun toggle(cue: PromptAudio, ttsWorkerUrl: String) {
+        if (isSounding(cue)) stop() else play(cue, ttsWorkerUrl)
+    }
+
+    fun stop() {
+        ttsJob?.cancel()
+        ttsJob = null
+        localTts?.stop()
+        stopMedia()
+        postPlaybackState(AudioPlaybackPhase.Idle, "")
+    }
+
+    private fun keyOf(cue: PromptAudio): String? = when (cue) {
+        PromptAudio.None -> null
+        is PromptAudio.Tts -> "tts:${cue.text.trim()}"
+        is PromptAudio.Source -> "src:${cue.url}"
+    }
+
     fun play(cue: PromptAudio, ttsWorkerUrl: String, autoAttempt: Boolean = false) {
+        currentKey = keyOf(cue)
         when (cue) {
             PromptAudio.None -> Unit
             is PromptAudio.Tts -> playTts(cue.text, ttsWorkerUrl, cue.voicePack)
@@ -140,6 +172,7 @@ class LessonAudioController(context: Context) {
     }
 
     fun speakText(text: String, ttsWorkerUrl: String, voicePack: Boolean = true) {
+        currentKey = "tts:${text.trim()}"
         playTts(text, ttsWorkerUrl, voicePack)
     }
 

@@ -554,9 +554,9 @@ private fun FeedCardView(
                 }
             }
             when (card.kind) {
-                FeedKind.Conj -> ConjBody(card, revealed, playing, aids, onPlay = { play(card, audio, ttsWorkerUrl) }, onReveal = { revealed = true })
-                FeedKind.Word -> WordBody(card.entry!!, revealed, playing, onPlay = { play(card, audio, ttsWorkerUrl) }, onReveal = { revealed = true })
-                FeedKind.Listen -> ListenBody(card.entry!!, revealed, playing, aids, onPlay = { play(card, audio, ttsWorkerUrl) }, onReveal = { revealed = true })
+                FeedKind.Conj -> ConjBody(card, revealed, playing, aids, onPlay = { if (audio.isSounding) audio.stop() else play(card, audio, ttsWorkerUrl) }, onReveal = { revealed = true })
+                FeedKind.Word -> WordBody(card.entry!!, revealed, playing, onPlay = { if (audio.isSounding) audio.stop() else play(card, audio, ttsWorkerUrl) }, onReveal = { revealed = true })
+                FeedKind.Listen -> ListenBody(card.entry!!, revealed, playing, aids, onPlay = { if (audio.isSounding) audio.stop() else play(card, audio, ttsWorkerUrl) }, onReveal = { revealed = true })
                 FeedKind.Mistake -> MistakeBody(card.mistake!!, revealed, onReveal = { revealed = true })
                 FeedKind.Weak -> WeakBody(card.weak!!, onPractice = { onPracticeWeak(card.weak.name) })
                 FeedKind.Know -> KnowBody(card.know!!, aids.annotator.takeIf { aids.romaji }, onAnswer)

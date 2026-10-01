@@ -300,7 +300,7 @@ fun SubtitlesScreen(
                     onPlay = {
                         when (voice.selected) {
                             VoiceKind.Original -> if (sentence != null) {
-                                audio.play(promptAudioForSentence(workSlug, sentence, autoPlay = false), uiState.settings.ttsWorkerUrl)
+                                audio.toggle(promptAudioForSentence(workSlug, sentence, autoPlay = false), uiState.settings.ttsWorkerUrl)
                             } else {
                                 audio.speakText(spoken.text, uiState.settings.ttsWorkerUrl)
                             }

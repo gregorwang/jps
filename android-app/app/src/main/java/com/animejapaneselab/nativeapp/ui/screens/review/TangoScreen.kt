@@ -395,7 +395,7 @@ private fun TangoSession(
                             toast = "待会儿再来"
                             scope.launch { pager.animateScrollToPage(page + 1) }
                         },
-                        onPlay = { playTangoLine(line, audio, settings.ttsWorkerUrl) },
+                        onPlay = { if (audio.isSounding) audio.stop() else playTangoLine(line, audio, settings.ttsWorkerUrl) },
                     )
                 }
             }
@@ -651,7 +651,7 @@ private fun TangoQuizPage(
                     verticalArrangement = Arrangement.spacedBy(22.dp, Alignment.CenterVertically),
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        VoicePill(playing, "听", { playTangoLine(line, audio, ttsWorkerUrl) })
+                        VoicePill(playing, "听", { if (audio.isSounding) audio.stop() else playTangoLine(line, audio, ttsWorkerUrl) })
                         val mark = remember(line.ja, word.id) { targetRange(line.ja, word) }
                         val style = AjlTheme.type.jpBody.copy(fontSize = 21.sp, lineHeight = 34.sp, fontWeight = FontWeight.Medium)
                         ReadingLineText(reading ?: LineReading.build(line.ja, null), mark, showRuby = aids.ruby, showRomaji = aids.romaji, style = style)

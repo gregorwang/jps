@@ -20,8 +20,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,14 +45,16 @@ import com.animejapaneselab.nativeapp.ui.design.CharacterRef
 import com.animejapaneselab.nativeapp.ui.design.EmphasisText
 import com.animejapaneselab.nativeapp.ui.design.Eyebrow
 import com.animejapaneselab.nativeapp.ui.design.FeedbackSheet
-import com.animejapaneselab.nativeapp.ui.design.IconButton44
 import com.animejapaneselab.nativeapp.ui.design.MangaPanel
 import com.animejapaneselab.nativeapp.ui.design.OptionRow
 import com.animejapaneselab.nativeapp.ui.design.QuietButton
 import com.animejapaneselab.nativeapp.ui.design.WorkIdentity
 import com.animejapaneselab.nativeapp.ui.drill.ConjugationDrillState
 import com.animejapaneselab.nativeapp.ui.drill.DrillMode
+import com.animejapaneselab.nativeapp.ui.drill.DrillCloze
 import com.animejapaneselab.nativeapp.ui.drill.DrillQuestion
+import com.animejapaneselab.nativeapp.ui.drill.DrillQuestionKind
+import com.animejapaneselab.nativeapp.ui.design.VoiceWave
 import com.animejapaneselab.nativeapp.ui.feedback.FeedbackEvent
 import com.animejapaneselab.nativeapp.ui.feedback.LocalFeedbackEngine
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
@@ -71,7 +71,8 @@ data class ConjugationSessionActions(
 /**
  * 第三巻 活用 answering: the anime line in a manga panel with the target under 着重号 and a
  * 原声 button; one question generated from the line's annotation; [OptionRow]s; one ink 检查;
- * then the [FeedbackSheet] with the 拆解公式, 用法, 译文 and the original voice replayed.
+ * then the [FeedbackSheet] with the 变法, 拆解公式, 用法 and 译文. Nothing plays by itself: the
+ * wave beside the line plays / stops the original voice.
  */
 @Composable
 fun ConjugationSession(
@@ -139,11 +140,14 @@ private fun ConjugationQuestionBody(
     val cue = remember(item?.id) {
         item?.let { PromptAudio.Source(it.audioUrl, autoPlay = false, reliability = AudioReliability.Verified, fallbackTtsText = it.jaText) }
     }
-    val play: () -> Unit = { cue?.let { audio.play(it, ttsWorkerUrl) } }
+    // Never auto-plays: the voice is there when you tap the wave, and a second tap stops it.
+    val toggle: () -> Unit = { cue?.let { audio.toggle(it, ttsWorkerUrl) } }
+    val sounding = cue != null && audio.isSounding(cue)
     LaunchedEffect(answered, sheetHeight) {
         if (answered && sheetHeight > 0) scroll.animateScrollTo(scroll.maxValue)
     }
-    LaunchedEffect(answered) { if (answered) play() }
+    // 挖空: the line is shown with the form blanked out, and its voice would give the answer away.
+    val blanked = question.kind == DrillQuestionKind.Cloze && !answered
 
     Box(modifier.fillMaxWidth()) {
         Column(Modifier.fillMaxSize()) {
@@ -167,16 +171,28 @@ private fun ConjugationQuestionBody(
                         verticalAlignment = Alignment.Top,
                     ) {
                         Column(Modifier.weight(1f).padding(top = 4.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            EmphasisText(
-                                item.jaText,
-                                listOf(item.spanStart until item.spanEnd),
-                                style = AjlTheme.type.jpBody.copy(fontSize = 22.sp, lineHeight = 40.sp),
-                            )
-                            if (answered && item.reading.isNotBlank() && item.reading.filterNot(Char::isWhitespace) != item.jaText.filterNot(Char::isWhitespace)) {
-                                Text(item.reading, style = AjlTheme.type.caption, color = AjlTheme.colors.ink3)
+                            if (blanked) {
+                                val masked = item.jaText.substring(0, item.spanStart) + Blank + item.jaText.substring(item.spanEnd)
+                                MarkedLine(
+                                    masked,
+                                    item.spanStart until item.spanStart + Blank.length,
+                                    style = AjlTheme.type.jpBody.copy(fontSize = 22.sp, lineHeight = 40.sp),
+                                )
+                                if (item.zh.isNotBlank()) {
+                                    Text(item.zh.trim(), style = AjlTheme.type.body.copy(fontSize = 14.sp, lineHeight = 21.sp), color = AjlTheme.colors.ink3)
+                                }
+                            } else {
+                                EmphasisText(
+                                    item.jaText,
+                                    listOf(item.spanStart until item.spanEnd),
+                                    style = AjlTheme.type.jpBody.copy(fontSize = 22.sp, lineHeight = 40.sp),
+                                )
+                                if (answered && item.reading.isNotBlank() && item.reading.filterNot(Char::isWhitespace) != item.jaText.filterNot(Char::isWhitespace)) {
+                                    Text(item.reading, style = AjlTheme.type.caption, color = AjlTheme.colors.ink3)
+                                }
                             }
                         }
-                        IconButton44(Icons.AutoMirrored.Rounded.VolumeUp, "播放原声", play)
+                        if (!blanked) VoiceWave(playing = sounding, onClick = toggle)
                     }
                 }
                 ReadAirQuestion(question.prompt)
@@ -311,6 +327,10 @@ private fun ConjugationFeedback(
                         Text(item.zh.trim(), style = AjlTheme.type.body.copy(fontSize = 14.sp, lineHeight = 21.sp), color = colors.ink3)
                     }
                 }
+                val howTo = remember(item.id) { DrillCloze.howTo(item) }
+                if (howTo.isNotBlank()) {
+                    FeedbackBlock("变法") { NoteText(howTo) }
+                }
                 if (item.formula.isNotBlank()) {
                     FeedbackBlock("拆解") { FormulaRow(item.formula, item.group, wordSize = 20.sp) }
                 }
@@ -340,6 +360,9 @@ private fun ConjugationFeedback(
         },
     )
 }
+
+/** The gap a 挖空 question leaves in the line. */
+private const val Blank = "［　？　］"
 
 /** A labelled block in the feedback sheet: small mono label, then its content. */
 @Composable

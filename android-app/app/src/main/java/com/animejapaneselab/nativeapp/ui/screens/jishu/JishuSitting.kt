@@ -126,7 +126,7 @@ internal fun JishuSittingScreen(
         ) { index ->
             when (val p = sitting.pages.getOrNull(index) ?: page) {
                 JishuPage.Board -> BoardPage(sitting, drill, actions.onNext)
-                is JishuPage.Card -> CardPage(p, index, sitting, drill, context[p.item.sentenceId], cover, ttsWorkerUrl, reading, actions)
+                is JishuPage.Card -> CardPage(p, index, sitting, drill, context[p.item.sentenceId], cover, ttsWorkerUrl, settings.autoSpeak, reading, actions)
             }
         }
     }
@@ -301,6 +301,7 @@ private fun CardPage(
     scene: SceneContext?,
     cover: Boolean,
     ttsWorkerUrl: String,
+    autoSpeak: Boolean,
     aids: ReadingAids,
     actions: SittingActions,
 ) {
@@ -317,7 +318,15 @@ private fun CardPage(
         )
     }
     val play = { audio.play(cue, ttsWorkerUrl) }
-    LaunchedEffect(item.id, pageIndex, voice.selected) { play() }
+    // A new card speaks only when 自动朗读 is on; switching the voice always lets you hear it.
+    LaunchedEffect(item.id, pageIndex) { if (autoSpeak) play() }
+    var heardVoice by remember { mutableStateOf(voice.selected) }
+    LaunchedEffect(voice.selected) {
+        if (voice.selected != heardVoice) {
+            heardVoice = voice.selected
+            play()
+        }
+    }
     val aided = aids.ruby || aids.romaji
     LaunchedEffect(item.jaText, aided) { if (aided) aids.annotator.request("sentence", listOf(item.jaText)) }
     val line = remember(item.jaText, aids.annotator.resultFor(item.jaText)) {
@@ -368,7 +377,7 @@ private fun CardPage(
                                     options = voice.labels,
                                     selected = voice.index,
                                     onSelect = voice.onSelect,
-                                    onClick = play,
+                                    onClick = { audio.toggle(cue, ttsWorkerUrl) },
                                 )
                             }
                         }

@@ -366,7 +366,7 @@ private fun StudyPage(
                             VoicePill(
                                 playing = false,
                                 onClick = {
-                                    audio.play(
+                                    audio.toggle(
                                         PromptAudio.Source(line.audioUrl, autoPlay = false, reliability = AudioReliability.Verified, fallbackTtsText = line.ja),
                                         settings.ttsWorkerUrl,
                                     )

@@ -144,7 +144,7 @@ class ConjugationDrillViewModel(application: Application) : AndroidViewModel(app
             val result = withContext(Dispatchers.IO) { runCatching { client.fetchConjugationDrillItems() } }
             _state.update { s ->
                 result.fold(
-                    onSuccess = { items -> s.copy(phase = DrillPhase.Ready, items = items, today = LocalDate.now().toEpochDay()) },
+                    onSuccess = { items -> s.copy(phase = DrillPhase.Ready, items = items.filter(DrillCloze::fits), today = LocalDate.now().toEpochDay()) },
                     onFailure = { s.copy(phase = DrillPhase.Error) },
                 )
             }
@@ -215,7 +215,7 @@ class ConjugationDrillViewModel(application: Application) : AndroidViewModel(app
         s.copy(
             today = today,
             mode = DrillMode.Review,
-            session = picked.map { ConjugationDrillRules.question(it, s.items, s.progress[it.id]?.seen ?: 0) },
+            session = picked.map { ConjugationDrillRules.question(it, s.progress[it.id]?.seen ?: 0) },
             index = 0,
             answers = emptyMap(),
         )
@@ -226,7 +226,7 @@ class ConjugationDrillViewModel(application: Application) : AndroidViewModel(app
         val point = s.openLesson ?: return@update s
         val practice = s.lessons[point]?.practice.orEmpty().map { ConjugationDrillRules.practice(point, it) }
         val lines = ConjugationDrillRules.pickLesson(s.linesOf(point), s.progress)
-            .map { ConjugationDrillRules.question(it, s.items, s.progress[it.id]?.seen ?: 0) }
+            .map { ConjugationDrillRules.question(it, s.progress[it.id]?.seen ?: 0) }
         s.copy(today = LocalDate.now().toEpochDay(), mode = DrillMode.Lesson, session = practice + lines, index = 0, answers = emptyMap())
     }
 

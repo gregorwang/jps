@@ -6,7 +6,7 @@ import com.animejapaneselab.nativeapp.data.DrillProgress
 import com.animejapaneselab.nativeapp.data.LessonPractice
 import kotlin.math.abs
 
-enum class DrillQuestionKind { RowForm, BaseForm, PointId, Meaning, Practice }
+enum class DrillQuestionKind { Cloze, BaseForm, Practice }
 
 data class DrillOption(val id: String, val text: String, val japanese: Boolean)
 
@@ -37,11 +37,6 @@ object ConjugationDrillRules {
     const val LessonLines = 5
 
     private val GodanEndings = listOf("う", "く", "ぐ", "す", "つ", "ぬ", "ぶ", "む", "る")
-    private val RowOfEnding = mapOf(
-        "う" to "ワ", "く" to "カ", "ぐ" to "ガ", "す" to "サ", "つ" to "タ",
-        "ぬ" to "ナ", "ぶ" to "バ", "む" to "マ", "る" to "ラ",
-    )
-    private val Rows = listOf("カ", "ガ", "サ", "タ", "ナ", "バ", "マ", "ラ", "ワ")
 
     // ---------------------------------------------------------------- labels
 
@@ -75,63 +70,47 @@ object ConjugationDrillRules {
 
     // ---------------------------------------------------------------- questions
 
-    /** Which kinds [item] can support, most drill-worthy first. */
-    fun kindsFor(item: ConjugationDrillItem, pool: List<ConjugationDrillItem>): List<DrillQuestionKind> = buildList {
+    /**
+     * Whether [item] can be asked at all: only lines whose form can be blanked out with rule-made
+     * wrong forms. Lines that can't (だろう, なら, けど … whose point is meaning, not form) stay in
+     * 自習 as reading cards but get no 練習 question; the old 贴标签 / 选译文 questions taught nothing.
+     */
+    fun drillable(item: ConjugationDrillItem): Boolean = DrillCloze.choices(item) != null
+
+    /** Which kinds [item] can support, the 挖空 first. */
+    fun kindsFor(item: ConjugationDrillItem): List<DrillQuestionKind> = buildList {
         val head = item.head
-        val verbGroup = item.pointId.startsWith("a_") || item.pointId.startsWith("b_")
-        if (isVerb(head)) add(DrillQuestionKind.RowForm)
-        if (isVerb(head) && isGodan(head) && head.base.takeLast(1) in GodanEndings && head.base.length >= 2) {
+        if (drillable(item)) add(DrillQuestionKind.Cloze)
+        if (isVerb(head) && isGodan(head) && head.cform.contains("音便") && head.base.takeLast(1) in GodanEndings && head.base.length >= 2) {
             add(DrillQuestionKind.BaseForm)
-        }
-        if (!verbGroup || isEmpty()) add(DrillQuestionKind.PointId)
-        if (pool.count { it.zh.isNotBlank() && it.sentenceId != item.sentenceId } >= 3 && item.zh.isNotBlank()) {
-            add(DrillQuestionKind.Meaning)
         }
     }
 
     /**
      * Builds a question for [item]; [salt] (seen count) rotates the kind so a repeat asks from
-     * another angle. [pool] supplies point titles and translations for distractors.
+     * another angle — the first time is always the 挖空.
      */
-    fun question(item: ConjugationDrillItem, pool: List<ConjugationDrillItem>, salt: Int): DrillQuestion {
-        val kinds = kindsFor(item, pool).ifEmpty { listOf(DrillQuestionKind.PointId) }
-        val kind = kinds[(salt + abs(item.id.hashCode())) % kinds.size]
+    fun question(item: ConjugationDrillItem, salt: Int): DrillQuestion {
+        val kinds = kindsFor(item).ifEmpty { listOf(DrillQuestionKind.Cloze) }
+        val kind = kinds[salt % kinds.size]
         val seed = abs((item.id + salt).hashCode())
         return when (kind) {
-            DrillQuestionKind.RowForm -> rowForm(item, seed)
             DrillQuestionKind.BaseForm -> baseForm(item, seed)
-            DrillQuestionKind.PointId, DrillQuestionKind.Practice -> pointId(item, pool, seed)
-            DrillQuestionKind.Meaning -> meaning(item, pool, seed)
+            else -> cloze(item, seed)
         }
     }
 
-    private fun rowForm(item: ConjugationDrillItem, seed: Int): DrillQuestion {
-        val head = item.head
-        val type = typeLabel(head.ctype)
-        val form = formLabel(head.cform)
-        val correct = "$type · $form"
-        val forms = listOf("未然形", "连用形", "终止形", "假定形", "命令形", "意志形") +
-            listOf("连用形·促音便", "连用形·イ音便", "连用形·拨音便")
-        val otherForms = forms.filter { it != form && it.substringBefore('·') != form.substringBefore('·') }
-        val otherTypes = if (isGodan(head)) {
-            val row = type.removeSuffix("五段").removeSuffix("行")
-            Rows.filter { it != row }.map { "${it}行五段" } + listOf("上一段", "下一段")
-        } else {
-            listOf("上一段", "下一段", "サ变", "カ变", "ラ行五段").filter { it != type }
-        }
-        val distractors = linkedSetOf<String>()
-        distractors += "$type · ${otherForms[seed % otherForms.size]}"
-        distractors += "${otherTypes[seed % otherTypes.size]} · $form"
-        distractors += "${otherTypes[(seed / 7) % otherTypes.size]} · ${otherForms[(seed / 3) % otherForms.size]}"
-        var i = 0
-        while (distractors.size < 3) distractors += "$type · ${otherForms[(seed + ++i) % otherForms.size]}"
+    /** 絶対に［ ? ］なんねえ — which form of 止める goes here? Options differ only in the form. */
+    private fun cloze(item: ConjugationDrillItem, seed: Int): DrillQuestion {
+        val choices = DrillCloze.choices(item) ?: DrillCloze.Choices(item.target, emptyList())
         return assemble(
-            item, DrillQuestionKind.RowForm,
-            "「${head.surface}」是哪一类动词、哪个活用形？",
-            correct, distractors.filter { it != correct }.take(3), seed, japanese = false,
+            item, DrillQuestionKind.Cloze,
+            "「${item.head.base}」在这里该用哪个形？",
+            choices.answer, choices.wrong, seed, japanese = true,
         )
     }
 
+    /** 書いて → 書く: back from an 音便 to the 辞书形 (the ending is what the 音便 hides). */
     private fun baseForm(item: ConjugationDrillItem, seed: Int): DrillQuestion {
         val head = item.head
         val stem = head.base.dropLast(1)
@@ -152,30 +131,6 @@ object ConjugationDrillRules {
         )
     }
 
-    private fun pointId(item: ConjugationDrillItem, pool: List<ConjugationDrillItem>, seed: Int): DrillQuestion {
-        val titles = pool.map { it.pointId to it }.distinctBy { it.first }
-        val sameGroup = titles.filter { it.second.group == item.group && it.first != item.pointId }
-        val others = titles.filter { it.second.group != item.group }
-        val ordered = rotate(sameGroup, seed) + rotate(others, seed / 3)
-        val distractors = ordered.map { it.second.pointTitle }.filter { it != item.pointTitle }.distinct().take(3)
-        return assemble(
-            item, DrillQuestionKind.PointId,
-            "「${item.target}」用的是哪个语法？",
-            item.pointTitle, distractors, seed, japanese = false,
-        )
-    }
-
-    private fun meaning(item: ConjugationDrillItem, pool: List<ConjugationDrillItem>, seed: Int): DrillQuestion {
-        val samePoint = pool.filter { it.pointId == item.pointId && it.sentenceId != item.sentenceId && it.zh.isNotBlank() }
-        val others = pool.filter { it.pointId != item.pointId && it.group == item.group && it.zh.isNotBlank() }
-        val distractors = (rotate(samePoint, seed) + rotate(others, seed / 5))
-            .map { it.zh.trim() }
-            .filter { it != item.zh.trim() }
-            .distinct()
-            .take(3)
-        return assemble(item, DrillQuestionKind.Meaning, "这句台词的意思是？", item.zh.trim(), distractors, seed, japanese = false)
-    }
-
     /** A 板書 practice question: 「飲む → ない形」 with the lesson's hand-picked wrong forms. */
     fun practice(pointId: String, practice: LessonPractice): DrillQuestion {
         val seed = abs((pointId + practice.prompt).hashCode())
@@ -193,9 +148,6 @@ object ConjugationDrillRules {
             why = practice.why,
         )
     }
-
-    private fun <T> rotate(list: List<T>, seed: Int): List<T> =
-        if (list.isEmpty()) list else list.indices.map { list[(it + seed) % list.size] }
 
     private fun assemble(
         item: ConjugationDrillItem,
@@ -242,8 +194,9 @@ object ConjugationDrillRules {
         today: Long,
         size: Int = SessionSize,
     ): List<ConjugationDrillItem> {
-        val due = items.filter { isDue(progress[it.id], today) }.sortedWith(compareBy({ progress[it.id]?.box ?: 0 }, { it.sortOrder }))
-        val fresh = items.filter { progress[it.id] == null }.sortedBy { it.sortOrder }
+        val askable = items.filter(::drillable)
+        val due = askable.filter { isDue(progress[it.id], today) }.sortedWith(compareBy({ progress[it.id]?.box ?: 0 }, { it.sortOrder }))
+        val fresh = askable.filter { progress[it.id] == null }.sortedBy { it.sortOrder }
         // Interleave points among fresh lines so one set is not 15 of the same pattern.
         val interleaved = fresh.groupBy { it.pointId }.values.let { groups ->
             val iterators = groups.map { it.iterator() }
@@ -258,8 +211,9 @@ object ConjugationDrillRules {
         progress: Map<String, DrillProgress>,
         size: Int = LessonLines,
     ): List<ConjugationDrillItem> {
-        val fresh = items.filter { progress[it.id] == null }.sortedBy { it.sortOrder }
-        val seen = items.filter { progress[it.id] != null }.sortedWith(compareBy({ progress[it.id]?.box ?: 0 }, { it.sortOrder }))
+        val askable = items.filter(::drillable)
+        val fresh = askable.filter { progress[it.id] == null }.sortedBy { it.sortOrder }
+        val seen = askable.filter { progress[it.id] != null }.sortedWith(compareBy({ progress[it.id]?.box ?: 0 }, { it.sortOrder }))
         return (fresh + seen).distinctBy { it.sentenceId }.take(size)
     }
 

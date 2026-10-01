@@ -413,7 +413,7 @@ private fun SampleLine(
                 options = voice.labels,
                 selected = voice.index,
                 onSelect = voice.onSelect,
-                onClick = { audio.play(cue, ttsWorkerUrl) },
+                onClick = { audio.toggle(cue, ttsWorkerUrl) },
             )
         }
     }

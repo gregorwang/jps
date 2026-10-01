@@ -94,7 +94,7 @@ fun DictEntrySheet(
                     onPlayExample = {
                         if (example != null) {
                             speaking = false
-                            audio.play(promptAudioForSentence(workSlug, example, autoPlay = false), uiState.settings.ttsWorkerUrl)
+                            audio.toggle(promptAudioForSentence(workSlug, example, autoPlay = false), uiState.settings.ttsWorkerUrl)
                         }
                     },
                     onToggleSave = { Notebook.toggle(appContext, entry) },
@@ -126,7 +126,7 @@ fun DictEntrySheet(
                     val line = uiState.shadowing.firstOrNull { point.sourceLineNo > 0 && it.sourceLineNo == point.sourceLineNo }
                     if (line != null) {
                         speaking = false
-                        audio.play(promptAudioForSentence(workSlug, line, autoPlay = false), uiState.settings.ttsWorkerUrl)
+                        audio.toggle(promptAudioForSentence(workSlug, line, autoPlay = false), uiState.settings.ttsWorkerUrl)
                     } else {
                         speak(point.exampleJa)
                     }

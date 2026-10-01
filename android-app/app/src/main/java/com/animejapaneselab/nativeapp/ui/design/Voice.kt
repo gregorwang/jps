@@ -134,3 +134,47 @@ fun VoicePill(playing: Boolean, onClick: () -> Unit, modifier: Modifier = Modifi
         Text(label, style = AjlTheme.type.meta.copy(fontSize = 12.sp), color = content)
     }
 }
+
+/**
+ * 声波 as the play control itself (no round ▶): a short row of bars, low and grey at rest; tap it
+ * and it bounces in the work colour while the line sounds, tap again to stop. [synthetic] (TTS)
+ * bounces grey instead, so 原声 and 合成 tell apart without a label.
+ */
+@Composable
+fun VoiceWave(
+    playing: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    synthetic: Boolean = false,
+) {
+    val colors = AjlTheme.colors
+    val phase by rememberVoicePhase(playing, periodMillis = 1100)
+    val level by animateFloatAsState(if (playing) 1f else 0f, tween(MotionTokens.Dur.State), label = "wave-level")
+    val rest = remember { floatArrayOf(0.35f, 0.6f, 0.45f, 0.8f, 0.5f, 0.7f, 0.4f, 0.55f, 0.3f) }
+    val color = if (playing && !synthetic) AjlTheme.work.accent else colors.ink3
+    Canvas(
+        modifier
+            .heightIn(min = 44.dp)
+            .size(width = 64.dp, height = 44.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClickLabel = if (playing) "停止" else "播放", role = Role.Button, onClick = onClick)
+            .padding(horizontal = 8.dp, vertical = 12.dp),
+    ) {
+        val n = rest.size
+        val barW = 2.4.dp.toPx()
+        val gap = (size.width - barW * n) / (n - 1)
+        val minH = 3.dp.toPx()
+        rest.forEachIndexed { i, r ->
+            val wave = abs(sin(2 * PI * (phase + i / n.toFloat()))).toFloat()
+            val idle = minH + (size.height - minH) * r * 0.45f
+            val live = minH + (size.height - minH) * (0.3f + 0.7f * wave)
+            val h = idle + (live - idle) * level
+            drawRoundRect(
+                color = color,
+                topLeft = Offset(i * (barW + gap), (size.height - h) / 2),
+                size = Size(barW, h),
+                cornerRadius = CornerRadius(barW / 2),
+            )
+        }
+    }
+}

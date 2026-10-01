@@ -177,7 +177,7 @@ fun LessonSessionScreen(
         character = LessonRules.reactionCharacter(info?.speaker, workSlug, episode),
         sheetInset = with(density) { sheetHeight.toDp() },
         playback = audio.playbackState,
-        onPlay = { cue -> audio.play(cue, settings.ttsWorkerUrl) },
+        onPlay = { cue -> audio.toggle(cue, settings.ttsWorkerUrl) },
         onSpeak = { text -> audio.speakText(text, settings.ttsWorkerUrl) },
         onSubmit = onSubmitAnswer,
         onWrongTap = { feedbackEngine?.emit(FeedbackEvent.AnswerWrong) },

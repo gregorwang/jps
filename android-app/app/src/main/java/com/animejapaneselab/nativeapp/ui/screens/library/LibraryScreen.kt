@@ -231,7 +231,7 @@ fun LibraryScreen(
                     savedKeys = savedKeys,
                     audioBusy = audioBusy,
                     onSpeak = { audio.speakText(it, uiState.settings.ttsWorkerUrl) },
-                    onPlayExample = { line -> audio.play(promptAudioForSentence(workSlug, line, autoPlay = false), uiState.settings.ttsWorkerUrl) },
+                    onPlayExample = { line -> audio.toggle(promptAudioForSentence(workSlug, line, autoPlay = false), uiState.settings.ttsWorkerUrl) },
                     onAsk = { item -> onAskAi(item.aiKey(), "vocab", item.surface, item.aiContext(episodeLabel)) },
                     onLearn = { studyIds = listOf(it.id) },
                     onLearnMany = { ids -> studyIds = ids },
@@ -242,7 +242,7 @@ fun LibraryScreen(
                     savedKeys = savedKeys,
                     audioBusy = audioBusy,
                     onSpeak = { audio.speakText(it, uiState.settings.ttsWorkerUrl) },
-                    onPlayLine = { line -> audio.play(promptAudioForSentence(workSlug, line, autoPlay = false), uiState.settings.ttsWorkerUrl) },
+                    onPlayLine = { line -> audio.toggle(promptAudioForSentence(workSlug, line, autoPlay = false), uiState.settings.ttsWorkerUrl) },
                     onAsk = { item -> onAskAi(item.aiKey(), "grammar", item.pattern, item.aiContext(episodeLabel)) },
                     onLearn = { onTargetLesson(LessonTarget.Grammar(it.id)) },
                 )
