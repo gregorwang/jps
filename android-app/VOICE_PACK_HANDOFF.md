@@ -27,7 +27,8 @@ Supabase 文本 ──batch_items.py──> batch_items.json（要念的清单�
   - **`problem_words.tsv`：人能直接看的问题清单**（Excel 可开）：状态 / 类型 / 原文 / 该念 / Whisper 听成，共 2615 行（单词 978、变形 1391、语法例句回听不过 246）。
   - `pack_drop.json`：打包时排除的 key（只有 key，要看是哪个词查上面的 tsv 或 `pack_tools.py lookup`）。
   - `pack_tools.py`：**本地工具，不花钱**（见第 3 节）。
-- 包里现在是（**2026-10-01 第四版，28525 条，207MB**）：第三版 + 有原声的台词 `line` 3864（`learning_sentences.ja_text`）+ 原作页挂原声的字幕行 `subline` 1188 + K-ON 全部字幕 `kon` 4310。这三类**不做 Whisper 回听**（`batch.py::lines`），App 的声音按钮能切回原声 / TTS（`ui/voicepack/VoiceChoice.kt`，三档：原声 / エミリア / TTS，TTS 档跳过语音包）。实际约 2 万 L4 GPU 秒。
+- 包里现在是（**2026-10-01 第五版，30658 条，216MB**）：第四版 + 辞書高频补充的单词 `jword` 1761 / 2059（按读音回听，录 4 次）+ 语法例句 `jgram` 341（音色转换，不回听），见 `FREQ_WORDS_HANDOFF.md`。`batch.py::retake` 多了 `--only 词,词 --redo`（读音改了要重录时用，先把旧录音的回听记录清掉）。
+- 第四版是（2026-10-01，28525 条，207MB）：第三版 + 有原声的台词 `line` 3864（`learning_sentences.ja_text`）+ 原作页挂原声的字幕行 `subline` 1188 + K-ON 全部字幕 `kon` 4310。这三类**不做 Whisper 回听**（`batch.py::lines`），App 的声音按钮能切回原声 / TTS（`ui/voicepack/VoiceChoice.kt`，三档：原声 / エミリア / TTS，TTS 档跳过语音包）。实际约 2 万 L4 GPU 秒。
 - 第三版是（2026-10-01，19163 条，127MB）：单词 3006 / 3466、词卡变形 7753 / 8239、语法例句 2685 / 2705、台词 4717 / 4832、语法句型 1004 / 1226（`kind=pattern`，第三版新增）。（2026-09-29 第二版是 11755 条。）清单来源：单词 `learning_vocab_items.surface`（念的是 `vocab_cards.json` / `reading` 的假名 +「。」）、语法 `learning_grammar_points.ja_example`、台词 `learning_sentences.ja_text`（只取没原声的，还没批量生成）。
 
 ## 2. 已知问题（写文档时已经发现）
