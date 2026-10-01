@@ -127,6 +127,12 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 ## 8. 经验记录（每次会话结束补几条）
 
+**2026-10-01 · 0.21.0（12 篇文档全部做成知識卡，共 370 张）**
+- 新卡数据在 `archive-content-sources/knowledge-cards/canvas-gen/decks_more.py`（S2/S4 仍在 `decks_data.py`），`python build_asset.py` 直接校验（kind、【】配对、quiz 答案、tests 指向）并写 `assets/knowledge_cards.json`，不再经过画布。一篇做完就 build + commit asset，中断了能从 git 接着做。
+- 用户定的原则：**重复没关系，讲错不行**。原文档（AI 写的）错处不少（失敗な、母的归属、作り方接原形、妹=み、蹴る 古典是下一段……），卡上一律改正，并在汇报里列出来。
+- 字形微差卡只能放 Unicode 不同的字（歩/步）：器、内 这类中日同码，手机上显示一样。
+- 长内容别用 bash heredoc 塞 python（会截断），直接用 Edit 往 `decks_more.py` 里加。
+
 **2026-09-30 · 0.19.0（単語重做 + 帳面重排）**
 - 用户看完画布说「照那个来」，就不必再逐条确认交接文档里的问题，直接做。
 - 単語是**独立的 pager**（`TangoScreen`），不走 `FeedRules` / `ReviewFeed`：5 张词卡 + 1 张小测卡，`Tango`（`ui/words/Tango.kt`）存 Leitner 箱和当前组，小测答完才动箱；♥ 掌握 = `KnownWords.setWord`（和辞書的已斩是同一份），收藏 = `Notebook.toggle`。旧的 `VocabDeck` 伪合集和 `VocabBody` 已经没有入口，可以删。
