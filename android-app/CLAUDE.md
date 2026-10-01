@@ -50,7 +50,7 @@ v3 重写派了 6 个页面包、7 个子代理，合计约 120 万 token。钱�
   - `ui/jishu/Jishu.kt`（`JishuViewModel`）：一次学习（板書 + 8 张场景句卡）、「覚えた」记录（`pointId::sentenceId`）、场景上下文（按集拉 `/subtitles` 取前后句）、`parseFormula` 把拆解拆成词块。
   - `ui/screens/jishu/`：首页（今日の自習 + 教科書书架）、目次、`JishuSittingScreen`（板書页、场景句卡、遮る）、つづく（小テスト 就地跑本课練習）。卡片上**不显示出处**（集数、时间、说话人），用户明确不要。
   - 72 课讲义在 `assets/conjugation_lessons.json`，由 Antigravity 写、`archive-content-sources/conjugation-drill-p1/lessons/check.py --install` 装入；课列表、台词、已学（`learned`）仍在 `ConjugationDrillViewModel`。一次学习结束就 `markLearned`，这课才进練習。
-- `ui/screens/<区域>/`：`today`、`learn`（課程 / 言語学 / 选番面板）、`session`（アイキャッチ、各题型、つづく、读空气、基础题库）、`library`（辞書、字幕）、`review`、`settings`（学生証、AI 历史）、`login`、`search`（命令面板）。`V3Contracts.kt` 里放的是回调合集。
+- `ui/screens/<区域>/`：`today`、`learn`（課程 / 言語学 / 选番面板）、`session`（アイキャッチ、各题型、つづく、读空气、基础题库）、`library`（辞書、原作 = `SubtitlesScreen`）、`review`、`settings`（学生証、AI 历史）、`login`、`search`（命令面板，按 `SearchScope` 分范围，见 0.22.0 经验）。`V3Contracts.kt` 里放的是回调合集。
 - `ui/design/`：v3 组件库。**写新 UI 之前先 grep 这里有没有现成的**：
   - `Primitives`：Hairline、MangaPanel、Screentone、ProgressLine
   - `Buttons`：InkButton、OutlineButton、QuietButton、IconButton44、WordTile
@@ -127,6 +127,12 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 - 登录是必须的，不做手写功能，Web 前端不是规范；默认只改 `android-app/` 下的文件。
 
 ## 8. 经验记录（每次会话结束补几条）
+
+**2026-10-01 · 0.22.0（搜索分范围 + 辞書去掉台词）**
+- 搜索还是一个 `CommandPalette`，范围由打开它的页面决定（`LabApp` 的 `paletteScope`，打开那一刻定死）：原作 → `Scenes`（向量搜索 + 「AI 挑一个场景」`/api/rag/suggest-training-query`），辞書 → `Dict`（整本 `LevelDict` + 当前话，`SearchIndex.kt` 的 `rank`），知識 → `Knowledge`（知识卡全文），其余 → `All`。練習没有搜索入口。新页面要搜索就加一个 scope，别再让所有页面共用一个范围。
+- 搜索结果要**直接打开目标**：词 / 语法用 `DictEntrySheet`（任何页面上弹词卡、语法卡），知识卡用 `ReviewFeed.show`（插到当前卡后面并翻过去，知識流还没建好时先挂起）。只切 tab 不算「打开」。
+- 辞書只剩 词汇 / 语法 / 收藏；台词全部在「原作」（原字幕页），`LinesPage` 已删。用户的判断：台词是整个素材库，不该在辞書里放一份每话 30 句的切片。
+- 网页版还没搬的只剩 `/api/rag/generate-question(s)`、`save-question(s)`（出题写进草稿表，属于出题后台，不搬）和手写练习（不做）。
 
 **2026-10-01 · 0.21.0（12 篇文档全部做成知識卡，共 370 张）**
 - 新卡数据在 `archive-content-sources/knowledge-cards/canvas-gen/decks_more.py`（S2/S4 仍在 `decks_data.py`），`python build_asset.py` 直接校验（kind、【】配对、quiz 答案、tests 指向）并写 `assets/knowledge_cards.json`，不再经过画布。一篇做完就 build + commit asset，中断了能从 git 接着做。
