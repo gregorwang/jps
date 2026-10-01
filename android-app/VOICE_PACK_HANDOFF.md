@@ -27,7 +27,7 @@ Supabase 文本 ──batch_items.py──> batch_items.json（要念的清单�
   - **`problem_words.tsv`：人能直接看的问题清单**（Excel 可开）：状态 / 类型 / 原文 / 该念 / Whisper 听成，共 2615 行（单词 978、变形 1391、语法例句回听不过 246）。
   - `pack_drop.json`：打包时排除的 key（只有 key，要看是哪个词查上面的 tsv 或 `pack_tools.py lookup`）。
   - `pack_tools.py`：**本地工具，不花钱**（见第 3 节）。
-- 包里现在是（2026-09-29 第二版，11755 条）：单词 2488 / 3466、词卡变形 6848 / 8239、语法例句 2415 / 2705、台词 4 / 3395。清单来源：单词 `learning_vocab_items.surface`（念的是 `vocab_cards.json` / `reading` 的假名 +「。」）、语法 `learning_grammar_points.ja_example`、台词 `learning_sentences.ja_text`（只取没原声的，还没批量生成）。
+- 包里现在是（**2026-10-01 第三版，19163 条，127MB**）：单词 3006 / 3466、词卡变形 7753 / 8239、语法例句 2685 / 2705、台词 4717 / 4832、语法句型 1004 / 1226（`kind=pattern`，第三版新增）。（2026-09-29 第二版是 11755 条。）清单来源：单词 `learning_vocab_items.surface`（念的是 `vocab_cards.json` / `reading` 的假名 +「。」）、语法 `learning_grammar_points.ja_example`、台词 `learning_sentences.ja_text`（只取没原声的，还没批量生成）。
 
 ## 2. 已知问题（写文档时已经发现）
 
@@ -35,18 +35,20 @@ Supabase 文本 ──batch_items.py──> batch_items.json（要念的清单�
    - 顺带发现的 App bug：词性标成动词的「戻りましょう」会推出「戻りましょおう」之类的怪形（词表数据问题）。
 1. ~~**单词校验太松，有念错的混进包里**~~：已改成按读音判定（2026-09-29，`recheck_words.py`）。Whisper 结果和 `say` / 原文都转成平假名（pykakasi + MeCab/unidic-lite 两种读法，任一一致就算对），读音一致才进包：同音字被误删的收回 336 条，读音对不上的 1407 条记进 `pack_drop.json`。还缺 978 个单词、1391 个变形，逐条在 `problem_words.tsv`。
    - 问题的类型（抽样 60 条看的）：**多数是模型真念错**，① 吞尾音（愛されよう→愛されよ、守り抜こう→まもりぬこ、夢見ます→ゆめみま），② 近音替换（告げます→継ぎます、秘めろ→決めろ、頼る→頼れ、善意→戦意），③ 清浊 / 促音错（罰しない→はしない、強欲→こうよく、絶頂→せっちょ）；**少数是 Whisper 对孤立短词听错、其实念对了**（聡明→ソメイ 丢长音）。宁可退回原来的语音也不教错音，所以全剔；误剔的那部分可以人工 `pack_tools.py play` 听了再从 `pack_drop.json` 里拿出来。
-   - 下一步（没做）：给这约 2400 条各重录一遍再按读音判（约 0.4 美元）。**注意 `batch.py` 的 `sbv2_chunk` 见到 `raw/<key>.wav` 已存在就跳过**，重录要先让它写到另一个目录（如 `raw2/`）或换 key 后缀，Whisper / encode 也要跟着读新目录；SBV2 每次推理本身有随机性，不用改参数。吞尾音类可以试着在 `say` 末尾多给一点停顿（「。」换成「。。」或加「…」），先 `--limit 30` 小批验证。
+   - **2026-10-01 已重录**（`batch.py::retake`，见第 3 节）：单词 / 变形 / 句型每条重录 3 + 3 次，按读音判，挑最好的一次；剩下的约 460 词、490 变形、220 句型（`retake_checks.json` 里能看到每次 Whisper 听成什么）多数是 Whisper 听孤立短词不准（制御塔→制御と、発作→ほさ），也有模型确实念不出（野蛮→やば）。再录收益很小，不建议再花钱。
+   - 原来的计划：给这约 2400 条各重录一遍再按读音判（约 0.4 美元）。**注意 `batch.py` 的 `sbv2_chunk` 见到 `raw/<key>.wav` 已存在就跳过**，重录要先让它写到另一个目录（如 `raw2/`）或换 key 后缀，Whisper / encode 也要跟着读新目录；SBV2 每次推理本身有随机性，不用改参数。吞尾音类可以试着在 `say` 末尾多给一点停顿（「。」换成「。。」或加「…」），先 `--limit 30` 小批验证。
    - 语法例句缺的 290 句：246 句是回听字错率 > 0.3 没过（在 tsv 里），44 句是当时预算到了没做音色转换（第 4 条）。
    - 以下是原来的记录（已按上面的方法修掉）：单词的通过线是「回听结果和词头或假名的字错率 ≤ 0.5」，因为 Whisper 对单个词会随意写成汉字或假名。结果 603 个通过的单词字错率 > 0，里面有真念错的：齟齬→「そこ」、高校→「ここ」、黙る→「黙れ」、魔女因子→「魔女陰死」；也有只是同音字的（龍剣→龍拳，读音一样，没问题）。
    - 修法：把 Whisper 结果转成假名再和 `say` 比（本机装 `pyopenjtalk` 或 `pykakasi` 做汉字→读音），读音不一致的 `pack_tools.py drop`，然后 `build` 重新打包。最省事的临时办法：`python pack_tools.py build --word-cer 0`，只留完全一致的单词（会少 600 个左右，不在包里的会退回原来的语音，不会出错）。
 2. **有些地方播的文字和清单对不上，所以没用上语音包**（听到的还是微软 / 手机的声音）。语音包按「App 传给 `playTts` 的原文」精确匹配，下面这些原文不在清单里：
-   - 辞書语法页点句型，念的是 `pattern` 去掉「〜」（`GrammarPage.speak`），清单里只有例句。
-   - 辞書台词、字幕页念的是 `parseSpokenLine(line.ja).text`（`LibraryScreen.kt`、`SubtitlesScreen.kt`），台词还没批量生成。
+   - ~~辞書语法页点句型，念的是 `pattern` 去掉「〜」（`GrammarPage.speak`），清单里只有例句。~~ 2026-10-01 已加进清单（`kind=pattern`，只收纯日文的句型，带 N / V / ＋ / 動詞… 占位的念不出来，跳过）。
+   - 辞書台词、字幕页念的是 `parseSpokenLine(line.ja).text`（`LibraryScreen.kt`、`SubtitlesScreen.kt`）。2026-10-01：无原声的 `learning_sentences` 已全部生成，`batch_items.py` 同时收原文和去掉说话人标记后的文本；**有原声的台词、字幕页的全部字幕行没有生成**（量大，切 TTS 时退回原来的语音）。
+   - 2026-10-01：単語卡里没有原声的台词（`vocab_lines.json` 里 audio 为空的，`TangoScreen.playTangoLine`）也加进了清单。
    - 学习卡 `StudyCardQuestion` 念 `node.japanese`，今日页念 `sample.ja`，自習场景句卡念 `item.jaText`：多数是有原声的台词或拼出来的句子，要逐个确认。
    - 用 `pack_tools.py lookup "<原文>"` 一查就知道：`listed=NO` 就是清单里没有这句。
    - 修法二选一：（a）把这些原文补进 `batch_items.py` 的清单，再生成（要花 Modal 的钱或在本机跑，见第 4 节）；（b）App 端查找时做规范化（比如去掉句末「。」、全半角空格统一），两边算 key 前做同样的规范化。**改 key 算法要两边一起改并重新打包**，否则全部查不到。
 3. **没有办法在手机上看出这次播的是不是语音包**。排查时很难确认。建议在 `playTts` 命中 / 未命中时打一行 `Log.d("VoicePack", "hit|miss key text")`，用户连电脑时用 `adb logcat -s VoicePack` 看；或者在播放状态文字里区分「爱蜜莉亚语音」和「合成语音」（`postPlaybackState` 的 message）。
-4. **约 40 句语法例句没做音色转换**（Modal 预算到了），它们不在包里，照旧用原来的语音，不算 bug。
+4. ~~**约 40 句语法例句没做音色转换**~~：2026-10-01 已补。
 
 ## 3. 本地工具 `pack_tools.py`（在 `archive-content-sources/emilia-voice/`，Git Bash 里加 `PYTHONIOENCODING=utf-8`）
 
@@ -56,6 +58,9 @@ python pack_tools.py lookup 齟齬 "それなら 私の出番じゃないかし�
 python pack_tools.py play 齟齬                          # 用电脑默认播放器放这条
 python pack_tools.py drop 齟齬 高校                      # 记进 pack_drop.json，以后打包都排除
 python pack_tools.py build [--word-cer 0] [--sent-cer 0.3]   # 按排除表和阈值重打 emilia-voice.zip
+python -m modal run batch.py::retake [--kinds word,form] [--word-takes 3] [--sent-takes 1] [--check-only]
+                                                       # 花钱：给还不在包里的条目录新的一次（raw/<key>__tN.wav），按读音 / 字错率挑最好的，
+                                                       # 直接下载进 out/、写 manifest、从 pack_drop.json 拿掉；--check-only 只补回听
 python recheck_words.py [--apply]                      # 按读音复查单词 / 变形：报告 → recheck_words.json；--apply 从 Modal volume 下载收回的 wav（免费）、本地转 opus、写 pack_drop.json
 ```
 
@@ -63,9 +68,9 @@ python recheck_words.py [--apply]                      # 按读音复查单词 /
 
 重打包后把 `emilia-voice.zip` 复制到用户「下载」，让用户在手机上「设置 → 语音包 → 重新导入」。**只改语音包不用发版**；改了 App 代码才走 `CLAUDE.md` 第 6 节发版。
 
-## 4. 要重新生成音频时（花钱，先问）
+## 4. 要重新生成音频时（花钱）
 
-- Modal 已经花到用户定的上限（约 14.7 / 15 美元）。**任何 `modal run` 之前先报预估花费，并得到用户同意**。按实测：SBV2 每条约 0.3 GPU 秒，Seed-VC 音色转换每句约 2 GPU 秒，Whisper 每条约 0.4 GPU 秒；L4 约 0.8 美元 / 小时，再加每个容器 1 分钟左右的模型加载。
+- 2026-10-01 用户说余额更新到 30 美元，重录类的任务不用先报价，直接跑。第三版共用约 2.8 万 L4 GPU 秒（约 6–7 美元）。**`modal` CLI 是独立安装的，没有 fugashi，`retake` 要用 `python -m modal run`**。按实测：SBV2 每条约 0.3 GPU 秒，Seed-VC 音色转换每句约 2 GPU 秒，Whisper 每条约 0.4 GPU 秒；L4 约 0.8 美元 / 小时，再加每个容器 1 分钟左右的模型加载。
 - 生成入口：`modal run --detach batch.py::run --kinds word,grammar,sentence [--limit N]`（已完成的 key 自动跳过，只做新的；每阶段有 GPU 秒上限参数 `--sbv2-s --vc-s --asr-s`）；只回听不生成：`batch.py::check_rest`；取回：`batch.py::fetch`。
 - 免费的办法是在本机 RTX 2060 跑推理（SBV2 约 1 亿参数、Seed-VC 约 2 亿，6GB 够），模型文件在 `emilia-voice/final/`，但 Windows 上要先装两套推理环境（SBV2 的 `pyopenjtalk` 在 Windows 上编译常出问题）。
 - 音频是声优的声音：**不能提交进这个公开仓库**，只在 `archive-content-sources/`（gitignore）和用户手机上。
