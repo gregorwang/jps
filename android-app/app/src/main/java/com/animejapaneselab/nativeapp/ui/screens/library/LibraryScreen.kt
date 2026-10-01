@@ -150,15 +150,28 @@ fun LibraryScreen(
     val dictLoaded by produceState<LevelDict.Loaded?>(LevelDict.peek(), uiState.settings.dictByEpisode) {
         if (!uiState.settings.dictByEpisode && value == null) value = withContext(Dispatchers.Default) { LevelDict.load(appContext) }
     }
-    val dictVocab = dictLoaded?.vocab.orEmpty()
-    val dictGrammar = dictLoaded?.grammar.orEmpty()
     // Grammar has no 級外: on that tab the chip falls back to N5.
     val shownLevel = if (selectedTab == 1 && level == LevelDict.Outside) "N5" else level
+    // 原作 = the two works' own entries; 高频补充 = anime-frequent JLPT entries the works lack (a level has some or none).
+    var freq by rememberSaveable { mutableStateOf(false) }
+    val freqCount = remember(dictLoaded, selectedTab, shownLevel) {
+        if (selectedTab == 1) dictLoaded?.freqGrammar.orEmpty().count { it.difficulty == shownLevel }
+        else dictLoaded?.freqVocab.orEmpty().count { it.level == shownLevel }
+    }
+    val origCount = remember(dictLoaded, selectedTab, shownLevel) {
+        if (selectedTab == 1) dictLoaded?.grammar.orEmpty().count { it.difficulty == shownLevel }
+        else dictLoaded?.vocab.orEmpty().count { it.level == shownLevel }
+    }
+    val showFreq = levelMode && freq && freqCount > 0
+    val dictVocab = if (showFreq) dictLoaded?.freqVocab.orEmpty() else dictLoaded?.vocab.orEmpty()
+    val dictGrammar = if (showFreq) dictLoaded?.freqGrammar.orEmpty() else dictLoaded?.grammar.orEmpty()
     val levelOptions = remember(dictLoaded, selectedTab) {
+        val dictVocab = dictLoaded?.vocab.orEmpty()
+        val dictGrammar = dictLoaded?.grammar.orEmpty()
         val counts = if (selectedTab == 1) dictGrammar.groupingBy { it.difficulty }.eachCount() else dictVocab.groupingBy { it.level }.eachCount()
         (Jlpt.Levels + if (selectedTab == 1) emptyList() else listOf(LevelDict.Outside)).map { LevelOption(it, levelLabel(it), counts[it] ?: 0) }
     }
-    val baseVocab = remember(levelMode, dictLoaded, shownLevel, uiState.vocab) {
+    val baseVocab = remember(levelMode, dictLoaded, shownLevel, uiState.vocab, showFreq) {
         if (levelMode) dictVocab.filter { it.level == shownLevel } else uiState.vocab
     }
     val posIndex = remember(baseVocab) { PosCat.index(baseVocab) }
@@ -166,7 +179,7 @@ fun LibraryScreen(
     val shownVocab = remember(baseVocab, posIndex, pos) {
         if (pos == PosCat.All) baseVocab else baseVocab.filter { PosCat.matches(posIndex[it.id], pos) }
     }
-    val pageState = remember(uiState, levelMode, shownVocab, dictLoaded, shownLevel) {
+    val pageState = remember(uiState, levelMode, shownVocab, dictLoaded, shownLevel, showFreq) {
         if (levelMode) {
             uiState.copy(vocab = shownVocab, grammar = dictGrammar.filter { it.difficulty == shownLevel }, shadowing = emptyList())
         } else {
@@ -212,6 +225,19 @@ fun LibraryScreen(
                 }
             },
         )
+        if (levelMode && freqCount > 0) {
+            SourceSwitch(
+                freq = showFreq,
+                origCount = origCount,
+                freqCount = freqCount,
+                onSelect = {
+                    freq = it
+                    pos = PosCat.All
+                    drawerOpen = false
+                },
+                modifier = Modifier.padding(horizontal = 20.dp),
+            )
+        }
         if (selectedTab == 0) {
             PosHandle(
                 selected = pos,
@@ -223,7 +249,7 @@ fun LibraryScreen(
             )
         }
         Box(Modifier.fillMaxWidth().weight(1f)) {
-            val scope = if (levelMode) "lv#$shownLevel#$pos#$selectedTab" else "$workSlug#$episode#$selectedTab#$pos"
+            val scope = if (levelMode) "lv#$shownLevel#$pos#$selectedTab#$showFreq" else "$workSlug#$episode#$selectedTab#$pos"
             when (selectedTab) {
                 0 -> VocabPage(
                     key = scope,

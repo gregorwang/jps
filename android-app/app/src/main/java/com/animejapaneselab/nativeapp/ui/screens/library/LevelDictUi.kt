@@ -313,3 +313,33 @@ internal fun LevelChip(selected: String, options: List<LevelOption>, onSelect: (
 
 /** 级外 is shown as 級外; the other keys are shown as they are. */
 internal fun levelLabel(key: String): String = if (key == LevelDict.Outside) "級外" else key
+
+/**
+ * 原作 / 高频补充 for the level view: the works' own entries, or the anime-frequent JLPT ones they lack.
+ * Two text toggles with counts (only shown when the level has 高频补充 at all).
+ */
+@Composable
+internal fun SourceSwitch(freq: Boolean, origCount: Int, freqCount: Int, onSelect: (Boolean) -> Unit, modifier: Modifier = Modifier) {
+    val colors = AjlTheme.colors
+    Box(modifier.fillMaxWidth().height(40.dp)) {
+        Row(
+            Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(18.dp),
+        ) {
+            listOf(false to "原作 $origCount", true to "高频补充 $freqCount").forEach { (value, label) ->
+                val on = value == freq
+                Text(
+                    label,
+                    style = AjlTheme.type.caption.copy(fontSize = 13.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal),
+                    color = if (on) AjlTheme.work.accent else colors.ink3,
+                    modifier = Modifier
+                        .clickableNoRipple(onClick = { onSelect(value) })
+                        .padding(vertical = 10.dp)
+                        .semantics { contentDescription = if (value) "看高频补充词条" else "看原作词条" },
+                )
+            }
+        }
+        Hairline(Modifier.align(Alignment.BottomStart))
+    }
+}

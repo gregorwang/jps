@@ -220,7 +220,7 @@ private fun PalettePanel(
         if (!scope.dict) return@produceState
         value = withContext(Dispatchers.Default) {
             val dict = LevelDict.load(context)
-            indexDict(dict.vocab + uiState.vocab, dict.grammar + uiState.grammar)
+            indexDict(dict.vocab + dict.freqVocab + uiState.vocab, dict.grammar + dict.freqGrammar + uiState.grammar)
         }
     }
     val knowIndex by produceState<List<Indexed<KnowledgeCard>>>(emptyList(), scope) {
