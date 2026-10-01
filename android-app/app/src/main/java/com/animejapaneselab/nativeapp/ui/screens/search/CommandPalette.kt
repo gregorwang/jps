@@ -572,7 +572,9 @@ private fun LazyListScope.readySections(
                 )
             }
         } else {
-            source.lines.forEachIndexed { lineIndex, line ->
+            // Only the matched lines of the chunk; without ranking, its first two lines.
+            val shown = source.lines.filter { it.lineNo in source.hitLineNos }.ifEmpty { source.lines.take(2) }
+            shown.forEachIndexed { lineIndex, line ->
                 item(key = "src-$index-${source.id}-$lineIndex") {
                     LineHit(
                         ja = line.jaText,

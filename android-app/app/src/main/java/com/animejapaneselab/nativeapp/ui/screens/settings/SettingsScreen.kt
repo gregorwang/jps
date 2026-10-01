@@ -81,12 +81,13 @@ import kotlinx.coroutines.withContext
 private val FallbackAiModels = listOf(
     AiModelOption("gemini-3.5-flash-lite", "Gemini 3.5 Flash-Lite"),
     AiModelOption("gemini-3.6-flash", "Gemini 3.6 Flash"),
+    AiModelOption("gemini-3.8-flash", "Gemini 3.8 Flash"),
+    AiModelOption("grok-4.7", "Grok 4.7"),
     AiModelOption("deepseek-v4-flash", "DeepSeek V4 Flash"),
     AiModelOption("deepseek-v4-pro", "DeepSeek V4 Pro"),
-    AiModelOption("grok-4.3", "Grok 4.3"),
 )
 
-private const val ReasoningModel = "grok-4.3"
+private const val ReasoningModel = "grok-4.7"
 private val ReasoningEfforts = listOf("low" to "低", "medium" to "中", "high" to "高")
 
 /** Which inline editor under a row is open (one at a time). */

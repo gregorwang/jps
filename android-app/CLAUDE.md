@@ -128,6 +128,12 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 ## 8. 经验记录（每次会话结束补几条）
 
+**2026-10-01 · 0.22.1（联网实测：AI 500/400、场景搜索、模型更新）**
+- **0.22.0 没做任何联网测试就发了**，用户在手机上发现 AI 接口报 500/400、场景搜索结果全不相关。规矩：**动到联网功能（worker、AI、搜索）时，发版前必须跑 `scripts/probe-ai.py`**（`AJL_EMAIL` / `AJL_PASSWORD` 环境变量，账号直接问用户要，别自己翻文件或造会话），每行都要 200；搜索类功能还要看结果内容对不对，不只看状态码。
+- 查出来的坑：worker 的 `allowedCacheKinds` 漏了 `quick_feedback`（AI 写好了，存缓存时抛错变 500）；App 调 worker 的 `readTimeout` 原来只有 25 秒（AI/RAG 现在 120 秒）；向量库 metadata 是 `rezero`、字幕表是 `re-zero`，且 `subtitle_chunks` 里没有 Re:ゼロ，按时间窗取行。
+- 模型清单别凭记忆：用 `.dev.vars` 的 `CF_AIG_TOKEN` 走网关列 `google-ai-studio/v1beta/models` 和 `grok/v1/models`（Python 要带浏览器 UA，否则 1010）。Gemini 3.x 的思考 token 算在 `max_tokens` 里（会把正文截断），3.8 Flash 不支持 `minimal`。非默认模型失败一律退回 Flash-Lite（`callAiGateway`）。
+- 场景搜索：中文描述先由 Flash-Lite 改写成日语台词再搜（`expandSceneQuery`），块内逐句用 bge-m3 打分标 `hit`（`rankSourceLines`）。剩下的瓶颈是索引粒度（30 行一块，召回不到），要按单句重建索引，**改后端数据，先问用户**。
+
 **2026-10-01 · 0.22.0（搜索分范围 + 辞書去掉台词）**
 - 搜索还是一个 `CommandPalette`，范围由打开它的页面决定（`LabApp` 的 `paletteScope`，打开那一刻定死）：原作 → `Scenes`（向量搜索 + 「AI 挑一个场景」`/api/rag/suggest-training-query`），辞書 → `Dict`（整本 `LevelDict` + 当前话，`SearchIndex.kt` 的 `rank`），知識 → `Knowledge`（知识卡全文），其余 → `All`。練習没有搜索入口。新页面要搜索就加一个 scope，别再让所有页面共用一个范围。
 - 搜索结果要**直接打开目标**：词 / 语法用 `DictEntrySheet`（任何页面上弹词卡、语法卡），知识卡用 `ReviewFeed.show`（插到当前卡后面并翻过去，知識流还没建好时先挂起）。只切 tab 不算「打开」。

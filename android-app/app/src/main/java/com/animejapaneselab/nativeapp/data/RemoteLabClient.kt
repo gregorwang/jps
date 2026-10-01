@@ -598,7 +598,8 @@ class RemoteLabClient(
         val connection = (URL("$normalizedBase$path").openConnection() as HttpURLConnection).apply {
             requestMethod = method
             connectTimeout = 15_000
-            readTimeout = 25_000
+            // Model calls (a reasoning Grok answer, a deep dive) can take a minute; everything else is quick.
+            readTimeout = if (path.startsWith("/api/ai/") || path.startsWith("/api/rag/")) 120_000 else 25_000
             setRequestProperty("Accept", "application/json")
             if (sessionCookie.isNotBlank()) {
                 setRequestProperty("Cookie", sessionCookie)
@@ -931,6 +932,9 @@ internal fun parseRagSearchJson(json: String): RagSearchResult {
                     zhText = line.string("zhText", line.string("zh_text")),
                 )
             }.filter { it.jaText.isNotBlank() },
+            hitLineNos = (source.optJSONArray("lines") ?: JSONArray()).mapObjects { line ->
+                line.optInt("lineNo", 0).takeIf { line.optBoolean("hit", false) }
+            }.filterNotNull().toSet(),
         )
     }.filter { it.id.isNotBlank() || it.text.isNotBlank() }
     val analysis = response.optJSONObject("analysis")?.let { item ->

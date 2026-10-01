@@ -8,6 +8,7 @@ const val DefaultAiModel = "gemini-3.5-flash-lite"
 val LegacyAiModels = mapOf(
     "gemini-3.1-flash-lite" to "gemini-3.5-flash-lite",
     "gemini-3.5-flash" to "gemini-3.6-flash",
+    "grok-4.3" to "grok-4.7",
 )
 const val DefaultReasoningEffort = "high"
 
@@ -500,6 +501,8 @@ data class RagSearchSource(
     val endTime: String,
     val text: String,
     val lines: List<SubtitleLine> = emptyList(),
+    /** Lines the worker ranked as the match inside this ~30-line chunk (the rest is context). */
+    val hitLineNos: Set<Int> = emptySet(),
 )
 
 data class RagAnalysis(
