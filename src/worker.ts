@@ -2260,7 +2260,7 @@ async function buildCacheKey(prefix: string, value: string) {
 
 async function handleRagSearch(request: Request, env: Env) {
   const body = (await request.json().catch(() => null)) as
-    | { query?: string; workSlug?: string; season?: number; episode?: number; topK?: number; model?: GatewayModel; reasoningEffort?: ReasoningEffort; deviceId?: string; analyze?: boolean }
+    | { query?: string; workSlug?: string; season?: number; episode?: number; topK?: number; model?: GatewayModel; reasoningEffort?: ReasoningEffort; deviceId?: string; analyze?: boolean; explain?: boolean }
     | null
 
   const query = body?.query?.trim()
@@ -2271,25 +2271,23 @@ async function handleRagSearch(request: Request, env: Env) {
   if (!workSlug) {
     return json({ error: { message: 'workSlug is required' } }, 400)
   }
-  if (!isRagWorkSlug(workSlug)) {
-    return json({ error: { message: 'workSlug must be one of: rezero, k-on' } }, 400)
+  if (workSlug !== 'all' && !isRagWorkSlug(workSlug)) {
+    return json({ error: { message: 'workSlug must be one of: rezero, k-on, all' } }, 400)
   }
+  // `all`: the scene search looks in every work at once and ranks the lines together.
+  const works: RagWorkSlug[] = workSlug === 'all' ? ['rezero', 'k-on'] : [workSlug as RagWorkSlug]
   const episode = typeof body?.episode === 'number' && Number.isFinite(body.episode) ? body.episode : undefined
   const season = episode == null && typeof body?.season === 'number' && Number.isFinite(body.season) ? body.season : undefined
   const topK = Math.min(Math.max(body?.topK ?? 5, 1), 50)
 
   // A Chinese scene description is matched poorly against Japanese-only chunks: search with a few
   // Japanese lines such a scene would have instead (the original wording is kept in front).
-  const expanded = await expandSceneQuery(env, query)
+  const examples = await expandSceneQuery(env, query)
+  const expanded = examples.map((example) => example.ja)
   const searchText = expanded.length > 0 ? [query, ...expanded].join('\n') : query
 
-  const result = await searchSubtitleChunks(env, {
-    query: searchText,
-    work: workSlug,
-    season,
-    episode,
-    topK,
-  })
+  const results = await Promise.all(works.map((work) => searchSubtitleChunks(env, { query: searchText, work, season, episode, topK })))
+  const result = { matches: results.flatMap((item) => item.matches ?? []).sort((a, b) => b.score - a.score) }
 
   const sources = await Promise.all(
     (result.matches ?? [])
@@ -2331,9 +2329,16 @@ async function handleRagSearch(request: Request, env: Env) {
         startTime: readString(metadata, 'start_time'),
         endTime: readString(metadata, 'end_time'),
         text: readString(metadata, 'text'),
-        lines: lines.map((row) => ({ ...mapSubtitle(row), score: undefined as number | undefined, hit: undefined as boolean | undefined })),
+        lines: lines.map((row) => ({
+          ...mapSubtitle(row),
+          score: undefined as number | undefined,
+          hit: undefined as boolean | undefined,
+          audioUrl: '',
+          storagePath: '',
+        })),
         bestScore: undefined as number | undefined,
         bestLineNo: undefined as number | undefined,
+        match: undefined as SceneMatch | undefined,
       }
     }),
   )
@@ -2349,9 +2354,19 @@ async function handleRagSearch(request: Request, env: Env) {
     return true
   })
   sources.splice(0, sources.length, ...distinct)
+  await attachLineAudio(env, sources)
+
+  // The subtitle Chinese is often misaligned: the hit line gets its own translation, a reason and a
+  // relevance grade; when nothing is relevant the client says so instead of showing noise.
+  let weak = false
+  if (body?.explain) {
+    await judgeSceneHits(env, query, sources)
+    sources.sort((a, b) => (b.match?.relevance ?? 0) - (a.match?.relevance ?? 0) || (b.bestScore ?? b.score) - (a.bestScore ?? a.score))
+    weak = !sources.some((source) => (source.match?.relevance ?? 0) >= 1)
+  }
 
   // Plain search is vector-only; the LLM reading costs a call, so callers opt in (default on for old clients).
-  if (body?.analyze === false) return json({ query, expanded, sources, analysis: null })
+  if (body?.analyze === false) return json({ query, expanded, examples, weak, sources, analysis: null })
 
   const model = normalizeGatewayModel(body?.model)
   const reasoningEffort = effortFor(model, normalizeReasoningEffort(body?.reasoningEffort), 'low')
@@ -2405,26 +2420,39 @@ function normalizeRagWorkSlug(value: string): RagWorkSlug {
 type RankedLine = { lineNo: number; jaText: string; score?: number; hit?: boolean }
 type RankedSource = { score: number; bestScore?: number; bestLineNo?: number; lines: RankedLine[] }
 
+type SceneExample = { ja: string; zh: string }
+type SceneMatch = { lineNo: number; relevance: number; zh: string; why: string; mark: string }
+
 /** Japanese lines a scene described in Chinese would have; [] for queries that are already Japanese. */
-async function expandSceneQuery(env: Env, query: string): Promise<string[]> {
+async function expandSceneQuery(env: Env, query: string): Promise<SceneExample[]> {
   if (/[\u3040-\u30ff]/u.test(query)) return []
   try {
     const raw = await callAiGateway(
       env,
       defaultGatewayModel,
       '你把中文的场景描述改写成动漫里角色在这种场景下真的会说的日语台词，用于向量检索。只输出 JSON。',
-      `场景：${query.slice(0, 200)}\n写 4 句口语化、彼此不同的日语台词（每句 20 字以内，不要假名注音，不要翻译）。`,
+      `场景：${query.slice(0, 200)}\n写 4 句口语化、彼此不同的日语台词（每句 20 字以内，不要假名注音），每句附一句自然的中文意思。`,
       {
         maxTokens: 300,
         temperature: 0.4,
         reasoningEffort: 'minimal',
-        jsonSchema: { type: 'object', properties: { lines: { type: 'array', items: { type: 'string' } } }, required: ['lines'] },
+        jsonSchema: {
+          type: 'object',
+          properties: {
+            lines: {
+              type: 'array',
+              items: { type: 'object', properties: { ja: { type: 'string' }, zh: { type: 'string' } }, required: ['ja', 'zh'] },
+            },
+          },
+          required: ['lines'],
+        },
       },
     )
-    const parsed = JSON.parse(raw) as { lines?: unknown }
-    return Array.isArray(parsed.lines)
-      ? parsed.lines.filter((line): line is string => typeof line === 'string' && line.trim().length > 0).map((line) => line.trim()).slice(0, 6)
-      : []
+    const parsed = JSON.parse(raw) as { lines?: { ja?: unknown; zh?: unknown }[] }
+    return (Array.isArray(parsed.lines) ? parsed.lines : [])
+      .map((line) => ({ ja: typeof line?.ja === 'string' ? line.ja.trim() : '', zh: typeof line?.zh === 'string' ? line.zh.trim() : '' }))
+      .filter((line) => line.ja.length > 0)
+      .slice(0, 6)
   } catch (error) {
     console.error(error)
     return []
@@ -2460,6 +2488,94 @@ async function rankSourceLines(env: Env, searchText: string, sources: RankedSour
       scored.slice(0, 2).forEach((line, i) => {
         if (i === 0 || (line.score ?? 0) >= (best.score ?? 0) - 0.03) line.hit = true
       })
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+type AudioLine = { lineNo: number; audioUrl: string; storagePath: string }
+type AudioSource = { work: string; episode: number; lines: AudioLine[] }
+
+/** Original-voice clips (Re:ゼロ 26–50 have them) for the lines of each source, from learning_sentences. */
+async function attachLineAudio(env: Env, sources: AudioSource[]) {
+  await Promise.all(
+    sources.map(async (source) => {
+      const numbers = source.lines.map((line) => line.lineNo).filter((n) => n > 0)
+      if (numbers.length === 0) return
+      const rows = await supabase<Record<string, unknown>[]>(
+        env,
+        `/rest/v1/learning_sentences?select=source_line_no,audio_url,storage_path&work_slug=eq.${encodeURIComponent(normalizeWorkSlugAlias(source.work))}&episode=eq.${source.episode}&source_line_no=in.(${numbers.join(',')})&or=(audio_url.neq.,storage_path.neq.)&limit=60`,
+      ).catch(() => [])
+      for (const row of rows) {
+        const line = source.lines.find((item) => item.lineNo === readNumber(row, 'source_line_no'))
+        if (line && !line.audioUrl && !line.storagePath) {
+          line.audioUrl = readString(row, 'audio_url')
+          line.storagePath = readString(row, 'storage_path')
+        }
+      }
+    }),
+  )
+}
+
+type JudgedSource = { lines: { lineNo: number; jaText: string; hit?: boolean }[]; bestLineNo?: number; match?: SceneMatch }
+
+/** One Flash-Lite call grades every hit line against the query and translates it in context. */
+async function judgeSceneHits(env: Env, query: string, sources: JudgedSource[]) {
+  const items = sources.slice(0, 8).flatMap((source, i) => {
+    const at = source.lines.findIndex((line) => line.lineNo === source.bestLineNo)
+    if (at < 0) return []
+    const around = (k: number) => source.lines[k]?.jaText ?? ''
+    return [{ i, before: around(at - 1), line: around(at), after: around(at + 1) }]
+  })
+  if (items.length === 0) return
+  try {
+    const raw = await callAiGateway(
+      env,
+      defaultGatewayModel,
+      '你是日语老师，在帮学习者从动漫台词里找"某种场景下日本人怎么说"。只输出 JSON。',
+      [
+        `学习者要找：${query.slice(0, 200)}`,
+        '下面每条是原作里的一句台词（line），附前后各一句作上下文。逐条判断：',
+        'relevance：2 = 正是这种场景/说法；1 = 沾边，能学到类似的说法；0 = 无关。',
+        'zh：line 这一句自然的中文意思（结合上下文，不要直译腔）。',
+        'why：relevance≥1 时，用 25 字以内说清 line 里哪个说法对应要找的场景；0 时留空。',
+        'mark：line 里承载这个意思的那几个字，必须原样出自 line；没有就留空。',
+        JSON.stringify(items),
+      ].join('\n'),
+      {
+        maxTokens: 1500,
+        temperature: 0.2,
+        reasoningEffort: 'low',
+        jsonSchema: {
+          type: 'object',
+          properties: {
+            items: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: { i: { type: 'number' }, relevance: { type: 'number' }, zh: { type: 'string' }, why: { type: 'string' }, mark: { type: 'string' } },
+                required: ['i', 'relevance', 'zh', 'why', 'mark'],
+              },
+            },
+          },
+          required: ['items'],
+        },
+      },
+    )
+    const parsed = JSON.parse(raw) as { items?: { i?: number; relevance?: number; zh?: string; why?: string; mark?: string }[] }
+    for (const item of parsed.items ?? []) {
+      const source = typeof item.i === 'number' ? sources[item.i] : undefined
+      const line = source?.lines.find((entry) => entry.lineNo === source.bestLineNo)
+      if (!source || !line) continue
+      const mark = (item.mark ?? '').trim()
+      source.match = {
+        lineNo: line.lineNo,
+        relevance: Math.max(0, Math.min(2, Math.round(item.relevance ?? 0))),
+        zh: (item.zh ?? '').trim(),
+        why: (item.why ?? '').trim(),
+        mark: mark && line.jaText.includes(mark) ? mark : '',
+      }
     }
   } catch (error) {
     console.error(error)

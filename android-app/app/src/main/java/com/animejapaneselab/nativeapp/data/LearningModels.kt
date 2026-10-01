@@ -505,7 +505,21 @@ data class RagSearchSource(
     val lines: List<SubtitleLine> = emptyList(),
     /** Lines the worker ranked as the match inside this ~30-line chunk (the rest is context). */
     val hitLineNos: Set<Int> = emptySet(),
+    /** The best line graded by the AI (`explain`): its own translation, why it fits, the key words. */
+    val match: RagMatch? = null,
 )
+
+data class RagMatch(
+    val lineNo: Int,
+    /** 2 = exactly this scene, 1 = related, 0 = unrelated. */
+    val relevance: Int,
+    val zh: String,
+    val why: String,
+    val mark: String,
+)
+
+/** A Japanese line the AI wrote for the scene that was asked for (「日语里常这么说」). */
+data class RagExample(val ja: String, val zh: String)
 
 data class RagAnalysis(
     val title: String,
@@ -517,6 +531,9 @@ data class RagSearchResult(
     val query: String,
     val sources: List<RagSearchSource> = emptyList(),
     val analysis: RagAnalysis? = null,
+    val examples: List<RagExample> = emptyList(),
+    /** Nothing in the source material is really like the scene asked for. */
+    val weak: Boolean = false,
 )
 
 /** `/api/rag/suggest-training-query`: a vector-search query the AI chose, with its training focus. */

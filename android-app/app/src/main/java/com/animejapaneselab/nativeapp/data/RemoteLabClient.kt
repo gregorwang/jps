@@ -428,13 +428,15 @@ class RemoteLabClient(
         episode: Int? = null,
         topK: Int = 8,
         analyze: Boolean = false,
+        explain: Boolean = false,
     ): RagSearchResult {
         val body = JSONObject()
             .put("query", query)
-            .put("workSlug", ragWorkSlug(workSlug))
+            .put("workSlug", if (workSlug == "all") "all" else ragWorkSlug(workSlug))
             .put("topK", topK.coerceIn(1, 50))
             .put("deviceId", deviceId)
             .put("analyze", analyze)
+            .put("explain", explain)
         if (episode != null && episode > 0) body.put("episode", episode)
         return parseRagSearchJson(post("/api/rag/search", body))
     }
@@ -930,8 +932,19 @@ internal fun parseRagSearchJson(json: String): RagSearchResult {
                     endTime = line.string("endTime", line.string("end_time")),
                     jaText = line.string("jaText", line.string("ja_text")),
                     zhText = line.string("zhText", line.string("zh_text")),
+                    audioUrl = line.string("audioUrl"),
+                    storagePath = line.string("storagePath"),
                 )
             }.filter { it.jaText.isNotBlank() },
+            match = source.optJSONObject("match")?.let { m ->
+                RagMatch(
+                    lineNo = m.optInt("lineNo", 0),
+                    relevance = m.optInt("relevance", 0),
+                    zh = m.string("zh"),
+                    why = m.string("why"),
+                    mark = m.string("mark"),
+                )
+            },
             hitLineNos = (source.optJSONArray("lines") ?: JSONArray()).mapObjects { line ->
                 line.optInt("lineNo", 0).takeIf { line.optBoolean("hit", false) }
             }.filterNotNull().toSet(),
@@ -948,6 +961,9 @@ internal fun parseRagSearchJson(json: String): RagSearchResult {
         query = response.string("query"),
         sources = sources,
         analysis = analysis,
+        examples = (response.optJSONArray("examples") ?: JSONArray()).mapObjects { RagExample(it.string("ja"), it.string("zh")) }
+            .filter { it.ja.isNotBlank() },
+        weak = response.optBoolean("weak", false),
     )
 }
 
