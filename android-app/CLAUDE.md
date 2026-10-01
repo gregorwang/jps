@@ -20,6 +20,7 @@ Anime Japanese Lab 的原生 Android App（Kotlin + Jetpack Compose）。**私�
 | 爱蜜莉亚声线 TTS（批量预生成音频，替掉微软 TTS） | `../archive-content-sources/emilia-voice/HANDOFF.md`（本地，gitignore） |
 | 语音包（设置 → 语音包）的 bug、念错的词、重新打包 | `VOICE_PACK_HANDOFF.md` |
 | 単語卡（5 个一组、先想再看，0.19.0 已做）、帳面重排、错题搬去練習 | `VOCAB_CARD_HANDOFF.md` |
+| 単語卡背面「常一起出现」补搭配数据（日文 + 中文） | `COLLOCATION_HANDOFF.md` |
 | 自習（学习台）的产品逻辑 | 本文第 3 节「产品主线」；画布「自習 · 学习台（预览）」页 |
 
 设计画布：https://claude.ai/artifact/9x3RkMeAtAYTN64i8T8HN4 （用 Artifact 工具的 `read` 读取，只看 `V3*`、`X*` 开头的画板）。**只在要实现画布上某一屏时才读，且只读那一屏**：`path=project/<画板>.dc.html`。

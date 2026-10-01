@@ -1,7 +1,7 @@
 # 単語卡重做 + 帳面重排 · 交接
 
 > **2026-09-30 · 0.19.0 已做完主体**（用户看过画布，说「照画布来」，第 0 节三个问题按提议默认通过）：単語标签（`ui/words/Tango.kt` + `screens/review/TangoScreen.kt`）、帳面重排、错题 / 期日の課題 / 苦手搬进「復習の順番」页（`SmartReviewQueueScreen`，練習 → 課程 場面 06 打开）、`assets/vocab_lines.json`（生成脚本 `archive-content-sources/vocab-cards-v1/fetch_subtitles.py` + `build_lines.py`）。
-> **还没做**：① 「常一起出现」目前只从 note 里抽「…」片段（4.3 的 a），没有中文释义；要做 b 就交给 Antigravity 补 `collocations` 列。② 排序的「出现次数」用的是字幕里含这个词的行数（`freq`），不是 `learning_vocab_items.total_occurrences`。③ 用户手机上看后的反馈。下面是原始交接，供查。
+> **还没做**：① 「常一起出现」目前只从 note 里抽「…」片段（4.3 的 a），没有中文释义；补数据的交接在 `COLLOCATION_HANDOFF.md`（新 asset，不加列）。② 排序的「出现次数」用的是字幕里含这个词的行数（`freq`），不是 `learning_vocab_items.total_occurrences`。③ 用户手机上看后的反馈。下面是原始交接，供查。
 
 > **2026-10-01 · 0.21.1**：用户反馈知識页白屏卡顿、単語卡不能往回翻、帳面和画布差距大。修了：① `ReviewFeedScreen` 的 `ready` 以前要等 `drill`（网络）加载完，现在只等本地 asset，`LabApplication` 启动时后台预读三份 asset（`peek()` 取缓存）；② 単語 pager 不再用 `userScrollEnabled = canFlick`（会连往回也锁死），改成 `blockForwardDrag` 只吞往后的拖动；③ 帳面照 `LedgerNew` 重排、删了「活用」（用户明确不要，画布上那块也作废）；背面台词放底部、小测整句显示（画布没挖空，之前自作主张挖空了）。**教训：说「照画布做」就逐块对照画布，别自己加改动（挖空、截长标题首字当标记）。** 知識流「不能往回」在代码里没找到拦截点，等用户再测。
 
