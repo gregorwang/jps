@@ -116,6 +116,9 @@ object KnowledgeCards {
     @Volatile
     private var byId: Map<String, KnowledgeCard> = emptyMap()
 
+    /** Already parsed (the app preloads it at startup), or null. */
+    fun peek(): List<KnowledgeDeck>? = decks
+
     fun decks(context: Context): List<KnowledgeDeck> {
         decks?.let { return it }
         synchronized(this) {

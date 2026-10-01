@@ -161,6 +161,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import com.animejapaneselab.nativeapp.ui.words.TangoLines
+import com.animejapaneselab.nativeapp.ui.words.TangoRules
 import kotlin.math.roundToInt
 
 /** Callbacks of the 復習 tab (the feed writes verdicts itself through [sinks]). */
@@ -197,18 +199,17 @@ fun ReviewFeedScreen(
     val known by KnownWords.words.collectAsState()
     val mistakeDue by ReviewFeed.mistakeDue.collectAsState()
     val marks by Knowledge.marks.collectAsState()
-    // Both assets are read once, off the main thread.
-    val decks by produceState<List<KnowledgeDeck>?>(null) { value = withContext(Dispatchers.IO) { KnowledgeCards.decks(context) } }
-    val vocab by produceState<Map<String, com.animejapaneselab.nativeapp.ui.words.VocabCardFix>?>(null) {
-        value = withContext(Dispatchers.IO) { VocabCards.load(context) }
-    }
+    // Both assets are local, parsed once off the main thread (usually already at app start).
+    val decks by produceState(KnowledgeCards.peek()) { if (value == null) value = withContext(Dispatchers.IO) { KnowledgeCards.decks(context) } }
+    val vocab by produceState(VocabCards.peek()) { if (value == null) value = withContext(Dispatchers.IO) { VocabCards.load(context) } }
     val know = remember(decks) { decks.orEmpty().flatMap { it.cards } }
     val words = remember(vocab, known) { KnowledgeRules.vocabPool(vocab.orEmpty(), known) }
     val sources = remember(drill, notebook, uiState.mistakes, uiState.reviewTasks, uiState.progressItems, known, mistakeDue, know, marks, words) {
         FeedSources(drill, notebook, uiState.mistakes, uiState.reviewTasks, uiState.progressItems, known, mistakeDue, know, marks, words)
     }
-    // Restored keys need the 活用 lines and the cards: wait for them (or their failure) before the first sync.
-    val ready = (drill.phase == DrillPhase.Ready || drill.phase == DrillPhase.Error) && decks != null && vocab != null
+    // Only the local cards are waited for. The 活用 lines come from the network: until they are in, the
+    // feed runs without them and their due cards are woven in when they arrive.
+    val ready = decks != null && vocab != null
     LaunchedEffect(Unit) { actions.ensureDrill() }
     // Knowledge points saved to the 收藏 notebook before 0.18 become 收藏 stars of the card itself.
     LaunchedEffect(notebook) {
@@ -290,10 +291,6 @@ fun ReviewFeedScreen(
                 sources = sources,
                 decks = decks.orEmpty(),
                 today = today,
-                onPick = { source ->
-                    ReviewFeed.filter(context, source, sources, today)
-                    tab = 0
-                },
                 onPickDeck = { id ->
                     ReviewFeed.deck(context, id, sources, today)
                     tab = 0
@@ -1246,76 +1243,130 @@ private fun Ledger(
     decks: List<KnowledgeDeck>,
     today: Long,
     onPickDeck: (String) -> Unit,
-    onPick: (FeedSource) -> Unit,
     onOpenWords: () -> Unit,
 ) {
     val context = LocalContext.current
-    val conjDue = remember(sources, today) { FeedRules.conjDue(sources, today).size }
-    val learnedLines = remember(sources.drill) { sources.drill.items.count { it.pointId in sources.drill.learned } }
     val known by KnownWords.words.collectAsState()
     val tango by Tango.state.collectAsState()
+    val wordTotal = remember(sources.words) { TangoLines.peek()?.let { TangoRules.pool(sources.words, it).size } }
+    val starred = remember(sources.know, sources.marks) {
+        sources.know.filter { sources.marks[it.id]?.starred == true }.sortedByDescending { sources.marks[it.id]?.starDay ?: 0L }
+    }
+    val mastered = remember(sources.know, sources.marks) {
+        sources.know.filter { sources.marks[it.id]?.hearted == true }.sortedByDescending { sources.marks[it.id]?.heartDay ?: 0L }
+    }
     LazyColumn(
         Modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 18.dp, bottom = 28.dp),
     ) {
         if (decks.isNotEmpty()) {
-            item(key = "decks-heading") { SectionHeading(title = "合集", meta = "点一个，只刷这一个") }
+            item(key = "decks-heading") { LedgerHeading("合集", "点一个，只刷这一个", first = true) }
             items(decks, key = { "deck-" + it.id }) { deck ->
                 val read = deck.cards.count { (sources.marks[it.id]?.seen ?: 0) > 0 }
                 val hearted = deck.cards.count { sources.marks[it.id]?.hearted == true }
-                BookRow(deck.title.take(1), deck.title, "${deck.cards.size} 张 · 读过 $read · ♥ $hearted", null) { onPickDeck(deck.id) }
+                val short = deck.cards.firstOrNull()?.deckShort?.ifBlank { null } ?: deck.title
+                BookRow(deckMark(deck.id, short), short, "${deck.cards.size} 张 · 读过 $read · ♥ $hearted") { onPickDeck(deck.id) }
             }
         }
-        val starred = sources.know.count { sources.marks[it.id]?.starred == true }
-        if (starred > 0) {
-            item(key = "stars") { BookRow("★", "收藏的知识点", "$starred 张 · 每天回来一次", null) { onPickDeck(KnowledgeRules.StarDeck) } }
+        item(key = "stars-heading") { LedgerHeading("收藏的知识点", "每天回来一次") }
+        if (starred.isEmpty()) item(key = "stars-empty") { EmptyRow() }
+        items(starred, key = { "s-" + it.id }) { card ->
+            val day = sources.marks[card.id]?.starDay ?: today
+            BookRow(
+                "★",
+                card.title.replace("【", "").replace("】", ""),
+                listOf(card.deckShort.ifBlank { card.deckTitle }, monthDay(day)).joinToString(" · "),
+                markColor = AjlTheme.work.accent,
+            ) { onPickDeck(KnowledgeRules.StarDeck) }
         }
-        val mastered = sources.know.filter { sources.marks[it.id]?.hearted == true }
-        if (mastered.isNotEmpty()) {
-            item(key = "mastered-heading") {
-                SectionHeading(title = "掌握了的", meta = "30 天、90 天各回来考一次", modifier = Modifier.padding(top = 26.dp))
-            }
-            items(mastered, key = { "m-" + it.id }) { card -> MasteredRow(card, onUndo = { Knowledge.heart(context, card.id, false, today) }) }
+        item(key = "mastered-heading") { LedgerHeading("掌握了的", "30 天、90 天各回来考一次") }
+        if (mastered.isEmpty()) item(key = "mastered-empty") { EmptyRow() }
+        items(mastered, key = { "m-" + it.id }) { card ->
+            val mark = sources.marks[card.id] ?: return@items
+            val checkDay = mark.heartDay + if (mark.checks == 0) 30 else 90
+            val meta = if (mark.checks >= 2) monthDay(mark.heartDay) else "${monthDay(mark.heartDay)} · ${(checkDay - today).coerceAtLeast(0)} 天后考"
+            MasteredRow(card, meta, onUndo = { Knowledge.heart(context, card.id, false, today) })
         }
-        item(key = "words-heading") { SectionHeading(title = "単語", meta = "和知識分开刷", modifier = Modifier.padding(top = 26.dp)) }
+        item(key = "words-heading") { LedgerHeading("単語", "和知識分开刷") }
         item(key = "words") {
             BookRow(
                 "単",
                 "单词",
-                "已会 ${tango.learnedCount} · 在学 ${tango.learningCount} · 斩 ${known.size}",
-                null,
+                listOfNotNull(
+                    wordTotal?.let { "共 $it 个" },
+                    "已会 ${tango.learnedCount}",
+                    "在学 ${tango.learningCount}",
+                    "斩 ${known.size}",
+                ).joinToString(" · "),
+                trailing = tango.group?.takeIf { !it.finished }?.let { g -> "今日 ${g.ids.size - g.results.size}" },
                 onClick = onOpenWords,
             )
         }
-        item(key = "books-heading") { SectionHeading(title = "活用", meta = "学过的课", modifier = Modifier.padding(top = 26.dp)) }
-        item(key = "conj") { BookRow("活", "活用 · 学过的课", "${sources.drill.learned.size} 課 · $learnedLines 句", conjDue) { onPick(FeedSource.Conj) } }
+    }
+}
+
+/** The big glyph in front of a 合集: the number of 第X篇, else the first character of its short name. */
+private fun deckMark(id: String, short: String): String {
+    Regex("第(.)篇").find(short)?.let { return it.groupValues[1] }
+    if (id == "threads") return "線"
+    return short.substringAfter("·").trim().take(1).ifBlank { short.take(1) }
+}
+
+private fun monthDay(epochDay: Long): String = LocalDate.ofEpochDay(epochDay).let { "${it.monthValue}/${it.dayOfMonth}" }
+
+@Composable
+private fun LedgerHeading(title: String, meta: String, first: Boolean = false) {
+    val colors = AjlTheme.colors
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = if (first) 0.dp else 24.dp)
+            .drawBehind { drawLine(colors.ink, Offset(0f, size.height), Offset(size.width, size.height), 1.5.dp.toPx()) }
+            .padding(bottom = 8.dp),
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Text(title, style = AjlTheme.type.jpTitle.copy(fontSize = 17.sp, fontWeight = FontWeight.Bold), color = colors.ink)
+        Text(meta, style = AjlTheme.type.meta.copy(fontSize = 11.sp), color = colors.ink3, modifier = Modifier.padding(bottom = 2.dp))
     }
 }
 
 @Composable
-private fun BookRow(mark: String, title: String, meta: String, due: Int?, muted: Boolean = false, onClick: () -> Unit) {
+private fun EmptyRow() {
+    Column {
+        Box(Modifier.fillMaxWidth().heightIn(min = 48.dp), contentAlignment = Alignment.CenterStart) {
+            Text("还没有", style = AjlTheme.type.meta.copy(fontSize = 12.sp), color = AjlTheme.colors.ink3, modifier = Modifier.padding(start = 44.dp))
+        }
+        Hairline()
+    }
+}
+
+@Composable
+private fun BookRow(
+    mark: String,
+    title: String,
+    meta: String,
+    markColor: androidx.compose.ui.graphics.Color? = null,
+    trailing: String? = null,
+    onClick: () -> Unit,
+) {
     val colors = AjlTheme.colors
     Column {
         Row(
             Modifier
                 .fillMaxWidth()
-                .heightIn(min = 64.dp)
-                .clickable(onClickLabel = title, onClick = onClick),
+                .heightIn(min = 60.dp)
+                .clickable(onClickLabel = title, onClick = onClick)
+                .padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            Text(mark, style = AjlTheme.type.jpTitle.copy(fontSize = 20.sp, fontWeight = FontWeight.Bold), color = if (muted) colors.ink3 else colors.ink, modifier = Modifier.width(30.dp))
+            Text(mark, style = AjlTheme.type.jpTitle.copy(fontSize = 20.sp, fontWeight = FontWeight.Bold), color = markColor ?: colors.ink, modifier = Modifier.width(30.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(title, style = AjlTheme.type.body.copy(fontSize = 15.sp, fontWeight = FontWeight.Medium), color = colors.ink)
-                Text(meta, style = AjlTheme.type.meta.copy(fontSize = 11.sp), color = colors.ink3)
+                Text(title, style = AjlTheme.type.body.copy(fontSize = 15.sp, fontWeight = FontWeight.Medium), color = colors.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(meta, style = AjlTheme.type.meta.copy(fontSize = 11.sp), color = colors.ink3, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
-            if (due != null) {
-                Text(
-                    if (due > 0) "到期 $due" else "无到期",
-                    style = AjlTheme.type.meta.copy(fontSize = 13.sp),
-                    color = if (due > 0) AjlTheme.work.accent else colors.ink3,
-                )
-            }
+            if (trailing != null) Text(trailing, style = AjlTheme.type.meta.copy(fontSize = 13.sp), color = AjlTheme.work.accent)
             Icon(Icons.Rounded.ChevronRight, contentDescription = null, tint = colors.ink3, modifier = Modifier.size(16.dp))
         }
         Hairline()
@@ -1323,14 +1374,18 @@ private fun BookRow(mark: String, title: String, meta: String, due: Int?, muted:
 }
 
 @Composable
-private fun MasteredRow(card: KnowledgeCard, onUndo: () -> Unit) {
+private fun MasteredRow(card: KnowledgeCard, meta: String, onUndo: () -> Unit) {
     val colors = AjlTheme.colors
     Column {
-        Row(Modifier.fillMaxWidth().heightIn(min = 52.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Icon(Icons.Rounded.Favorite, contentDescription = null, tint = colors.heart, modifier = Modifier.size(14.dp))
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 60.dp).padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Text("♥", style = AjlTheme.type.jpTitle.copy(fontSize = 20.sp, fontWeight = FontWeight.Bold), color = colors.heart, modifier = Modifier.width(30.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(card.title, style = AjlTheme.type.jpBody.copy(fontSize = 16.sp), color = colors.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(listOf(card.kind.label, card.topic).joinToString(" · "), style = AjlTheme.type.meta.copy(fontSize = 11.sp), color = colors.ink3)
+                Text(card.title.replace("【", "").replace("】", ""), style = AjlTheme.type.body.copy(fontSize = 15.sp, fontWeight = FontWeight.Medium), color = colors.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(meta, style = AjlTheme.type.meta.copy(fontSize = 11.sp), color = colors.ink3)
             }
             QuietButton("取消", onClick = onUndo)
         }

@@ -36,6 +36,9 @@ object VocabCards {
 
     fun get(context: Context, id: String): VocabCardFix? = load(context)[id]
 
+    /** Already parsed (the app preloads it at startup), or null. */
+    fun peek(): Map<String, VocabCardFix>? = cards
+
     fun load(context: Context): Map<String, VocabCardFix> {
         cards?.let { return it }
         synchronized(this) {

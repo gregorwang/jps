@@ -77,6 +77,9 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.Placeholder
@@ -191,7 +194,7 @@ fun TangoScreen(
     val today = remember { LocalDate.now().toEpochDay() }
     remember { Tango.init(context) }
     val tango by Tango.state.collectAsState()
-    val lines by produceState<Map<String, TangoLine>?>(null) { value = withContext(Dispatchers.IO) { TangoLines.load(context) } }
+    val lines by produceState(TangoLines.peek()) { if (value == null) value = withContext(Dispatchers.IO) { TangoLines.load(context) } }
     val ranked by produceState<List<VocabWord>?>(null, pool, lines, know, drill.learned, drill.items) {
         val l = lines ?: return@produceState
         value = withContext(Dispatchers.Default) {
@@ -202,7 +205,8 @@ fun TangoScreen(
     LaunchedEffect(ranked) { ranked?.let { Tango.ensureGroup(context, it, today) } }
     val group = tango.group
     val l = lines
-    val r = ranked
+    // Today's group is already saved: show it right away, the ranking only matters for the next one.
+    val r = ranked ?: pool.takeIf { group != null }
     Box(modifier.fillMaxSize().background(AjlTheme.colors.bg)) {
         when {
             l == null || r == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { LoadingDots() }
@@ -219,7 +223,7 @@ fun TangoScreen(
                         pool = r,
                         group = group,
                         today = today,
-                        onNextGroup = { Tango.nextGroup(context, r, today) },
+                        onNextGroup = { Tango.nextGroup(context, ranked ?: r, today) },
                     )
                 }
             }
@@ -296,13 +300,31 @@ private fun TangoSession(
     }
 
     Box(Modifier.fillMaxSize()) {
+        val peek = if (onQuiz) "単語 · 次の ${TangoRules.GroupSize} 個" else "単語 · ${(current + 1).coerceAtMost(words.size)} / ${words.size}"
+        Box(
+            Modifier
+                .align(Alignment.BottomCenter)
+                .padding(horizontal = 22.dp)
+                .fillMaxWidth()
+                .height(22.dp)
+                .background(colors.surface, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                .drawBehind {
+                    val w = 1.5.dp.toPx()
+                    drawLine(colors.line2, Offset(w / 2, size.height), Offset(w / 2, w / 2), w)
+                    drawLine(colors.line2, Offset(w / 2, w / 2), Offset(size.width - w / 2, w / 2), w)
+                    drawLine(colors.line2, Offset(size.width - w / 2, w / 2), Offset(size.width - w / 2, size.height), w)
+                }
+                .padding(start = 14.dp, top = 5.dp),
+        ) {
+            Text(peek, style = AjlTheme.type.meta.copy(fontSize = 10.sp, letterSpacing = 0.4.sp), color = colors.ink3)
+        }
         VerticalPager(
             state = pager,
-            modifier = Modifier.fillMaxSize(),
+            // A card not turned over yet can't be flicked on, but going back up always works.
+            modifier = Modifier.fillMaxSize().blockForwardDrag(!canFlick),
             contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 26.dp),
             pageSpacing = 12.dp,
             beyondViewportPageCount = 1,
-            userScrollEnabled = canFlick,
             flingBehavior = feedFlingBehavior(pager),
             key = { if (it < queue.size) "w:" + queue[it] else "quiz" },
         ) { page ->
@@ -391,6 +413,25 @@ private fun TangoSession(
                 modifier = Modifier.background(colors.ink, RoundedCornerShape(16.dp)).padding(horizontal = 14.dp, vertical = 7.dp),
             )
         }
+    }
+}
+
+/**
+ * Swallows the upward part of a drag (finger moving up = next card) before the pager sees it, once
+ * it is past half the touch slop, so taps still land and a downward drag still goes to the card above.
+ */
+private fun Modifier.blockForwardDrag(enabled: Boolean): Modifier = if (!enabled) this else pointerInput(Unit) {
+    val slop = viewConfiguration.touchSlop / 2f
+    awaitEachGesture {
+        val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+        var dy = 0f
+        do {
+            val event = awaitPointerEvent(PointerEventPass.Initial)
+            val change = event.changes.firstOrNull { it.id == down.id } ?: break
+            val step = change.position.y - change.previousPosition.y
+            dy += step
+            if (step < 0f && dy < -slop) change.consume()
+        } while (event.changes.any { it.pressed })
     }
 }
 
@@ -497,7 +538,15 @@ private fun TangoWordPage(
                     }
                     if (fix.note.isNotBlank()) NoteText(fix.note)
                 }
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                if (!revealed) {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        ReadingLineText(reading, mark, showRuby = aids.ruby, showRomaji = aids.romaji, style = lineStyle)
+                        VoicePill(playing, if (line.audioUrl.isNotEmpty()) "原声" else "朗读", onPlay)
+                    }
+                }
+            }
+            if (revealed) {
+                Column(Modifier.padding(end = 56.dp, top = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     ReadingLineText(reading, mark, showRuby = aids.ruby, showRomaji = aids.romaji, style = lineStyle)
                     VoicePill(playing, if (line.audioUrl.isNotEmpty()) "原声" else "朗读", onPlay)
                 }
@@ -605,20 +654,7 @@ private fun TangoQuizPage(
                         VoicePill(playing, "听", { playTangoLine(line, audio, ttsWorkerUrl) })
                         val mark = remember(line.ja, word.id) { targetRange(line.ja, word) }
                         val style = AjlTheme.type.jpBody.copy(fontSize = 21.sp, lineHeight = 34.sp, fontWeight = FontWeight.Medium)
-                        if (picked != null || group.finished) {
-                            ReadingLineText(reading ?: LineReading.build(line.ja, null), mark, showRuby = aids.ruby, showRomaji = aids.romaji, style = style)
-                        } else {
-                            val blank = remember(line.ja, mark) {
-                                buildAnnotatedString {
-                                    if (mark == null) append(line.ja) else {
-                                        append(line.ja.substring(0, mark.first))
-                                        append("＿".repeat(mark.count().coerceAtLeast(2)))
-                                        append(line.ja.substring(mark.last + 1))
-                                    }
-                                }
-                            }
-                            Text(blank, style = style, color = colors.ink)
-                        }
+                        ReadingLineText(reading ?: LineReading.build(line.ja, null), mark, showRuby = aids.ruby, showRomaji = aids.romaji, style = style)
                     }
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         options.forEachIndexed { i, text ->

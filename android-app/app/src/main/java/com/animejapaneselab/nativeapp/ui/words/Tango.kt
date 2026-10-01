@@ -206,6 +206,9 @@ object TangoLines {
     @Volatile
     private var lines: Map<String, TangoLine>? = null
 
+    /** Already parsed (the app preloads it at startup), or null. */
+    fun peek(): Map<String, TangoLine>? = lines
+
     fun load(context: Context): Map<String, TangoLine> {
         lines?.let { return it }
         synchronized(this) {
