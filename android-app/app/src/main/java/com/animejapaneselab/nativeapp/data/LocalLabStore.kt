@@ -163,6 +163,11 @@ class LocalLabStore(context: Context) {
 
     fun writeJishuVoiceTts(tts: Boolean) = preferences.edit { putBoolean(JishuVoiceTtsKey, tts) }
 
+    /** The voice picked on any voice pill: VoiceKind name (Original / Emilia / Tts), null = never picked. */
+    fun readVoiceChoice(): String? = preferences.getString(VoiceChoiceKey, null)
+
+    fun writeVoiceChoice(name: String) = preferences.edit { putString(VoiceChoiceKey, name) }
+
     /** Per-day study log: ISO date -> [answers, correct, seconds, studied, finished]. */
     fun readStudyLog(): Map<String, StudyDay> {
         val raw = preferences.getString(StudyLogKey, null) ?: return emptyMap()
@@ -467,6 +472,7 @@ class LocalLabStore(context: Context) {
         const val NotificationAskedKey = "notification-permission-asked"
         const val StudyLogKey = "study-log"
         const val JishuVoiceTtsKey = "jishu-voice-tts"
+        const val VoiceChoiceKey = "voice-choice"
         const val StudentNameKey = "student-name"
         const val StudentAffiliationKey = "student-affiliation"
         const val StudentPhotoVersionKey = "student-photo-version"

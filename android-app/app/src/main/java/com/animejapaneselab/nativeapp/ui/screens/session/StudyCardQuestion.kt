@@ -33,6 +33,7 @@ import com.animejapaneselab.nativeapp.ui.design.LabeledNote
 import com.animejapaneselab.nativeapp.ui.design.MangaPanel
 import com.animejapaneselab.nativeapp.ui.design.TagChip
 import com.animejapaneselab.nativeapp.ui.design.VoiceSwitchPill
+import com.animejapaneselab.nativeapp.ui.voicepack.rememberVoiceOptions
 import com.animejapaneselab.nativeapp.ui.design.WordBlocks
 import com.animejapaneselab.nativeapp.ui.design.rememberVoicePhase
 import com.animejapaneselab.nativeapp.ui.design.screentone
@@ -67,14 +68,14 @@ internal fun StudyCardQuestion(
     LaunchedEffect(node.japanese, aided) {
         if (aided) furigana.request("sentence", listOf(node.japanese))
     }
-    var tts by rememberSaveable(node.id) { mutableStateOf(false) }
     val hasSource = node.audio is PromptAudio.Source
-    val cue = if (hasSource && !tts) node.audio else PromptAudio.Tts(node.japanese, autoPlay = false)
+    val voices = rememberVoiceOptions(node.japanese, hasSource)
+    val cue = voices.cue(node.audio.takeIf { hasSource }, node.japanese)
     val voice = Voice(
         playing = env.playback.phase == AudioPlaybackPhase.Playing || env.playback.phase == AudioPlaybackPhase.Loading,
-        options = if (hasSource) listOf("原声", "TTS") else listOf("TTS"),
-        selected = if (hasSource && !tts) 0 else if (hasSource) 1 else 0,
-        onSelect = { tts = hasSource && it == 1 },
+        options = voices.labels,
+        selected = voices.index,
+        onSelect = voices.onSelect,
         onPlay = { env.onPlay(cue) },
     )
     val kind = when (node.sourceKind) {

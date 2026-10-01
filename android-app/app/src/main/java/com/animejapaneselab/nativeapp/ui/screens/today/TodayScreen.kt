@@ -7,6 +7,7 @@ import com.animejapaneselab.nativeapp.ui.reading.rememberFuriganaAnnotator
 import com.animejapaneselab.nativeapp.ui.reading.ReadingLineText
 import com.animejapaneselab.nativeapp.ui.reading.LineReading
 import com.animejapaneselab.nativeapp.ui.design.VoiceSwitchPill
+import com.animejapaneselab.nativeapp.ui.voicepack.rememberVoiceOptions
 import com.animejapaneselab.nativeapp.ui.design.StampMark
 import com.animejapaneselab.nativeapp.ui.design.ProgressLine
 import com.animejapaneselab.nativeapp.ui.design.OutlineButton
@@ -381,12 +382,12 @@ private fun SampleLine(
     LaunchedEffect(sample.ja, aided) { if (aided) furigana.request("sentence", listOf(sample.ja)) }
     val reading = remember(sample.ja, furigana.resultFor(sample.ja)) { LineReading.build(sample.ja, furigana.resultFor(sample.ja)) }
     val hasSource = sample.audioUrl.isNotBlank()
-    var tts by rememberSaveable(sample.ja) { mutableStateOf(false) }
-    val cue = if (hasSource && !tts) {
+    val voice = rememberVoiceOptions(sample.ja, hasSource)
+    val cue = voice.cue(
         PromptAudio.Source(sample.audioUrl, autoPlay = false, reliability = AudioReliability.Verified, fallbackTtsText = sample.ja)
-    } else {
-        PromptAudio.Tts(sample.ja, autoPlay = false)
-    }
+            .takeIf { hasSource },
+        sample.ja,
+    )
     val playing = audio.playbackState.phase == AudioPlaybackPhase.Playing || audio.playbackState.phase == AudioPlaybackPhase.Loading
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Hairline()
@@ -409,9 +410,9 @@ private fun SampleLine(
             )
             VoiceSwitchPill(
                 playing = playing,
-                options = if (hasSource) listOf("原声", "TTS") else listOf("TTS"),
-                selected = if (hasSource && tts) 1 else 0,
-                onSelect = { tts = hasSource && it == 1 },
+                options = voice.labels,
+                selected = voice.index,
+                onSelect = voice.onSelect,
                 onClick = { audio.play(cue, ttsWorkerUrl) },
             )
         }

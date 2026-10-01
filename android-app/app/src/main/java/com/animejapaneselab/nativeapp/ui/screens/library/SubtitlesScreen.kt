@@ -54,6 +54,10 @@ import com.animejapaneselab.nativeapp.ui.design.Avatar
 import com.animejapaneselab.nativeapp.ui.design.EmptyNote
 import com.animejapaneselab.nativeapp.ui.design.Hairline
 import com.animejapaneselab.nativeapp.ui.design.IconButton44
+import com.animejapaneselab.nativeapp.ui.voicepack.VoiceKind
+import com.animejapaneselab.nativeapp.ui.voicepack.VoiceOptions
+import com.animejapaneselab.nativeapp.ui.voicepack.VoicePack
+import com.animejapaneselab.nativeapp.ui.voicepack.rememberVoiceOptions
 import com.animejapaneselab.nativeapp.ui.design.VoiceBars
 import com.animejapaneselab.nativeapp.data.NotebookEntry
 import com.animejapaneselab.nativeapp.data.AudioKind
@@ -277,22 +281,31 @@ fun SubtitlesScreen(
                         )
                 }
                 val saved = notebook.any { it.key == entry.key }
+                // エミリア: the pack has this row's text, or the sentence's own text when the clip spans more rows.
+                val packText = remember(spoken.text, sentence) {
+                    listOfNotNull(spoken.text, sentence?.ja).firstOrNull { VoicePack.fileFor(context, it) != null } ?: spoken.text
+                }
+                val voice = rememberVoiceOptions(packText, hasSource = sentence?.hasSourceAudio == true)
                 PlayerDock(
                     text = spoken.text,
                     meta = listOfNotNull(
                         clockLabel(selectedLine.startTime).takeIf { it.isNotBlank() },
                         spoken.speaker,
-                        "原声".takeIf { sentence?.hasSourceAudio == true },
                     ).joinToString(" · "),
+                    voice = voice,
                     loading = audio.playbackState.phase == AudioPlaybackPhase.Loading,
                     playing = audio.playbackState.phase == AudioPlaybackPhase.Playing,
                     saved = saved,
                     onToggleSaved = { Notebook.toggle(context, entry) },
                     onPlay = {
-                        if (sentence != null) {
-                            audio.play(promptAudioForSentence(workSlug, sentence, autoPlay = false), uiState.settings.ttsWorkerUrl)
-                        } else {
-                            audio.speakText(spoken.text, uiState.settings.ttsWorkerUrl)
+                        when (voice.selected) {
+                            VoiceKind.Original -> if (sentence != null) {
+                                audio.play(promptAudioForSentence(workSlug, sentence, autoPlay = false), uiState.settings.ttsWorkerUrl)
+                            } else {
+                                audio.speakText(spoken.text, uiState.settings.ttsWorkerUrl)
+                            }
+                            VoiceKind.Emilia -> audio.speakText(packText, uiState.settings.ttsWorkerUrl)
+                            VoiceKind.Tts -> audio.speakText(spoken.text, uiState.settings.ttsWorkerUrl, voicePack = false)
                         }
                     },
                     onDeepDive = {
@@ -474,6 +487,7 @@ private fun SubtitleLineRow(
 private fun PlayerDock(
     text: String,
     meta: String,
+    voice: VoiceOptions,
     loading: Boolean,
     onPlay: () -> Unit,
     onDeepDive: () -> Unit,
@@ -511,7 +525,13 @@ private fun PlayerDock(
                 Icon(Icons.Rounded.PlayArrow, null, tint = colors.onInk, modifier = Modifier.size(18.dp))
             }
         }
-        Column(Modifier.weight(1f)) {
+        // Tapping the text cycles the voice (原声 → エミリア → TTS, whichever this line has).
+        val switchable = voice.kinds.size > 1
+        Column(
+            Modifier
+                .weight(1f)
+                .then(if (switchable) Modifier.clickableNoRipple({ voice.onSelect((voice.index + 1) % voice.kinds.size) }) else Modifier),
+        ) {
             Text(
                 text,
                 style = AjlTheme.type.jpBody.copy(fontSize = 14.sp, lineHeight = 20.sp),
@@ -519,7 +539,15 @@ private fun PlayerDock(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            if (meta.isNotBlank()) Text(meta, style = AjlTheme.type.metaSmall, color = colors.ink3, maxLines = 1)
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    voice.selected.label + if (switchable) " ⇄" else "",
+                    style = AjlTheme.type.metaSmall,
+                    color = if (switchable) AjlTheme.work.accent else colors.ink3,
+                    maxLines = 1,
+                )
+                if (meta.isNotBlank()) Text(meta, style = AjlTheme.type.metaSmall, color = colors.ink3, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
         }
         IconButton44(
             icon = if (saved) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder,

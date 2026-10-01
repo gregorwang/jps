@@ -33,12 +33,11 @@ import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.LocalContext
 import com.animejapaneselab.nativeapp.data.LabSettings
-import com.animejapaneselab.nativeapp.data.LocalLabStore
 import com.animejapaneselab.nativeapp.ui.design.CoveredLine
 import com.animejapaneselab.nativeapp.ui.design.ProgressLine
 import com.animejapaneselab.nativeapp.ui.design.VoiceSwitchPill
+import com.animejapaneselab.nativeapp.ui.voicepack.rememberVoiceOptions
 import com.animejapaneselab.nativeapp.ui.design.VoiceTone
 import com.animejapaneselab.nativeapp.ui.reading.FuriganaAnnotator
 import com.animejapaneselab.nativeapp.ui.reading.LineReading
@@ -308,19 +307,17 @@ private fun CardPage(
     val colors = AjlTheme.colors
     val work = AjlTheme.work
     val item = card.item
-    val appContext = LocalContext.current.applicationContext
-    val store = remember(appContext) { LocalLabStore(appContext) }
-    var tts by remember { mutableStateOf(store.readJishuVoiceTts()) }
+    val voice = rememberVoiceOptions(item.jaText, hasSource = item.audioUrl.isNotBlank())
     val audio = rememberLessonAudioController()
-    val cue = remember(item.id, tts) {
-        if (tts) {
-            PromptAudio.Tts(item.jaText, autoPlay = false)
-        } else {
+    val cue = remember(item.id, voice.selected) {
+        voice.cue(
             PromptAudio.Source(item.audioUrl, autoPlay = false, reliability = AudioReliability.Verified, fallbackTtsText = item.jaText)
-        }
+                .takeIf { item.audioUrl.isNotBlank() },
+            item.jaText,
+        )
     }
     val play = { audio.play(cue, ttsWorkerUrl) }
-    LaunchedEffect(item.id, pageIndex, tts) { play() }
+    LaunchedEffect(item.id, pageIndex, voice.selected) { play() }
     val aided = aids.ruby || aids.romaji
     LaunchedEffect(item.jaText, aided) { if (aided) aids.annotator.request("sentence", listOf(item.jaText)) }
     val line = remember(item.jaText, aids.annotator.resultFor(item.jaText)) {
@@ -368,12 +365,9 @@ private fun CardPage(
                             Row(Modifier.fillMaxWidth().padding(top = 12.dp), horizontalArrangement = Arrangement.End) {
                                 VoiceSwitchPill(
                                     playing = playing,
-                                    options = listOf("原声", "TTS"),
-                                    selected = if (tts) 1 else 0,
-                                    onSelect = {
-                                        tts = it == 1
-                                        store.writeJishuVoiceTts(tts)
-                                    },
+                                    options = voice.labels,
+                                    selected = voice.index,
+                                    onSelect = voice.onSelect,
                                     onClick = play,
                                 )
                             }

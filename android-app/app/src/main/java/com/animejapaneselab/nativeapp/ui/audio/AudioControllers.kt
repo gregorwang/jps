@@ -125,7 +125,7 @@ class LessonAudioController(context: Context) {
     fun play(cue: PromptAudio, ttsWorkerUrl: String, autoAttempt: Boolean = false) {
         when (cue) {
             PromptAudio.None -> Unit
-            is PromptAudio.Tts -> playTts(cue.text, ttsWorkerUrl)
+            is PromptAudio.Tts -> playTts(cue.text, ttsWorkerUrl, cue.voicePack)
             is PromptAudio.Source -> {
                 val fallback = failedSourceFallback
                 if (!autoAttempt && failedSourceUrl == cue.url && fallback != null) {
@@ -139,8 +139,8 @@ class LessonAudioController(context: Context) {
         }
     }
 
-    fun speakText(text: String, ttsWorkerUrl: String) {
-        playTts(text, ttsWorkerUrl)
+    fun speakText(text: String, ttsWorkerUrl: String, voicePack: Boolean = true) {
+        playTts(text, ttsWorkerUrl, voicePack)
     }
 
     private fun playSource(cue: PromptAudio.Source, ttsWorkerUrl: String, autoAttempt: Boolean) {
@@ -189,13 +189,13 @@ class LessonAudioController(context: Context) {
         }
     }
 
-    private fun playTts(text: String, ttsWorkerUrl: String) {
+    private fun playTts(text: String, ttsWorkerUrl: String, voicePack: Boolean = true) {
         val clean = text.trim()
         if (clean.isBlank()) return
         stopMedia()
         ttsJob?.cancel()
         localTts?.stop()
-        VoicePack.fileFor(appContext, clean)?.let { clip ->
+        if (voicePack) VoicePack.fileFor(appContext, clean)?.let { clip ->
             playFile(clip)
             return
         }

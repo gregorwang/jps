@@ -207,6 +207,8 @@ sealed interface PromptAudio {
         val text: String,
         override val autoPlay: Boolean,
         override val label: String = "播放语音",
+        /** false = skip the Emilia voice pack (the user picked plain TTS on the voice pill). */
+        val voicePack: Boolean = true,
     ) : PromptAudio
 
     data object None : PromptAudio {
