@@ -101,7 +101,7 @@ export function AccountPage() {
             </option>
           ))}
         </select>
-        {preferredModel === 'grok-4.3' ? (
+        {preferredModel.startsWith('grok-') ? (
           <>
             <strong>Grok 推理强度</strong>
             <span>仅 Grok 4.3 生效；高强度更稳，低强度响应更轻。</span>

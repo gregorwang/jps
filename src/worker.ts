@@ -64,7 +64,7 @@ const foundationStageSet = new Set<string>(foundationStages)
 const foundationQuestionTypeSet = new Set<string>(foundationQuestionTypes)
 const foundationSourceKindSet = new Set<string>(foundationSourceKinds)
 
-type GatewayModel = 'gemini-3.5-flash-lite' | 'gemini-3.6-flash' | 'deepseek-v4-flash' | 'deepseek-v4-pro' | 'grok-4.3'
+type GatewayModel = 'gemini-3.5-flash-lite' | 'gemini-3.6-flash' | 'gemini-3.8-flash' | 'deepseek-v4-flash' | 'deepseek-v4-pro' | 'grok-4.7'
 type ReasoningEffort = 'minimal' | 'low' | 'medium' | 'high'
 type RagWorkSlug = 'rezero' | 'k-on'
 type SubtitleRagMatch = {
@@ -93,9 +93,10 @@ const ragWorkSlugs = new Set<RagWorkSlug>(['rezero', 'k-on'])
 const gatewayModels: { id: GatewayModel; label: string }[] = [
   { id: 'gemini-3.5-flash-lite', label: 'Gemini 3.5 Flash-Lite' },
   { id: 'gemini-3.6-flash', label: 'Gemini 3.6 Flash' },
+  { id: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash' },
+  { id: 'grok-4.7', label: 'Grok 4.7' },
   { id: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash' },
   { id: 'deepseek-v4-pro', label: 'DeepSeek V4 Pro' },
-  { id: 'grok-4.3', label: 'Grok 4.3' },
 ]
 
 type WorkRow = {
@@ -195,6 +196,7 @@ const allowedCacheKinds = new Set([
   'sentence_correction',
   'rag_air',
   'furigana',
+  'quick_feedback',
 ])
 
 type RubySegment = {
@@ -2276,8 +2278,13 @@ async function handleRagSearch(request: Request, env: Env) {
   const season = episode == null && typeof body?.season === 'number' && Number.isFinite(body.season) ? body.season : undefined
   const topK = Math.min(Math.max(body?.topK ?? 5, 1), 50)
 
+  // A Chinese scene description is matched poorly against Japanese-only chunks: search with a few
+  // Japanese lines such a scene would have instead (the original wording is kept in front).
+  const expanded = await expandSceneQuery(env, query)
+  const searchText = expanded.length > 0 ? [query, ...expanded].join('\n') : query
+
   const result = await searchSubtitleChunks(env, {
-    query,
+    query: searchText,
     work: workSlug,
     season,
     episode,
@@ -2292,20 +2299,28 @@ async function handleRagSearch(request: Request, env: Env) {
       const work = readString(metadata, 'work')
       const episode = readNumber(metadata, 'episode')
       const chunkNo = readNumber(metadata, 'chunk_no')
+      // Vector metadata says `rezero`, the subtitle tables say `re-zero`; Re:ゼロ has no subtitle_chunks rows,
+      // so its lines are found by the chunk's time window instead of a line range.
+      const tableWork = normalizeWorkSlugAlias(work)
       const chunkRows = await supabase<Record<string, unknown>[]>(
         env,
-        `/rest/v1/subtitle_chunks?select=*&work_slug=eq.${encodeURIComponent(work)}&episode=eq.${episode}&chunk_no=eq.${chunkNo}&limit=1`,
+        `/rest/v1/subtitle_chunks?select=*&work_slug=eq.${encodeURIComponent(tableWork)}&episode=eq.${episode}&chunk_no=eq.${chunkNo}&limit=1`,
       )
       const chunk = chunkRows[0]
       const startLine = chunk ? readNumber(chunk, 'start_line') : 0
       const endLine = chunk ? readNumber(chunk, 'end_line') : 0
+      const startTime = readString(metadata, 'start_time')
+      const endTime = readString(metadata, 'end_time')
+      const lineQuery = `/rest/v1/subtitle_lines?select=line_no,start_time,end_time,ja_text,zh_text&work_slug=eq.${encodeURIComponent(tableWork)}&episode=eq.${episode}`
       const lines =
         startLine > 0 && endLine > 0
-          ? await supabase<Record<string, unknown>[]>(
-              env,
-              `/rest/v1/subtitle_lines?select=line_no,start_time,end_time,ja_text,zh_text&work_slug=eq.${encodeURIComponent(work)}&episode=eq.${episode}&line_no=gte.${startLine}&line_no=lte.${endLine}&order=line_no.asc&limit=20`,
-            )
-          : []
+          ? await supabase<Record<string, unknown>[]>(env, `${lineQuery}&line_no=gte.${startLine}&line_no=lte.${endLine}&order=line_no.asc&limit=40`)
+          : startTime && endTime
+            ? await supabase<Record<string, unknown>[]>(
+                env,
+                `${lineQuery}&start_time=gte.${encodeURIComponent(startTime)}&start_time=lte.${encodeURIComponent(`${endTime},999`)}&order=line_no.asc&limit=40`,
+              )
+            : []
 
       return {
         id: match.id,
@@ -2316,13 +2331,27 @@ async function handleRagSearch(request: Request, env: Env) {
         startTime: readString(metadata, 'start_time'),
         endTime: readString(metadata, 'end_time'),
         text: readString(metadata, 'text'),
-        lines: lines.map(mapSubtitle),
+        lines: lines.map((row) => ({ ...mapSubtitle(row), score: undefined as number | undefined, hit: undefined as boolean | undefined })),
+        bestScore: undefined as number | undefined,
+        bestLineNo: undefined as number | undefined,
       }
     }),
   )
 
+  await rankSourceLines(env, searchText, sources)
+  sources.sort((a, b) => (b.bestScore ?? b.score) - (a.bestScore ?? a.score))
+  // Chunks overlap: the same best line can come back from two or three neighbouring chunks; keep the first.
+  const seenHits = new Set<string>()
+  const distinct = sources.filter((source) => {
+    const key = source.bestLineNo != null ? `${source.work}|${source.episode}|${source.bestLineNo}` : source.id
+    if (seenHits.has(key)) return false
+    seenHits.add(key)
+    return true
+  })
+  sources.splice(0, sources.length, ...distinct)
+
   // Plain search is vector-only; the LLM reading costs a call, so callers opt in (default on for old clients).
-  if (body?.analyze === false) return json({ query, sources, analysis: null })
+  if (body?.analyze === false) return json({ query, expanded, sources, analysis: null })
 
   const model = normalizeGatewayModel(body?.model)
   const reasoningEffort = effortFor(model, normalizeReasoningEffort(body?.reasoningEffort), 'low')
@@ -2371,6 +2400,82 @@ function isRagWorkSlug(value: string): value is RagWorkSlug {
 
 function normalizeRagWorkSlug(value: string): RagWorkSlug {
   return value === 're-zero' || value === 'rezero' ? 'rezero' : 'k-on'
+}
+
+type RankedLine = { lineNo: number; jaText: string; score?: number; hit?: boolean }
+type RankedSource = { score: number; bestScore?: number; bestLineNo?: number; lines: RankedLine[] }
+
+/** Japanese lines a scene described in Chinese would have; [] for queries that are already Japanese. */
+async function expandSceneQuery(env: Env, query: string): Promise<string[]> {
+  if (/[\u3040-\u30ff]/u.test(query)) return []
+  try {
+    const raw = await callAiGateway(
+      env,
+      defaultGatewayModel,
+      '你把中文的场景描述改写成动漫里角色在这种场景下真的会说的日语台词，用于向量检索。只输出 JSON。',
+      `场景：${query.slice(0, 200)}\n写 4 句口语化、彼此不同的日语台词（每句 20 字以内，不要假名注音，不要翻译）。`,
+      {
+        maxTokens: 300,
+        temperature: 0.4,
+        reasoningEffort: 'minimal',
+        jsonSchema: { type: 'object', properties: { lines: { type: 'array', items: { type: 'string' } } }, required: ['lines'] },
+      },
+    )
+    const parsed = JSON.parse(raw) as { lines?: unknown }
+    return Array.isArray(parsed.lines)
+      ? parsed.lines.filter((line): line is string => typeof line === 'string' && line.trim().length > 0).map((line) => line.trim()).slice(0, 6)
+      : []
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
+/**
+ * A chunk is ~30 lines: score every line against the search text with the same embedding model and
+ * mark the best one or two per chunk as the hit, so a result points at a line, not at a minute of dialogue.
+ */
+async function rankSourceLines(env: Env, searchText: string, sources: RankedSource[]) {
+  // One- or two-kana lines (えッ, うぅ～) sit close to any query in embedding space: they are context, never the hit.
+  const all = sources.flatMap((source) => source.lines.filter((line) => line.jaText.replace(/[\s…・、。！？!?～〜ー―\-（）()「」]/gu, '').length >= 4))
+  if (all.length === 0) return
+  try {
+    const texts = [searchText, ...all.map((line) => line.jaText)]
+    const vectors: number[][] = []
+    for (let i = 0; i < texts.length; i += 96) {
+      const result = (await env.AI.run(EMBEDDING_MODEL, { text: texts.slice(i, i + 96) })) as { data?: number[][] }
+      vectors.push(...(result.data ?? []))
+    }
+    if (vectors.length !== texts.length) return
+    const [q, ...lineVectors] = vectors
+    all.forEach((line, i) => {
+      line.score = cosine(q, lineVectors[i])
+    })
+    for (const source of sources) {
+      const scored = source.lines.filter((line) => typeof line.score === 'number').sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+      const best = scored[0]
+      if (!best) continue
+      source.bestScore = best.score
+      source.bestLineNo = best.lineNo
+      scored.slice(0, 2).forEach((line, i) => {
+        if (i === 0 || (line.score ?? 0) >= (best.score ?? 0) - 0.03) line.hit = true
+      })
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+function cosine(a: number[], b: number[]) {
+  let dot = 0
+  let na = 0
+  let nb = 0
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i]
+    na += a[i] * a[i]
+    nb += b[i] * b[i]
+  }
+  return na > 0 && nb > 0 ? dot / Math.sqrt(na * nb) : 0
 }
 
 async function searchSubtitleChunks(env: Env, params: { query: string; work: RagWorkSlug; season?: number; episode?: number; topK?: number }) {
@@ -3376,6 +3481,7 @@ function extractInlineLabeledSection(text: string, alias: string, aliases: strin
 const legacyGatewayModels: Record<string, GatewayModel> = {
   'gemini-3.1-flash-lite': 'gemini-3.5-flash-lite',
   'gemini-3.5-flash': 'gemini-3.6-flash',
+  'grok-4.3': 'grok-4.7',
 }
 
 function normalizeGatewayModel(model: unknown): GatewayModel {
@@ -3389,7 +3495,7 @@ function normalizeGatewayModel(model: unknown): GatewayModel {
  */
 function effortFor(model: GatewayModel, requested: ReasoningEffort, geminiLevel: ReasoningEffort): ReasoningEffort {
   if (model.startsWith('gemini-')) return geminiLevel
-  return model === 'grok-4.3' ? requested : 'low'
+  return model.startsWith('grok-') ? requested : 'low'
 }
 
 function normalizeReasoningEffort(value: unknown): ReasoningEffort {
@@ -3644,6 +3750,11 @@ async function callAiGateway(
   }
 
   if (model.startsWith('gemini-')) {
+    // 3.8 Flash has no MINIMAL thinking level. Thinking tokens count against max_tokens on Gemini 3.x,
+    // so the answer gets room on top of the thinking budget instead of being cut off mid-JSON.
+    const requested = options.reasoningEffort ?? 'low'
+    const effort = model === 'gemini-3.8-flash' && requested === 'minimal' ? 'low' : requested
+    const headroom = { minimal: 0, low: 1024, medium: 2048, high: 4096 }[effort]
     const response = await fetch(`${env.AI_GATEWAY_BASE_URL}/compat/chat/completions`, {
       method: 'POST',
       headers: {
@@ -3657,8 +3768,8 @@ async function callAiGateway(
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
         ],
-        max_tokens: options.maxTokens,
-        reasoning_effort: options.reasoningEffort ?? 'low',
+        max_tokens: options.maxTokens + headroom,
+        reasoning_effort: effort,
         ...(options.jsonSchema
           ? { response_format: { type: 'json_schema', json_schema: { name: 'result', strict: true, schema: options.jsonSchema } } }
           : {}),
@@ -3666,6 +3777,10 @@ async function callAiGateway(
       }),
     })
 
+    // A newer model out of capacity (503) or quota (429) falls back to the default once.
+    if ((response.status === 503 || response.status === 429) && model !== defaultGatewayModel) {
+      return callAiGateway(env, defaultGatewayModel, systemPrompt, userPrompt, options)
+    }
     if (!response.ok) throw new Error(`AI Gateway Gemini failed: ${response.status} ${await response.text()}`)
     const data = (await response.json()) as { choices?: { message?: { content?: string } }[] }
     return data.choices?.[0]?.message?.content?.trim() ?? ''
@@ -3685,14 +3800,19 @@ async function callAiGateway(
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
-      temperature: model === 'grok-4.3' ? Math.max(options.temperature, 0.7) : options.temperature,
-      max_tokens: options.maxTokens,
-      ...(model === 'grok-4.3' ? { reasoning_effort: options.reasoningEffort ?? 'high' } : {}),
+      temperature: model.startsWith('grok-') ? Math.max(options.temperature, 0.7) : options.temperature,
+      max_tokens: options.maxTokens + (model.startsWith('grok-') ? 2048 : 0),
+      ...(model.startsWith('grok-') ? { reasoning_effort: options.reasoningEffort ?? 'high' } : {}),
       stream: false,
     }),
   })
 
-  if (!response.ok) throw new Error(`AI Gateway ${model} failed: ${response.status} ${await response.text()}`)
+  if (!response.ok) {
+    const detail = await response.text()
+    // DeepSeek out of credit, Grok rate-limited or down: answer with the default model rather than an error.
+    console.error(`AI Gateway ${model} failed: ${response.status} ${detail.slice(0, 300)}`)
+    return callAiGateway(env, defaultGatewayModel, systemPrompt, userPrompt, options)
+  }
   const data = (await response.json()) as { choices?: { message?: { content?: string } }[] }
   return data.choices?.[0]?.message?.content?.trim() ?? ''
 }
