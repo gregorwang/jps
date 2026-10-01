@@ -78,6 +78,8 @@ import com.animejapaneselab.nativeapp.ui.screens.review.ReviewRules
 import com.animejapaneselab.nativeapp.ui.screens.review.SmartReviewQueueScreen
 import com.animejapaneselab.nativeapp.ui.screens.search.CommandPalette
 import com.animejapaneselab.nativeapp.ui.screens.search.SearchScope
+import com.animejapaneselab.nativeapp.ui.screens.search.SceneSearchScreen
+import com.animejapaneselab.nativeapp.ui.search.SceneSearch
 import com.animejapaneselab.nativeapp.ui.screens.library.DictEntrySheet
 import com.animejapaneselab.nativeapp.ui.screens.library.DictTarget
 import com.animejapaneselab.nativeapp.ui.review.ReviewFeed
@@ -166,7 +168,6 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
     val paletteScope = remember(paletteOpen) {
         if (!paletteOpen) return@remember lastScope[0]
         when {
-            underlay == SecondaryScreen.Subtitles -> SearchScope.Scenes
             uiState.selectedTab == LabTab.Library -> SearchScope.Dict
             uiState.selectedTab == LabTab.Review -> SearchScope.Knowledge
             else -> SearchScope.All
@@ -186,9 +187,15 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
         // Closing search returns to the page it was opened from (only 字幕 has an entry).
         if (underlay == SecondaryScreen.Subtitles) viewModel.openSubtitles() else viewModel.closeSecondaryScreen()
     }
+    // 场景搜索 opened from 原作 goes back to 原作; from the palette, back to the tab.
+    var scenesFromGensaku by remember { mutableStateOf(false) }
+    val backFromScenes: () -> Unit = {
+        if (scenesFromGensaku) viewModel.openSubtitles() else viewModel.closeSecondaryScreen()
+    }
     val goBack: () -> Unit = {
         when {
             secondaryScreen == SecondaryScreen.AiHistory -> viewModel.openSettings()
+            secondaryScreen == SecondaryScreen.SceneSearch -> backFromScenes()
             secondaryScreen != null -> viewModel.closeSecondaryScreen()
             activeSession != null -> viewModel.exitTrainingSession()
         }
@@ -329,6 +336,12 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
                                         route = page,
                                         uiState = uiState,
                                         viewModel = viewModel,
+                                        onFindScenes = { query ->
+                                            SceneSearch.search(context, query)
+                                            scenesFromGensaku = true
+                                            viewModel.openSceneSearch()
+                                        },
+                                        onBackFromScenes = backFromScenes,
                                         onRequestNotificationPermission = {
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                                                 notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -354,10 +367,13 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
                             scope = paletteScope,
                             uiState = uiState,
                             onDismiss = closePalette,
-                            onOpenSubtitleLine = viewModel::openSubtitlesAt,
                             onOpenEntry = {
                                 closePalette()
                                 dictTarget = it
+                            },
+                            onOpenScenes = {
+                                scenesFromGensaku = false
+                                viewModel.openSceneSearch()
                             },
                             onOpenKnowledge = { card ->
                                 ReviewFeed.show(context, card, java.time.LocalDate.now().toEpochDay())
@@ -400,6 +416,8 @@ private fun ShellPage(
     viewModel: LabViewModel,
     onRequestNotificationPermission: () -> Unit,
     onOpenPromotedNotificationSettings: () -> Unit,
+    onFindScenes: (query: String) -> Unit,
+    onBackFromScenes: () -> Unit,
 ) {
     when (route) {
         is ShellRoute.Secondary -> when (route.screen) {
@@ -429,7 +447,13 @@ private fun ShellPage(
                 onWorkSelected = viewModel::selectWork,
                 onEpisodeSelected = viewModel::selectEpisode,
                 onFocusConsumed = viewModel::clearSubtitleFocus,
-                onOpenSearch = viewModel::openSearch,
+                onFindScenes = onFindScenes,
+            )
+
+            SecondaryScreen.SceneSearch -> SceneSearchScreen(
+                uiState = uiState,
+                onBack = onBackFromScenes,
+                onOpenLine = viewModel::openSubtitlesAt,
             )
 
             SecondaryScreen.SmartReviewQueue -> SmartReviewQueueScreen(

@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import com.animejapaneselab.nativeapp.ui.design.MangaPanel
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -97,7 +100,7 @@ fun SubtitlesScreen(
     onWorkSelected: (String) -> Unit,
     onEpisodeSelected: (Int) -> Unit,
     onFocusConsumed: () -> Unit,
-    onOpenSearch: () -> Unit,
+    onFindScenes: (query: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = AjlTheme.colors
@@ -194,7 +197,6 @@ fun SubtitlesScreen(
             },
             actions = {
                 EpisodeChip(episodeTitle(episode), onClick = { pickerOpen = true })
-                IconButton44(Icons.Rounded.Search, "按场景找台词", onOpenSearch)
             },
         )
         Hairline()
@@ -212,6 +214,7 @@ fun SubtitlesScreen(
                             furiganaAvailable = uiState.settings.showFurigana,
                             furiganaOn = furiganaOn,
                             onToggleFurigana = { furiganaOn = !furiganaOn },
+                            onFindScenes = { onFindScenes(query.trim()) },
                         )
                         SubtitleRow.Notice -> SubtitleNotice(uiState, onRefresh)
                         SubtitleRow.Empty -> if (uiState.subtitleStatus != SyncStatus.Loading) {
@@ -350,8 +353,11 @@ private fun SubtitleTools(
     furiganaAvailable: Boolean,
     furiganaOn: Boolean,
     onToggleFurigana: () -> Unit,
+    onFindScenes: () -> Unit,
 ) {
     val colors = AjlTheme.colors
+    // One search box: this episode by the letter as you type, and one row to look for the scene by meaning in every work.
+    Column(Modifier.fillMaxWidth()) {
     Row(
         Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp, top = 12.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -373,6 +379,29 @@ private fun SubtitleTools(
                 Text("ふりがな", style = AjlTheme.type.jpLabel.copy(fontSize = 12.sp), color = if (furiganaOn) colors.onInk else colors.ink)
             }
         }
+    }
+    if (query.isNotBlank()) {
+        MangaPanel(
+            Modifier
+                .fillMaxWidth()
+                .padding(start = 10.dp, end = 10.dp, top = 8.dp, bottom = 4.dp)
+                .clickableNoRipple(onFindScenes)
+                .semantics { contentDescription = "在全部原作里按意思找" },
+        ) {
+            Row(
+                Modifier.fillMaxWidth().heightIn(min = 60.dp).padding(horizontal = 14.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Icon(Icons.Rounded.Search, null, tint = AjlTheme.work.accent, modifier = Modifier.size(20.dp))
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text("在全部原作里按意思找", style = AjlTheme.type.label.copy(fontSize = 15.sp, fontWeight = FontWeight.SemiBold), color = colors.ink)
+                    Text("「${query.trim()}」这样的场景", style = AjlTheme.type.caption, color = colors.ink2, maxLines = 1)
+                }
+                Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = colors.ink2, modifier = Modifier.size(18.dp))
+            }
+        }
+    }
     }
 }
 

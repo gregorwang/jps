@@ -621,6 +621,10 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         _uiState.update { it.copy(activeSession = null, secondaryScreen = SecondaryScreen.Search) }
     }
 
+    fun openSceneSearch() {
+        _uiState.update { it.copy(activeSession = null, secondaryScreen = SecondaryScreen.SceneSearch) }
+    }
+
     /**
      * Jumps to the subtitle browser at [workSlug]/[episode] and asks it to scroll to
      * [lineNo] (0 keeps the current scroll position). Used by search hits and mistake

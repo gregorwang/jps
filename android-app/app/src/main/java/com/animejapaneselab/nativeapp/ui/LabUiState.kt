@@ -447,6 +447,8 @@ enum class SecondaryScreen {
     SmartReviewQueue,
     AiHistory,
     Search,
+    /** 场景搜索: the full page of scene hits (state in `ui/search/SceneSearch`). */
+    SceneSearch,
 }
 
 enum class ReadAirMode(val label: String) {
