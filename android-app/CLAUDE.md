@@ -128,6 +128,12 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 ## 8. 经验记录（每次会话结束补几条）
 
+**2026-10-01 · 场景搜索页（进 0.23.0，和另一个会话的改动一起发，发版等用户点头）**
+- 代码：`ui/search/SceneSearch.kt`（进程级 holder + `SceneRules`），`screens/search/SceneSearchScreen.kt`（整页 + 场景面板），路由 `SecondaryScreen.SceneSearch`。今日搜索回车只给 2 个场景 + 「全部场景」，原作页一个搜索框 + 「在全部原作里按意思找」一行。worker `/api/rag/search` 收 `workSlug:"all"` + `explain:true`：两部作品一起搜，Flash-Lite 给命中句打 0/1/2 相关度、现翻中文（字幕中文常错位）、`why`、`mark`，并按 `learning_sentences` 附原声。一次约 9 秒。
+- 用户定的界面规矩（画布评论）：**播放不用圆形 ▶ 按钮，波形本身就是播放键**（`ui/design/Voice.kt` 的 `VoiceWave`）；**搜索不按作品分开**。
+- 向量库保持 30 句一段（1182 条）。按单句或 5 句重建索引都被否了：用户是 Workers 付费版但**不想触发超出包含额度的按量计费**，收益也不大。
+- **多个会话同时在改项目时不发版**（用户明确说过），只 commit；提交前看 `git status`，别人的改动不混进自己的提交；会话之间用 SendMessage 对齐谁的文件、谁发版。
+
 **2026-10-01 · 0.22.1（联网实测：AI 500/400、场景搜索、模型更新）**
 - **0.22.0 没做任何联网测试就发了**，用户在手机上发现 AI 接口报 500/400、场景搜索结果全不相关。规矩：**动到联网功能（worker、AI、搜索）时，发版前必须跑 `scripts/probe-ai.py`**（`AJL_EMAIL` / `AJL_PASSWORD` 环境变量，账号直接问用户要，别自己翻文件或造会话），每行都要 200；搜索类功能还要看结果内容对不对，不只看状态码。
 - 查出来的坑：worker 的 `allowedCacheKinds` 漏了 `quick_feedback`（AI 写好了，存缓存时抛错变 500）；App 调 worker 的 `readTimeout` 原来只有 25 秒（AI/RAG 现在 120 秒）；向量库 metadata 是 `rezero`、字幕表是 `re-zero`，且 `subtitle_chunks` 里没有 Re:ゼロ，按时间窗取行。
