@@ -38,8 +38,8 @@ android {
         applicationId = "com.animejapaneselab.nativeapp"
         minSdk = 26
         targetSdk = 36
-        versionCode = 36
-        versionName = "0.23.1"
+        versionCode = 37
+        versionName = "0.23.2"
 
         buildConfigField("String", "APP_UPDATE_BASE_URL", buildConfigString(appUpdateBaseUrl))
 
