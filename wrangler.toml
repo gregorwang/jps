@@ -28,4 +28,3 @@ SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXB
 OWNER_EMAIL = "1985738212@qq.com"
 TTS_WORKER_URL = "https://cloudflare-edge-tts.ishallnotwant123.workers.dev"
 VECTORIZE_INDEX = "anime-japanese-lab-subtitles"
-AI_GATEWAY_BASE_URL = "https://gateway.ai.cloudflare.com/v1/fb9830705da200eab2799ed0d487c197/my-ai-gateway"

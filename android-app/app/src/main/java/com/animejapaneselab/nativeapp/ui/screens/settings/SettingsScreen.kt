@@ -82,13 +82,8 @@ private val FallbackAiModels = listOf(
     AiModelOption("gemini-3.5-flash-lite", "Gemini 3.5 Flash-Lite"),
     AiModelOption("gemini-3.6-flash", "Gemini 3.6 Flash"),
     AiModelOption("gemini-3.8-flash", "Gemini 3.8 Flash"),
-    AiModelOption("grok-4.7", "Grok 4.7"),
-    AiModelOption("deepseek-v4-flash", "DeepSeek V4 Flash"),
-    AiModelOption("deepseek-v4-pro", "DeepSeek V4 Pro"),
 )
 
-private const val ReasoningModel = "grok-4.7"
-private val ReasoningEfforts = listOf("low" to "低", "medium" to "中", "high" to "高")
 
 /** Which inline editor under a row is open (one at a time). */
 private enum class Open { None, Model, Api, Voice, VoicePack, SoundTest, Device, Password }
@@ -327,12 +322,7 @@ fun SettingsScreen(
 
         item(key = "ai") {
             SettingsGroup("AI") {
-                val modelValue = if (settings.aiModel == ReasoningModel) {
-                    "$modelLabel · ${ReasoningEfforts.firstOrNull { it.first == settings.reasoningEffort }?.second ?: settings.reasoningEffort}"
-                } else {
-                    modelLabel
-                }
-                DisclosureRow("默认模型", open == Open.Model, value = modelValue, onClick = { toggle(Open.Model) })
+                DisclosureRow("默认模型", open == Open.Model, value = modelLabel, onClick = { toggle(Open.Model) })
                 if (open == Open.Model) {
                     InlinePanel {
                         if (modelsLoading) LoadingDots()
@@ -347,20 +337,6 @@ fun SettingsScreen(
                                 selected = option.id == settings.aiModel,
                                 onClick = { onSettingsChange(settings.copy(aiModel = option.id)) },
                             )
-                        }
-                    }
-                }
-                if (settings.aiModel == ReasoningModel) {
-                    LineRow(minHeight = 52.dp) {
-                        RowLabel("推理强度", Modifier.weight(1f))
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            ReasoningEfforts.forEach { (id, label) ->
-                                FilterPill(
-                                    text = label,
-                                    selected = settings.reasoningEffort == id,
-                                    onClick = { onSettingsChange(settings.copy(reasoningEffort = id)) },
-                                )
-                            }
                         }
                     }
                 }

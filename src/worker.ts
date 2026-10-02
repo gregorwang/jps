@@ -42,14 +42,15 @@ type Env = {
   TTS_WORKER_URL: string
   VECTORIZE_INDEX: string
   SUBTITLE_RAG_WORKER_URL?: string
-  AI_GATEWAY_BASE_URL: string
-  CF_AIG_TOKEN: string
+  GEMINI_API_KEY: string
   PRONUNCIATION_AUTH_HMAC_SECRET?: string
 }
 
 const EMBEDDING_MODEL = '@cf/baai/bge-m3'
 const SUBTITLE_RAG_WORKER_URL = 'https://anime-japanese-lab-vector-ingest.ishallnotwant123.workers.dev'
-const defaultGatewayModel = 'gemini-3.5-flash-lite'
+const defaultAiModel = 'gemini-3.5-flash-lite'
+// Google AI Studio's OpenAI-compatible endpoint, called directly (not through the shared Cloudflare AI Gateway).
+const geminiBaseUrl = 'https://generativelanguage.googleapis.com/v1beta/openai'
 const cacheSchemaVersion = 'v6'
 const sessionCookieName = 'ajl_session'
 const sessionMaxAgeSeconds = 60 * 60 * 24 * 30
@@ -64,7 +65,7 @@ const foundationStageSet = new Set<string>(foundationStages)
 const foundationQuestionTypeSet = new Set<string>(foundationQuestionTypes)
 const foundationSourceKindSet = new Set<string>(foundationSourceKinds)
 
-type GatewayModel = 'gemini-3.5-flash-lite' | 'gemini-3.6-flash' | 'gemini-3.8-flash' | 'deepseek-v4-flash' | 'deepseek-v4-pro' | 'grok-4.7'
+type AiModel = 'gemini-3.5-flash-lite' | 'gemini-3.6-flash' | 'gemini-3.8-flash'
 type ReasoningEffort = 'minimal' | 'low' | 'medium' | 'high'
 type RagWorkSlug = 'rezero' | 'k-on'
 type SubtitleRagMatch = {
@@ -90,13 +91,10 @@ type SubtitleRagQueryResponse = {
 
 const ragWorkSlugs = new Set<RagWorkSlug>(['rezero', 'k-on'])
 
-const gatewayModels: { id: GatewayModel; label: string }[] = [
+const aiModels: { id: AiModel; label: string }[] = [
   { id: 'gemini-3.5-flash-lite', label: 'Gemini 3.5 Flash-Lite' },
   { id: 'gemini-3.6-flash', label: 'Gemini 3.6 Flash' },
   { id: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash' },
-  { id: 'grok-4.7', label: 'Grok 4.7' },
-  { id: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash' },
-  { id: 'deepseek-v4-pro', label: 'DeepSeek V4 Pro' },
 ]
 
 type WorkRow = {
@@ -290,12 +288,12 @@ async function handleApi(request: Request, env: Env, url: URL) {
     return json({
       ttsWorkerUrl: env.TTS_WORKER_URL,
       vectorizeIndex: env.VECTORIZE_INDEX,
-      aiGatewayModels: gatewayModels,
+      aiGatewayModels: aiModels,
     })
   }
 
   if (url.pathname === '/api/ai/models') {
-    return json(gatewayModels)
+    return json(aiModels)
   }
 
   // Every model call costs money: AI and RAG routes are for signed-in users only.
@@ -1663,7 +1661,7 @@ async function handleClaimDevice(request: Request, env: Env) {
 
 async function handleAiExplain(request: Request, env: Env) {
   const body = (await request.json().catch(() => null)) as
-    | { kind?: 'vocab' | 'sentence' | 'grammar' | 'linguistic'; text?: string; context?: string; model?: GatewayModel; reasoningEffort?: ReasoningEffort; deviceId?: string }
+    | { kind?: 'vocab' | 'sentence' | 'grammar' | 'linguistic'; text?: string; context?: string; model?: AiModel; reasoningEffort?: ReasoningEffort; deviceId?: string }
     | null
 
   const text = body?.text?.trim()
@@ -1671,8 +1669,8 @@ async function handleAiExplain(request: Request, env: Env) {
     return json({ error: { message: 'text is required' } }, 400)
   }
 
-  const model = normalizeGatewayModel(body?.model)
-  const reasoningEffort = effortFor(model, normalizeReasoningEffort(body?.reasoningEffort), 'low')
+  const model = normalizeAiModel(body?.model)
+  const reasoningEffort = 'low' as ReasoningEffort
   const payload = { kind: body?.kind ?? 'vocab', text, context: body?.context ?? '', model, reasoningEffort }
   const cacheKey = await hashPayload(`ai-explain-${cacheSchemaVersion}`, payload)
   const stored = await readAiCache(env, cacheKey)
@@ -1767,9 +1765,9 @@ async function handleFurigana(request: Request, env: Env, url: URL) {
     return json(result)
   }
 
-  const rawText = await callAiGateway(
+  const rawText = await callGemini(
     env,
-    defaultGatewayModel,
+    defaultAiModel,
     [
       'You generate Japanese furigana for language learners.',
       'Return only strict JSON. No markdown, no explanation, no translation.',
@@ -1885,7 +1883,7 @@ async function writeFuriganaCache(
   await writeAiCache(env, {
     cacheKey: cacheMeta.cacheKey,
     cacheKind: 'furigana',
-    model: defaultGatewayModel,
+    model: defaultAiModel,
     sourceId: `${cacheMeta.targetType}:${cacheMeta.targetId}`,
     inputPayload: {
       ...cacheMeta.cacheInput,
@@ -1900,9 +1898,9 @@ async function generateFuriganaBatch(
   env: Env,
   items: { index: number; targetId: string; text: string }[],
 ) {
-  const rawText = await callAiGateway(
+  const rawText = await callGemini(
     env,
-    defaultGatewayModel,
+    defaultAiModel,
     [
       'You generate Japanese furigana for language learners.',
       'Return only strict JSON. No markdown, no explanation, no translation.',
@@ -1936,7 +1934,7 @@ async function handleSentenceDeepDive(request: Request, env: Env) {
         lineNo?: number
         jaText?: string
         zhText?: string
-        model?: GatewayModel
+        model?: AiModel
         reasoningEffort?: ReasoningEffort
         deviceId?: string
       }
@@ -1945,8 +1943,8 @@ async function handleSentenceDeepDive(request: Request, env: Env) {
   const jaText = body?.jaText?.trim()
   if (!jaText) return json({ error: { message: 'jaText is required' } }, 400)
 
-  const model = normalizeGatewayModel(body?.model)
-  const reasoningEffort = effortFor(model, normalizeReasoningEffort(body?.reasoningEffort), 'medium')
+  const model = normalizeAiModel(body?.model)
+  const reasoningEffort = 'medium' as ReasoningEffort
   const payload = {
     workSlug: body?.workSlug ?? 'k-on',
     episode: body?.episode ?? 1,
@@ -2019,14 +2017,14 @@ async function handleSentenceDeepDive(request: Request, env: Env) {
 
 async function handleCharacterProfile(request: Request, env: Env) {
   const body = (await request.json().catch(() => null)) as
-    | { workSlug?: string; characterKey?: string; characterName?: string; model?: GatewayModel; reasoningEffort?: ReasoningEffort; regenerate?: boolean }
+    | { workSlug?: string; characterKey?: string; characterName?: string; model?: AiModel; reasoningEffort?: ReasoningEffort; regenerate?: boolean }
     | null
   const workSlug = body?.workSlug ?? 'k-on'
   const ragWorkSlug = normalizeRagWorkSlug(workSlug)
   const characterKey = body?.characterKey ?? 'yui'
   const characterName = body?.characterName ?? '唯'
-  const model = normalizeGatewayModel(body?.model)
-  const reasoningEffort = effortFor(model, normalizeReasoningEffort(body?.reasoningEffort), 'medium')
+  const model = normalizeAiModel(body?.model)
+  const reasoningEffort = 'medium' as ReasoningEffort
 
   if (!body?.regenerate) {
     const existing = await supabase<Record<string, unknown>[]>(
@@ -2082,7 +2080,7 @@ async function handleCharacterProfile(request: Request, env: Env) {
       { maxTokens: 1600, temperature: 0.2, reasoningEffort },
     )
   } catch (error) {
-    return json({ error: { message: profileErrorMessage('AI Gateway generation', error) } }, 502)
+    return json({ error: { message: profileErrorMessage('AI generation', error) } }, 502)
   }
 
   const profile = {
@@ -2104,7 +2102,7 @@ async function handleCharacterProfile(request: Request, env: Env) {
   return json(cacheWarning ? { ...profile, cacheWarning } : profile)
 }
 
-function withProfileMetadata(resultPayload: unknown, row: Record<string, unknown>, model: GatewayModel) {
+function withProfileMetadata(resultPayload: unknown, row: Record<string, unknown>, model: AiModel) {
   const result = typeof resultPayload === 'object' && resultPayload ? resultPayload as Record<string, unknown> : {}
   const sourcePayload = typeof row.source_payload === 'object' && row.source_payload ? row.source_payload as Record<string, unknown> : {}
   return {
@@ -2146,7 +2144,7 @@ async function handleQuickFeedback(request: Request, env: Env) {
   const answer = body?.answer?.trim()
   if (!chosen || !answer) return json({ error: { message: 'chosen and answer are required' } }, 400)
 
-  const model = defaultGatewayModel
+  const model = defaultAiModel
   const payload = {
     prompt: (body?.prompt ?? '').slice(0, 300),
     sentence: (body?.sentence ?? '').slice(0, 300),
@@ -2161,7 +2159,7 @@ async function handleQuickFeedback(request: Request, env: Env) {
   if (cached) return json(cached)
 
   const learned = (body?.learned ?? []).filter((item) => typeof item === 'string').slice(0, 12)
-  const raw = await callAiGateway(
+  const raw = await callGemini(
     env,
     model,
     '你是日语活用练习的批改老师。只用简体中文，一到两句话，直接说学生选的形式错在哪、和正确形式差在哪一步变化。不复述题目，不说鼓励的话，不用 Markdown。',
@@ -2205,15 +2203,15 @@ async function handleSentenceCorrection(request: Request, env: Env) {
         sentence?: string
         workSlug?: string
         episode?: number
-        model?: GatewayModel
+        model?: AiModel
         reasoningEffort?: ReasoningEffort
       }
     | null
   const sentence = body?.sentence?.trim()
   if (!sentence) return json({ error: { message: 'sentence is required' } }, 400)
   if (body?.deviceId && !isValidDeviceId(body.deviceId)) return json({ error: { message: 'deviceId is invalid' } }, 400)
-  const model = normalizeGatewayModel(body?.model)
-  const reasoningEffort = effortFor(model, normalizeReasoningEffort(body?.reasoningEffort), 'low')
+  const model = normalizeAiModel(body?.model)
+  const reasoningEffort = 'low' as ReasoningEffort
   const payload = {
     targetType: body?.targetType ?? 'free',
     targetId: body?.targetId ?? '',
@@ -2260,7 +2258,7 @@ async function buildCacheKey(prefix: string, value: string) {
 
 async function handleRagSearch(request: Request, env: Env) {
   const body = (await request.json().catch(() => null)) as
-    | { query?: string; workSlug?: string; season?: number; episode?: number; topK?: number; model?: GatewayModel; reasoningEffort?: ReasoningEffort; deviceId?: string; analyze?: boolean; explain?: boolean }
+    | { query?: string; workSlug?: string; season?: number; episode?: number; topK?: number; model?: AiModel; reasoningEffort?: ReasoningEffort; deviceId?: string; analyze?: boolean; explain?: boolean }
     | null
 
   const query = body?.query?.trim()
@@ -2368,8 +2366,8 @@ async function handleRagSearch(request: Request, env: Env) {
   // Plain search is vector-only; the LLM reading costs a call, so callers opt in (default on for old clients).
   if (body?.analyze === false) return json({ query, expanded, examples, weak, sources, analysis: null })
 
-  const model = normalizeGatewayModel(body?.model)
-  const reasoningEffort = effortFor(model, normalizeReasoningEffort(body?.reasoningEffort), 'low')
+  const model = normalizeAiModel(body?.model)
+  const reasoningEffort = 'low' as ReasoningEffort
   const cacheKey = await hashPayload(`rag-air-${cacheSchemaVersion}`, {
     query,
     workSlug,
@@ -2427,9 +2425,9 @@ type SceneMatch = { lineNo: number; relevance: number; zh: string; why: string; 
 async function expandSceneQuery(env: Env, query: string): Promise<SceneExample[]> {
   if (/[\u3040-\u30ff]/u.test(query)) return []
   try {
-    const raw = await callAiGateway(
+    const raw = await callGemini(
       env,
-      defaultGatewayModel,
+      defaultAiModel,
       '你把中文的场景描述改写成动漫里角色在这种场景下真的会说的日语台词，用于向量检索。只输出 JSON。',
       `场景：${query.slice(0, 200)}\n写 4 句口语化、彼此不同的日语台词（每句 20 字以内，不要假名注音），每句附一句自然的中文意思。`,
       {
@@ -2530,9 +2528,9 @@ async function judgeSceneHits(env: Env, query: string, sources: JudgedSource[]) 
   })
   if (items.length === 0) return
   try {
-    const raw = await callAiGateway(
+    const raw = await callGemini(
       env,
-      defaultGatewayModel,
+      defaultAiModel,
       '你是日语老师，在帮学习者从动漫台词里找"某种场景下日本人怎么说"。只输出 JSON。',
       [
         `学习者要找：${query.slice(0, 200)}`,
@@ -2747,10 +2745,10 @@ function hasJapaneseKanji(value: string) {
 
 async function handleRagSuggestTrainingQuery(request: Request, env: Env) {
   const body = (await request.json().catch(() => null)) as
-    | { workSlug?: string; model?: GatewayModel; reasoningEffort?: ReasoningEffort; deviceId?: string }
+    | { workSlug?: string; model?: AiModel; reasoningEffort?: ReasoningEffort; deviceId?: string }
     | null
-  const model = normalizeGatewayModel(body?.model)
-  const reasoningEffort = effortFor(model, normalizeReasoningEffort(body?.reasoningEffort), 'minimal')
+  const model = normalizeAiModel(body?.model)
+  const reasoningEffort = 'minimal' as ReasoningEffort
   const workSlug = body?.workSlug?.trim()
   if (!workSlug) return json({ error: { message: 'workSlug is required' } }, 400)
   if (!isRagWorkSlug(workSlug)) return json({ error: { message: 'workSlug must be one of: rezero, k-on' } }, 400)
@@ -2761,7 +2759,7 @@ async function handleRagSuggestTrainingQuery(request: Request, env: Env) {
   }
 
   try {
-    const text = await callAiGateway(
+    const text = await callGemini(
       env,
       model,
       '你是 Nihongo Lab 的读空气训练策划。你只负责决定检索意图，不生成题目。必须输出严格 JSON，不要 Markdown，不要代码块。',
@@ -2793,15 +2791,15 @@ JSON 字段必须为：
 
 async function handleRagGenerateQuestion(request: Request, env: Env) {
   const body = (await request.json().catch(() => null)) as
-    | { source?: unknown; model?: GatewayModel; reasoningEffort?: ReasoningEffort; deviceId?: string }
+    | { source?: unknown; model?: AiModel; reasoningEffort?: ReasoningEffort; deviceId?: string }
     | null
   const source = body?.source as Record<string, unknown> | undefined
   if (!source) return json({ error: { message: 'source is required' } }, 400)
 
-  const model = normalizeGatewayModel(body?.model)
-  const reasoningEffort = effortFor(model, normalizeReasoningEffort(body?.reasoningEffort), 'medium')
+  const model = normalizeAiModel(body?.model)
+  const reasoningEffort = 'medium' as ReasoningEffort
   const context = JSON.stringify(source).slice(0, 9000)
-  const text = await callAiGateway(
+  const text = await callGemini(
     env,
     model,
     '你是 Nihongo Lab 的读空气练习题生成器。只基于给定字幕场景生成题目，不编造剧情。必须输出严格 JSON，不要 Markdown，不要代码块。',
@@ -2840,17 +2838,17 @@ async function handleRagGenerateQuestion(request: Request, env: Env) {
 
 async function handleRagGenerateQuestions(request: Request, env: Env) {
   const body = (await request.json().catch(() => null)) as
-    | { sources?: unknown[]; model?: GatewayModel; reasoningEffort?: ReasoningEffort; deviceId?: string }
+    | { sources?: unknown[]; model?: AiModel; reasoningEffort?: ReasoningEffort; deviceId?: string }
     | null
   const sources = Array.isArray(body?.sources)
     ? body.sources.filter((source): source is Record<string, unknown> => Boolean(source) && typeof source === 'object').slice(0, 5)
     : []
   if (sources.length === 0) return json({ error: { message: 'sources is required' } }, 400)
 
-  const model = normalizeGatewayModel(body?.model)
-  const reasoningEffort = effortFor(model, normalizeReasoningEffort(body?.reasoningEffort), 'medium')
+  const model = normalizeAiModel(body?.model)
+  const reasoningEffort = 'medium' as ReasoningEffort
   const context = JSON.stringify(sources).slice(0, 18000)
-  const text = await callAiGateway(
+  const text = await callGemini(
     env,
     model,
     '你是 Nihongo Lab 的读空气练习题生成器。只基于给定字幕场景生成题目，不编造剧情。必须输出严格 JSON 数组，不要 Markdown，不要代码块。',
@@ -3258,7 +3256,7 @@ async function handleHistoryDetail(request: Request, env: Env, url: URL) {
   return json({ error: { message: 'type is invalid' } }, 400)
 }
 
-async function analyzeAir(env: Env, query: string, sources: unknown[], model: GatewayModel, reasoningEffort: ReasoningEffort) {
+async function analyzeAir(env: Env, query: string, sources: unknown[], model: AiModel, reasoningEffort: ReasoningEffort) {
   if (sources.length === 0) {
     return {
       title: '未找到相关字幕',
@@ -3269,7 +3267,7 @@ async function analyzeAir(env: Env, query: string, sources: unknown[], model: Ga
 
   try {
     const context = formatRagContext(sources).slice(0, 9000)
-    const text = await callAiGateway(
+    const text = await callGemini(
       env,
       model,
       '你是日语语言学和动漫对话语用分析助手。只基于给定字幕来源分析，不编造剧情。用简体中文输出，必须引用日文证据。',
@@ -3430,7 +3428,7 @@ const sectionsSchema = {
  */
 async function callAiSections(
   env: Env,
-  model: GatewayModel,
+  model: AiModel,
   systemPrompt: string,
   userPrompt: string,
   title: string,
@@ -3438,12 +3436,12 @@ async function callAiSections(
   options: { maxTokens: number; temperature: number; reasoningEffort: ReasoningEffort },
 ) {
   if (!model.startsWith('gemini-')) {
-    const text = await callAiGateway(env, model, systemPrompt, `${userPrompt}
+    const text = await callGemini(env, model, systemPrompt, `${userPrompt}
 
 严格按这些栏目输出：${sections.join('、')}。`, options)
     return structuredTextResult(title, text, sections)
   }
-  const raw = await callAiGateway(
+  const raw = await callGemini(
     env,
     model,
     systemPrompt,
@@ -3594,28 +3592,19 @@ function extractInlineLabeledSection(text: string, alias: string, aliases: strin
   return text.match(pattern)?.[1]?.trim() ?? ''
 }
 
-const legacyGatewayModels: Record<string, GatewayModel> = {
+const legacyAiModels: Record<string, AiModel> = {
   'gemini-3.1-flash-lite': 'gemini-3.5-flash-lite',
   'gemini-3.5-flash': 'gemini-3.6-flash',
-  'grok-4.3': 'grok-4.7',
+  // Grok and DeepSeek only ran through the shared AI Gateway; the app now calls Google directly.
+  'grok-4.3': 'gemini-3.5-flash-lite',
+  'grok-4.7': 'gemini-3.5-flash-lite',
+  'deepseek-v4-flash': 'gemini-3.5-flash-lite',
+  'deepseek-v4-pro': 'gemini-3.5-flash-lite',
 }
 
-function normalizeGatewayModel(model: unknown): GatewayModel {
-  if (typeof model === 'string' && legacyGatewayModels[model]) return legacyGatewayModels[model]
-  return gatewayModels.some((item) => item.id === model) ? (model as GatewayModel) : defaultGatewayModel
-}
-
-/**
- * Thinking depth actually sent. Gemini gets a per-task level (Flash-Lite is fast at 'minimal'
- * and 'low'); the client's choice only applies to Grok, the one model the settings expose it for.
- */
-function effortFor(model: GatewayModel, requested: ReasoningEffort, geminiLevel: ReasoningEffort): ReasoningEffort {
-  if (model.startsWith('gemini-')) return geminiLevel
-  return model.startsWith('grok-') ? requested : 'low'
-}
-
-function normalizeReasoningEffort(value: unknown): ReasoningEffort {
-  return value === 'low' || value === 'medium' || value === 'high' ? value : 'high'
+function normalizeAiModel(model: unknown): AiModel {
+  if (typeof model === 'string' && legacyAiModels[model]) return legacyAiModels[model]
+  return aiModels.some((item) => item.id === model) ? (model as AiModel) : defaultAiModel
 }
 
 async function getAuthContext(request: Request, env: Env): Promise<AuthContext> {
@@ -3853,62 +3842,28 @@ function shouldReplaceProgress(existing: Record<string, unknown>, incoming: Reco
   return reviewPriority(readString(incoming, 'state'), readString(incoming, 'item_type')) > reviewPriority(readString(existing, 'state'), readString(existing, 'item_type'))
 }
 
-async function callAiGateway(
+async function callGemini(
   env: Env,
-  model: GatewayModel,
+  model: AiModel,
   systemPrompt: string,
   userPrompt: string,
   options: { maxTokens: number; temperature: number; reasoningEffort?: ReasoningEffort; jsonSchema?: Record<string, unknown> },
 ): Promise<string> {
-  const aiGatewayToken = env.CF_AIG_TOKEN?.replace(/^\uFEFF/u, '').trim()
-  if (!aiGatewayToken) {
-    throw new Error('CF_AIG_TOKEN is not configured')
+  const apiKey = env.GEMINI_API_KEY?.replace(/^\uFEFF/u, '').trim()
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY is not configured')
   }
 
-  if (model.startsWith('gemini-')) {
-    // 3.8 Flash has no MINIMAL thinking level. Thinking tokens count against max_tokens on Gemini 3.x,
-    // so the answer gets room on top of the thinking budget instead of being cut off mid-JSON.
-    const requested = options.reasoningEffort ?? 'low'
-    const effort = model === 'gemini-3.8-flash' && requested === 'minimal' ? 'low' : requested
-    const headroom = { minimal: 0, low: 1024, medium: 2048, high: 4096 }[effort]
-    const response = await fetch(`${env.AI_GATEWAY_BASE_URL}/compat/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'cf-aig-authorization': `Bearer ${aiGatewayToken}`,
-        'cf-aig-skip-cache': 'false',
-      },
-      body: JSON.stringify({
-        model: `google-ai-studio/${model}`,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
-        max_tokens: options.maxTokens + headroom,
-        reasoning_effort: effort,
-        ...(options.jsonSchema
-          ? { response_format: { type: 'json_schema', json_schema: { name: 'result', strict: true, schema: options.jsonSchema } } }
-          : {}),
-        stream: false,
-      }),
-    })
-
-    // A newer model out of capacity (503) or quota (429) falls back to the default once.
-    if ((response.status === 503 || response.status === 429) && model !== defaultGatewayModel) {
-      return callAiGateway(env, defaultGatewayModel, systemPrompt, userPrompt, options)
-    }
-    if (!response.ok) throw new Error(`AI Gateway Gemini failed: ${response.status} ${await response.text()}`)
-    const data = (await response.json()) as { choices?: { message?: { content?: string } }[] }
-    return data.choices?.[0]?.message?.content?.trim() ?? ''
-  }
-
-  const isDeepSeek = model.startsWith('deepseek-')
-  const response = await fetch(`${env.AI_GATEWAY_BASE_URL}/${isDeepSeek ? 'deepseek' : 'grok'}/chat/completions`, {
+  // 3.8 Flash has no MINIMAL thinking level. Thinking tokens count against max_tokens on Gemini 3.x,
+  // so the answer gets room on top of the thinking budget instead of being cut off mid-JSON.
+  const requested = options.reasoningEffort ?? 'low'
+  const effort = model === 'gemini-3.8-flash' && requested === 'minimal' ? 'low' : requested
+  const headroom = { minimal: 0, low: 1024, medium: 2048, high: 4096 }[effort]
+  const response = await fetch(`${geminiBaseUrl}/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'cf-aig-authorization': `Bearer ${aiGatewayToken}`,
-      ...(isDeepSeek ? { 'cf-aig-byok-alias': 'deepseek' } : {}),
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       model,
@@ -3916,19 +3871,20 @@ async function callAiGateway(
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
-      temperature: model.startsWith('grok-') ? Math.max(options.temperature, 0.7) : options.temperature,
-      max_tokens: options.maxTokens + (model.startsWith('grok-') ? 2048 : 0),
-      ...(model.startsWith('grok-') ? { reasoning_effort: options.reasoningEffort ?? 'high' } : {}),
+      max_tokens: options.maxTokens + headroom,
+      reasoning_effort: effort,
+      ...(options.jsonSchema
+        ? { response_format: { type: 'json_schema', json_schema: { name: 'result', strict: true, schema: options.jsonSchema } } }
+        : {}),
       stream: false,
     }),
   })
 
-  if (!response.ok) {
-    const detail = await response.text()
-    // DeepSeek out of credit, Grok rate-limited or down: answer with the default model rather than an error.
-    console.error(`AI Gateway ${model} failed: ${response.status} ${detail.slice(0, 300)}`)
-    return callAiGateway(env, defaultGatewayModel, systemPrompt, userPrompt, options)
+  // A newer model out of capacity (503) or over the free tier's per-model quota (429) falls back to the default once.
+  if ((response.status === 503 || response.status === 429) && model !== defaultAiModel) {
+    return callGemini(env, defaultAiModel, systemPrompt, userPrompt, options)
   }
+  if (!response.ok) throw new Error(`Gemini ${model} failed: ${response.status} ${await response.text()}`)
   const data = (await response.json()) as { choices?: { message?: { content?: string } }[] }
   return data.choices?.[0]?.message?.content?.trim() ?? ''
 }
@@ -4117,7 +4073,7 @@ async function writeAiCache(
   input: {
     cacheKey: string
     cacheKind: string
-    model: GatewayModel
+    model: AiModel
     sourceId?: string
     workSlug?: string
     episode?: number
@@ -4156,7 +4112,7 @@ async function recordAiInteraction(
     deviceId?: string
     cacheKey: string
     cacheKind: string
-    model: GatewayModel
+    model: AiModel
     sourceId?: string
     workSlug?: string
     episode?: number
@@ -4194,7 +4150,7 @@ async function writeCorrectionHistory(
     episode?: number
   } | null,
   payload: { targetType: string; targetId: string },
-  model: GatewayModel,
+  model: AiModel,
   sentence: string,
   cacheKey: string,
   resultPayload: unknown,

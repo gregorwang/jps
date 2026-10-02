@@ -8,7 +8,11 @@ const val DefaultAiModel = "gemini-3.5-flash-lite"
 val LegacyAiModels = mapOf(
     "gemini-3.1-flash-lite" to "gemini-3.5-flash-lite",
     "gemini-3.5-flash" to "gemini-3.6-flash",
-    "grok-4.3" to "grok-4.7",
+    // Grok and DeepSeek went through the shared AI Gateway; the worker now only calls Gemini directly.
+    "grok-4.3" to "gemini-3.5-flash-lite",
+    "grok-4.7" to "gemini-3.5-flash-lite",
+    "deepseek-v4-flash" to "gemini-3.5-flash-lite",
+    "deepseek-v4-pro" to "gemini-3.5-flash-lite",
 )
 const val DefaultReasoningEffort = "high"
 
