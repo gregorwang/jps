@@ -147,7 +147,7 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 - **多个会话同时在改项目时不发版**（用户明确说过），只 commit；提交前看 `git status`，别人的改动不混进自己的提交；会话之间用 SendMessage 对齐谁的文件、谁发版。
 
 **2026-10-01 · 0.22.1（联网实测：AI 500/400、场景搜索、模型更新）**
-- **0.22.0 没做任何联网测试就发了**，用户在手机上发现 AI 接口报 500/400、场景搜索结果全不相关。规矩：**动到联网功能（worker、AI、搜索）时，发版前必须跑 `scripts/probe-ai.py`**（`AJL_EMAIL` / `AJL_PASSWORD` 环境变量，账号直接问用户要，别自己翻文件或造会话），每行都要 200；搜索类功能还要看结果内容对不对，不只看状态码。
+- **0.22.0 没做任何联网测试就发了**，用户在手机上发现 AI 接口报 500/400、场景搜索结果全不相关。规矩：**动到联网功能（worker、AI、搜索）时，发版前必须跑 `scripts/probe-ai.py`**（测试账号 `AJL_EMAIL` / `AJL_PASSWORD` 在仓库根目录的 `.dev.vars` 里，脚本自动读，**不用再问用户**；仓库是公开的，账号密码只能放 `.dev.vars`，不能写进任何会提交的文件），每行都要 200；搜索类功能还要看结果内容对不对，不只看状态码。
 - 查出来的坑：worker 的 `allowedCacheKinds` 漏了 `quick_feedback`（AI 写好了，存缓存时抛错变 500）；App 调 worker 的 `readTimeout` 原来只有 25 秒（AI/RAG 现在 120 秒）；向量库 metadata 是 `rezero`、字幕表是 `re-zero`，且 `subtitle_chunks` 里没有 Re:ゼロ，按时间窗取行。
 - 模型清单别凭记忆：用 `.dev.vars` 的 `GEMINI_API_KEY` 直接列 `https://generativelanguage.googleapis.com/v1beta/models?key=…`（0.24 之后不再走网关）。Gemini 3.x 的思考 token 算在 `max_tokens` 里（会把正文截断），3.8 Flash 不支持 `minimal`。非默认模型失败一律退回 Flash-Lite（`callAiGateway`）。
 - 场景搜索：中文描述先由 Flash-Lite 改写成日语台词再搜（`expandSceneQuery`），块内逐句用 bge-m3 打分标 `hit`（`rankSourceLines`）。剩下的瓶颈是索引粒度（30 行一块，召回不到），要按单句重建索引，**改后端数据，先问用户**。

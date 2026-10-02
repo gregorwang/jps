@@ -1,9 +1,15 @@
 """Live check of every AI / RAG endpoint the app calls, with the app's request bodies.
 
-usage: AJL_EMAIL=... AJL_PASSWORD=... python scripts/probe-ai.py [model] [case ...]
+usage: python scripts/probe-ai.py [model] [case ...]
+The account (AJL_EMAIL / AJL_PASSWORD) comes from the environment, else from the repo's gitignored .dev.vars.
 Run it before a release that touches anything networked; every line should say 200.
 """
-import json, os, sys, time, urllib.request, http.cookiejar
+import json, os, sys, time, urllib.request, http.cookiejar, pathlib
+
+for line in (pathlib.Path(__file__).resolve().parents[2] / '.dev.vars').read_text(encoding='utf-8-sig').splitlines():
+    k, _, v = line.partition('=')
+    if k.startswith('AJL_'):
+        os.environ.setdefault(k.strip(), v.strip())
 
 B = 'https://anime-japanese-lab.ishallnotwant123.workers.dev'
 UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/140 Safari/537.36'
