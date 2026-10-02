@@ -17,6 +17,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -57,6 +59,7 @@ internal fun LinguisticsScreen(
     onOpenFoundation: () -> Unit,
     drill: ConjugationDrillState,
     drillActions: DrillVolumeActions,
+    onStartZougo: () -> Unit,
     filtersOpen: Boolean,
     onFiltersDismiss: () -> Unit,
     modifier: Modifier = Modifier,
@@ -66,6 +69,7 @@ internal fun LinguisticsScreen(
         LinguisticsTrack.AnimeCorpus -> readAirVolume(uiState, readAir)
         LinguisticsTrack.Foundation -> foundationVolume(uiState, foundation, onOpenFoundation)
         LinguisticsTrack.Conjugation -> drillVolume(drill, drillActions)
+        LinguisticsTrack.WordBuilding -> zougoVolume(onStartZougo)
     }
 
     Column(modifier.fillMaxSize()) {
@@ -77,7 +81,7 @@ internal fun LinguisticsScreen(
         ) {
             Spacer(Modifier.height(6.dp))
             VolumeSwitch(
-                options = listOf("第一巻 台詞", "第二巻 基礎", "第三巻 活用"),
+                options = listOf("台詞", "基礎", "活用", "造語"),
                 selectedIndex = track.ordinal,
                 onSelect = { onTrackSelected(LinguisticsTrack.entries[it]) },
             )
@@ -210,6 +214,48 @@ private fun drillVolume(state: ConjugationDrillState, actions: DrillVolumeAction
         onStart = actions.onReview,
         onBook = { actions.onBook(it.key) },
         onRefresh = actions.onRefresh,
+        onResetFilters = {},
+        filterGroups = emptyList(),
+    )
+}
+
+/**
+ * 第四巻 造語 in 練習: one 教科書 per section of the book; only 課 learned in 自習 are asked. A cover
+ * or the ink button starts a practice over everything learned (reading + meaning questions).
+ */
+@Composable
+private fun zougoVolume(onStart: () -> Unit): VolumeUi {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val book = remember { com.animejapaneselab.nativeapp.ui.zougo.ZougoBook.load(context) }
+    remember { com.animejapaneselab.nativeapp.ui.zougo.Zougo.init(context) }
+    val state by com.animejapaneselab.nativeapp.ui.zougo.Zougo.state.collectAsState()
+    val learned = book.lessons.filter { it.id in state.learned }
+    val books = book.sections.mapIndexed { s, section ->
+        val lessons = book.lessons.filter { it.section == s }
+        val inBook = lessons.filter { it.id in state.learned }
+        val words = inBook.flatMap { it.words }
+        TextbookSpec(
+            key = s.toString(),
+            volumeLabel = "第四巻 · ${section.number}",
+            title = section.title,
+            sampleLine = (words.firstOrNull() ?: lessons.firstOrNull()?.words?.firstOrNull()).orEmpty(),
+            gloss = if (inBook.isEmpty()) "先去自習学" else "已学 ${inBook.size} 课 · ${words.size} 词",
+            total = words.size,
+            answered = words.count { (state.records[it]?.right ?: 0) > 0 },
+            current = false,
+        )
+    }
+    val words = learned.flatMap { it.words }
+    return VolumeUi(
+        books = books,
+        stats = "已学 ${learned.size} / ${book.lessons.size} 课 · ${words.size} 词",
+        loading = false,
+        error = null,
+        startLabel = "造語 · 练已学的课",
+        startCount = words.size,
+        onStart = onStart,
+        onBook = { if (words.isNotEmpty()) onStart() },
+        onRefresh = {},
         onResetFilters = {},
         filterGroups = emptyList(),
     )

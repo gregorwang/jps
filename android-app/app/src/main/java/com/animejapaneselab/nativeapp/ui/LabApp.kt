@@ -181,8 +181,11 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
     val jishuSitting by jishu.state.collectAsStateWithLifecycle()
     val drillForJishu: ConjugationDrillViewModel = viewModel()
     val drillSession by drillForJishu.state.collectAsStateWithLifecycle()
-    val jishuImmersive = uiState.selectedTab == LabTab.Jishu &&
-        (jishuSitting.sitting != null || (drillSession.mode == DrillMode.Lesson && drillSession.session.isNotEmpty()))
+    // 第四巻 造語: a 課 in 自習, a practice in 練習 — also full screen.
+    val zougoState by com.animejapaneselab.nativeapp.ui.zougo.Zougo.state.collectAsStateWithLifecycle()
+    val jishuImmersive = (uiState.selectedTab == LabTab.Jishu &&
+        (jishuSitting.sitting != null || zougoState.lesson != null || (drillSession.mode == DrillMode.Lesson && drillSession.session.isNotEmpty()))) ||
+        (uiState.selectedTab == LabTab.Learn && zougoState.practice != null)
     val closePalette: () -> Unit = {
         // Closing search returns to the page it was opened from (only 字幕 has an entry).
         if (underlay == SecondaryScreen.Subtitles) viewModel.openSubtitles() else viewModel.closeSecondaryScreen()

@@ -77,6 +77,12 @@ import com.animejapaneselab.nativeapp.ui.screens.session.TsuzukuScreen
 import com.animejapaneselab.nativeapp.ui.theme.AjlStroke
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 import com.animejapaneselab.nativeapp.ui.theme.ProvideWorkTheme
+import com.animejapaneselab.nativeapp.ui.screens.zougo.ZougoBookTitle
+import com.animejapaneselab.nativeapp.ui.screens.zougo.ZougoBookVolume
+import com.animejapaneselab.nativeapp.ui.screens.zougo.ZougoStudy
+import com.animejapaneselab.nativeapp.ui.zougo.Zougo
+import com.animejapaneselab.nativeapp.ui.zougo.ZougoBook
+import androidx.compose.ui.platform.LocalContext
 
 /** The 自習 material is Re:ゼロ's voiced lines, so the tab wears its 菫. */
 private const val JishuWork = "re-zero"
@@ -92,6 +98,9 @@ fun JishuScreen(ttsWorkerUrl: String, settings: LabSettings, modifier: Modifier 
     val jishu: JishuViewModel = viewModel()
     val drillState by drill.state.collectAsState()
     val state by jishu.state.collectAsState()
+    val context = LocalContext.current
+    remember { Zougo.init(context) }
+    val zougo by Zougo.state.collectAsState()
     LaunchedEffect(Unit) { drill.ensureLoaded() }
 
     fun start(point: String) {
@@ -114,6 +123,8 @@ fun JishuScreen(ttsWorkerUrl: String, settings: LabSettings, modifier: Modifier 
     ProvideWorkTheme(JishuWork) {
         val sitting = state.sitting
         when {
+            zougo.bookOpen -> ZougoStudy(settings = settings, modifier = modifier)
+
             drillState.mode == DrillMode.Lesson && drillState.session.isNotEmpty() -> ConjugationSession(
                 state = drillState,
                 actions = ConjugationSessionActions(
@@ -249,9 +260,12 @@ private fun JishuHome(
                         modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 14.dp),
                     )
                 }
+                val zgContext = LocalContext.current
+                val zgBook = remember { ZougoBook.load(zgContext) }
+                val zgState by Zougo.state.collectAsState()
                 SectionHeading(
                     title = "教科書",
-                    meta = "${drill.groups.size} 冊 · ${points.size} 課",
+                    meta = "${drill.groups.size + 1} 冊 · ${points.size + zgBook.lessons.size} 課",
                     modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 26.dp),
                 )
                 val currentGroup = current?.let(drill::groupOf)
@@ -262,11 +276,22 @@ private fun JishuHome(
                     items(drill.groups, key = { it }) { group ->
                         val inBook = drill.lessonsIn(group)
                         ShelfBook(
-                            group = group,
+                            volume = "VOL.${ConjugationDrillRules.groupKey(group)}",
+                            title = ConjugationDrillRules.groupTitle(group),
                             learned = inBook.count(progress::learned),
                             total = inBook.size,
                             current = group == currentGroup,
                             onClick = { onBook(group) },
+                        )
+                    }
+                    item(key = "zougo") {
+                        ShelfBook(
+                            volume = ZougoBookVolume,
+                            title = ZougoBookTitle,
+                            learned = zgBook.lessons.count { it.id in zgState.learned },
+                            total = zgBook.lessons.size,
+                            current = false,
+                            onClick = Zougo::openBook,
                         )
                     }
                 }
@@ -322,11 +347,10 @@ private fun TodayCard(point: String, drill: ConjugationDrillState, progress: Pro
 
 /** A small 教科書 on the shelf: spine, VOL, vertical title, 課 learned and a progress line. */
 @Composable
-private fun ShelfBook(group: String, learned: Int, total: Int, current: Boolean, onClick: () -> Unit) {
+private fun ShelfBook(volume: String, title: String, learned: Int, total: Int, current: Boolean, onClick: () -> Unit) {
     val colors = AjlTheme.colors
     val work = AjlTheme.work
     val shape = RoundedCornerShape(topStart = 2.dp, bottomStart = 2.dp, topEnd = 6.dp, bottomEnd = 6.dp)
-    val title = ConjugationDrillRules.groupTitle(group)
     Box(
         Modifier
             .width(118.dp)
@@ -344,7 +368,7 @@ private fun ShelfBook(group: String, learned: Int, total: Int, current: Boolean,
             Modifier.align(Alignment.BottomEnd).offset(x = 24.dp, y = (-26).dp).size(110.dp, 56.dp).rotate(-12f),
             color = if (current) work.tone(0.34f) else colors.ink.copy(alpha = 0.12f),
         )
-        Text("VOL.${ConjugationDrillRules.groupKey(group)}", style = AjlTheme.type.meta.copy(fontSize = 10.sp), color = colors.ink3, modifier = Modifier.padding(start = 18.dp, top = 12.dp))
+        Text(volume, style = AjlTheme.type.meta.copy(fontSize = 10.sp), color = colors.ink3, modifier = Modifier.padding(start = 18.dp, top = 12.dp))
         if (current) {
             Text(
                 "いま",

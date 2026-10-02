@@ -11,6 +11,7 @@ enum class LinguisticsTrack {
     AnimeCorpus,
     Foundation,
     Conjugation,
+    WordBuilding,
 }
 
 enum class FoundationTrainingPhase {

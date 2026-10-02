@@ -229,6 +229,11 @@ class LocalLabStore(context: Context) {
 
     fun writeTango(raw: String) = preferences.edit { putString(TangoKey, raw) }
 
+    /** 第四巻 造語: lessons learned, matrix cells opened, per-item quiz record (JSON, see Zougo). */
+    fun readZougo(): String? = preferences.getString(ZougoKey, null)
+
+    fun writeZougo(raw: String) = preferences.edit { putString(ZougoKey, raw) }
+
     /** Home-screen 今日の一句 payload (JSON, see TodayWidgetLine). */
     fun readTodayWidgetLine(): String? = preferences.getString(TodayWidgetLineKey, null)
 
@@ -483,6 +488,7 @@ class LocalLabStore(context: Context) {
         const val ReviewMistakeDueKey = "review-mistake-due"
         const val KnowledgeMarksKey = "knowledge-marks"
         const val TangoKey = "tango-state"
+        const val ZougoKey = "zougo-state"
         const val TodayWidgetLineKey = "today-widget-line"
         const val StudyLastAnswerAtKey = "study-last-answer-at"
         const val DrillProgressKey = "conjugation-drill-progress"

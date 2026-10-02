@@ -88,6 +88,17 @@ fun LearnScreen(
         )
         return
     }
+    val zougo by com.animejapaneselab.nativeapp.ui.zougo.Zougo.state.collectAsState()
+    val practice = zougo.practice
+    if (practice != null) {
+        com.animejapaneselab.nativeapp.ui.screens.zougo.ZougoPractice(
+            questions = practice,
+            settings = uiState.settings,
+            onExit = com.animejapaneselab.nativeapp.ui.zougo.Zougo::endPractice,
+            modifier = modifier,
+        )
+        return
+    }
     if (foundationOpen && onFoundationVolume) {
         FoundationSession(
             state = uiState.foundation,
@@ -99,6 +110,7 @@ fun LearnScreen(
     }
 
     var filtersOpen by rememberSaveable { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
     val course = uiState.learnSection == LearnSection.Course
     Column(modifier.fillMaxSize().background(AjlTheme.colors.bg)) {
         Row(
@@ -147,6 +159,7 @@ fun LearnScreen(
                     onReview = drill::startReview,
                     onRefresh = drill::refresh,
                 ),
+                onStartZougo = { com.animejapaneselab.nativeapp.ui.zougo.Zougo.startPractice(context) },
                 filtersOpen = filtersOpen,
                 onFiltersDismiss = { filtersOpen = false },
                 modifier = Modifier.weight(1f),
