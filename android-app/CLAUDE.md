@@ -23,6 +23,7 @@ Anime Japanese Lab 的原生 Android App（Kotlin + Jetpack Compose）。**私�
 | 単語卡背面「常一起出现」补搭配数据（日文 + 中文） | `COLLOCATION_HANDOFF.md` |
 | 辞書「高频补充」（动漫高频 JLPT N5–N2 单词 / 语法，也进単語）的数据和脚本 | `FREQ_WORDS_HANDOFF.md` |
 | 自習（学习台）的产品逻辑 | 本文第 3 节「产品主线」；画布「自習 · 学习台（预览）」页 |
+| 想让 Gemini 听录音做跟读打分（长音 / 促音 / 哪一拍错） | `SHADOWING_SCORING_FAILED.md`（**已测过，不可行，不做**） |
 
 设计画布：https://claude.ai/artifact/9x3RkMeAtAYTN64i8T8HN4 （用 Artifact 工具的 `read` 读取，只看 `V3*`、`X*` 开头的画板）。**只在要实现画布上某一屏时才读，且只读那一屏**：`path=project/<画板>.dc.html`。
 
