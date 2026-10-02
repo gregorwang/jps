@@ -130,6 +130,13 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 ## 8. 经验记录（每次会话结束补几条）
 
+**2026-10-02 · 0.24.1（首次打开卡顿 / 闪退）**
+- 根因是主线程上的重活，最大的是 `VoicePack`：44k 条语音包的 manifest 在第一个声音按钮出现时同步解析，还逐条 `isFile`。现在 `init` 只起后台线程（`fileFor` 加载完之前返回 null，`state.clips` 变了会重组），启动预载线程里 `preload`。
+- 进程级 holder 的 `load()` 都是 `synchronized`，主线程碰到时会等预载线程：**预载线程别用 `MIN_PRIORITY`**（会饿死，主线程跟着卡），用 `THREAD_PRIORITY_BACKGROUND`。
+- SharedPreferences 每次 `apply` 都整文件重写，切后台时系统还要等写完：批量写一次提交（`FuriganaCache.writeAll`），别在循环里 `edit`。
+- `LessonAudioController` 的本机 TTS 改成第一次要念时才绑定；小组件的位图渲染和 `dueCount` 走 `TodayWidget` 自己的后台线程。
+- 手机没连 adb 时拿不到崩溃日志，ANR 在 MIUI 上看起来就是「闪退」；查卡顿先查主线程上的 asset / 文件 / prefs 读写。
+
 **2026-10-02 · AI 改为直连 Google（不再走 AI Gateway）**
 - 用户的 Cloudflare AI Gateway 被太多其他项目共用，这个 App **不能再走网关**。worker 的 `callGemini` 直接调 Google AI Studio 的 OpenAI 兼容接口（`generativelanguage.googleapis.com/v1beta/openai`），key 是 worker secret `GEMINI_API_KEY`（本地在 `.dev.vars`，**不能进仓库**）。`AI_GATEWAY_BASE_URL` / `CF_AIG_TOKEN` 已从 worker 去掉。
 - 只剩 3 个 Gemini（3.5 Flash-Lite 默认、3.6 Flash、3.8 Flash）。Grok / DeepSeek 没有自己的 key，已删；旧 id 在 worker 和 App 的 `LegacyAiModels` 里映射到 Flash-Lite。思考深度只按任务定（各接口里写死的 `'low'`/`'medium'`…），客户端传的 `reasoningEffort` 不再起作用，设置页的「推理强度」已删。
