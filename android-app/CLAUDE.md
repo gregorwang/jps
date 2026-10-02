@@ -22,6 +22,7 @@ Anime Japanese Lab 的原生 Android App（Kotlin + Jetpack Compose）。**私�
 | 単語卡（5 个一组、先想再看，0.19.0 已做）、帳面重排、错题搬去練習 | `VOCAB_CARD_HANDOFF.md` |
 | 単語卡背面「常一起出现」补搭配数据（日文 + 中文） | `COLLOCATION_HANDOFF.md` |
 | 辞書「高频补充」（动漫高频 JLPT N5–N2 单词 / 语法，也进単語）的数据和脚本 | `FREQ_WORDS_HANDOFF.md` |
+| 第四巻 造語（构词：拼合台 / 组合矩阵）的内容、数据脚本、还没做的玩法 | `ZOUGO_HANDOFF.md` |
 | 自習（学习台）的产品逻辑 | 本文第 3 节「产品主线」；画布「自習 · 学习台（预览）」页 |
 | 想让 Gemini 听录音做跟读打分（长音 / 促音 / 哪一拍错） | `SHADOWING_SCORING_FAILED.md`（**已测过，不可行，不做**） |
 
@@ -52,6 +53,7 @@ v3 重写派了 6 个页面包、7 个子代理，合计约 120 万 token。钱�
   - `ui/jishu/Jishu.kt`（`JishuViewModel`）：一次学习（板書 + 8 张场景句卡）、「覚えた」记录（`pointId::sentenceId`）、场景上下文（按集拉 `/subtitles` 取前后句）、`parseFormula` 把拆解拆成词块。
   - `ui/screens/jishu/`：首页（今日の自習 + 教科書书架）、目次、`JishuSittingScreen`（板書页、场景句卡、遮る）、つづく（小テスト 就地跑本课練習）。卡片上**不显示出处**（集数、时间、说话人），用户明确不要。
   - 72 课讲义在 `assets/conjugation_lessons.json`，由 Antigravity 写、`archive-content-sources/conjugation-drill-p1/lessons/check.py --install` 装入；课列表、台词、已学（`learned`）仍在 `ConjugationDrillViewModel`。一次学习结束就 `markLearned`，这课才进練習。
+- **第四巻 造語**（0.25.0）：自習书架的第四本，`ui/zougo/`（asset 模型 + holder）、`ui/screens/zougo/`（拼合台、矩阵、小测、目次）；練習 → 言語学第 4 格。内容在 `archive-content-sources/zougo/build_zougo.py`，详见 `ZOUGO_HANDOFF.md`。
 - `ui/screens/<区域>/`：`today`、`learn`（課程 / 言語学 / 选番面板）、`session`（アイキャッチ、各题型、つづく、读空气、基础题库）、`library`（辞書、原作 = `SubtitlesScreen`）、`review`、`settings`（学生証、AI 历史）、`login`、`search`（命令面板，按 `SearchScope` 分范围，见 0.22.0 经验）。`V3Contracts.kt` 里放的是回调合集。
 - `ui/design/`：v3 组件库。**写新 UI 之前先 grep 这里有没有现成的**：
   - `Primitives`：Hairline、MangaPanel、Screentone、ProgressLine
