@@ -48,7 +48,7 @@ class EpisodeContentCache(rootDirectory: File) {
 
     private fun entryName(path: String): String = sha1(path)
 
-    private companion object {
+    internal companion object {
         const val MaxEntries = 400
 
         fun sha1(value: String): String {

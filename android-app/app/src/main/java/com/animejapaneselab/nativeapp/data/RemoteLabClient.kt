@@ -575,6 +575,7 @@ class RemoteLabClient(
     }
 
     private fun get(path: String): String {
+        if (isCacheableContentPath(path)) ContentPack.read(path)?.let { return it }
         if (contentCache == null || !isCacheableContentPath(path)) {
             return request("GET", path, null)
         }

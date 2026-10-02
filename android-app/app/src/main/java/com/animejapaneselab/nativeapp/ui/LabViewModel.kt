@@ -924,19 +924,27 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
 
     fun startLessonModeFromCurrentTab(mode: LessonMode, batch: Int, pathNodeKey: String? = null) {
         clearPronunciationAttempt()
-        _uiState.update { state ->
-            val safeBatch = batch.coerceAtLeast(1)
-            val nodes = repository.buildLessonNodes(
-                selection = state.selection,
-                focus = state.focus,
-                vocab = state.vocab,
-                grammar = state.grammar,
-                sentences = state.shadowing,
-                mode = mode,
-                exercises = state.exercises,
-                batch = safeBatch,
-            )
-            state.copy(
+        val safeBatch = batch.coerceAtLeast(1)
+        val snapshot = _uiState.value
+        // Building the question set is heavy; doing it on the main thread froze the アイキャッチ.
+        viewModelScope.launch {
+            val nodes = withContext(Dispatchers.Default) {
+                repository.buildLessonNodes(
+                    selection = snapshot.selection,
+                    focus = snapshot.focus,
+                    vocab = snapshot.vocab,
+                    grammar = snapshot.grammar,
+                    sentences = snapshot.shadowing,
+                    mode = mode,
+                    exercises = snapshot.exercises,
+                    batch = safeBatch,
+                )
+            }
+            val hasNext = pathNodeKey == null &&
+                withContext(Dispatchers.Default) {
+                    repository.hasNextLessonBatch(snapshot.vocab, snapshot.grammar, snapshot.shadowing, mode, safeBatch)
+                }
+            _uiState.update { state -> state.copy(
                 activeSession = TrainingSessionKind.Lesson,
                 isExerciseLabSession = false,
                 activeExerciseLabKind = null,
@@ -944,14 +952,13 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
                 lessonBatch = safeBatch,
                 lessonTarget = null,
                 activeLessonPathKey = pathNodeKey,
-                hasNextLessonBatch = pathNodeKey == null &&
-                    repository.hasNextLessonBatch(state.vocab, state.grammar, state.shadowing, mode, safeBatch),
+                hasNextLessonBatch = hasNext,
                 focus = state.focus.copy(lessonTitle = lessonTitle(mode, state.focus, safeBatch)),
                 lesson = if (pathNodeKey != null) LessonEngine.start(nodes) else resumeLessonFromProgress(nodes, state.progressItems),
                 sessionXp = 0,
                 aiCoach = AiCoachState(),
                 pronunciationEvaluation = PronunciationEvaluationState(),
-            )
+            ) }
         }
     }
 

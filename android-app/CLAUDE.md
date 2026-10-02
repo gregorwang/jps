@@ -129,6 +129,11 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 ## 8. 经验记录（每次会话结束补几条）
 
+**2026-10-02 · 0.24.0（内容改成本地包）**
+- 用户以为数据都在本地，实际上課程 / 辞書 / 自習 / 字幕每次都现拉 worker，所以页面转圈。现在 `scripts/build-content-pack.py` 把所有只读内容接口（`isCacheableContentPath` 那一组，两部作品全部话）抓成 `assets/content/<sha1(path)>.json`，`RemoteLabClient.get` 先查 `data/ContentPack`，命中就不联网。**这个目录有字幕原文，已 gitignore**；发布脚本每次先重抓一遍（`-SkipContentPack` 可跳过），新 worktree 里没有它时自动退回联网。
+- App 新加只读内容接口时：路径加进 `isCacheableContentPath`，并在 `build-content-pack.py` 里照 App 的拼法加上，两边路径字符串必须一字不差（URLEncoder 编码）。
+- 组题（`buildLessonNodes`）原来在主线程的 `_uiState.update` 里跑，会卡住アイキャッチ；已挪到 `Dispatchers.Default`。别再把重计算塞进 `update { }`。
+
 **2026-10-01 · 场景搜索页（进 0.23.0，和另一个会话的改动一起发，发版等用户点头）**
 - 代码：`ui/search/SceneSearch.kt`（进程级 holder + `SceneRules`），`screens/search/SceneSearchScreen.kt`（整页 + 场景面板），路由 `SecondaryScreen.SceneSearch`。今日搜索回车只给 2 个场景 + 「全部场景」，原作页一个搜索框 + 「在全部原作里按意思找」一行。worker `/api/rag/search` 收 `workSlug:"all"` + `explain:true`：两部作品一起搜，Flash-Lite 给命中句打 0/1/2 相关度、现翻中文（字幕中文常错位）、`why`、`mark`，并按 `learning_sentences` 附原声。一次约 9 秒。
 - 用户定的界面规矩（画布评论）：**播放不用圆形 ▶ 按钮，波形本身就是播放键**（`ui/design/Voice.kt` 的 `VoiceWave`）；**搜索不按作品分开**。

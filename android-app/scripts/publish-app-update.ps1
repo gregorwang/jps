@@ -2,6 +2,7 @@
 param(
     [string]$ReleaseNotes = "",
     [switch]$SkipBuild,
+    [switch]$SkipContentPack,
     [switch]$AllowRepublish
 )
 
@@ -18,6 +19,14 @@ $metadataPath = Join-Path $projectRoot 'app\build\outputs\apk\localSlim\output-m
 
 if (-not (Test-Path -LiteralPath $wrangler -PathType Leaf)) {
     throw "Wrangler was not found at $wrangler. Run pnpm install in $repositoryRoot first."
+}
+
+if (-not $SkipBuild -and -not $SkipContentPack) {
+    # Re-snapshot the read-only content endpoints into assets/content/ (served offline by the App).
+    & python (Join-Path $PSScriptRoot 'build-content-pack.py')
+    if ($LASTEXITCODE -ne 0) {
+        throw "build-content-pack.py failed with exit code $LASTEXITCODE."
+    }
 }
 
 if (-not $SkipBuild) {
