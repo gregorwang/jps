@@ -125,6 +125,7 @@ class ConjugationDrillViewModel(application: Application) : AndroidViewModel(app
     )
     val state: StateFlow<ConjugationDrillState> = _state.asStateFlow()
     private var startWhenReady = false
+    private val storeWriter = Dispatchers.Default.limitedParallelism(1)
 
     init {
         viewModelScope.launch {
@@ -141,10 +142,10 @@ class ConjugationDrillViewModel(application: Application) : AndroidViewModel(app
         _state.update { it.copy(phase = DrillPhase.Loading) }
         viewModelScope.launch {
             val client = RemoteLabClient(store.readSettings().apiBaseUrl, store.readSessionCookie(), contentCache = contentCache)
-            val result = withContext(Dispatchers.IO) { runCatching { client.fetchConjugationDrillItems() } }
+            val result = withContext(Dispatchers.IO) { runCatching { client.fetchConjugationDrillItems().filter(DrillCloze::fits) } }
             _state.update { s ->
                 result.fold(
-                    onSuccess = { items -> s.copy(phase = DrillPhase.Ready, items = items.filter(DrillCloze::fits), today = LocalDate.now().toEpochDay()) },
+                    onSuccess = { items -> s.copy(phase = DrillPhase.Ready, items = items, today = LocalDate.now().toEpochDay()) },
                     onFailure = { s.copy(phase = DrillPhase.Error) },
                 )
             }
@@ -264,8 +265,13 @@ class ConjugationDrillViewModel(application: Application) : AndroidViewModel(app
     }
 
     /** Per-課 earliest due day, so 放課後チャイム can name the lesson that is fading. */
+    /** Due days per 課 and the next 朝の一句, written after every grade: off the main thread, in order. */
     private fun writePointDue(s: ConjugationDrillState) {
         if (s.items.isEmpty()) return
+        viewModelScope.launch(storeWriter) { writePointDueNow(s) }
+    }
+
+    private fun writePointDueNow(s: ConjugationDrillState) {
         val due = s.items
             .filter { it.pointId in s.learned }
             .mapNotNull { item ->

@@ -58,6 +58,7 @@ class LessonAudioController(context: Context) {
     private var localTtsInitTimeoutJob: Job? = null
     private var localTts: TextToSpeech? = null
     private var localTtsInitialized = false
+    private var released = false
     private var localTtsReady = false
     private var pendingTtsRequest: TtsRequest? = null
     private val localFallbacks = ConcurrentHashMap<String, TtsRequest>()
@@ -91,7 +92,13 @@ class LessonAudioController(context: Context) {
         }
     }
 
-    init {
+    /**
+     * Binds the phone's TTS engine the first time a line actually needs it. Most lines play from the
+     * voice pack or the original clip, and every screen owns a controller, so binding at creation
+     * cost each screen a TTS service connection on open.
+     */
+    private fun startLocalTts() {
+        if (localTts != null || localTtsInitialized || released) return
         localTts = TextToSpeech(appContext) { status ->
             scope.launch {
                 val engine = localTts
@@ -233,6 +240,7 @@ class LessonAudioController(context: Context) {
             return
         }
         val request = TtsRequest(clean, ttsWorkerUrl)
+        startLocalTts()
         if (!localTtsInitialized) {
             pendingTtsRequest = request
             postPlaybackState(AudioPlaybackPhase.Loading, "正在准备本机日语语音")
@@ -382,6 +390,7 @@ class LessonAudioController(context: Context) {
     }
 
     fun release() {
+        released = true
         playbackState = AudioPlaybackState()
         ttsJob?.cancel()
         localTtsInitTimeoutJob?.cancel()

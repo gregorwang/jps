@@ -33,6 +33,7 @@ import com.animejapaneselab.nativeapp.ui.screens.today.TodayRules
 import com.animejapaneselab.nativeapp.ui.theme.normalizeWorkSlug
 import org.json.JSONObject
 import java.time.LocalDate
+import java.util.concurrent.Executors
 import kotlin.math.min
 
 /** What the home-screen 今日の一句 shows: the last line the 今日 tab picked. */
@@ -110,20 +111,29 @@ object TodayWidget {
     /** Stores the next days' lines (today first) and redraws the widget if anything changed. */
     fun publish(context: Context, queue: List<TodayWidgetLine>) {
         if (queue.isEmpty()) return
-        val store = LocalLabStore(context.applicationContext)
-        val encoded = TodayWidgetLine.encodeQueue(queue)
-        if (store.readTodayWidgetLine() == encoded) return
-        store.writeTodayWidgetLine(encoded)
-        refreshAll(context)
+        val app = context.applicationContext
+        background.execute {
+            val store = LocalLabStore(app)
+            val encoded = TodayWidgetLine.encodeQueue(queue)
+            if (store.readTodayWidgetLine() == encoded) return@execute
+            store.writeTodayWidgetLine(encoded)
+            refreshAll(app)
+        }
     }
 
-    private var renderedDue = -1
+    @Volatile private var renderedDue = -1
 
-    /** Re-renders only when the 復習 count on the widget is stale (cheap to call on app stop). */
+    /** Re-renders only when the 復習 count on the widget is stale (called on app stop). */
     fun refreshIfDueChanged(context: Context) {
-        val due = StudyReminder.dueCount(context)
-        if (due != renderedDue) refreshAll(context)
+        val app = context.applicationContext
+        background.execute {
+            val due = StudyReminder.dueCount(app)
+            if (due != renderedDue) refreshAll(app)
+        }
     }
+
+    /** Drawing the widget bitmap and counting 復習 (decoding the notebook and 活用 progress) stay off the main thread. */
+    private val background = Executors.newSingleThreadExecutor { Thread(it, "today-widget") }
 
     fun read(context: Context): TodayWidgetLine? =
         TodayWidgetLine.decode(LocalLabStore(context.applicationContext).readTodayWidgetLine())
@@ -180,7 +190,8 @@ object TodayWidget {
             setOnClickPendingIntent(R.id.today_widget_review, review)
             setContentDescription(R.id.today_widget_review, "復習 $due")
         }
-        manager.updateAppWidget(id, views)
+        // A launcher that rejects the update (bitmap too big for its cap, dead binder) must not crash the App.
+        runCatching { manager.updateAppWidget(id, views) }
     }
 
     private fun Bundle?.dp(key: String, fallback: Int): Int =

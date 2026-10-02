@@ -10,6 +10,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.File
 import java.security.MessageDigest
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.zip.ZipInputStream
 
 data class VoicePackState(
@@ -30,9 +31,22 @@ object VoicePack {
     private val _state = MutableStateFlow(VoicePackState())
     val state: StateFlow<VoicePackState> = _state.asStateFlow()
     @Volatile private var files: Map<String, String>? = null
+    private val loading = AtomicBoolean(false)
 
+    /**
+     * Starts reading the manifest in the background (44k clips: far too slow for the main thread,
+     * where the first voice pill used to freeze 今日). [fileFor] answers null until it is in;
+     * [state]'s clip count changes then, so voice pills recompose.
+     */
     fun init(context: Context) {
-        if (files == null) load(context)
+        if (files != null || !loading.compareAndSet(false, true)) return
+        val app = context.applicationContext
+        Thread({ load(app) }, "voice-pack-load").start()
+    }
+
+    /** Blocking load, for the startup preload thread. */
+    fun preload(context: Context) {
+        if (files == null && loading.compareAndSet(false, true)) load(context)
     }
 
     /** The clip for exactly this text (the batch keyed sha1(text.strip())[:16]), or null. */
@@ -84,9 +98,11 @@ object VoicePack {
     private fun parse(folder: File): Map<String, String> {
         val manifest = File(folder, "manifest.json").takeIf { it.isFile } ?: return emptyMap()
         val json = runCatching { JSONObject(manifest.readText()) }.getOrNull() ?: return emptyMap()
+        // One directory listing instead of a stat per clip.
+        val present = folder.list()?.toHashSet() ?: return emptyMap()
         return json.keys().asSequence().mapNotNull { key ->
             val file = json.optJSONObject(key)?.optString("file").orEmpty()
-            if (file.isNotBlank() && File(folder, file).isFile) key to file else null
+            if (file.isNotBlank() && file in present) key to file else null
         }.toMap()
     }
 

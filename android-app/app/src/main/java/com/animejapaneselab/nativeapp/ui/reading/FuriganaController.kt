@@ -56,15 +56,17 @@ class FuriganaAnnotator internal constructor(
                     runCatching { clientProvider().fetchFuriganaBatch("sentence", items) }
                         .getOrElse { emptyMap() }
                 }
+                val got = mutableMapOf<String, FuriganaResult>()
                 chunk.forEachIndexed { index, text ->
                     val result = fetched["t$index"]
                     if (result != null && result.plainText == text) {
                         results[text] = result
-                        cache.write(text, result)
+                        got[text] = result
                     } else {
                         requested.remove(text)
                     }
                 }
+                if (got.isNotEmpty()) withContext(Dispatchers.IO) { cache.writeAll(got) }
             }
         }
     }

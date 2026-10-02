@@ -19,14 +19,16 @@ class FuriganaCache(context: Context) {
         return decode(raw)
     }
 
-    fun write(text: String, result: FuriganaResult) {
-        if (result.segments.isEmpty()) return
-        val key = entryKey(text)
-        val order = readOrder().filterNot { it == key } + key
+    /** One SharedPreferences commit for a whole batch: every apply rewrites the entire file. */
+    @Synchronized
+    fun writeAll(entries: Map<String, FuriganaResult>) {
+        val fresh = entries.filterValues { it.segments.isNotEmpty() }.mapKeys { (text, _) -> entryKey(text) }
+        if (fresh.isEmpty()) return
+        val order = readOrder().filterNot { it in fresh } + fresh.keys
         val overflow = (order.size - MaxEntries).coerceAtLeast(0)
         val evicted = order.take(overflow)
         preferences.edit {
-            putString(key, encode(result))
+            fresh.forEach { (key, result) -> putString(key, encode(result)) }
             evicted.forEach { remove(it) }
             putString(OrderKey, JSONArray(order.drop(overflow)).toString())
         }
