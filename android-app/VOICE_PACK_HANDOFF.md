@@ -27,13 +27,15 @@ Supabase 文本 ──batch_items.py──> batch_items.json（要念的清单�
   - **`problem_words.tsv`：人能直接看的问题清单**（Excel 可开）：状态 / 类型 / 原文 / 该念 / Whisper 听成，共 2615 行（单词 978、变形 1391、语法例句回听不过 246）。
   - `pack_drop.json`：打包时排除的 key（只有 key，要看是哪个词查上面的 tsv 或 `pack_tools.py lookup`）。
   - `pack_tools.py`：**本地工具，不花钱**（见第 3 节）。
-- 包里现在是（**2026-10-01 第五版，30658 条，216MB**）：第四版 + 辞書高频补充的单词 `jword` 1761 / 2059（按读音回听，录 4 次）+ 语法例句 `jgram` 341（音色转换，不回听），见 `FREQ_WORDS_HANDOFF.md`。`batch.py::retake` 多了 `--only 词,词 --redo`（读音改了要重录时用，先把旧录音的回听记录清掉）。
+- 包里现在是（**2026-10-02 第六版，44320 条，275MB**）：第五版 + 辞書全部词的变形（见第 2 节 0 条）。
+- 第五版是（**2026-10-01，30658 条，216MB**）：第四版 + 辞書高频补充的单词 `jword` 1761 / 2059（按读音回听，录 4 次）+ 语法例句 `jgram` 341（音色转换，不回听），见 `FREQ_WORDS_HANDOFF.md`。`batch.py::retake` 多了 `--only 词,词 --redo`（读音改了要重录时用，先把旧录音的回听记录清掉）。
 - 第四版是（2026-10-01，28525 条，207MB）：第三版 + 有原声的台词 `line` 3864（`learning_sentences.ja_text`）+ 原作页挂原声的字幕行 `subline` 1188 + K-ON 全部字幕 `kon` 4310。这三类**不做 Whisper 回听**（`batch.py::lines`），App 的声音按钮能切回原声 / TTS（`ui/voicepack/VoiceChoice.kt`，三档：原声 / エミリア / TTS，TTS 档跳过语音包）。实际约 2 万 L4 GPU 秒。
 - 第三版是（2026-10-01，19163 条，127MB）：单词 3006 / 3466、词卡变形 7753 / 8239、语法例句 2685 / 2705、台词 4717 / 4832、语法句型 1004 / 1226（`kind=pattern`，第三版新增）。（2026-09-29 第二版是 11755 条。）清单来源：单词 `learning_vocab_items.surface`（念的是 `vocab_cards.json` / `reading` 的假名 +「。」）、语法 `learning_grammar_points.ja_example`、台词 `learning_sentences.ja_text`（只取没原声的，还没批量生成）。
 
 ## 2. 已知问题（写文档时已经发现）
 
 0. ~~**词卡的变形（ます形 / 意志 / 假定 …）全都没有**~~：已补（2026-09-29）。变形是 App 用 `Conjugator` + `FormDial` 现场推的，Supabase 里没有，所以第一版清单漏了。做法：`forms_in.tsv`（词头 / 读音 / 词性，从 Supabase + `vocab_cards.json` 导出）→ 临时写一个 JVM 单测调 `FormDial.of(Conjugator.tableFor(...))` 输出 `forms_out.tsv`（跑完删掉测试，不提交）→ `batch_items.py` 把它加成 `kind=form`（当单词处理：不做音色转换）→ `modal run batch.py::run --kinds form`。**改了 `Conjugator` / `FormDial` 的输出，就要重导 `forms_out.tsv` 再补生成**。实际花费约 1.3 美元（SBV2 1488 GPU 秒、Whisper 3833 GPU 秒）。
+   - **2026-10-02 补辞書全部词的变形**（0.23.2：サ变名词、名词当な形容词、连语按 `assets/conj_extra.tsv` 也有活用表了，高频补充的动词 / 形容词变形之前也一直没录）：`forms_in_dict.tsv`（辞書 `dict_vocab.json` + `dict_freq_vocab.json` 全部词：词头 / 读音 / 词性 / conj_extra 的 kind）→ 临时测试调 `Conjugator.tableFor` 或 `Conjugator.tableAs` + `FormDial.of` → `forms_out_dict.tsv`；`batch_items.py` 两个 tsv 都读。新增约 16450 条，用 `python -m modal run batch.py::retake --kinds form --word-takes 1` 一次录完（按读音判、自动下载进 `out/`、写 manifest），不用 `run` + `fetch`。结果：16788 条（含以前没过的旧变形各补一次）通过 13662；SBV2 3094 + Whisper 7826 GPU 秒（约 2.5 美元 GPU，含开销估 3–3.5 美元）；第六版包 44320 条、275MB。没过的约 3100 条退回原来的语音。
    - 顺带发现的 App bug：词性标成动词的「戻りましょう」会推出「戻りましょおう」之类的怪形（词表数据问题）。
 1. ~~**单词校验太松，有念错的混进包里**~~：已改成按读音判定（2026-09-29，`recheck_words.py`）。Whisper 结果和 `say` / 原文都转成平假名（pykakasi + MeCab/unidic-lite 两种读法，任一一致就算对），读音一致才进包：同音字被误删的收回 336 条，读音对不上的 1407 条记进 `pack_drop.json`。还缺 978 个单词、1391 个变形，逐条在 `problem_words.tsv`。
    - 问题的类型（抽样 60 条看的）：**多数是模型真念错**，① 吞尾音（愛されよう→愛されよ、守り抜こう→まもりぬこ、夢見ます→ゆめみま），② 近音替换（告げます→継ぎます、秘めろ→決めろ、頼る→頼れ、善意→戦意），③ 清浊 / 促音错（罰しない→はしない、強欲→こうよく、絶頂→せっちょ）；**少数是 Whisper 对孤立短词听错、其实念对了**（聡明→ソメイ 丢长音）。宁可退回原来的语音也不教错音，所以全剔；误剔的那部分可以人工 `pack_tools.py play` 听了再从 `pack_drop.json` 里拿出来。
@@ -95,6 +97,11 @@ python recheck_words.py [--apply]                      # 按读音复查单词 /
 - 句子的音色转换实测每句约 2 GPU 秒、SBV2 约 0.3，和第三版一致；6 个容器跑 5500 句约 40 分钟。
 - 两个 `lines` 不要同时下载：都会删本地 `out/opus_new` 再拉，并写 `out/manifest.json`。现在写清单前会重读，但下载目录仍共用，排队跑。
 - **`import batch_items` 会把整个脚本跑一遍**（拉 Supabase、重写 `batch_items.json`），要用里面的函数就复制出来，别 import。
+
+**2026-10-02 · 第六版（辞書全部词的变形）**
+- 词卡变形用 `retake --kinds form --word-takes 1` 一步到位：按读音判、自动下载、写本地 manifest，比 `run` + `fetch` 省事，也不会拉卷上的 manifest 覆盖本地。
+- Whisper 回听（约 0.47 GPU 秒 / 条）比合成（约 0.18）贵一倍多，8 个容器加载模型就要好几分钟；1.7 万条全程约 70 分钟，跟用户报时间要按这个算，我先报的「20–30 分钟」太乐观。
+- `batch_items.py` 里 form 的优先级（4）高于 jword（9），同一文字会被改记成 form；已在包里的 key 不受影响。
 
 ## 6. 做完之后
 
