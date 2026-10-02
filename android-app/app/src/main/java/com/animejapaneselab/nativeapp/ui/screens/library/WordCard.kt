@@ -74,7 +74,7 @@ import com.animejapaneselab.nativeapp.ui.theme.AjlShape
 import com.animejapaneselab.nativeapp.ui.theme.AjlStroke
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 import com.animejapaneselab.nativeapp.ui.words.FormDial
-import com.animejapaneselab.nativeapp.ui.words.SuruNouns
+import com.animejapaneselab.nativeapp.ui.words.ExtraConjugations
 import com.animejapaneselab.nativeapp.ui.words.VocabCards
 import com.animejapaneselab.nativeapp.ui.words.WordRules
 import kotlinx.coroutines.launch
@@ -128,7 +128,7 @@ internal fun WordCardSheet(
     val meaning = rememberShownMeaning(item)
     val fix = remember(item.id) { VocabCards.get(appContext, item.id) }
     val dial = remember(item.id, reading) {
-        FormDial.of(SuruNouns.tableFor(appContext, item.surface, reading, item.partOfSpeech), item.surface, reading, meaning)
+        FormDial.of(ExtraConjugations.tableFor(appContext, item.surface, reading, item.partOfSpeech), item.surface, reading, meaning)
     }
     var at by rememberSaveable(item.id) { mutableIntStateOf(0) }
     val form = dial?.forms?.getOrNull(at)

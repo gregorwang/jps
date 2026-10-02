@@ -49,6 +49,29 @@ object Conjugator {
         }
     }
 
+    /**
+     * A table for a word whose type is known from outside (JMdict, via `assets/conj_extra.tsv`):
+     * サ变名词 (演奏), 名词 used as な形容词 (安全), and 连语 that end in a verb or adjective
+     * (足を引っ張る). Only the end of [word] moves. `neg` is an expression already ending in ない
+     * (歯が立たない): past, て, adverb and conditional only, no 歯が立たなくない.
+     */
+    fun tableAs(word: String, kind: String): ConjugationTable? {
+        val w = word.trim()
+        if (w.isEmpty()) return null
+        return when (kind) {
+            "suru" -> suru(w.removeSuffix("する"))
+            "v1" -> if (w.endsWith("る")) ichidan(w) else null
+            "v5" -> if (w.last() in UToA) godan(w) else null
+            "adj-i" -> iAdjective(w)
+            "adj-ix" -> iAdjective(w, yoi = w.endsWith("いい"))
+            "neg" -> iAdjective(w)?.let { t ->
+                t.copy(forms = t.forms.filter { it.label in setOf("过去", "て形", "副词", "假定") })
+            }
+            "adj-na" -> naAdjective(w)
+            else -> null
+        }
+    }
+
     private fun verb(word: String, kana: String): ConjugationTable? {
         val last = word.last()
         if (last !in UToA) return null
@@ -157,10 +180,9 @@ object Conjugator {
         )
     }
 
-    private fun iAdjective(word: String): ConjugationTable? {
+    // いい (and かっこいい) conjugate on よ-; 良い / かわいい are regular.
+    private fun iAdjective(word: String, yoi: Boolean = word == "いい" || word.endsWith("っこいい")): ConjugationTable? {
         if (!word.endsWith("い")) return null
-        // いい (and かっこいい) conjugate on よ-; 良い / かわいい are regular.
-        val yoi = word == "いい" || word.endsWith("っこいい")
         val stem = if (yoi) word.dropLast(2) + "よ" else word.dropLast(1)
         return ConjugationTable(
             typeLabel = "い形容词",
