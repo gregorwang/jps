@@ -118,7 +118,7 @@ internal fun PickSitting(
         if (revealed) {
             PickExplain(item, picked, shown)
             when {
-                item.layout == "ladder" -> (shown.line ?: item.line)?.let { LineCard(it, audio, settings.ttsWorkerUrl) }
+                item.layout == "ladder" -> if (shown != item.right) shown.line?.let { LineCard(it, audio, settings.ttsWorkerUrl) }
                 item.head == "timeline" || item.head == "speaker" ->
                     item.line?.let { LineCard(it, audio, settings.ttsWorkerUrl) }
             }
@@ -152,12 +152,13 @@ private fun PickHead(item: KyPick, revealed: Boolean, shown: KyOpt, audio: Lesso
         "speaker" -> SpeakerPanel(item)
         "show" -> if (line != null) LineCard(line, audio, tts)
         else -> if (line != null) {
-            val variant = revealed && shown != item.right && shown.line != null
+            // 换词: another option swaps its own version of the line in; 敬语阶梯 keeps the question and shows the level's line below
+            val variant = revealed && item.layout != "ladder" && shown != item.right && shown.line != null
             val l = if (variant) shown.line!! else line
             SlotLine(
                 line = l,
                 // the right one shows the line's own surface (そう in 話したいそうよ under the option そうだ)
-                fill = if (shown == item.right) line.target else shown.text,
+                fill = if (shown == item.right || item.layout == "ladder") line.target else shown.text,
                 filled = revealed,
                 audio = audio,
                 ttsWorkerUrl = tts,
