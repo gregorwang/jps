@@ -150,12 +150,14 @@ private fun PickHead(item: KyPick, revealed: Boolean, shown: KyOpt, audio: Lesso
         }
         "timeline" -> TimelinePanel(item)
         "speaker" -> SpeakerPanel(item)
+        "show" -> if (line != null) LineCard(line, audio, tts)
         else -> if (line != null) {
             val variant = revealed && shown != item.right && shown.line != null
             val l = if (variant) shown.line!! else line
             SlotLine(
                 line = l,
-                fill = shown.text,
+                // the right one shows the line's own surface (そう in 話したいそうよ under the option そうだ)
+                fill = if (shown == item.right) line.target else shown.text,
                 filled = revealed,
                 audio = audio,
                 ttsWorkerUrl = tts,
@@ -263,7 +265,7 @@ private fun markLabel(o: KyOpt, i: Int, item: KyPick, revealed: Boolean): String
     !revealed -> "ABCD".getOrNull(i)?.toString().orEmpty()
     o.mark == "ok" -> "也说得通"
     o.mark == "no" -> "不行"
-    i == item.answer -> if (item.line?.fromAnime == true) "原作 ✓" else "✓"
+    i == item.answer -> if (item.line?.fromAnime == true && item.head in setOf("line", "context")) "原作 ✓" else "✓"
     else -> ""
 }
 

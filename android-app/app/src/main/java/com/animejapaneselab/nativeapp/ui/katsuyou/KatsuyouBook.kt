@@ -52,7 +52,7 @@ data class KyOpt(
 data class KyMark(val kind: String, val at: Int, val until: Int, val label: String)
 
 data class KyPick(
-    /** "line" (slot in the line) / "shuku" (short → full) / "timeline" / "context" / "speaker". */
+    /** "line" (slot in the line) / "shuku" (short → full) / "timeline" / "context" / "speaker" / "show" (whole line, ask about it). */
     val head: String,
     /** "rows" / "chips" / "columns" / "ladder". */
     val layout: String,
