@@ -1,5 +1,8 @@
 package com.animejapaneselab.nativeapp.ui.screens.review
 
+import android.content.Context
+import com.animejapaneselab.nativeapp.ui.voicepack.LineVoicePill
+import com.animejapaneselab.nativeapp.ui.voicepack.lineCue
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -233,15 +236,9 @@ fun TangoScreen(
 
 private class TangoAids(val ruby: Boolean, val romaji: Boolean, val annotator: FuriganaAnnotator)
 
-private fun playTangoLine(line: TangoLine, audio: LessonAudioController, ttsWorkerUrl: String) {
-    if (line.audioUrl.isNotEmpty()) {
-        audio.play(
-            PromptAudio.Source(line.audioUrl, autoPlay = false, reliability = AudioReliability.Verified, fallbackTtsText = line.ja),
-            ttsWorkerUrl,
-        )
-    } else {
-        audio.speakText(line.ja, ttsWorkerUrl)
-    }
+/** The line under the remembered 原声 / エミリア / TTS choice (the pill on the card switches it). */
+private fun playTangoLine(context: Context, line: TangoLine, audio: LessonAudioController, ttsWorkerUrl: String) {
+    audio.play(lineCue(context, line.ja, line.audioUrl), ttsWorkerUrl)
 }
 
 /** Where the word sits in its line: the word itself, else its stem (食べる → 食べ). */
@@ -296,7 +293,7 @@ private fun TangoSession(
     LaunchedEffect(pager.settledPage, queue.size) {
         val id = queue.getOrNull(pager.settledPage)?.substringBefore('#') ?: return@LaunchedEffect
         val line = lines[id] ?: return@LaunchedEffect
-        if (settings.autoSpeak) playTangoLine(line, audio, settings.ttsWorkerUrl)
+        if (settings.autoSpeak) playTangoLine(context, line, audio, settings.ttsWorkerUrl)
     }
 
     Box(Modifier.fillMaxSize()) {
@@ -395,7 +392,6 @@ private fun TangoSession(
                             toast = "待会儿再来"
                             scope.launch { pager.animateScrollToPage(page + 1) }
                         },
-                        onPlay = { if (audio.isSounding) audio.stop() else playTangoLine(line, audio, settings.ttsWorkerUrl) },
                     )
                 }
             }
@@ -478,7 +474,6 @@ private fun TangoWordPage(
     onHeart: (Boolean) -> Unit,
     onSave: () -> Unit,
     onAgain: () -> Unit,
-    onPlay: () -> Unit,
 ) {
     val colors = AjlTheme.colors
     val work = AjlTheme.work
@@ -541,14 +536,14 @@ private fun TangoWordPage(
                 if (!revealed) {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         ReadingLineText(reading, mark, showRuby = aids.ruby, showRomaji = aids.romaji, style = lineStyle)
-                        VoicePill(playing, if (line.audioUrl.isNotEmpty()) "原声" else "朗读", onPlay)
+                        LineVoicePill(line.ja, line.audioUrl, audio, ttsWorkerUrl)
                     }
                 }
             }
             if (revealed) {
                 Column(Modifier.padding(end = 56.dp, top = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     ReadingLineText(reading, mark, showRuby = aids.ruby, showRomaji = aids.romaji, style = lineStyle)
-                    VoicePill(playing, if (line.audioUrl.isNotEmpty()) "原声" else "朗读", onPlay)
+                    LineVoicePill(line.ja, line.audioUrl, audio, ttsWorkerUrl)
                 }
             }
             if (!revealed) {
@@ -587,6 +582,7 @@ private fun TangoQuizPage(
     onAnswer: (VocabWord, Boolean) -> Unit,
     onNextGroup: () -> Unit,
 ) {
+    val context = LocalContext.current
     val colors = AjlTheme.colors
     val work = AjlTheme.work
     var index by remember { mutableIntStateOf(group.results.size.coerceAtMost(words.lastIndex).coerceAtLeast(0)) }
@@ -600,7 +596,7 @@ private fun TangoQuizPage(
     val reading = remember(line?.ja, aids.annotator.resultFor(line?.ja.orEmpty())) {
         line?.let { LineReading.build(it.ja, aids.annotator.resultFor(it.ja)) }
     }
-    LaunchedEffect(index, active) { if (active && autoSpeak && line != null) playTangoLine(line, audio, ttsWorkerUrl) }
+    LaunchedEffect(index, active) { if (active && autoSpeak && line != null) playTangoLine(context, line, audio, ttsWorkerUrl) }
     val done = group.results.size
 
     MangaPanel(modifier.fillMaxSize()) {
@@ -651,7 +647,7 @@ private fun TangoQuizPage(
                     verticalArrangement = Arrangement.spacedBy(22.dp, Alignment.CenterVertically),
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        VoicePill(playing, "听", { if (audio.isSounding) audio.stop() else playTangoLine(line, audio, ttsWorkerUrl) })
+                        LineVoicePill(line.ja, line.audioUrl, audio, ttsWorkerUrl)
                         val mark = remember(line.ja, word.id) { targetRange(line.ja, word) }
                         val style = AjlTheme.type.jpBody.copy(fontSize = 21.sp, lineHeight = 34.sp, fontWeight = FontWeight.Medium)
                         ReadingLineText(reading ?: LineReading.build(line.ja, null), mark, showRuby = aids.ruby, showRomaji = aids.romaji, style = style)

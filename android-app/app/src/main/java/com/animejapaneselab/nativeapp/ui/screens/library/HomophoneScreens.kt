@@ -87,7 +87,9 @@ import com.animejapaneselab.nativeapp.ui.words.HomophoneRules
 import com.animejapaneselab.nativeapp.ui.words.Homophones
 import com.animejapaneselab.nativeapp.ui.words.TangoLine
 import com.animejapaneselab.nativeapp.ui.words.TangoLines
+import com.animejapaneselab.nativeapp.ui.voicepack.LineVoicePill
 import com.animejapaneselab.nativeapp.ui.voicepack.VoicePack
+import com.animejapaneselab.nativeapp.ui.voicepack.lineCue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -156,12 +158,12 @@ private fun RoundRow(count: Int, onClick: () -> Unit) {
                 .fillMaxWidth()
                 .heightIn(min = 56.dp)
                 .clickableNoRipple(onClick = onClick)
-                .semantics { contentDescription = "听原声猜字，这一级 $count 组" },
+                .semantics { contentDescription = "听台词猜字，这一级 $count 组" },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             Column(Modifier.weight(1f)) {
-                Text("听原声猜字", style = AjlTheme.type.body.copy(fontSize = 15.sp, fontWeight = FontWeight.SemiBold), color = AjlTheme.work.accent)
+                Text("听台词猜字", style = AjlTheme.type.body.copy(fontSize = 15.sp, fontWeight = FontWeight.SemiBold), color = AjlTheme.work.accent)
                 Text("这一级 $count 组，随机 10 句", style = AjlTheme.type.caption, color = colors.ink3)
             }
             Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = AjlTheme.work.accent)
@@ -370,7 +372,7 @@ private fun RoomScreen(
                 onWord = { w ->
                     selectedId = w.id
                     pickKey++
-                    lineOf(w)?.let { line -> play(w.id) { playLine(line, audio, settings.ttsWorkerUrl) } }
+                    lineOf(w)?.let { line -> play(w.id) { playLine(context, line, audio, settings.ttsWorkerUrl) } }
                 },
             )
             PondLegend(group)
@@ -381,14 +383,14 @@ private fun RoomScreen(
                     sameWord = group.sameWord.any { c -> c.any { it.id == w.id } },
                     line = lineOf(w),
                     level = levels[w.id],
-                    playing = sounding && playingId == w.id,
-                    onPlay = { line -> play(w.id) { playLine(line, audio, settings.ttsWorkerUrl) } },
+                    audio = audio,
+                    ttsWorkerUrl = settings.ttsWorkerUrl,
                 )
             }
             Spacer(Modifier.height(8.dp))
         }
         if (canQuiz) {
-            InkButton("听原声，猜波纹停在哪个字", onQuiz, modifier = Modifier.fillMaxWidth().padding(16.dp))
+            InkButton("听台词，猜波纹停在哪个字", onQuiz, modifier = Modifier.fillMaxWidth().padding(16.dp))
         }
     }
 }
@@ -400,8 +402,8 @@ private fun WordCaption(
     sameWord: Boolean,
     line: TangoLine?,
     level: String?,
-    playing: Boolean,
-    onPlay: (TangoLine) -> Unit,
+    audio: LessonAudioController,
+    ttsWorkerUrl: String,
 ) {
     val colors = AjlTheme.colors
     MangaPanel(Modifier.fillMaxWidth()) {
@@ -420,16 +422,13 @@ private fun WordCaption(
                 modifier = Modifier.background(if (sameWord) colors.infoSoft else colors.sunken, RoundedCornerShape(11.dp)).padding(horizontal = 8.dp, vertical = 2.dp),
             )
             if (line != null) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    VoiceWave(playing = playing, onClick = { onPlay(line) }, synthetic = line.audioUrl.isEmpty())
-                    val start = line.ja.indexOf(w.cut)
-                    MarkedLine(
-                        line.ja,
-                        start until start + w.cut.length,
-                        Modifier.weight(1f).clickableNoRipple(onClick = { onPlay(line) }),
-                        style = AjlTheme.type.jpBody.copy(fontSize = 15.sp, lineHeight = 23.sp),
-                    )
-                }
+                val start = line.ja.indexOf(w.cut)
+                MarkedLine(
+                    line.ja,
+                    start until start + w.cut.length,
+                    style = AjlTheme.type.jpBody.copy(fontSize = 16.sp, lineHeight = 25.sp),
+                )
+                LineVoicePill(line.ja, line.audioUrl, audio, ttsWorkerUrl)
             }
         }
     }
@@ -478,7 +477,7 @@ private fun QuizFlow(
         val q = questions[index]
         LaunchedEffect(index) {
             picked = null
-            playLine(q.line, audio, settings.ttsWorkerUrl)
+            playLine(context, q.line, audio, settings.ttsWorkerUrl)
         }
         val shownText = if (picked == null) q.heard else q.line.ja
         val mark = if (picked == null) q.start until q.start + q.word.cutKana.length else q.start until q.start + q.word.cut.length
@@ -493,14 +492,7 @@ private fun QuizFlow(
         ) {
             MangaPanel(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        VoiceWave(
-                            playing = sounding,
-                            onClick = { if (sounding) audio.stop() else playLine(q.line, audio, settings.ttsWorkerUrl) },
-                            synthetic = q.line.audioUrl.isEmpty(),
-                        )
-                        Text(voiceLabel(context, q.line), style = AjlTheme.type.meta.copy(fontSize = 11.sp), color = colors.ink3)
-                    }
+                    LineVoicePill(q.line.ja, q.line.audioUrl, audio, settings.ttsWorkerUrl)
                     ReadingLineText(
                         reading,
                         mark,
@@ -564,28 +556,16 @@ private fun QuizFlow(
         if (picked != null) {
             InkButton(if (index == questions.lastIndex) "看结果" else "下一句", { index++ }, modifier = Modifier.fillMaxWidth().padding(16.dp))
         } else {
-            OutlineButton("再听一遍", { playLine(q.line, audio, settings.ttsWorkerUrl) }, modifier = Modifier.fillMaxWidth().padding(16.dp).height(52.dp))
+            OutlineButton("再听一遍", { playLine(context, q.line, audio, settings.ttsWorkerUrl) }, modifier = Modifier.fillMaxWidth().padding(16.dp).height(52.dp))
         }
     }
-}
-
-private fun voiceLabel(context: Context, line: TangoLine): String = when {
-    line.audioUrl.isNotEmpty() -> "原声"
-    VoicePack.fileFor(context, line.ja) != null -> "エミリア"
-    else -> "合成"
 }
 
 /** All of the group's words sound alike: say one the Emilia pack has (bare kana readings mostly aren't in it). */
 private fun sayReading(context: Context, group: HomoGroup): String =
     group.words.firstOrNull { VoicePack.fileFor(context, it.surface) != null }?.surface ?: group.reading
 
-private fun playLine(line: TangoLine, audio: LessonAudioController, ttsWorkerUrl: String) {
-    if (line.audioUrl.isNotEmpty()) {
-        audio.play(
-            PromptAudio.Source(line.audioUrl, autoPlay = false, reliability = AudioReliability.Verified, fallbackTtsText = line.ja),
-            ttsWorkerUrl,
-        )
-    } else {
-        audio.speakText(line.ja, ttsWorkerUrl)
-    }
+/** A line under the remembered 原声 / エミリア / TTS choice (the pill next to it switches it). */
+private fun playLine(context: Context, line: TangoLine, audio: LessonAudioController, ttsWorkerUrl: String) {
+    audio.play(lineCue(context, line.ja, line.audioUrl), ttsWorkerUrl)
 }

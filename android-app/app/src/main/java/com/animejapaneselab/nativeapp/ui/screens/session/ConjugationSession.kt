@@ -1,5 +1,8 @@
 package com.animejapaneselab.nativeapp.ui.screens.session
 
+import com.animejapaneselab.nativeapp.ui.voicepack.lineSource
+import com.animejapaneselab.nativeapp.ui.voicepack.rememberVoiceOptions
+import com.animejapaneselab.nativeapp.ui.design.VoiceSwitchPill
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -137,9 +140,8 @@ private fun ConjugationQuestionBody(
     val answered = !committed.isNullOrBlank()
     val correct = answered && committed == question.answerId
     val scroll = remember { ScrollState(0) }
-    val cue = remember(item?.id) {
-        item?.let { PromptAudio.Source(it.audioUrl, autoPlay = false, reliability = AudioReliability.Verified, fallbackTtsText = it.jaText) }
-    }
+    val voice = rememberVoiceOptions(item?.jaText.orEmpty(), hasSource = item?.audioUrl?.isNotEmpty() == true)
+    val cue = remember(item?.id, voice.selected) { item?.let { voice.cue(lineSource(it.jaText, it.audioUrl), it.jaText) } }
     // Never auto-plays: the voice is there when you tap the wave, and a second tap stops it.
     val toggle: () -> Unit = { cue?.let { audio.toggle(it, ttsWorkerUrl) } }
     val sounding = cue != null && audio.isSounding(cue)
@@ -192,7 +194,7 @@ private fun ConjugationQuestionBody(
                                 }
                             }
                         }
-                        if (!blanked) VoiceWave(playing = sounding, onClick = toggle)
+                        if (!blanked) VoiceSwitchPill(playing = sounding, options = voice.labels, selected = voice.index, onSelect = voice.onSelect, onClick = toggle)
                     }
                 }
                 ReadAirQuestion(question.prompt)

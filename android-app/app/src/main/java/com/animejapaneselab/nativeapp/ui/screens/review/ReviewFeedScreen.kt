@@ -1,5 +1,8 @@
 package com.animejapaneselab.nativeapp.ui.screens.review
 
+import android.content.Context
+import com.animejapaneselab.nativeapp.ui.voicepack.LineVoicePill
+import com.animejapaneselab.nativeapp.ui.voicepack.lineCue
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -340,7 +343,7 @@ private fun FeedPager(
     LaunchedEffect(settledCard?.key) {
         sheet = null
         val card = settledCard ?: return@LaunchedEffect
-        if (settings.autoSpeak && (card.kind == FeedKind.Conj || card.kind == FeedKind.Listen)) play(card, audio, settings.ttsWorkerUrl)
+        if (settings.autoSpeak && (card.kind == FeedKind.Conj || card.kind == FeedKind.Listen)) play(context, card, audio, settings.ttsWorkerUrl)
     }
     LaunchedEffect(toast) { if (toast != null) { delay(1400); toast = null } }
 
@@ -446,13 +449,8 @@ private fun heartedOf(card: FeedCard, sources: FeedSources): Boolean = when {
     else -> false
 }
 
-private fun play(card: FeedCard, audio: LessonAudioController, ttsWorkerUrl: String) {
-    card.line?.let { line ->
-        audio.play(
-            PromptAudio.Source(line.audioUrl, autoPlay = false, reliability = AudioReliability.Verified, fallbackTtsText = line.jaText),
-            ttsWorkerUrl,
-        )
-    }
+private fun play(context: Context, card: FeedCard, audio: LessonAudioController, ttsWorkerUrl: String) {
+    card.line?.let { line -> audio.play(lineCue(context, line.jaText, line.audioUrl), ttsWorkerUrl) }
     card.entry?.let { speakEntry(it, audio, ttsWorkerUrl) }
 }
 
@@ -554,9 +552,9 @@ private fun FeedCardView(
                 }
             }
             when (card.kind) {
-                FeedKind.Conj -> ConjBody(card, revealed, playing, aids, onPlay = { if (audio.isSounding) audio.stop() else play(card, audio, ttsWorkerUrl) }, onReveal = { revealed = true })
-                FeedKind.Word -> WordBody(card.entry!!, revealed, playing, onPlay = { if (audio.isSounding) audio.stop() else play(card, audio, ttsWorkerUrl) }, onReveal = { revealed = true })
-                FeedKind.Listen -> ListenBody(card.entry!!, revealed, playing, aids, onPlay = { if (audio.isSounding) audio.stop() else play(card, audio, ttsWorkerUrl) }, onReveal = { revealed = true })
+                FeedKind.Conj -> ConjBody(card, revealed, aids, audio, ttsWorkerUrl, onReveal = { revealed = true })
+                FeedKind.Word -> WordBody(card.entry!!, revealed, playing, onPlay = { if (audio.isSounding) audio.stop() else play(context, card, audio, ttsWorkerUrl) }, onReveal = { revealed = true })
+                FeedKind.Listen -> ListenBody(card.entry!!, revealed, playing, aids, onPlay = { if (audio.isSounding) audio.stop() else play(context, card, audio, ttsWorkerUrl) }, onReveal = { revealed = true })
                 FeedKind.Mistake -> MistakeBody(card.mistake!!, revealed, onReveal = { revealed = true })
                 FeedKind.Weak -> WeakBody(card.weak!!, onPractice = { onPracticeWeak(card.weak.name) })
                 FeedKind.Know -> KnowBody(card.know!!, aids.annotator.takeIf { aids.romaji }, onAnswer)
@@ -689,7 +687,7 @@ internal fun VoicePill(playing: Boolean, label: String, onClick: () -> Unit) {
 private val JpSerif = FontFamily.Serif
 
 @Composable
-private fun ColumnScope.ConjBody(card: FeedCard, revealed: Boolean, playing: Boolean, aids: Aids, onPlay: () -> Unit, onReveal: () -> Unit) {
+private fun ColumnScope.ConjBody(card: FeedCard, revealed: Boolean, aids: Aids, audio: LessonAudioController, ttsWorkerUrl: String, onReveal: () -> Unit) {
     val item = card.line ?: return
     val colors = AjlTheme.colors
     val work = AjlTheme.work
@@ -729,7 +727,7 @@ private fun ColumnScope.ConjBody(card: FeedCard, revealed: Boolean, playing: Boo
                 ),
             )
         }
-        VoicePill(playing, "原声", onPlay)
+        LineVoicePill(item.jaText, item.audioUrl, audio, ttsWorkerUrl)
     }
     Column(
         Modifier.fillMaxWidth().padding(end = 56.dp).heightIn(min = 120.dp),

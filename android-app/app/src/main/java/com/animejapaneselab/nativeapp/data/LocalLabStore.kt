@@ -477,7 +477,7 @@ class LocalLabStore(context: Context) {
         const val NotificationAskedKey = "notification-permission-asked"
         const val StudyLogKey = "study-log"
         const val JishuVoiceTtsKey = "jishu-voice-tts"
-        const val VoiceChoiceKey = "voice-choice"
+        const val VoiceChoiceKey = "voice-choice-2"
         const val StudentNameKey = "student-name"
         const val StudentAffiliationKey = "student-affiliation"
         const val StudentPhotoVersionKey = "student-photo-version"

@@ -1,5 +1,6 @@
 package com.animejapaneselab.nativeapp.ui.screens.library
 
+import com.animejapaneselab.nativeapp.ui.voicepack.LineVoicePill
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -362,17 +363,7 @@ private fun StudyPage(
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Eyebrow("原作里", Modifier.weight(1f))
-                        if (line.audioUrl.isNotBlank()) {
-                            VoicePill(
-                                playing = false,
-                                onClick = {
-                                    audio.toggle(
-                                        PromptAudio.Source(line.audioUrl, autoPlay = false, reliability = AudioReliability.Verified, fallbackTtsText = line.ja),
-                                        settings.ttsWorkerUrl,
-                                    )
-                                },
-                            )
-                        }
+                        LineVoicePill(line.ja, line.audioUrl, audio, settings.ttsWorkerUrl)
                     }
                     MarkedLine(line.ja, line.mark, style = AjlTheme.type.jpBody.copy(fontSize = 18.sp, lineHeight = 28.sp))
                     if (line.zh.isNotBlank()) Text(line.zh, style = AjlTheme.type.body.copy(fontSize = 14.sp, lineHeight = 21.sp), color = colors.ink3)

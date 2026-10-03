@@ -17,10 +17,11 @@ enum class VoiceKind(val label: String) { Original("原声"), Emilia("エミリ�
 /**
  * One voice preference for every line in the App: 原声 / エミリア (voice pack) / TTS, swiped on any
  * voice pill and remembered. A line only offers the voices it has; when the preferred one is missing
- * it falls back to エミリア, then to whatever is first (原声, else TTS).
+ * it falls back to エミリア, then to whatever is first (原声, else TTS). Default エミリア.
  */
 object VoiceChoice {
-    private val _preferred = MutableStateFlow(VoiceKind.Original)
+    // default エミリア (user 2026-10-03); switched on any voice pill and remembered
+    private val _preferred = MutableStateFlow(VoiceKind.Emilia)
     val preferred: StateFlow<VoiceKind> = _preferred.asStateFlow()
     @Volatile private var loaded = false
 
@@ -29,7 +30,7 @@ object VoiceChoice {
         loaded = true
         val store = LocalLabStore(context)
         _preferred.value = store.readVoiceChoice()?.let { name -> VoiceKind.entries.firstOrNull { it.name == name } }
-            ?: if (store.readJishuVoiceTts()) VoiceKind.Tts else VoiceKind.Original
+            ?: VoiceKind.Emilia
     }
 
     fun set(context: Context, kind: VoiceKind) {
