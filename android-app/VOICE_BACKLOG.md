@@ -16,7 +16,7 @@
 | 2026-10-03 | 0.27.0 VOL.C 补助动词（换词的变体句、没原声的例句） | 同上，`book: "C"` | 93 | `zgram` | 待生成 |
 | 2026-10-03 | 0.27.0 VOL.D 助动词（積み木拼出的词、没原声的例句） | 同上，`book: "D"` | 22 | `zword` / `zgram` | 待生成 |
 | 2026-10-03 | 0.27.0 VOL.E 接续（没原声的例句） | 同上，`book: "E"` | 10 | `zgram` | 待生成 |
-| 2026-10-03 | 0.29.0 第五巻 助詞 / 第六巻 口語 / 第七巻 類義（分拣的词、没原声的例句） | `archive-content-sources/kyoka/voice_items.json`（`book`: joshi / kougo / ruigi） | 123 | `zword` / `zgram` | 待生成 |
+| 2026-10-03 | 0.29.0 第五巻 助詞 / 第六巻 口語 / 第七巻 類義、0.29.1 第八巻 見分け（分拣的词、没原声的例句） | `archive-content-sources/kyoka/voice_items.json`（`book`: joshi / kougo / ruigi / mibun） | 171（mibun 48） | `zword` / `zgram` | 待生成 |
 | 2026-10-03 | 0.29.0 第四巻 造語 三組（z08–z10 的词 + 例句） | `archive-content-sources/zougo/voice_items.json`（整份重写，已入包的 78 条 key 不变，跳过即可） | 158 | `zword`（原 `word`）/ `zgram`（原 `sentence`） | 待生成 |
 | 2026-10-03 | 同音の部屋的字（69）+ 単語/同音台词修正原声后没原声、包里也没有的句子（488） | `archive-content-sources/homophones/voice_items.json` | 557 | `zword`（say=假名读音）/ `zgram` | 待生成 |
 
