@@ -154,7 +154,7 @@ private fun PickHead(item: KyPick, revealed: Boolean, shown: KyOpt, audio: Lesso
             val variant = revealed && shown != item.right && shown.line != null
             val l = if (variant) shown.line!! else line
             SlotLine(
-                line = line,
+                line = l,
                 fill = shown.text,
                 filled = revealed,
                 audio = audio,
