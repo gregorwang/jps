@@ -21,3 +21,9 @@
 - **原声对不上台词**：`build_lines.py`（vocab-cards-v1）和 `build_tango.py`（jlpt-freq）原来按「作品 + 集 + `source_line_no`」去对 `subtitle_lines.line_no`，但这两个不是一套编号，4183 条里只有 347 条真对得上，単語和同音页的大部分「原声」是别人的声音。现在按**台词文字**对（去空白后完全相等），带原声的整句也直接当候选台词。以后谁再用 `audio_sentences.json`，都别按行号对。
 - 重跑后挑句会选到复合词（上げる→積み上げる、深い→興味深い），所以 `homophones/pinned_lines.json` 钉住了同音题每个词手工核过的那句（原声按文字重配），`build.py` 先把钉住的写回两个 `vocab_lines*.json` 再校验。**重跑 `build_lines.py` / `build_tango.py` 之后一定要再跑一次 `homophones/build.py`。**
 - **爱蜜莉亚语音**：大字读音（あげる 这种纯假名）语音包里 197 个只有 10 个，点了就走 TTS。现在点读音念组里第一个有语音包的字（同音，听起来一样）；测验里没原声、有语音包的句子标「エミリア」。缺的 557 条登记在 `VOICE_BACKLOG.md`。
+
+## 0.28.1 同音の部屋 = 池塘（画布意象 D 波紋）
+- `screens/library/HomophonePond.kt`：`PondRules.layout` 定每个字在哪一圈、什么角度（同一个词 = 内圈上方一段，连一条 `info` 色弧；碰巧同音 = 外圈下方；只有一种时排成一圈）；`HomophonePond` 用 Canvas 画虚线圈、常驻慢波纹、点石子的三圈波纹、点字的小波纹，字随波纹前沿浮起（由 `drop` 进度算出来，不另开计时器）。reduced motion 时全部不动。
+- `RoomScreen` 默认选中第一个字，下面的 `WordCaption` 显示它的意思、哪一圈、台词。旧的 `WordPanel` 已删。
+- 画布「同音の部屋」页第二行还有 影絵 / 声優 / 分光 三个意象没做；用户想换的话，结构可以照搬（选中字 + 下方卡片不变，只换上半部分）。
+- 发 0.28.1 时 `build-content-pack.py` 第三次 SSL EOF，同样 `-SkipContentPack`。
