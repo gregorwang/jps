@@ -234,6 +234,11 @@ class LocalLabStore(context: Context) {
 
     fun writeZougo(raw: String) = preferences.edit { putString(ZougoKey, raw) }
 
+    /** 第五巻 起的教科書（助詞・口語・類義）: lessons learned (JSON, see Kyoka). */
+    fun readKyoka(): String? = preferences.getString(KyokaKey, null)
+
+    fun writeKyoka(raw: String) = preferences.edit { putString(KyokaKey, raw) }
+
     /** Home-screen 今日の一句 payload (JSON, see TodayWidgetLine). */
     fun readTodayWidgetLine(): String? = preferences.getString(TodayWidgetLineKey, null)
 
@@ -489,6 +494,7 @@ class LocalLabStore(context: Context) {
         const val KnowledgeMarksKey = "knowledge-marks"
         const val TangoKey = "tango-state"
         const val ZougoKey = "zougo-state"
+        const val KyokaKey = "kyoka-state"
         const val TodayWidgetLineKey = "today-widget-line"
         const val StudyLastAnswerAtKey = "study-last-answer-at"
         const val DrillProgressKey = "conjugation-drill-progress"

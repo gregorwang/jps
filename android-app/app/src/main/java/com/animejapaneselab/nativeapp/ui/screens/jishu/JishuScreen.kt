@@ -85,6 +85,9 @@ import com.animejapaneselab.nativeapp.ui.screens.zougo.ZougoBookTitle
 import com.animejapaneselab.nativeapp.ui.screens.zougo.ZougoBookVolume
 import com.animejapaneselab.nativeapp.ui.screens.zougo.ZougoStudy
 import com.animejapaneselab.nativeapp.ui.zougo.Zougo
+import com.animejapaneselab.nativeapp.ui.kyoka.Kyoka
+import com.animejapaneselab.nativeapp.ui.kyoka.KyokaBooks
+import com.animejapaneselab.nativeapp.ui.screens.kyoka.KyokaStudy
 import com.animejapaneselab.nativeapp.ui.zougo.ZougoBook
 import androidx.compose.ui.platform.LocalContext
 
@@ -104,7 +107,9 @@ fun JishuScreen(ttsWorkerUrl: String, settings: LabSettings, modifier: Modifier 
     val state by jishu.state.collectAsState()
     val context = LocalContext.current
     remember { Zougo.init(context) }
+    remember { Kyoka.init(context) }
     val zougo by Zougo.state.collectAsState()
+    val kyoka by Kyoka.state.collectAsState()
     val katsu by Katsuyou.state.collectAsState()
     val rebuilt = remember { KatsuyouBook.load(context) }
     LaunchedEffect(Unit) { drill.ensureLoaded() }
@@ -136,6 +141,8 @@ fun JishuScreen(ttsWorkerUrl: String, settings: LabSettings, modifier: Modifier 
         val sitting = state.sitting
         when {
             zougo.bookOpen -> ZougoStudy(settings = settings, modifier = modifier)
+
+            kyoka.book != null -> KyokaStudy(settings = settings, modifier = modifier)
 
             katsu.lesson != null -> KatsuyouLesson(
                 point = katsu.lesson.orEmpty(),
@@ -293,9 +300,11 @@ private fun JishuHome(
                 val zgContext = LocalContext.current
                 val zgBook = remember { ZougoBook.load(zgContext) }
                 val zgState by Zougo.state.collectAsState()
+                val kkData = remember { KyokaBooks.load(zgContext) }
+                val kkState by Kyoka.state.collectAsState()
                 SectionHeading(
                     title = "教科書",
-                    meta = "${drill.groups.size + 1} 冊 · ${points.size + zgBook.lessons.size} 課",
+                    meta = "${drill.groups.size + 1 + kkData.books.size} 冊 · ${points.size + zgBook.lessons.size + kkData.books.sumOf { it.lessons.size }} 課",
                     modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 26.dp),
                 )
                 val currentGroup = current?.let(drill::groupOf)
@@ -322,6 +331,16 @@ private fun JishuHome(
                             total = zgBook.lessons.size,
                             current = false,
                             onClick = Zougo::openBook,
+                        )
+                    }
+                    items(kkData.books, key = { "kk:" + it.id }) { book ->
+                        ShelfBook(
+                            volume = book.volume,
+                            title = book.title,
+                            learned = book.lessons.count { it.id in kkState.learned },
+                            total = book.lessons.size,
+                            current = false,
+                            onClick = { Kyoka.openBook(book.id) },
                         )
                     }
                 }

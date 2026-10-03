@@ -52,7 +52,7 @@ data class KyOpt(
 data class KyMark(val kind: String, val at: Int, val until: Int, val label: String)
 
 data class KyPick(
-    /** "line" (slot in the line) / "shuku" (short → full) / "timeline" / "context" / "speaker" / "show" (whole line, ask about it). */
+    /** "line" (slot in the line) / "shuku" (short → full) / "timeline" / "context" / "speaker" / "show" (whole line, ask about it) / "listen" (only the voice until answered). */
     val head: String,
     /** "rows" / "chips" / "columns" / "ladder". */
     val layout: String,
@@ -112,6 +112,18 @@ data class KyStackGoal(val goal: String, val need: String, val line: ZgLine)
 /** 叠积木: blocks stacked in rank order onto [base]; [meanings] by the ids stacked ("srt"). */
 data class KyStack(val base: Pair<String, String>, val baseNote: String, val blocks: List<KyBlock>, val goals: List<KyStackGoal>, val meanings: Map<String, String>)
 
+/** 找错: a sentence in pieces, one of them wrong ([bad]); [fix] is what it should be. */
+data class KySpot(
+    val toks: List<Pair<String, String>>,
+    val bad: Int,
+    val fix: Pair<String, String>,
+    val why: String,
+    val zh: String,
+    val line: ZgLine?,
+) {
+    val fixed: String get() = toks.mapIndexed { i, t -> if (i == bad) fix.first else t.first }.joinToString("")
+}
+
 /** 连线: left halves (pre to connective) to right halves; [match] = the left index of each right. */
 data class KyConnect(val left: List<Pair<String, String>>, val right: List<String>, val match: List<Int>, val lines: List<ZgLine>)
 
@@ -127,6 +139,7 @@ sealed interface KyStep {
     data class Flip(override val title: String, val ask: String, val items: List<KyFlip>) : KyStep { override val count get() = items.size }
     data class Stack(override val title: String, val stack: KyStack) : KyStep { override val count get() = stack.goals.size }
     data class Connect(override val title: String, val connect: KyConnect) : KyStep { override val count get() = connect.left.size }
+    data class Spot(override val title: String, val items: List<KySpot>) : KyStep { override val count get() = items.size }
 }
 
 data class KyLesson(val point: String, val peek: KyPeek?, val steps: List<KyStep>) {
@@ -141,6 +154,7 @@ data class KyLesson(val point: String, val peek: KyPeek?, val steps: List<KyStep
                 is KyStep.Pick -> s.items.map { it.right.text }
                 is KyStep.Back -> s.items.map { it.te }
                 is KyStep.Speed -> s.items.map { it.line.target }
+                is KyStep.Spot -> s.items.map { it.fix.first }
                 else -> emptyList()
             }
         }.distinct().take(4)
@@ -232,7 +246,7 @@ object KatsuyouBook {
         })
     }
 
-    private fun lessonOf(o: JSONObject, base: String) = KyLesson(
+    internal fun lessonOf(o: JSONObject, base: String) = KyLesson(
         point = o.getString("point"),
         peek = o.optJSONObject("peek")?.let { p ->
             KyPeek(
@@ -294,6 +308,16 @@ object KatsuyouBook {
                     lines = k.getJSONArray("lines").objects().map { ZougoBook.lineOf(it, base) },
                 )
             })
+            "spot" -> KyStep.Spot(title, items.map {
+                KySpot(
+                    toks = it.getJSONArray("toks").pairs(),
+                    bad = it.getInt("bad"),
+                    fix = it.getJSONArray("fix").pair(),
+                    why = it.getString("why"),
+                    zh = it.optString("zh"),
+                    line = it.optJSONObject("line")?.let { l -> ZougoBook.lineOf(l, base) },
+                )
+            })
             else -> KyStep.Pick(title, emptyList())
         }
     }
@@ -333,7 +357,7 @@ object KatsuyouBook {
         verdictWrong = o.optString("vw"),
     )
 
-    private fun tableOf(o: JSONObject, base: String) = KyTable(
+    internal fun tableOf(o: JSONObject, base: String) = KyTable(
         title = o.getString("title"),
         cols = o.getJSONArray("cols").pairs(),
         sections = o.getJSONArray("sections").objects().map { sec ->

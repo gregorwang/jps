@@ -173,7 +173,7 @@ fun KatsuyouLesson(
 
 /** One play of a 課; [onDone] gets right, asked and the ones to look at again. */
 @Composable
-private fun StepSitting(
+internal fun StepSitting(
     step: KyStep,
     key: String,
     eyebrow: String,
@@ -204,13 +204,14 @@ private fun StepSitting(
         is KyStep.Flip -> FlipSitting(step, key, eyebrow, settings, onClose, onDone, lastLabel, modifier)
         is KyStep.Stack -> StackSitting(step, key, eyebrow, settings, onClose, onAnswer, onDone, lastLabel, modifier)
         is KyStep.Connect -> ConnectSitting(step, key, eyebrow, settings, onClose, onAnswer, onDone, lastLabel, modifier)
+        is KyStep.Spot -> SpotSitting(step.items, key, eyebrow, title, settings, onClose, onAnswer, onDone, lastLabel, modifier)
     }
 }
 
 // ------------------------------------------------------------------ 課前の一眼
 
 @Composable
-private fun PeekScreen(peek: KyPeek, eyebrow: String, title: String, groups: Int, onClose: () -> Unit, onStart: () -> Unit, modifier: Modifier) {
+internal fun PeekScreen(peek: KyPeek, eyebrow: String, title: String, groups: Int, onClose: () -> Unit, onStart: () -> Unit, modifier: Modifier) {
     BackHandler(onBack = onClose)
     val colors = AjlTheme.colors
     Column(modifier.fillMaxSize().background(colors.bg)) {

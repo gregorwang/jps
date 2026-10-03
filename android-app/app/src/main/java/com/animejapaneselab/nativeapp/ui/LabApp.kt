@@ -184,9 +184,10 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
     val drillSession by drillForJishu.state.collectAsStateWithLifecycle()
     // 第四巻 造語: a 課 in 自習, a practice in 練習 — also full screen.
     val zougoState by com.animejapaneselab.nativeapp.ui.zougo.Zougo.state.collectAsStateWithLifecycle()
+    val kyokaState by com.animejapaneselab.nativeapp.ui.kyoka.Kyoka.state.collectAsStateWithLifecycle()
     val katsuState by com.animejapaneselab.nativeapp.ui.katsuyou.Katsuyou.state.collectAsStateWithLifecycle()
     val jishuImmersive = (uiState.selectedTab == LabTab.Jishu &&
-        (jishuSitting.sitting != null || zougoState.lesson != null || katsuState.lesson != null || (drillSession.mode == DrillMode.Lesson && drillSession.session.isNotEmpty()))) ||
+        (jishuSitting.sitting != null || zougoState.lesson != null || kyokaState.lesson != null || katsuState.lesson != null || (drillSession.mode == DrillMode.Lesson && drillSession.session.isNotEmpty()))) ||
         (uiState.selectedTab == LabTab.Learn && zougoState.practice != null)
     val closePalette: () -> Unit = {
         // Closing search returns to the page it was opened from (only 字幕 has an entry).

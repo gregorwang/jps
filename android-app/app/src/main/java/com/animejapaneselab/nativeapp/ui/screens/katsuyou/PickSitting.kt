@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -31,13 +32,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.animejapaneselab.nativeapp.data.AudioReliability
 import com.animejapaneselab.nativeapp.data.LabSettings
+import com.animejapaneselab.nativeapp.data.PromptAudio
 import com.animejapaneselab.nativeapp.ui.audio.LessonAudioController
 import com.animejapaneselab.nativeapp.ui.audio.rememberLessonAudioController
 import com.animejapaneselab.nativeapp.ui.design.MangaPanel
+import com.animejapaneselab.nativeapp.ui.design.VoiceWave
+import com.animejapaneselab.nativeapp.ui.voicepack.rememberVoiceOptions
+import com.animejapaneselab.nativeapp.ui.zougo.ZgLine
 import com.animejapaneselab.nativeapp.ui.feedback.FeedbackEvent
 import com.animejapaneselab.nativeapp.ui.feedback.LocalFeedbackEngine
 import com.animejapaneselab.nativeapp.ui.katsuyou.KyOpt
@@ -151,6 +158,9 @@ private fun PickHead(item: KyPick, revealed: Boolean, shown: KyOpt, audio: Lesso
         "timeline" -> TimelinePanel(item)
         "speaker" -> SpeakerPanel(item)
         "show" -> if (line != null) LineCard(line, audio, tts)
+        "listen" -> if (line != null) {
+            if (revealed) LineCard(line, audio, tts) else ListenPanel(line, audio, tts)
+        }
         else -> if (line != null) {
             // 换词: another option swaps its own version of the line in; 敬语阶梯 keeps the question and shows the level's line below
             val variant = revealed && item.layout != "ladder" && shown != item.right && shown.line != null
@@ -167,6 +177,24 @@ private fun PickHead(item: KyPick, revealed: Boolean, shown: KyOpt, audio: Lesso
                 label = if (variant) "换了一个词" else null,
                 context = item.context,
             )
+        }
+    }
+}
+
+/** 听原声: only the wave (it plays once by itself) and the context; the words show after the pick. */
+@Composable
+private fun ListenPanel(line: ZgLine, audio: LessonAudioController, tts: String) {
+    val colors = AjlTheme.colors
+    val voice = rememberVoiceOptions(line.ja, hasSource = line.audioUrl.isNotEmpty())
+    val source = line.audioUrl.takeIf { it.isNotEmpty() }?.let {
+        PromptAudio.Source(it, autoPlay = false, reliability = AudioReliability.Verified, fallbackTtsText = line.ja)
+    }
+    val cue = voice.cue(source, line.ja)
+    LaunchedEffect(line.ja) { if (!audio.isSounding(cue)) audio.toggle(cue, tts) }
+    StagePanel {
+        Column(Modifier.fillMaxWidth().padding(vertical = 18.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            VoiceWave(playing = audio.isSounding(cue), onClick = { audio.toggle(cue, tts) }, synthetic = source == null, modifier = Modifier.scale(1.6f).padding(vertical = 10.dp))
+            Text("点波形再听一遍", style = AjlTheme.type.caption.copy(fontSize = 12.sp), color = colors.ink3)
         }
     }
 }
@@ -266,7 +294,7 @@ private fun markLabel(o: KyOpt, i: Int, item: KyPick, revealed: Boolean): String
     !revealed -> "ABCD".getOrNull(i)?.toString().orEmpty()
     o.mark == "ok" -> "也说得通"
     o.mark == "no" -> "不行"
-    i == item.answer -> if (item.line?.fromAnime == true && item.head in setOf("line", "context")) "原作 ✓" else "✓"
+    i == item.answer -> if (item.line?.fromAnime == true && item.head in setOf("line", "context", "listen")) "原作 ✓" else "✓"
     else -> ""
 }
 

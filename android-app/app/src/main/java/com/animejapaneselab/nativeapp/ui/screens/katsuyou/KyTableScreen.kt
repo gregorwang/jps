@@ -64,8 +64,8 @@ import com.animejapaneselab.nativeapp.ui.zougo.SegKind
  * text / ✓△✗. Tabs pick a column (A 段, E 条件), a tapped row shows its lines (C, H), 遮る hides columns (F, G).
  */
 @Composable
-internal fun KyTableScreen(table: KyTable, eyebrow: String, settings: LabSettings, modifier: Modifier = Modifier) {
-    BackHandler(onBack = Katsuyou::exit)
+internal fun KyTableScreen(table: KyTable, eyebrow: String, settings: LabSettings, modifier: Modifier = Modifier, onBack: () -> Unit = Katsuyou::exit) {
+    BackHandler(onBack = onBack)
     val colors = AjlTheme.colors
     val work = AjlTheme.work
     val audio = rememberLessonAudioController()
@@ -79,7 +79,7 @@ internal fun KyTableScreen(table: KyTable, eyebrow: String, settings: LabSetting
     Column(modifier.fillMaxSize().background(colors.bg)) {
         TopBar(
             nav = TopBarNav.Back,
-            onNav = Katsuyou::exit,
+            onNav = onBack,
             center = {
                 Column(Modifier.weight(1f)) {
                     Text(eyebrow, style = AjlTheme.type.meta.copy(fontSize = 11.sp), color = colors.ink3, maxLines = 1)

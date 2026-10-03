@@ -179,7 +179,7 @@ private fun ZougoIndex(book: ZgBookData, state: ZougoState, onBack: () -> Unit, 
     Column(modifier.fillMaxSize().background(colors.bg)) {
         TopBar(nav = TopBarNav.Back, onNav = onBack)
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp)) {
-            BookCover(learned = book.lessons.count { it.id in state.learned }, total = book.lessons.size)
+            BookCover(ZougoBookVolume, ZougoBookTitle, "ことばの組み立て", learned = book.lessons.count { it.id in state.learned }, total = book.lessons.size)
             book.sections.forEachIndexed { s, section ->
                 val lessons = book.lessons.filter { it.section == s }
                 SectionHeading(
@@ -224,8 +224,9 @@ private fun ZougoIndex(book: ZgBookData, state: ZougoState, onBack: () -> Unit, 
     }
 }
 
+/** The 教科書 cover on top of a 目次: spine in the work colour, volume, title, subtitle, 已学 line. */
 @Composable
-private fun BookCover(learned: Int, total: Int) {
+internal fun BookCover(volume: String, title: String, sub: String, learned: Int, total: Int) {
     val colors = AjlTheme.colors
     val work = AjlTheme.work
     val shape = RoundedCornerShape(topStart = 2.dp, bottomStart = 2.dp, topEnd = 6.dp, bottomEnd = 6.dp)
@@ -234,10 +235,10 @@ private fun BookCover(learned: Int, total: Int) {
         Box(Modifier.fillMaxHeight().padding(start = 14.dp).width(AjlStroke.Ink).background(colors.ink))
         Screentone(Modifier.align(Alignment.BottomEnd).offset(x = 30.dp, y = (-10).dp).size(200.dp, 80.dp).rotate(-12f), color = work.tone(0.34f))
         Column(Modifier.padding(start = 30.dp, end = 18.dp, top = 14.dp, bottom = 14.dp).fillMaxHeight()) {
-            Eyebrow("$ZougoBookVolume · 教科書", color = colors.ink3)
+            Eyebrow("$volume · 教科書", color = colors.ink3)
             Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 4.dp)) {
-                Text(ZougoBookTitle, style = AjlTheme.type.title.copy(fontSize = 28.sp, lineHeight = 36.sp, letterSpacing = 1.sp), color = colors.ink)
-                Text("ことばの組み立て", style = AjlTheme.type.jpBody.copy(fontSize = 13.sp), color = colors.ink2, modifier = Modifier.padding(bottom = 5.dp))
+                Text(title, style = AjlTheme.type.title.copy(fontSize = 28.sp, lineHeight = 36.sp, letterSpacing = 1.sp), color = colors.ink)
+                Text(sub, style = AjlTheme.type.jpBody.copy(fontSize = 13.sp), color = colors.ink2, modifier = Modifier.padding(bottom = 5.dp))
             }
             Spacer(Modifier.weight(1f))
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
