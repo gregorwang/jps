@@ -10,6 +10,7 @@
 | 加入日期 | 来源 | 清单文件 | 条数 | 类别 | 状态 |
 |---|---|---|---|---|---|
 | 2026-10-03 | 0.26.0 VOL.B 音便（拼合台的词、词尾地图的て形、没原声的例句） | `archive-content-sources/conjugation-rebuild/voice_items.json` | 34 | `zword`（词）/ `zgram`（句） | 待生成 |
+| 2026-10-03 | 0.27.0 VOL.G 縮約（语速档位每一档整句、没原声的例句） | 同上，`book: "G"` | 29 | `zgram` | 待生成 |
 
 **规矩**：以后任何内容脚本（`build_katsuyou.py`、`build_zougo.py`、知识卡……）只要写出 `voice_items.json`，或者有新的 App 会念的固定文字，就在上表加一行。生成完把状态改成「已入包 + 日期 + 包版本」。
 

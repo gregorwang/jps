@@ -17,27 +17,50 @@
 
 **顺序**：B → G → A+F → C/D/E/H。**G 只讲「缩约 ⇄ 还原」**，不重复 C/D 里的意思。书架上叫 VOL.X，「巻」是練習那边的编号，别混用。
 
-## 2. 现在有什么（0.26.0：VOL.B 音便）
+## 2. 现在有什么
 
-一课 = 課前の一眼 → 拼合台 → 倒推 → つづく（`markLearned`）。目次每行有玩法标签，最下面「まとめ」= 词尾地图（て / た 切换）。
+### 进度（0.27.0 一次发：G → A+F → C → D → E → H 全做完再发）
 
-- 数据：`assets/katsuyou_lessons.json`，由 `archive-content-sources/conjugation-rebuild/build_katsuyou.py` 生成（`--ro` 打印罗马音检查）。**按 point_id 挂课**，所以已学、練習（活用题库）、今日時間割 都还走 `ConjugationDrillViewModel`，不用改。asset 里没有的课自动走旧的 板書 + 台詞。
-- 代码：
-  - `ui/katsuyou/KatsuyouBook.kt`：asset 模型（`KyLesson` = peek + fuse + back；`KyBook` = 玩法名、まとめ 行）。
-  - `ui/katsuyou/Katsuyou.kt`：进程级路由（正在上的课 / 开着的 まとめ），答题调 `StudyLog.record`。
-  - `ui/screens/katsuyou/KatsuyouScreens.kt`：`KatsuyouLesson`（流程）、`PeekScreen`、`BackTrackSitting`、`KatsuyouMap`。
-  - 拼合台和造語共用：`screens/zougo/FuseSitting.kt` 现在收 `items/key/eyebrow/title/onAnswer`；`ZgFuse.ask` 是结果框里的问题；`SegKind` 多了 `Gone`（掉的词尾：揭晓前虚线、揭晓后划掉）和 `Bad`（例外，红）。
-  - 接线：`JishuScreen` 的 `start()` 先查 `KatsuyouBook.lesson(point)`；`TextbookIndex` 的玩法标签和 まとめ 行；`LabApp` 上课时隐藏底栏。
+| 本 | 課数 | 状态 | 玩法 | まとめ |
+|---|---|---|---|---|
+| B 音便 | 5 | 0.26.0 已发 | 拼合台 + 倒推 | 词尾地图（`KatsuyouMap`） |
+| G 縮約 | 6 | 内容已写（`book_g.py`） | 還原台 + 语速档位 | 缩约对照（表，遮る，点行听台词） |
+| A 活用形 | 10 | 未做 | 活用盘 + 分拣 | 五段活用表 |
+| F 形容词 | 7 | 未做 | 拼合台 + 翻牌 | 两列表 |
+| C 补助动词 | 17 | 未做 | 换词 + 时间轴 | 补助动词地图 |
+| D 助动词 | 12 | 未做 | 叠积木 + 证据 | 接续顺序 |
+| E 接续 | 10 | 未做 | 接续 + 连线 | 条件四兄弟 |
+| H 敬语 | 5 | 未做 | 敬语阶梯 + 换个人说 | 敬语一览 |
+
+### 数据（`archive-content-sources/conjugation-rebuild/`，gitignore）
+
+- `ky_common.py`：共用工具。`line(ja, target, zh)` 自动挂原声（`AUD_ALIAS` 处理原声字幕里的错字），`RO_FIX` 手写罗马音，`S()` 片段，`O()` 选项，`PICK()` / `SHUKU()` / `SPEED()` / `step()` / `lesson()`。
+- `book_<x>.py`：一本一个文件，导出 `BOOK`。`build_katsuyou.py` 按 `ORDER` 把存在的都装进 asset（`version: 2`），`--ro --book G` 打印这本的罗马音。
+- `grep_lines.py <正则>`：在两部番字幕里找台词，★ = 有原声。
+- `voice_items.json` 每条带 `book` 字段（语音积压按本登记）。
+
+### 代码
+
+一课 = 課前の一眼 → `steps`（按顺序）→ つづく（`markLearned`）。asset 里一课是 `{point, peek, steps:[{type, title, items…}]}`。
+
+- `ui/katsuyou/KatsuyouBook.kt`：模型。`KyStep` = `Fuse`（拼合台，和造語共用）/ `Back`（倒推）/ `Pick` / `Speed` / `Dial` / `Swipe` / `Flip` / `Stack` / `Connect`；`KyBook.table`（表格まとめ）或 `rows`（B 的词尾地图）。
+- `ui/screens/katsuyou/`：
+  - `KatsuyouScreens.kt`：`KatsuyouLesson`（按 steps 走）、`StepSitting` 分发、`PeekScreen`（按钮文字 = `peek.go`）、`BackTrackSitting`、`KatsuyouMap`（有 `table` 就转给 `KyTableScreen`）。
+  - `PickSitting.kt`：**通用「几选一」**。`head` = `line`（台词挖空）/ `shuku`（缩约 → 完整）/ `timeline` / `context` / `speaker`；`layout` = `rows`（揭晓后每项显示 why 和 原作✓/也说得通/不行）/ `chips`（揭晓后可点别的选项换句子，选项带 `line`）/ `columns`（按 `group` 分栏）/ `ladder`（敬语阶梯）。`mark == "ok"` 算答对。
+  - `KyMachines.kt`：`SpeedSitting`（语速档位）、`DialSitting`（活用盘，answer 5 = 下面那个额外按钮）、`SwipeSitting`、`FlipSitting`（不判对错）、`StackSitting`（积木，`meanings` 按已叠的 id 串查）、`ConnectSitting`。
+  - `KyParts.kt`：`KySitting`（页头 + 滚动 + 唯一墨色按钮）、`PickTile`、`SlotLine`（带空格的台词卡）。
+  - `KyTableScreen.kt`：表格まとめ，`select` = `col`（标签切列，显示 `colNotes`/`colLines`）/ `row`（点行显示台词）；`cover` 列可遮；`sections[].rail` 画顺序轨道；`notes` 脚注。
+- 目次 / 自習首页的数量显示用 `KyLesson.count`（所有 step 的题数），玩法标签用 `KyBook.play`。
 
 ## 3. 下一本怎么做
 
-1. 在 `build_katsuyou.py` 的 `BOOKS` 里加一本（group = 组字母），写课（台词先用 zougo 的 `find_lines.py` 或直接在字幕缓存里搜，原声优先）。
-2. 新玩法：`KyLesson` 加字段 + `KatsuyouBook.parse` 认它 + `KatsuyouLesson` 的 `Phase` 加一步 + `KatsuyouScreens` 加界面。画布上的画板就是规格。
-3. G 的还原台、A 的活用盘 都是新组件；E/H 的总结表是新的 まとめ 形式（现在 `KatsuyouMap` 只会画 B 那种词尾地图）。
+1. 写 `book_<x>.py`（照 `book_g.py`），在 `build_katsuyou.py` 的 `ORDER` 里已经有它的字母，跑 `python build_katsuyou.py --ro --book X`，罗马音不对的写进 `RO_FIX`（这本文件里 `RO_FIX.update`）。
+2. 需要新画法时：`KyStep` 加一种 + `stepOf` 解析 + `StepSitting` 分发 + 在 `KyMachines.kt` 写界面。能用 `PickSitting` 的就加 `head` / `layout`，不要新开一个界面。
+3. 编译 → commit → 在本文件进度表改状态，在 `VOICE_BACKLOG.md` 加一行。
 
 ## 4. 还没做
 
-- 爱蜜莉亚语音：`build_katsuyou.py` 写了 `voice_items.json`（34 条：词 + 没原声的句子），还没跑，已登记在 `VOICE_BACKLOG.md`，攒够一批再跑；现在走 TTS。每做完一本都要去那里加一行。
+- 爱蜜莉亚语音：见 `VOICE_BACKLOG.md`，现在都走 TTS。
 - 練習里的新题型（画布 `RbPractice`：各本的「先猜」混在一起出）还没接，練習 仍是原来的活用题库。
 
 ## 5. 经验
@@ -45,4 +68,6 @@
 - 两部番里て形台词很多（言って 248 句、聞いて 112 句），原声也够；た形少一些（急いだ、脱いだ、休んだ 一句都没有）。
 - `romaji.py` 自动切词会把补助动词粘在一起（kaitearu、nanda、kiitehoshii），每句都要人看一遍写进 `RO_FIX`。
 - 字幕里有全角空格（`とんでもない！　信じて…`），`learning_sentences` 匹配前先把 `　` 归一，显示用原文。
+- G 的台词：缩约形在两部番里很多，原声也够（`grep_lines.py "なきゃ|なくちゃ"`）。原声字幕偶有错字（「無駄っだぜ」），显示改正、音频靠 `AUD_ALIAS` 对上。
+- っち 的罗马音统一写 tch（itchau、okotcha），和片段 `S('it', ('cha', …))` 拼起来一致。
 - 0.26.0 发布时 `build-content-pack.py` 连续两次 SSL EOF（抓 worker 时断开）；这次没改联网内容接口，就用 `-SkipContentPack` 沿用上一版的内容包发了。改了内容接口时不能这样跳过。
