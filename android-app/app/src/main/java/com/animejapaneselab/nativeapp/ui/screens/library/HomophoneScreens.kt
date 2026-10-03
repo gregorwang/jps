@@ -1,5 +1,6 @@
 package com.animejapaneselab.nativeapp.ui.screens.library
 
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
@@ -86,6 +87,7 @@ import com.animejapaneselab.nativeapp.ui.words.HomophoneRules
 import com.animejapaneselab.nativeapp.ui.words.Homophones
 import com.animejapaneselab.nativeapp.ui.words.TangoLine
 import com.animejapaneselab.nativeapp.ui.words.TangoLines
+import com.animejapaneselab.nativeapp.ui.voicepack.VoicePack
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -330,6 +332,7 @@ private fun RoomScreen(
     onQuiz: () -> Unit,
     onClose: () -> Unit,
 ) {
+    val context = LocalContext.current
     val colors = AjlTheme.colors
     val work = AjlTheme.work
     var playingId by remember { mutableStateOf<String?>(null) }
@@ -357,7 +360,7 @@ private fun RoomScreen(
                         group.reading,
                         style = AjlTheme.type.jpDisplay.copy(fontSize = 52.sp, lineHeight = 64.sp),
                         color = work.accent,
-                        modifier = Modifier.clickableNoRipple(onClick = { play("reading") { audio.speakText(group.reading, settings.ttsWorkerUrl) } }),
+                        modifier = Modifier.clickableNoRipple(onClick = { play("reading") { audio.speakText(sayReading(context, group), settings.ttsWorkerUrl) } }),
                     )
                     Text("一个音，${group.words.size} 个字", style = AjlTheme.type.caption.copy(fontSize = 13.sp), color = colors.ink2)
                 }
@@ -494,7 +497,7 @@ private fun QuizFlow(
                             onClick = { if (sounding) audio.stop() else playLine(q.line, audio, settings.ttsWorkerUrl) },
                             synthetic = q.line.audioUrl.isEmpty(),
                         )
-                        Text(if (q.line.audioUrl.isEmpty()) "合成" else "原声", style = AjlTheme.type.meta.copy(fontSize = 11.sp), color = colors.ink3)
+                        Text(voiceLabel(context, q.line), style = AjlTheme.type.meta.copy(fontSize = 11.sp), color = colors.ink3)
                     }
                     ReadingLineText(
                         reading,
@@ -563,6 +566,16 @@ private fun QuizFlow(
         }
     }
 }
+
+private fun voiceLabel(context: Context, line: TangoLine): String = when {
+    line.audioUrl.isNotEmpty() -> "原声"
+    VoicePack.fileFor(context, line.ja) != null -> "エミリア"
+    else -> "合成"
+}
+
+/** All of the group's words sound alike: say one the Emilia pack has (bare kana readings mostly aren't in it). */
+private fun sayReading(context: Context, group: HomoGroup): String =
+    group.words.firstOrNull { VoicePack.fileFor(context, it.surface) != null }?.surface ?: group.reading
 
 private fun playLine(line: TangoLine, audio: LessonAudioController, ttsWorkerUrl: String) {
     if (line.audioUrl.isNotEmpty()) {
