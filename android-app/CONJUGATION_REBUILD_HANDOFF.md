@@ -37,7 +37,7 @@
 
 ## 4. 还没做
 
-- 爱蜜莉亚语音：`build_katsuyou.py` 写了 `voice_items.json`（34 条：词 + 没原声的句子），还没跑 `emilia-voice/batch.py`（要 Modal GPU，**先报价**），现在走 TTS。
+- 爱蜜莉亚语音：`build_katsuyou.py` 写了 `voice_items.json`（34 条：词 + 没原声的句子），还没跑，已登记在 `VOICE_BACKLOG.md`，攒够一批再跑；现在走 TTS。每做完一本都要去那里加一行。
 - 練習里的新题型（画布 `RbPractice`：各本的「先猜」混在一起出）还没接，練習 仍是原来的活用题库。
 
 ## 5. 经验

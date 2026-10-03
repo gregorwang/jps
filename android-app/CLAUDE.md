@@ -19,6 +19,7 @@ Anime Japanese Lab 的原生 Android App（Kotlin + Jetpack Compose）。**私�
 | 罗马音 / 读音显示逐屏修正（用户发截图指导） | `ROMAJI_FIX_HANDOFF.md` |
 | 爱蜜莉亚声线 TTS（批量预生成音频，替掉微软 TTS） | `../archive-content-sources/emilia-voice/HANDOFF.md`（本地，gitignore） |
 | 语音包（设置 → 语音包）的 bug、念错的词、重新打包 | `VOICE_PACK_HANDOFF.md` |
+| 新内容的爱蜜莉亚语音还没生成（攒着批量跑；**新内容写了 voice_items 就要在这里登记**） | `VOICE_BACKLOG.md` |
 | 単語卡（5 个一组、先想再看，0.19.0 已做）、帳面重排、错题搬去練習 | `VOCAB_CARD_HANDOFF.md` |
 | 単語卡背面「常一起出现」补搭配数据（日文 + 中文） | `COLLOCATION_HANDOFF.md` |
 | 辞書「高频补充」（动漫高频 JLPT N5–N2 单词 / 语法，也进単語）的数据和脚本 | `FREQ_WORDS_HANDOFF.md` |
