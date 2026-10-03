@@ -17,7 +17,8 @@ import org.json.JSONObject
  */
 
 /** 課前の一眼: the endings, what they turn into, one rule line and two examples. */
-data class KyPeek(val ends: List<String>, val result: List<ZgSeg>, val rule: String, val examples: List<KyPeekExample>)
+/** [go] = the button that starts the first play ("拼起来试试"). */
+data class KyPeek(val ends: List<String>, val result: List<ZgSeg>, val rule: String, val examples: List<KyPeekExample>, val go: String)
 
 data class KyPeekExample(val base: String, val stem: String, val tail: List<ZgSeg>, val romaji: String)
 
@@ -35,7 +36,138 @@ data class KyBack(
     val base: String get() = stem + bins[answer].first
 }
 
-data class KyLesson(val point: String, val peek: KyPeek?, val fuse: List<ZgFuse>, val back: List<KyBack>)
+/** 還原台 / 换词 / 时间轴 / 证据 / 接续 / 敬语阶梯 / 换个人说: one answer out of a few, told by [KyPick.head] and [KyPick.layout]. */
+data class KyOpt(
+    val text: String,
+    val romaji: String,
+    /** "yes" / "ok" / "no" (接续: 原作 / 也说得通 / 不行); blank = right or wrong only. */
+    val mark: String,
+    val why: String,
+    /** 证据: the column. 敬语: the level label. */
+    val group: String,
+    /** 换词 / 敬语: the line as it is with this option. */
+    val line: ZgLine?,
+)
+
+data class KyMark(val kind: String, val at: Int, val until: Int, val label: String)
+
+data class KyPick(
+    /** "line" (slot in the line) / "shuku" (short → full) / "timeline" / "context" / "speaker". */
+    val head: String,
+    /** "rows" / "chips" / "columns" / "ladder". */
+    val layout: String,
+    val ask: String,
+    val line: ZgLine?,
+    val options: List<KyOpt>,
+    val answer: Int,
+    val rule: String,
+    val tags: List<Pair<String, SegKind>>,
+    val short: List<ZgSeg>,
+    val shortRomaji: List<ZgSeg>,
+    val full: List<ZgSeg>,
+    val fullRomaji: List<ZgSeg>,
+    val marks: List<KyMark>,
+    val context: String,
+    val who: String,
+    val rel: String,
+    val verdictRight: String,
+    val verdictWrong: String,
+) {
+    val right: KyOpt get() = options[answer]
+}
+
+/** 语速档位: one sentence at four speeds; which one the anime says. */
+data class KySpeed(val pre: String, val stops: List<Pair<String, String>>, val answer: Int, val note: String, val line: ZgLine)
+
+/** 活用盘: the verb's ending slides along its 行 to a 段 ([answer] 5 = the [extra] button). */
+data class KyDial(
+    val verb: String,
+    val stem: String,
+    val stemRomaji: String,
+    val kana: List<String>,
+    val romaji: List<String>,
+    val rowName: String,
+    val cur: Int,
+    val answer: Int,
+    val form: String,
+    val suffix: String,
+    val suffixRomaji: String,
+    val word: String,
+    val tags: List<Pair<String, SegKind>>,
+    val rule: String,
+    val line: ZgLine,
+    val extra: String,
+)
+
+/** 分拣: a card goes left or right ([answer] 0 / 1). */
+data class KySwipe(val word: String, val romaji: String, val answer: Int, val result: String, val trap: String)
+
+/** 翻牌: think first, then flip; [trap] = the ones that look like the other kind. */
+data class KyFlip(val word: String, val romaji: String, val kind: String, val form: String, val note: String, val trap: Boolean)
+
+data class KyBlock(val id: String, val rank: Int, val fin: Pair<String, String>, val mid: Pair<String, String>, val past: Pair<String, String>?, val gloss: String, val seam: String)
+
+data class KyStackGoal(val goal: String, val need: String, val line: ZgLine)
+
+/** 叠积木: blocks stacked in rank order onto [base]; [meanings] by the ids stacked ("srt"). */
+data class KyStack(val base: Pair<String, String>, val baseNote: String, val blocks: List<KyBlock>, val goals: List<KyStackGoal>, val meanings: Map<String, String>)
+
+/** 连线: left halves (pre to connective) to right halves; [match] = the left index of each right. */
+data class KyConnect(val left: List<Pair<String, String>>, val right: List<String>, val match: List<Int>, val lines: List<ZgLine>)
+
+sealed interface KyStep {
+    val title: String
+    val count: Int
+    data class Fuse(override val title: String, val items: List<ZgFuse>) : KyStep { override val count get() = items.size }
+    data class Back(override val title: String, val items: List<KyBack>) : KyStep { override val count get() = items.size }
+    data class Pick(override val title: String, val items: List<KyPick>) : KyStep { override val count get() = items.size }
+    data class Speed(override val title: String, val items: List<KySpeed>) : KyStep { override val count get() = items.size }
+    data class Dial(override val title: String, val items: List<KyDial>) : KyStep { override val count get() = items.size }
+    data class Swipe(override val title: String, val left: String, val right: String, val items: List<KySwipe>) : KyStep { override val count get() = items.size }
+    data class Flip(override val title: String, val ask: String, val items: List<KyFlip>) : KyStep { override val count get() = items.size }
+    data class Stack(override val title: String, val stack: KyStack) : KyStep { override val count get() = stack.goals.size }
+    data class Connect(override val title: String, val connect: KyConnect) : KyStep { override val count get() = connect.left.size }
+}
+
+data class KyLesson(val point: String, val peek: KyPeek?, val steps: List<KyStep>) {
+    val count: Int get() = steps.sumOf { it.count }
+
+    /** A few words for the つづく preview of this 課. */
+    val preview: List<String>
+        get() = steps.flatMap { s ->
+            when (s) {
+                is KyStep.Fuse -> s.items.map { it.word }
+                is KyStep.Dial -> s.items.map { it.word }
+                is KyStep.Pick -> s.items.map { it.right.text }
+                is KyStep.Back -> s.items.map { it.te }
+                is KyStep.Speed -> s.items.map { it.line.target }
+                else -> emptyList()
+            }
+        }.distinct().take(4)
+}
+
+/** まとめ as a table (every book but B): columns, rows in sections, cells; maybe a cover or a selection that shows lines. */
+data class KyCell(val text: String, val sub: String, val segs: List<ZgSeg>, val mark: String)
+
+data class KyRow(val label: String, val labelSub: String, val cells: List<KyCell>, val lines: List<ZgLine>)
+
+/** [rail] = the rows are an order (drawn as a rail of dots). */
+data class KySection(val title: String, val rail: Boolean, val rows: List<KyRow>)
+
+data class KyTable(
+    val title: String,
+    /** Header per column: text, romaji. */
+    val cols: List<Pair<String, String>>,
+    val sections: List<KySection>,
+    /** "col" = tabs pick a column (its [colNotes] / [colLines] show), "row" = a row shows its lines, "" = nothing to pick. */
+    val select: String,
+    val colNotes: List<String>,
+    val colLines: List<ZgLine?>,
+    /** Columns 遮る hides (a hidden cell shows when tapped). */
+    val cover: List<Int>,
+    /** Footnotes: label, text, note. */
+    val notes: List<Triple<String, String, String>>,
+)
 
 /** One row of the まとめ map: endings → what they turn into, and the verbs played in the book. */
 data class KyMapRow(
@@ -58,7 +190,11 @@ data class KyBook(
     val mapFootnote: Pair<String, String>?,
     val rows: List<KyMapRow>,
     val lessons: List<KyLesson>,
-)
+    val table: KyTable? = null,
+) {
+    val hasSummary: Boolean get() = rows.isNotEmpty() || table != null
+    val summaryTitle: String get() = table?.title ?: mapTitle
+}
 
 data class KyData(val books: List<KyBook>) {
     fun lesson(point: String): KyLesson? = books.firstNotNullOfOrNull { b -> b.lessons.firstOrNull { it.point == point } }
@@ -91,6 +227,7 @@ object KatsuyouBook {
                 mapFootnote = map?.let { m -> m.optString("ichidan").takeIf { it.isNotBlank() }?.let { it to m.optString("note") } },
                 rows = b.optJSONArray("rows")?.objects()?.map(::rowOf).orEmpty(),
                 lessons = b.getJSONArray("lessons").objects().map { lessonOf(it, base) },
+                table = b.optJSONObject("table")?.let { tableOf(it, base) },
             )
         })
     }
@@ -102,25 +239,128 @@ object KatsuyouBook {
                 ends = p.getJSONArray("ends").strings(),
                 result = ZougoBook.segsOf(p.getJSONArray("result")),
                 rule = p.getString("rule"),
+                go = p.optString("go").ifBlank { "拼起来试试" },
                 examples = p.getJSONArray("examples").objects().map {
                     KyPeekExample(it.getString("base"), it.getString("stem"), ZougoBook.segsOf(it.getJSONArray("tail")), it.getString("ro"))
                 },
             )
         },
-        fuse = o.getJSONArray("fuse").objects().map { ZougoBook.fuseOf(it, base) },
-        back = o.optJSONArray("back")?.objects()?.map {
-            KyBack(
-                te = it.getString("te"),
-                romaji = it.getString("ro"),
-                stem = it.getString("stem"),
-                stemRomaji = it.getString("stemRo"),
-                bins = it.getJSONArray("bins").let { a -> (0 until a.length()).map { i -> a.getJSONArray(i).let { p -> p.getString(0) to p.getString(1) } } },
-                answer = it.getInt("answer"),
-                note = it.getString("note"),
-                line = ZougoBook.lineOf(it.getJSONObject("line"), base),
-            )
-        }.orEmpty(),
+        steps = o.getJSONArray("steps").objects().map { stepOf(it, base) },
     )
+
+    private fun stepOf(o: JSONObject, base: String): KyStep {
+        val title = o.optString("title")
+        val items = o.optJSONArray("items")?.objects().orEmpty()
+        return when (o.getString("type")) {
+            "fuse" -> KyStep.Fuse(title, items.map { ZougoBook.fuseOf(it, base) })
+            "back" -> KyStep.Back(title, items.map { backOf(it, base) })
+            "pick" -> KyStep.Pick(title, items.map { pickOf(it, base) })
+            "speed" -> KyStep.Speed(title, items.map {
+                KySpeed(it.getString("pre"), it.getJSONArray("stops").pairs(), it.getInt("answer"), it.getString("note"), ZougoBook.lineOf(it.getJSONObject("line"), base))
+            })
+            "dial" -> KyStep.Dial(title, items.map {
+                KyDial(
+                    verb = it.getString("verb"), stem = it.getString("stem"), stemRomaji = it.getString("stemRo"),
+                    kana = it.getJSONArray("kana").strings(), romaji = it.getJSONArray("ro").strings(), rowName = it.getString("rowName"),
+                    cur = it.getInt("cur"), answer = it.getInt("answer"), form = it.getString("form"),
+                    suffix = it.getString("suf"), suffixRomaji = it.getString("sufRo"), word = it.getString("word"),
+                    tags = tagsOf(it), rule = it.getString("rule"), line = ZougoBook.lineOf(it.getJSONObject("line"), base),
+                    extra = it.optString("extra"),
+                )
+            })
+            "swipe" -> KyStep.Swipe(title, o.getString("left"), o.getString("right"), items.map {
+                KySwipe(it.getString("w"), it.getString("ro"), it.getInt("answer"), it.getString("result"), it.optString("trap"))
+            })
+            "flip" -> KyStep.Flip(title, o.getString("ask"), items.map {
+                KyFlip(it.getString("w"), it.getString("ro"), it.getString("kind"), it.getString("form"), it.optString("note"), it.optBoolean("trap"))
+            })
+            "stack" -> KyStep.Stack(title, o.getJSONObject("stack").let { k ->
+                KyStack(
+                    base = k.getJSONArray("base").pair(),
+                    baseNote = k.getString("baseNote"),
+                    blocks = k.getJSONArray("blocks").objects().map {
+                        KyBlock(it.getString("id"), it.getInt("rank"), it.getJSONArray("fin").pair(), it.getJSONArray("mid").pair(),
+                            it.optJSONArray("past")?.pair(), it.getString("gloss"), it.getString("seam"))
+                    },
+                    goals = k.getJSONArray("goals").objects().map { KyStackGoal(it.getString("goal"), it.getString("need"), ZougoBook.lineOf(it.getJSONObject("line"), base)) },
+                    meanings = k.getJSONObject("meanings").let { m -> m.keys().asSequence().associateWith { m.getString(it) } },
+                )
+            })
+            "connect" -> KyStep.Connect(title, o.getJSONObject("connect").let { k ->
+                KyConnect(
+                    left = k.getJSONArray("left").pairs(),
+                    right = k.getJSONArray("right").strings(),
+                    match = k.getJSONArray("match").let { a -> (0 until a.length()).map { a.getInt(it) } },
+                    lines = k.getJSONArray("lines").objects().map { ZougoBook.lineOf(it, base) },
+                )
+            })
+            else -> KyStep.Pick(title, emptyList())
+        }
+    }
+
+    private fun backOf(it: JSONObject, base: String) = KyBack(
+        te = it.getString("te"),
+        romaji = it.getString("ro"),
+        stem = it.getString("stem"),
+        stemRomaji = it.getString("stemRo"),
+        bins = it.getJSONArray("bins").pairs(),
+        answer = it.getInt("answer"),
+        note = it.getString("note"),
+        line = ZougoBook.lineOf(it.getJSONObject("line"), base),
+    )
+
+    private fun pickOf(o: JSONObject, base: String) = KyPick(
+        head = o.optString("head", "line"),
+        layout = o.optString("layout", "rows"),
+        ask = o.optString("ask"),
+        line = o.optJSONObject("line")?.let { ZougoBook.lineOf(it, base) },
+        options = o.getJSONArray("options").objects().map {
+            KyOpt(it.getString("t"), it.optString("ro"), it.optString("mark"), it.optString("why"), it.optString("group"),
+                it.optJSONObject("line")?.let { l -> ZougoBook.lineOf(l, base) })
+        },
+        answer = o.getInt("answer"),
+        rule = o.optString("rule"),
+        tags = tagsOf(o),
+        short = o.optJSONArray("sk")?.let { ZougoBook.segsOf(it) }.orEmpty(),
+        shortRomaji = o.optJSONArray("sr")?.let { ZougoBook.segsOf(it) }.orEmpty(),
+        full = o.optJSONArray("fk")?.let { ZougoBook.segsOf(it) }.orEmpty(),
+        fullRomaji = o.optJSONArray("fr")?.let { ZougoBook.segsOf(it) }.orEmpty(),
+        marks = o.optJSONArray("marks")?.objects()?.map { KyMark(it.getString("kind"), it.optInt("at", it.optInt("a")), it.optInt("b"), it.getString("label")) }.orEmpty(),
+        context = o.optString("ctx"),
+        who = o.optString("who"),
+        rel = o.optString("rel"),
+        verdictRight = o.optString("vr"),
+        verdictWrong = o.optString("vw"),
+    )
+
+    private fun tableOf(o: JSONObject, base: String) = KyTable(
+        title = o.getString("title"),
+        cols = o.getJSONArray("cols").pairs(),
+        sections = o.getJSONArray("sections").objects().map { sec ->
+            KySection(sec.optString("title"), sec.optBoolean("rail"), sec.getJSONArray("rows").objects().map { r ->
+                KyRow(
+                    label = r.optString("label"),
+                    labelSub = r.optString("sub"),
+                    cells = r.getJSONArray("cells").objects().map { c ->
+                        KyCell(c.optString("t"), c.optString("sub"), c.optJSONArray("segs")?.let { ZougoBook.segsOf(it) }.orEmpty(), c.optString("mark"))
+                    },
+                    lines = r.optJSONArray("lines")?.objects()?.map { ZougoBook.lineOf(it, base) }.orEmpty(),
+                )
+            })
+        },
+        select = o.optString("select"),
+        colNotes = o.optJSONArray("colNotes")?.strings().orEmpty(),
+        colLines = o.optJSONArray("colLines")?.let { a -> (0 until a.length()).map { i -> a.optJSONObject(i)?.let { ZougoBook.lineOf(it, base) } } }.orEmpty(),
+        cover = o.optJSONArray("cover")?.let { a -> (0 until a.length()).map { a.getInt(it) } }.orEmpty(),
+        notes = o.optJSONArray("notes")?.let { a -> (0 until a.length()).map { i -> a.getJSONArray(i).let { Triple(it.getString(0), it.getString(1), it.optString(2)) } } }.orEmpty(),
+    )
+
+    private fun tagsOf(o: JSONObject): List<Pair<String, SegKind>> =
+        o.optJSONArray("tags")?.let { t -> (0 until t.length()).map { t.getJSONArray(it).let { p -> p.getString(0) to SegKind.of(p.getString(1)) } } }.orEmpty()
+
+    private fun JSONArray.pair(): Pair<String, String> = getString(0) to getString(1)
+
+    private fun JSONArray.pairs(): List<Pair<String, String>> = (0 until length()).map { getJSONArray(it).pair() }
 
     private fun rowOf(o: JSONObject): KyMapRow {
         val mid = o.getJSONArray("mid")

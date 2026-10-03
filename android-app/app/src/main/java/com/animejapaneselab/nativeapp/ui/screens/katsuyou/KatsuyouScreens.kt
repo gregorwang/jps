@@ -69,6 +69,7 @@ import com.animejapaneselab.nativeapp.ui.katsuyou.KyBack
 import com.animejapaneselab.nativeapp.ui.katsuyou.KyBook
 import com.animejapaneselab.nativeapp.ui.katsuyou.KyLesson
 import com.animejapaneselab.nativeapp.ui.katsuyou.KyPeek
+import com.animejapaneselab.nativeapp.ui.katsuyou.KyStep
 import com.animejapaneselab.nativeapp.ui.screens.session.TsuzukuLine
 import com.animejapaneselab.nativeapp.ui.screens.session.TsuzukuPreview
 import com.animejapaneselab.nativeapp.ui.screens.session.TsuzukuScreen
@@ -86,11 +87,9 @@ import com.animejapaneselab.nativeapp.ui.zougo.ZgSeg
 /** The 課 title without the explanation: 「イ音便：く→いて／ぐ→いで」 → 「イ音便」. */
 internal fun shortTitle(title: String): String = title.substringBefore('：').substringBefore('（').trim()
 
-private enum class Phase { Peek, Fuse, Back, End }
-
 /**
- * One rebuilt 課: 課前の一眼 → 拼合台 → 倒推 (when the 課 has some) → つづく, which marks the point learned
- * ([onLearned]) so its lines go into 練習 as before. [onNext] opens the next 課 of the book.
+ * One rebuilt 課: 課前の一眼 → its plays in order (拼合台, 倒推, 還原台, 活用盘…) → つづく, which marks the point
+ * learned ([onLearned]) so its lines go into 練習 as before. [onNext] opens the next 課 of the book.
  */
 @Composable
 fun KatsuyouLesson(
@@ -104,7 +103,7 @@ fun KatsuyouLesson(
     val context = LocalContext.current
     val data = remember { KatsuyouBook.load(context) }
     val lesson = data.lesson(point)
-    if (lesson == null) {
+    if (lesson == null || lesson.steps.isEmpty()) {
         LaunchedEffect(point) { Katsuyou.exit() }
         return
     }
@@ -113,48 +112,38 @@ fun KatsuyouLesson(
     val number = drill.lessonNumber(point)
     val title = shortTitle(drill.titleOf(point))
     val eyebrow = "VOL.$key ${ConjugationDrillRules.groupTitle(group)} · 第 $number 課"
-    var phase by rememberSaveable(point) { mutableStateOf(if (lesson.peek != null) Phase.Peek else Phase.Fuse) }
+    // -1 = 課前の一眼, steps.size = つづく.
+    var step by rememberSaveable(point) { mutableIntStateOf(if (lesson.peek != null) -1 else 0) }
     var right by rememberSaveable(point) { mutableIntStateOf(0) }
     var asked by rememberSaveable(point) { mutableIntStateOf(0) }
     val missed = remember(point) { mutableStateListOf<TsuzukuLine>() }
     val onClose = Katsuyou::exit
 
-    when (phase) {
-        Phase.Peek -> PeekScreen(lesson.peek!!, eyebrow, title, lesson.fuse.size, onClose, onStart = { phase = Phase.Fuse }, modifier = modifier)
+    when {
+        step < 0 -> PeekScreen(lesson.peek!!, eyebrow, title, lesson.steps.first().count, onClose, onStart = { step = 0 }, modifier = modifier)
 
-        Phase.Fuse -> FuseSitting(
-            items = lesson.fuse,
-            key = "ky:$point",
-            eyebrow = eyebrow,
-            title = title,
-            settings = settings,
-            onClose = onClose,
-            onAnswer = { _, ok -> Katsuyou.answer(context, ok) },
-            onDone = { r, wrong ->
-                right = r; asked = lesson.fuse.size
-                missed.clear(); missed.addAll(wrong.map { TsuzukuLine(it.word, true, it.romaji) })
-                phase = if (lesson.back.isNotEmpty()) Phase.Back else Phase.End
-            },
-            lastLabel = if (lesson.back.isNotEmpty()) "倒过来试试" else "完成",
-            modifier = modifier,
-        )
+        step < lesson.steps.size -> {
+            val s = lesson.steps[step]
+            val nextTitle = lesson.steps.getOrNull(step + 1)?.title
+            StepSitting(
+                step = s,
+                key = "ky:$point:$step",
+                eyebrow = eyebrow,
+                title = s.title.ifBlank { title },
+                settings = settings,
+                onClose = onClose,
+                onAnswer = { ok -> Katsuyou.answer(context, ok) },
+                onDone = { r, n, wrong ->
+                    right += r; asked += n
+                    missed.addAll(wrong)
+                    step++
+                },
+                lastLabel = nextTitle?.let { "接着：$it" } ?: "完成",
+                modifier = modifier,
+            )
+        }
 
-        Phase.Back -> BackTrackSitting(
-            items = lesson.back,
-            key = "kb:$point",
-            eyebrow = eyebrow,
-            settings = settings,
-            onClose = onClose,
-            onAnswer = { ok -> Katsuyou.answer(context, ok) },
-            onDone = { r, wrong ->
-                right += r; asked += lesson.back.size
-                missed.addAll(wrong.map { TsuzukuLine(it.te, true, "← ${it.base}") })
-                phase = Phase.End
-            },
-            modifier = modifier,
-        )
-
-        Phase.End -> {
+        else -> {
             LaunchedEffect(point) { onLearned(point) }
             val points = drill.lessonsIn(group)
             val learned = drill.learned + point
@@ -162,7 +151,7 @@ fun KatsuyouLesson(
                 ?: points.firstOrNull { it !in learned }
             TsuzukuScreen(
                 eyebrow = "第 $number 課 · $title",
-                tally = "答对 $right / $asked",
+                tally = if (asked > 0) "答对 $right / $asked" else "",
                 meta = "VOL.$key ${ConjugationDrillRules.groupTitle(group)} · 已学 ${points.count { it in learned }} / ${points.size} 課",
                 noted = missed.toList(),
                 notedTitle = "再看一眼的 ${missed.size} 个",
@@ -170,7 +159,7 @@ fun KatsuyouLesson(
                     val nl = data.lesson(n)
                     TsuzukuPreview(
                         title = "第 ${drill.lessonNumber(n)} 課 · ${shortTitle(drill.titleOf(n))}",
-                        line = nl?.fuse?.take(4)?.joinToString("・") { it.word },
+                        line = nl?.preview?.joinToString("・"),
                     )
                 },
                 primaryLabel = if (next != null) "次の課" else "回到目次",
@@ -179,6 +168,42 @@ fun KatsuyouLesson(
                 modifier = modifier,
             )
         }
+    }
+}
+
+/** One play of a 課; [onDone] gets right, asked and the ones to look at again. */
+@Composable
+private fun StepSitting(
+    step: KyStep,
+    key: String,
+    eyebrow: String,
+    title: String,
+    settings: LabSettings,
+    onClose: () -> Unit,
+    onAnswer: (Boolean) -> Unit,
+    onDone: (right: Int, asked: Int, missed: List<TsuzukuLine>) -> Unit,
+    lastLabel: String,
+    modifier: Modifier,
+) {
+    when (step) {
+        is KyStep.Fuse -> FuseSitting(
+            items = step.items, key = key, eyebrow = eyebrow, title = title, settings = settings, onClose = onClose,
+            onAnswer = { _, ok -> onAnswer(ok) },
+            onDone = { r, wrong -> onDone(r, step.items.size, wrong.map { TsuzukuLine(it.word, true, it.romaji) }) },
+            lastLabel = lastLabel, modifier = modifier,
+        )
+        is KyStep.Back -> BackTrackSitting(
+            items = step.items, key = key, eyebrow = eyebrow, settings = settings, onClose = onClose, onAnswer = onAnswer,
+            onDone = { r, wrong -> onDone(r, step.items.size, wrong.map { TsuzukuLine(it.te, true, "← ${it.base}") }) },
+            lastLabel = lastLabel, modifier = modifier,
+        )
+        is KyStep.Pick -> PickSitting(step.items, key, eyebrow, title, settings, onClose, onAnswer, onDone, lastLabel, modifier)
+        is KyStep.Speed -> SpeedSitting(step.items, key, eyebrow, title, settings, onClose, onAnswer, onDone, lastLabel, modifier)
+        is KyStep.Dial -> DialSitting(step.items, key, eyebrow, title, settings, onClose, onAnswer, onDone, lastLabel, modifier)
+        is KyStep.Swipe -> SwipeSitting(step, key, eyebrow, settings, onClose, onAnswer, onDone, lastLabel, modifier)
+        is KyStep.Flip -> FlipSitting(step, key, eyebrow, settings, onClose, onDone, lastLabel, modifier)
+        is KyStep.Stack -> StackSitting(step, key, eyebrow, settings, onClose, onAnswer, onDone, lastLabel, modifier)
+        is KyStep.Connect -> ConnectSitting(step, key, eyebrow, settings, onClose, onAnswer, onDone, lastLabel, modifier)
     }
 }
 
@@ -232,9 +257,9 @@ private fun PeekScreen(peek: KyPeek, eyebrow: String, title: String, groups: Int
             }
         }
         InkButton(
-            text = "拼起来试试",
+            text = peek.go,
             onClick = onStart,
-            caption = "$groups 组",
+            caption = "$groups 个",
             trailingArrow = true,
             modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
         )
@@ -269,6 +294,7 @@ private fun BackTrackSitting(
     onClose: () -> Unit,
     onAnswer: (Boolean) -> Unit,
     onDone: (right: Int, missed: List<KyBack>) -> Unit,
+    lastLabel: String,
     modifier: Modifier,
 ) {
     BackHandler(onBack = onClose)
@@ -359,7 +385,7 @@ private fun BackTrackSitting(
         if (revealed) {
             val last = index == items.lastIndex
             InkButton(
-                text = if (last) "完成" else "下一个",
+                text = if (last) lastLabel else "下一个",
                 onClick = {
                     audio.stop()
                     if (last) onDone(right, missed.map { items[it] }) else { index++; picked = -1 }
@@ -381,6 +407,10 @@ fun KatsuyouMap(groupKey: String, bookTitle: String, settings: LabSettings, modi
     val book: KyBook? = remember { KatsuyouBook.load(context) }.book(groupKey)
     if (book == null) {
         LaunchedEffect(groupKey) { Katsuyou.exit() }
+        return
+    }
+    book.table?.let {
+        KyTableScreen(it, "VOL.$groupKey $bookTitle · まとめ", settings, modifier)
         return
     }
     BackHandler(onBack = Katsuyou::exit)

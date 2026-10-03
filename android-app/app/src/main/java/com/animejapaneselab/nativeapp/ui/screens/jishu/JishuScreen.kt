@@ -285,7 +285,7 @@ private fun JishuHome(
                     InkButton(
                         text = if (progress.studied(current) > 0) "続きから" else "始める",
                         onClick = { onLesson(current) },
-                        caption = if (played != null) "課前の一眼 · 拼合 ${played.fuse.size} 组" else "板書 · 台詞 ${left.coerceIn(1, JishuViewModel.SittingSize)} 句",
+                        caption = if (played != null) "課前の一眼 · ${KatsuyouBook.load(homeContext).bookOf(current)?.play ?: "拼合"} ${played.count} 个" else "板書 · 台詞 ${left.coerceIn(1, JishuViewModel.SittingSize)} 句",
                         trailingArrow = true,
                         modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 14.dp),
                     )
@@ -463,7 +463,7 @@ private fun TextbookIndex(
                 val (meta, metaColor) = when {
                     done -> "済" to colors.ok
                     played != null && progress.learned(point) -> "済" to colors.ok
-                    played != null -> "${played.fuse.size} 组" to (if (isNext) work.accent else colors.ink3)
+                    played != null -> "${played.count} 个" to (if (isNext) work.accent else colors.ink3)
                     studied > 0 -> "$studied/$total" to (if (isNext) work.accent else colors.ink3)
                     progress.learned(point) -> "已学" to colors.ok
                     else -> "$total 句" to (if (isNext) work.accent else colors.ink3)
@@ -485,7 +485,7 @@ private fun TextbookIndex(
                     Box(Modifier.fillMaxWidth().height(AjlStroke.Hair).background(colors.line))
                 }
             }
-            if (kyBook != null && kyBook.rows.isNotEmpty()) {
+            if (kyBook != null && kyBook.hasSummary) {
                 Row(
                     Modifier
                         .fillMaxWidth()
@@ -499,7 +499,7 @@ private fun TextbookIndex(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     Text("まとめ", style = AjlTheme.type.jpBody.copy(fontSize = 15.sp, fontWeight = FontWeight.Bold), color = colors.ink)
-                    Text("${kyBook.mapTitle} · 随时可看", style = AjlTheme.type.caption.copy(fontSize = 12.sp), color = colors.ink3, modifier = Modifier.weight(1f))
+                    Text("${kyBook.summaryTitle} · 随时可看", style = AjlTheme.type.caption.copy(fontSize = 12.sp), color = colors.ink3, modifier = Modifier.weight(1f))
                     Text("›", style = AjlTheme.type.body.copy(fontSize = 18.sp), color = colors.ink3)
                 }
             }
@@ -510,7 +510,7 @@ private fun TextbookIndex(
             InkButton(
                 text = "続き · 第 ${drill.lessonNumber(next)} 課",
                 onClick = { onLesson(next) },
-                caption = if (nextPlayed != null) "${splitTitle(drill.titleOf(next)).first} · ${kyBook?.play ?: "拼合"} ${nextPlayed.fuse.size} 组"
+                caption = if (nextPlayed != null) "${splitTitle(drill.titleOf(next)).first} · ${kyBook?.play ?: "拼合"} ${nextPlayed.count} 个"
                 else "${splitTitle(drill.titleOf(next)).first} · ${progress.studied(next)} / ${progress.total(next)} 句",
                 trailingArrow = true,
                 modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 20.dp),
