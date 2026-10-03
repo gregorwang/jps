@@ -346,87 +346,89 @@ private fun RoomScreen(
         }
     }
 
+    var selectedId by rememberSaveable(group.reading) { mutableStateOf(group.words.firstOrNull()?.id) }
+    var dropKey by remember { mutableIntStateOf(0) }
+    var pickKey by remember { mutableIntStateOf(0) }
+    val lineOf = { w: HomoWord -> lines[w.id]?.takeIf { w.cut.isNotEmpty() && w.cut in it.ja } }
+
     Column(Modifier.fillMaxSize()) {
         TopBar(nav = TopBarNav.Close, onNav = onClose, navContentDescription = "关闭", title = "同音の部屋")
         Column(
             Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Box(Modifier.fillMaxWidth().padding(top = 4.dp)) {
-                Box(Modifier.align(Alignment.TopEnd).padding(end = 4.dp).height(64.dp).fillMaxWidth(0.4f).screentone(work.accent.copy(alpha = 0.22f)))
-                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(group.romaji, style = AjlTheme.type.meta.copy(fontSize = 15.sp, letterSpacing = 1.sp), color = colors.ink3)
-                    Text(
-                        group.reading,
-                        style = AjlTheme.type.jpDisplay.copy(fontSize = 52.sp, lineHeight = 64.sp),
-                        color = work.accent,
-                        modifier = Modifier.clickableNoRipple(onClick = { play("reading") { audio.speakText(sayReading(context, group), settings.ttsWorkerUrl) } }),
-                    )
-                    Text("一个音，${group.words.size} 个字", style = AjlTheme.type.caption.copy(fontSize = 13.sp), color = colors.ink2)
-                }
-            }
-            if (group.note.isNotBlank()) NoteText(group.note)
-
-            group.sameWord.forEach { cluster ->
-                WordPanel("同一个词 · 换字", info = true, words = cluster, lines = lines, levels = levels, playingId = playingId.takeIf { sounding }) { w, line ->
-                    play(w.id) { playLine(line, audio, settings.ttsWorkerUrl) }
-                }
-            }
-            if (group.soundOnly.isNotEmpty()) {
-                WordPanel("碰巧同音", info = false, words = group.soundOnly, lines = lines, levels = levels, playingId = playingId.takeIf { sounding }) { w, line ->
-                    play(w.id) { playLine(line, audio, settings.ttsWorkerUrl) }
-                }
+            HomophonePond(
+                group,
+                selectedId = selectedId,
+                dropKey = dropKey,
+                pickKey = pickKey,
+                onStone = {
+                    dropKey++
+                    play("reading") { audio.speakText(sayReading(context, group), settings.ttsWorkerUrl) }
+                },
+                onWord = { w ->
+                    selectedId = w.id
+                    pickKey++
+                    lineOf(w)?.let { line -> play(w.id) { playLine(line, audio, settings.ttsWorkerUrl) } }
+                },
+            )
+            PondLegend(group)
+            if (group.note.isNotBlank()) NoteText(group.note, modifier = Modifier.fillMaxWidth())
+            group.words.firstOrNull { it.id == selectedId }?.let { w ->
+                WordCaption(
+                    w,
+                    sameWord = group.sameWord.any { c -> c.any { it.id == w.id } },
+                    line = lineOf(w),
+                    level = levels[w.id],
+                    playing = sounding && playingId == w.id,
+                    onPlay = { line -> play(w.id) { playLine(line, audio, settings.ttsWorkerUrl) } },
+                )
             }
             Spacer(Modifier.height(8.dp))
         }
         if (canQuiz) {
-            InkButton("听原声，猜是哪个字", onQuiz, modifier = Modifier.fillMaxWidth().padding(16.dp))
+            InkButton("听原声，猜波纹停在哪个字", onQuiz, modifier = Modifier.fillMaxWidth().padding(16.dp))
         }
     }
 }
 
+/** The picked word: kanji, meaning, which ring it is on, and its line from the anime. */
 @Composable
-private fun WordPanel(
-    label: String,
-    info: Boolean,
-    words: List<HomoWord>,
-    lines: Map<String, TangoLine>,
-    levels: Map<String, String>,
-    playingId: String?,
-    onPlay: (HomoWord, TangoLine) -> Unit,
+private fun WordCaption(
+    w: HomoWord,
+    sameWord: Boolean,
+    line: TangoLine?,
+    level: String?,
+    playing: Boolean,
+    onPlay: (TangoLine) -> Unit,
 ) {
     val colors = AjlTheme.colors
     MangaPanel(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(start = 14.dp, end = 14.dp, top = 12.dp, bottom = 10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(Modifier.padding(start = 14.dp, end = 14.dp, top = 12.dp, bottom = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(w.surface, style = AjlTheme.type.jpTitle.copy(fontSize = 28.sp, lineHeight = 36.sp), color = colors.ink)
+                Text(w.meaning, style = AjlTheme.type.body.copy(fontSize = 14.sp, fontWeight = FontWeight.SemiBold), color = colors.ink, modifier = Modifier.weight(1f).padding(bottom = 5.dp))
+                level?.takeIf { it.startsWith("N") }?.let {
+                    Text(it, style = AjlTheme.type.metaSmall.copy(fontSize = 11.sp), color = AjlTheme.work.accent, modifier = Modifier.padding(bottom = 7.dp))
+                }
+            }
             Text(
-                label,
+                if (sameWord) "同一个词 · 换字" else "碰巧同音",
                 style = AjlTheme.type.caption.copy(fontSize = 11.sp, fontWeight = FontWeight.SemiBold),
-                color = if (info) colors.info else colors.ink2,
-                modifier = Modifier.background(if (info) colors.infoSoft else colors.sunken, RoundedCornerShape(11.dp)).padding(horizontal = 8.dp, vertical = 2.dp),
+                color = if (sameWord) colors.info else colors.ink2,
+                modifier = Modifier.background(if (sameWord) colors.infoSoft else colors.sunken, RoundedCornerShape(11.dp)).padding(horizontal = 8.dp, vertical = 2.dp),
             )
-            words.forEachIndexed { i, w ->
-                if (i > 0) Hairline()
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(w.surface, style = AjlTheme.type.jpTitle.copy(fontSize = 28.sp, lineHeight = 36.sp), color = colors.ink)
-                        Text(w.meaning, style = AjlTheme.type.body.copy(fontSize = 14.sp, fontWeight = FontWeight.SemiBold), color = colors.ink, modifier = Modifier.weight(1f).padding(bottom = 5.dp))
-                        levels[w.id]?.takeIf { it.startsWith("N") }?.let {
-                            Text(it, style = AjlTheme.type.metaSmall.copy(fontSize = 11.sp), color = AjlTheme.work.accent, modifier = Modifier.padding(bottom = 7.dp))
-                        }
-                    }
-                    val line = lines[w.id]?.takeIf { w.cut.isNotEmpty() && w.cut in it.ja }
-                    if (line != null) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            VoiceWave(playing = playingId == w.id, onClick = { onPlay(w, line) }, synthetic = line.audioUrl.isEmpty())
-                            val start = line.ja.indexOf(w.cut)
-                            MarkedLine(
-                                line.ja,
-                                start until start + w.cut.length,
-                                Modifier.weight(1f).clickableNoRipple(onClick = { onPlay(w, line) }),
-                                style = AjlTheme.type.jpBody.copy(fontSize = 15.sp, lineHeight = 23.sp),
-                            )
-                        }
-                    }
+            if (line != null) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    VoiceWave(playing = playing, onClick = { onPlay(line) }, synthetic = line.audioUrl.isEmpty())
+                    val start = line.ja.indexOf(w.cut)
+                    MarkedLine(
+                        line.ja,
+                        start until start + w.cut.length,
+                        Modifier.weight(1f).clickableNoRipple(onClick = { onPlay(line) }),
+                        style = AjlTheme.type.jpBody.copy(fontSize = 15.sp, lineHeight = 23.sp),
+                    )
                 }
             }
         }
