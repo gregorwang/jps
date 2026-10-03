@@ -135,6 +135,10 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 ## 8. 经验记录（每次会话结束补几条）
 
+**2026-10-03 · 0.28.2（台词声音由用户选）**
+- 用户定：**不在代码里写死原声 / エミリア 谁优先**，界面上必须有切换按钮，默认エミリア。凡是放台词的地方用 `ui/voicepack/LineVoice.kt` 的 `LineVoicePill`（滑动切换，全 App 共用 `VoiceChoice`），自动播放用 `lineCue(context, text, audioUrl)`；别再直接 `PromptAudio.Source(...)` 播台词。偏好的存储键换成了 `voice-choice-2`（一次性把大家重置到エミリア）。
+- `vocab_lines*.json` 以前按行号配原声，大多是别人的声音；现在按文字配（细节在 `HOMOPHONE_HANDOFF.md`）。
+
 **2026-10-02 · 0.24.1（首次打开卡顿 / 闪退）**
 - 根因是主线程上的重活，最大的是 `VoicePack`：44k 条语音包的 manifest 在第一个声音按钮出现时同步解析，还逐条 `isFile`。现在 `init` 只起后台线程（`fileFor` 加载完之前返回 null，`state.clips` 变了会重组），启动预载线程里 `preload`。
 - 进程级 holder 的 `load()` 都是 `synchronized`，主线程碰到时会等预载线程：**预载线程别用 `MIN_PRIORITY`**（会饿死，主线程跟着卡），用 `THREAD_PRIORITY_BACKGROUND`。
