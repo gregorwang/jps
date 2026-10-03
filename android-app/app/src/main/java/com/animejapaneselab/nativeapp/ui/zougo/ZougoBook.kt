@@ -12,8 +12,11 @@ import org.json.JSONObject
  * Content: `assets/zougo_lessons.json`, written by archive-content-sources/zougo/build_zougo.py.
  */
 
-/** What happened to a piece of romaji when the parts joined; [Already] marks the voiced sound that blocks 連濁. */
-enum class SegKind { Same, Voiced, Vowel, Insert, Gem, Already;
+/**
+ * What happened to a piece of romaji when the parts joined; [Already] marks the voiced sound that blocks 連濁
+ * (or, in the 活用 books, the part that stays as it is), [Gone] the ending that drops out, [Bad] an exception.
+ */
+enum class SegKind { Same, Voiced, Vowel, Insert, Gem, Already, Gone, Bad;
     companion object {
         fun of(s: String) = when (s) {
             "voiced" -> Voiced
@@ -21,6 +24,8 @@ enum class SegKind { Same, Voiced, Vowel, Insert, Gem, Already;
             "insert" -> Insert
             "gem" -> Gem
             "already" -> Already
+            "gone" -> Gone
+            "bad" -> Bad
             else -> Same
         }
     }
@@ -53,6 +58,8 @@ data class ZgFuse(
     val tags: List<Pair<String, SegKind>>,
     val rule: String,
     val line: ZgLine,
+    /** The question over the result panel; blank = "合起来怎么读？". */
+    val ask: String = "",
 ) {
     val romaji: String get() = segs.joinToString("") { it.text }
 }
@@ -146,14 +153,14 @@ object ZougoBook {
 
     private fun JSONArray.strings(): List<String> = (0 until length()).map { getString(it) }
 
-    private fun segsOf(a: JSONArray): List<ZgSeg> = (0 until a.length()).map {
+    internal fun segsOf(a: JSONArray): List<ZgSeg> = (0 until a.length()).map {
         val p = a.getJSONArray(it)
         ZgSeg(p.getString(0), SegKind.of(p.getString(1)))
     }
 
     private fun partOf(o: JSONObject) = ZgPart(o.getString("k"), o.getString("kana"), segsOf(o.getJSONArray("ro")))
 
-    private fun lineOf(o: JSONObject, base: String): ZgLine {
+    internal fun lineOf(o: JSONObject, base: String): ZgLine {
         val audio = o.optString("audio")
         return ZgLine(
             ja = o.getString("ja"),
@@ -167,7 +174,7 @@ object ZougoBook {
         )
     }
 
-    private fun fuseOf(o: JSONObject, base: String) = ZgFuse(
+    internal fun fuseOf(o: JSONObject, base: String) = ZgFuse(
         word = o.getString("word"),
         kana = o.getString("kana"),
         a = partOf(o.getJSONObject("a")),
@@ -178,6 +185,7 @@ object ZougoBook {
         tags = o.getJSONArray("tags").let { t -> (0 until t.length()).map { t.getJSONArray(it).let { p -> p.getString(0) to SegKind.of(p.getString(1)) } } },
         rule = o.getString("rule"),
         line = lineOf(o.getJSONObject("line"), base),
+        ask = o.optString("ask"),
     )
 
     private fun headOf(o: JSONObject) = ZgHead(o.getString("v"), o.getString("ro"), o.optJSONArray("core")?.strings().orEmpty())

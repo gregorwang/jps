@@ -103,9 +103,13 @@ private fun LessonFlow(book: ZgBookData, lesson: ZgLesson, state: ZougoState, se
     when (phase) {
         Phase.Learn -> when (lesson.kind) {
             ZgKind.Fuse -> FuseSitting(
-                lesson = lesson,
+                items = lesson.fuse,
+                key = lesson.id,
+                eyebrow = eyebrow,
+                title = lesson.title,
                 settings = settings,
                 onClose = Zougo::exitLesson,
+                onAnswer = { item, ok -> Zougo.answer(context, item.word, ok) },
                 onDone = { r, wrong ->
                     right = r; asked = lesson.fuse.size
                     missed.clear(); missed.addAll(wrong.map { TsuzukuLine(it.word, true, it.romaji) })

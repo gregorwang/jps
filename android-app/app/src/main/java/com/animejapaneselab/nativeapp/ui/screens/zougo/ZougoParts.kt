@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -58,26 +59,49 @@ internal fun segColor(kind: SegKind): Color = when (kind) {
     SegKind.Voiced, SegKind.Already -> AjlTheme.work.accent
     SegKind.Vowel -> AjlTheme.colors.info
     SegKind.Insert, SegKind.Gem -> AjlTheme.colors.ok
+    SegKind.Gone -> AjlTheme.colors.ink3
+    SegKind.Bad -> AjlTheme.colors.bad
 }
 
-/** Romaji with the pieces that changed coloured and underlined ([lit] = false draws them plain). */
+/**
+ * Romaji with the pieces that changed coloured and underlined ([lit] = false draws them plain). A [SegKind.Gone]
+ * ending is dotted before (look here) and struck through after.
+ */
 @Composable
 internal fun SegText(segs: List<ZgSeg>, fontSize: TextUnit, lit: Boolean, modifier: Modifier = Modifier, base: Color = AjlTheme.colors.ink) {
+    val ink3 = AjlTheme.colors.ink3
     Row(modifier, verticalAlignment = Alignment.Bottom) {
         segs.forEach { seg ->
-            val c = if (lit) segColor(seg.kind) else Color.Unspecified
+            val gone = seg.kind == SegKind.Gone
+            val c = if (lit && !gone) segColor(seg.kind) else Color.Unspecified
             val marked = c != Color.Unspecified
             val dashed = seg.kind == SegKind.Already
             Text(
                 seg.text,
-                style = AjlTheme.type.meta.copy(fontSize = fontSize, letterSpacing = 0.6.sp, fontWeight = if (marked) FontWeight.SemiBold else FontWeight.Normal),
-                color = if (marked) c else base,
-                modifier = if (!marked) Modifier else Modifier.drawBehind {
-                    val y = size.height - 1.dp.toPx()
-                    drawLine(
-                        c, Offset(0f, y), Offset(size.width, y), 2.dp.toPx(),
-                        pathEffect = if (dashed) PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 3.dp.toPx())) else null,
-                    )
+                style = AjlTheme.type.meta.copy(
+                    fontSize = fontSize,
+                    letterSpacing = 0.6.sp,
+                    fontWeight = if (marked) FontWeight.SemiBold else FontWeight.Normal,
+                    textDecoration = if (gone && lit) TextDecoration.LineThrough else null,
+                ),
+                color = when {
+                    gone && lit -> ink3
+                    marked -> c
+                    else -> base
+                },
+                modifier = when {
+                    gone && !lit -> Modifier.drawBehind {
+                        val y = size.height - 1.dp.toPx()
+                        drawLine(ink3, Offset(0f, y), Offset(size.width, y), 1.5.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(1.5.dp.toPx(), 2.5.dp.toPx())))
+                    }
+                    !marked -> Modifier
+                    else -> Modifier.drawBehind {
+                        val y = size.height - 1.dp.toPx()
+                        drawLine(
+                            c, Offset(0f, y), Offset(size.width, y), 2.dp.toPx(),
+                            pathEffect = if (dashed) PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 3.dp.toPx())) else null,
+                        )
+                    }
                 },
             )
         }
@@ -88,8 +112,9 @@ internal fun SegText(segs: List<ZgSeg>, fontSize: TextUnit, lit: Boolean, modifi
 @Composable
 internal fun PartTile(part: ZgPart, lit: Boolean, modifier: Modifier = Modifier, size: Dp = 112.dp) {
     val colors = AjlTheme.colors
-    MangaPanel(modifier.size(size)) {
-        Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
+    val wide = part.kanji.length > 2
+    MangaPanel(if (wide) modifier.height(size).widthIn(min = size).padding(horizontal = 0.dp) else modifier.size(size)) {
+        Column(Modifier.align(Alignment.Center).padding(horizontal = if (wide) 12.dp else 0.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             SegText(part.romaji, 14.sp, lit, base = colors.ink2)
             Text(part.kana, style = AjlTheme.type.jpBody.copy(fontSize = 14.sp, lineHeight = 18.sp), color = colors.ink3)
             Text(part.kanji, style = AjlTheme.type.jpDisplay.copy(fontSize = 38.sp, lineHeight = 46.sp, fontWeight = FontWeight.Bold), color = colors.ink)

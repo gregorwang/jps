@@ -37,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.animejapaneselab.nativeapp.data.LabSettings
@@ -51,31 +50,33 @@ import com.animejapaneselab.nativeapp.ui.motion.MotionTokens
 import com.animejapaneselab.nativeapp.ui.motion.rememberReducedMotion
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 import com.animejapaneselab.nativeapp.ui.zougo.ZgFuse
-import com.animejapaneselab.nativeapp.ui.zougo.ZgLesson
-import com.animejapaneselab.nativeapp.ui.zougo.Zougo
 
 /**
- * 拼合台: for each compound, two part tiles and "合起来怎么读？" with three romaji options. Picking
- * one slides the tiles together and pops the compound with the changed sounds lit; the rule, the
- * kind chips and a line take the options' place. The last one ends the 課 ([onDone] = wrong words).
+ * 拼合台: for each compound, two part tiles and "合起来怎么读？" (or the item's own [ZgFuse.ask]) with three
+ * romaji options. Picking one slides the tiles together and pops the compound with the changed sounds lit;
+ * the rule, the kind chips and a line take the options' place. The last one ends the run ([onDone] = wrong
+ * ones). Shared by 造語 and the 活用 books ([key] keeps the place per 課; [onAnswer] records a judgement).
  */
 @Composable
 internal fun FuseSitting(
-    lesson: ZgLesson,
+    items: List<ZgFuse>,
+    key: String,
+    eyebrow: String,
+    title: String,
     settings: LabSettings,
     onClose: () -> Unit,
+    onAnswer: (ZgFuse, Boolean) -> Unit,
     onDone: (right: Int, missed: List<ZgFuse>) -> Unit,
     modifier: Modifier = Modifier,
+    lastLabel: String = "完成",
 ) {
     BackHandler(onBack = onClose)
-    val context = LocalContext.current
     val feedback = LocalFeedbackEngine.current
     val audio = rememberLessonAudioController()
-    val items = lesson.fuse
-    var index by rememberSaveable(lesson.id) { mutableIntStateOf(0) }
-    var picked by rememberSaveable(lesson.id) { mutableIntStateOf(-1) }
-    var right by rememberSaveable(lesson.id) { mutableIntStateOf(0) }
-    val missed = remember(lesson.id) { mutableStateListOf<String>() }
+    var index by rememberSaveable(key) { mutableIntStateOf(0) }
+    var picked by rememberSaveable(key) { mutableIntStateOf(-1) }
+    var right by rememberSaveable(key) { mutableIntStateOf(0) }
+    val missed = remember(key) { mutableStateListOf<String>() }
     val item = items.getOrNull(index) ?: return
     val revealed = picked >= 0
 
@@ -85,8 +86,8 @@ internal fun FuseSitting(
 
     Column(modifier.fillMaxSize().background(AjlTheme.colors.bg)) {
         ZougoHeader(
-            eyebrow = "第四巻 造語 · 第 ${lesson.number} 課",
-            title = lesson.title,
+            eyebrow = eyebrow,
+            title = title,
             counter = "${index + 1} / ${items.size}",
             progress = (index + if (revealed) 1 else 0).toFloat() / items.size,
             onClose = onClose,
@@ -106,7 +107,7 @@ internal fun FuseSitting(
                             onClick = {
                                 val ok = i == item.answer
                                 feedback?.emit(if (ok) FeedbackEvent.AnswerCorrect(xp = 0) else FeedbackEvent.AnswerWrong)
-                                Zougo.answer(context, item.word, ok)
+                                onAnswer(item, ok)
                                 if (ok) right++ else missed.add(item.word)
                                 picked = i
                             },
@@ -120,7 +121,7 @@ internal fun FuseSitting(
         if (revealed) {
             val last = index == items.lastIndex
             InkButton(
-                text = if (last) "完成" else "下一组",
+                text = if (last) lastLabel else "下一组",
                 onClick = {
                     audio.stop()
                     if (last) onDone(right, items.filter { it.word in missed })
@@ -164,7 +165,7 @@ internal fun FuseStage(item: ZgFuse, revealed: Boolean, onSpeak: () -> Unit, sho
                     } else {
                         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Text("? ? ?", style = AjlTheme.type.meta.copy(fontSize = 30.sp, letterSpacing = 6.sp), color = AjlTheme.colors.ink3)
-                            Text("合起来怎么读？", style = AjlTheme.type.body.copy(fontSize = 14.sp), color = AjlTheme.colors.ink2)
+                            Text(item.ask.ifBlank { "合起来怎么读？" }, style = AjlTheme.type.body.copy(fontSize = 14.sp), color = AjlTheme.colors.ink2)
                         }
                     }
                 }
