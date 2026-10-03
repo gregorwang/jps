@@ -81,6 +81,7 @@ import com.animejapaneselab.nativeapp.ui.screens.search.SearchScope
 import com.animejapaneselab.nativeapp.ui.screens.search.SceneSearchScreen
 import com.animejapaneselab.nativeapp.ui.search.SceneSearch
 import com.animejapaneselab.nativeapp.ui.screens.library.DictEntrySheet
+import com.animejapaneselab.nativeapp.ui.screens.library.HomophoneRoomHost
 import com.animejapaneselab.nativeapp.ui.screens.library.DictTarget
 import com.animejapaneselab.nativeapp.ui.review.ReviewFeed
 import com.animejapaneselab.nativeapp.ui.screens.session.LessonSessionScreen
@@ -385,6 +386,7 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
                                 viewModel.selectTab(LabTab.Review)
                             },
                         )
+                        HomophoneRoomHost(uiState.settings)
                         dictTarget?.let { target ->
                             DictEntrySheet(
                                 target = target,

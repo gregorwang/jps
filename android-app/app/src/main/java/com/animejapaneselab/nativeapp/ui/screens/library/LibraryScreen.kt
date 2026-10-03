@@ -107,6 +107,8 @@ import kotlinx.coroutines.delay
 import androidx.compose.runtime.produceState
 import com.animejapaneselab.nativeapp.data.LevelDict
 import com.animejapaneselab.nativeapp.ui.words.TangoLines
+import com.animejapaneselab.nativeapp.ui.words.HomophoneRules
+import com.animejapaneselab.nativeapp.ui.words.Homophones
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.animejapaneselab.nativeapp.data.AudioKind
@@ -153,7 +155,8 @@ fun LibraryScreen(
     // Grammar has no 級外: on that tab the chip falls back to N5.
     val shownLevel = if (selectedTab == 1 && level == LevelDict.Outside) "N5" else level
     // 原作 = the two works' own entries; 高频补充 = anime-frequent JLPT entries the works lack (a level has some or none).
-    var freq by rememberSaveable { mutableStateOf(false) }
+    var source by rememberSaveable { mutableStateOf(DictSource.Orig) }
+    val freq = source == DictSource.Freq
     val freqCount = remember(dictLoaded, selectedTab, shownLevel) {
         if (selectedTab == 1) dictLoaded?.freqGrammar.orEmpty().count { it.difficulty == shownLevel }
         else dictLoaded?.freqVocab.orEmpty().count { it.level == shownLevel }
@@ -163,6 +166,13 @@ fun LibraryScreen(
         else dictLoaded?.vocab.orEmpty().count { it.level == shownLevel }
     }
     val showFreq = levelMode && freq && freqCount > 0
+    // 同音: rooms of words read the same (assets/homophones.json), counted by the level of any of their words.
+    val homoGroups by produceState(Homophones.peek()) { if (value == null) value = withContext(Dispatchers.Default) { Homophones.load(appContext) } }
+    val homoCount = remember(homoGroups, dictLoaded, shownLevel) {
+        val levels = dictLoaded?.let { d -> (d.vocab + d.freqVocab).associate { it.id to it.level } }.orEmpty()
+        HomophoneRules.atLevel(homoGroups.orEmpty(), { levels[it] }, shownLevel).size
+    }
+    val showHomo = levelMode && selectedTab == 0 && source == DictSource.Homo && homoCount > 0
     val dictVocab = if (showFreq) dictLoaded?.freqVocab.orEmpty() else dictLoaded?.vocab.orEmpty()
     val dictGrammar = if (showFreq) dictLoaded?.freqGrammar.orEmpty() else dictLoaded?.grammar.orEmpty()
     val levelOptions = remember(dictLoaded, selectedTab) {
@@ -225,20 +235,26 @@ fun LibraryScreen(
                 }
             },
         )
-        if (levelMode && freqCount > 0) {
+        val homoShown = if (selectedTab == 0) homoCount else 0
+        if (levelMode && (freqCount > 0 || homoShown > 0)) {
             SourceSwitch(
-                freq = showFreq,
+                mode = when {
+                    showHomo -> DictSource.Homo
+                    showFreq -> DictSource.Freq
+                    else -> DictSource.Orig
+                },
                 origCount = origCount,
                 freqCount = freqCount,
+                homoCount = homoShown,
                 onSelect = {
-                    freq = it
+                    source = it
                     pos = PosCat.All
                     drawerOpen = false
                 },
                 modifier = Modifier.padding(horizontal = 20.dp),
             )
         }
-        if (selectedTab == 0) {
+        if (selectedTab == 0 && !showHomo) {
             PosHandle(
                 selected = pos,
                 open = drawerOpen,
@@ -251,6 +267,7 @@ fun LibraryScreen(
         Box(Modifier.fillMaxWidth().weight(1f)) {
             val scope = if (levelMode) "lv#$shownLevel#$pos#$selectedTab#$showFreq" else "$workSlug#$episode#$selectedTab#$pos"
             when (selectedTab) {
+                0 if showHomo -> HomophonePage(level = shownLevel)
                 0 -> VocabPage(
                     key = scope,
                     uiState = pageState,

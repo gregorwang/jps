@@ -315,11 +315,11 @@ internal fun LevelChip(selected: String, options: List<LevelOption>, onSelect: (
 internal fun levelLabel(key: String): String = if (key == LevelDict.Outside) "級外" else key
 
 /**
- * 原作 / 高频补充 for the level view: the works' own entries, or the anime-frequent JLPT ones they lack.
- * Two text toggles with counts (only shown when the level has 高频补充 at all).
+ * 原作 / 高频补充 / 同音 for the level view: the works' own entries, the anime-frequent JLPT ones they
+ * lack, or the rooms of words read the same. Text toggles with counts; a source with 0 is left out.
  */
 @Composable
-internal fun SourceSwitch(freq: Boolean, origCount: Int, freqCount: Int, onSelect: (Boolean) -> Unit, modifier: Modifier = Modifier) {
+internal fun SourceSwitch(mode: DictSource, origCount: Int, freqCount: Int, homoCount: Int, onSelect: (DictSource) -> Unit, modifier: Modifier = Modifier) {
     val colors = AjlTheme.colors
     Box(modifier.fillMaxWidth().height(40.dp)) {
         Row(
@@ -327,8 +327,12 @@ internal fun SourceSwitch(freq: Boolean, origCount: Int, freqCount: Int, onSelec
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(18.dp),
         ) {
-            listOf(false to "原作 $origCount", true to "高频补充 $freqCount").forEach { (value, label) ->
-                val on = value == freq
+            listOf(
+                Triple(DictSource.Orig, "原作 $origCount", origCount),
+                Triple(DictSource.Freq, "高频补充 $freqCount", freqCount),
+                Triple(DictSource.Homo, "同音 $homoCount 組", homoCount),
+            ).filter { it.first == DictSource.Orig || it.third > 0 }.forEach { (value, label, _) ->
+                val on = value == mode
                 Text(
                     label,
                     style = AjlTheme.type.caption.copy(fontSize = 13.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal),
@@ -336,10 +340,12 @@ internal fun SourceSwitch(freq: Boolean, origCount: Int, freqCount: Int, onSelec
                     modifier = Modifier
                         .clickableNoRipple(onClick = { onSelect(value) })
                         .padding(vertical = 10.dp)
-                        .semantics { contentDescription = if (value) "看高频补充词条" else "看原作词条" },
+                        .semantics { contentDescription = "看$label" },
                 )
             }
         }
         Hairline(Modifier.align(Alignment.BottomStart))
     }
 }
+
+internal enum class DictSource { Orig, Freq, Homo }
