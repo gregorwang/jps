@@ -99,6 +99,17 @@ fun LearnScreen(
         )
         return
     }
+    val kyoka by com.animejapaneselab.nativeapp.ui.kyoka.Kyoka.state.collectAsState()
+    val kyokaPractice = kyoka.practice
+    if (kyokaPractice != null) {
+        com.animejapaneselab.nativeapp.ui.screens.kyoka.KyokaPractice(
+            steps = kyokaPractice,
+            bookId = kyoka.practiceBook,
+            settings = uiState.settings,
+            modifier = modifier,
+        )
+        return
+    }
     if (foundationOpen && onFoundationVolume) {
         FoundationSession(
             state = uiState.foundation,
@@ -160,6 +171,7 @@ fun LearnScreen(
                     onRefresh = drill::refresh,
                 ),
                 onStartZougo = { com.animejapaneselab.nativeapp.ui.zougo.Zougo.startPractice(context) },
+                onStartKyoka = { book -> com.animejapaneselab.nativeapp.ui.kyoka.Kyoka.startPractice(context, book) },
                 filtersOpen = filtersOpen,
                 onFiltersDismiss = { filtersOpen = false },
                 modifier = Modifier.weight(1f),

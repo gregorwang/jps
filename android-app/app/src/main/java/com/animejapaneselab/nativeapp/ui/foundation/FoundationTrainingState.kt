@@ -12,6 +12,7 @@ enum class LinguisticsTrack {
     Foundation,
     Conjugation,
     WordBuilding,
+    Textbook,
 }
 
 enum class FoundationTrainingPhase {

@@ -16,6 +16,7 @@
 
 - `ui/kyoka/Kyoka.kt`：asset 模型（`KkBook`/`KkLesson`，每课的玩法就是活用书的 `KyLesson`，用 `KatsuyouBook.lessonOf/tableOf` 解析）+ 进程级 holder `Kyoka`（已学的课 id，存 `LocalLabStore.readKyoka`；开着的书、课、まとめ）。**不走 ConjugationDrillViewModel**：这些课不是活用 point，没有题库台词。
 - `ui/screens/kyoka/KyokaScreen.kt`：目次（`BookCover` 从造語借来，改成 internal 带参数）、一课的流程（課前の一眼 → steps → つづく，复用 `StepSitting`/`PeekScreen`）、まとめ（`KyTableScreen`，加了 `onBack` 参数）。
+- **練習**（0.29.1 之后）：練習 → 言語学 第 5 格「文法」（`LinguisticsTrack.Textbook`，`LinguisticsScreen.kyokaVolume`），每本书一个封面（`MaxBooks` = 4，第九本起要改成可滚动或合并），点封面练这本，黑按钮四本混着练。`KyokaRules.practice` 从已学课的 steps 里随机抽 12 题，同一 step 的题放一起、保留原来的玩法（分拣两边的标签、题目标题），翻牌 / 叠积木 / 连线 不抽。界面是 `KyokaScreen.kt` 的 `KyokaPractice`（StepSitting → つづく）。没有按错题加权（没存逐题记录），要做得先让 `StepSitting` 的 `onAnswer` 带上题号。
 - 接线：`JishuScreen`（书架多三本，`kyoka.book != null` 时整页交给 `KyokaStudy`）、`LabApp`（上课时隐藏底栏）。
 - 新玩法：
   - **找错** `KyStep.Spot` / `KySpot` → `screens/katsuyou/SpotSitting.kt`：句子拆成块，点错的那块；揭晓后错块划掉、上面浮出正确的（`fix` 为空 = 「去掉」）。
@@ -35,7 +36,6 @@
 
 ## 4. 还没做
 
-- 練習 tab 还没有这三本的题（造語有）。要做的话照 `ZougoRules.practice`：从已学课的 steps 里抽题混出。
 - 用户真机试玩后的反馈：找错的块大小、听原声默认放エミリア是否合适（语气题建议原声，胶囊上有提示）。
 - 爱蜜莉亚语音：见 `VOICE_BACKLOG.md`。
 

@@ -46,6 +46,7 @@ import com.animejapaneselab.nativeapp.ui.kyoka.KkLesson
 import com.animejapaneselab.nativeapp.ui.kyoka.Kyoka
 import com.animejapaneselab.nativeapp.ui.kyoka.KyokaBooks
 import com.animejapaneselab.nativeapp.ui.kyoka.KyokaState
+import com.animejapaneselab.nativeapp.ui.katsuyou.KyStep
 import com.animejapaneselab.nativeapp.ui.screens.katsuyou.KyTableScreen
 import com.animejapaneselab.nativeapp.ui.screens.katsuyou.PeekScreen
 import com.animejapaneselab.nativeapp.ui.screens.katsuyou.StepSitting
@@ -214,5 +215,53 @@ private fun IndexRow(
             Text(meta, style = AjlTheme.type.meta.copy(fontSize = 12.sp), color = metaColor)
         }
         Box(Modifier.fillMaxWidth().height(AjlStroke.Hair).background(colors.line))
+    }
+}
+
+// ------------------------------------------------------------------ 練習
+
+/** 練習 → 文法: the drawn steps one after another, then つづく. */
+@Composable
+fun KyokaPractice(steps: List<KyStep>, bookId: String?, settings: LabSettings, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val data = remember { KyokaBooks.load(context) }
+    val name = bookId?.let(data::book)?.let { "${it.volume} ${it.title}" } ?: "教科書"
+    var step by remember(steps) { mutableIntStateOf(0) }
+    var right by remember(steps) { mutableIntStateOf(0) }
+    var asked by remember(steps) { mutableIntStateOf(0) }
+    val missed = remember(steps) { mutableStateListOf<TsuzukuLine>() }
+    val onClose = Kyoka::endPractice
+    BackHandler(onBack = onClose)
+
+    if (step < steps.size) {
+        val s = steps[step]
+        StepSitting(
+            step = s,
+            key = "kkp:${System.identityHashCode(steps)}:$step",
+            eyebrow = "練習 · $name",
+            title = s.title.ifBlank { "已学的課" },
+            settings = settings,
+            onClose = onClose,
+            onAnswer = { ok -> Kyoka.answer(context, ok) },
+            onDone = { r, n, wrong ->
+                right += r; asked += n
+                missed.addAll(wrong)
+                step++
+            },
+            lastLabel = steps.getOrNull(step + 1)?.title?.let { "接着：$it" } ?: "完成",
+            modifier = modifier,
+        )
+    } else {
+        TsuzukuScreen(
+            eyebrow = "練習 · $name",
+            tally = if (asked > 0) "答对 $right / $asked" else "",
+            meta = "已学的課",
+            noted = missed.toList(),
+            notedTitle = "再看一眼的 ${missed.size} 个",
+            primaryLabel = "完成",
+            onPrimary = onClose,
+            onClose = onClose,
+            modifier = modifier,
+        )
     }
 }

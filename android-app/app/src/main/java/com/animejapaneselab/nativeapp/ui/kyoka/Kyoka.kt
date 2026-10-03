@@ -4,6 +4,7 @@ import android.content.Context
 import com.animejapaneselab.nativeapp.data.LocalLabStore
 import com.animejapaneselab.nativeapp.ui.katsuyou.KatsuyouBook
 import com.animejapaneselab.nativeapp.ui.katsuyou.KyLesson
+import com.animejapaneselab.nativeapp.ui.katsuyou.KyStep
 import com.animejapaneselab.nativeapp.ui.katsuyou.KyTable
 import com.animejapaneselab.nativeapp.ui.study.StudyLog
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONArray
 import org.json.JSONObject
+import kotlin.random.Random
 
 /*
  * The 教科書 made from the later documents (第五巻 助詞, 第六巻 口語, 第七巻 類義). They play exactly like the
@@ -91,7 +93,47 @@ data class KyokaState(
     val lesson: String? = null,
     /** 自習: the book's まとめ is open. */
     val summary: Boolean = false,
+    /** 練習: the practice being played (null = none), and which book it is over (null = all). */
+    val practice: List<KyStep>? = null,
+    val practiceBook: String? = null,
 )
+
+object KyokaRules {
+    const val PracticeSize = 12
+
+    /**
+     * 練習: items drawn from the 課 learned in 自習 only, across [books]. Each picked item keeps the play
+     * it came from (the step's title, the swipe's two sides), so it is asked exactly as in the 課; items
+     * from the same step are asked together, the steps in random order. Whole-step games (翻牌, 叠积木,
+     * 连线) are not drawn.
+     */
+    fun practice(books: List<KkBook>, learned: Set<String>, seed: Long = System.nanoTime()): List<KyStep> {
+        val rnd = Random(seed)
+        val steps = books.flatMap { b -> b.lessons.filter { it.id in learned }.flatMap { it.play.steps } }
+        val pool = steps.indices.flatMap { s -> (0 until askable(steps[s])).map { s to it } }
+        return pool.shuffled(rnd).take(PracticeSize)
+            .groupBy({ it.first }, { it.second })
+            .map { (s, items) -> subset(steps[s], items.shuffled(rnd)) }
+            .shuffled(rnd)
+    }
+
+    /** How many items of [step] can be asked one by one. */
+    fun askable(step: KyStep): Int = when (step) {
+        is KyStep.Fuse, is KyStep.Back, is KyStep.Pick, is KyStep.Speed, is KyStep.Dial, is KyStep.Swipe, is KyStep.Spot -> step.count
+        is KyStep.Flip, is KyStep.Stack, is KyStep.Connect -> 0
+    }
+
+    private fun subset(step: KyStep, idx: List<Int>): KyStep = when (step) {
+        is KyStep.Fuse -> step.copy(items = idx.map(step.items::get))
+        is KyStep.Back -> step.copy(items = idx.map(step.items::get))
+        is KyStep.Pick -> step.copy(items = idx.map(step.items::get))
+        is KyStep.Speed -> step.copy(items = idx.map(step.items::get))
+        is KyStep.Dial -> step.copy(items = idx.map(step.items::get))
+        is KyStep.Swipe -> step.copy(items = idx.map(step.items::get))
+        is KyStep.Spot -> step.copy(items = idx.map(step.items::get))
+        is KyStep.Flip, is KyStep.Stack, is KyStep.Connect -> step
+    }
+}
 
 object Kyoka {
     private var store: LocalLabStore? = null
@@ -127,6 +169,19 @@ object Kyoka {
         _state.value = next
         store?.writeKyoka(JSONObject().put("learned", JSONArray(next.learned.toList())).toString())
     }
+
+    /** 練習 over the learned 課 of one book ([bookId]) or of all of them (null); false = nothing learned yet. */
+    fun startPractice(context: Context, bookId: String?): Boolean {
+        init(context)
+        val data = KyokaBooks.load(context)
+        val books = if (bookId == null) data.books else listOfNotNull(data.book(bookId))
+        val qs = KyokaRules.practice(books, _state.value.learned)
+        if (qs.isEmpty()) return false
+        mutate { it.copy(practice = qs, practiceBook = bookId) }
+        return true
+    }
+
+    fun endPractice() = mutate { it.copy(practice = null, practiceBook = null) }
 
     fun answer(context: Context, right: Boolean) = StudyLog.record(context, 1, if (right) 1 else 0)
 

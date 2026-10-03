@@ -60,6 +60,7 @@ internal fun LinguisticsScreen(
     drill: ConjugationDrillState,
     drillActions: DrillVolumeActions,
     onStartZougo: () -> Unit,
+    onStartKyoka: (book: String?) -> Unit,
     filtersOpen: Boolean,
     onFiltersDismiss: () -> Unit,
     modifier: Modifier = Modifier,
@@ -70,6 +71,7 @@ internal fun LinguisticsScreen(
         LinguisticsTrack.Foundation -> foundationVolume(uiState, foundation, onOpenFoundation)
         LinguisticsTrack.Conjugation -> drillVolume(drill, drillActions)
         LinguisticsTrack.WordBuilding -> zougoVolume(onStartZougo)
+        LinguisticsTrack.Textbook -> kyokaVolume(onStartKyoka)
     }
 
     Column(modifier.fillMaxSize()) {
@@ -81,7 +83,7 @@ internal fun LinguisticsScreen(
         ) {
             Spacer(Modifier.height(6.dp))
             VolumeSwitch(
-                options = listOf("台詞", "基礎", "活用", "造語"),
+                options = listOf("台詞", "基礎", "活用", "造語", "文法"),
                 selectedIndex = track.ordinal,
                 onSelect = { onTrackSelected(LinguisticsTrack.entries[it]) },
             )
@@ -255,6 +257,49 @@ private fun zougoVolume(onStart: () -> Unit): VolumeUi {
         startCount = words.size,
         onStart = onStart,
         onBook = { if (words.isNotEmpty()) onStart() },
+        onRefresh = {},
+        onResetFilters = {},
+        filterGroups = emptyList(),
+    )
+}
+
+/**
+ * 第五巻 起的教科書 in 練習 (助詞・口語・類義・見分け): one cover per book; only 課 learned in 自習 are
+ * asked. A cover practises that book, the ink button all of them mixed.
+ */
+@Composable
+private fun kyokaVolume(onStart: (String?) -> Unit): VolumeUi {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val data = remember { com.animejapaneselab.nativeapp.ui.kyoka.KyokaBooks.load(context) }
+    remember { com.animejapaneselab.nativeapp.ui.kyoka.Kyoka.init(context) }
+    val state by com.animejapaneselab.nativeapp.ui.kyoka.Kyoka.state.collectAsState()
+    fun askable(lesson: com.animejapaneselab.nativeapp.ui.kyoka.KkLesson) =
+        lesson.play.steps.sumOf(com.animejapaneselab.nativeapp.ui.kyoka.KyokaRules::askable)
+    val learnedIn = data.books.associate { b -> b.id to b.lessons.filter { it.id in state.learned } }
+    val books = data.books.take(LinguisticsModel.MaxBooks).map { book ->
+        val inBook = learnedIn.getValue(book.id)
+        TextbookSpec(
+            key = book.id,
+            volumeLabel = book.volume,
+            title = book.title,
+            sampleLine = book.sub,
+            gloss = if (inBook.isEmpty()) "先去自習学" else "已学 ${inBook.size} 课 · ${inBook.sumOf(::askable)} 题",
+            total = book.lessons.size,
+            answered = inBook.size,
+            current = false,
+        )
+    }
+    val learned = learnedIn.values.flatten()
+    val count = learned.sumOf(::askable)
+    return VolumeUi(
+        books = books,
+        stats = "已学 ${learned.size} / ${data.books.sumOf { it.lessons.size }} 课 · $count 题",
+        loading = false,
+        error = null,
+        startLabel = "文法 · 练已学的课",
+        startCount = count,
+        onStart = { onStart(null) },
+        onBook = { spec -> if (learnedIn[spec.key].orEmpty().isNotEmpty()) onStart(spec.key) },
         onRefresh = {},
         onResetFilters = {},
         filterGroups = emptyList(),

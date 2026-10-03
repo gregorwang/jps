@@ -188,7 +188,7 @@ private fun LabAppContent(viewModel: LabViewModel = viewModel()) {
     val katsuState by com.animejapaneselab.nativeapp.ui.katsuyou.Katsuyou.state.collectAsStateWithLifecycle()
     val jishuImmersive = (uiState.selectedTab == LabTab.Jishu &&
         (jishuSitting.sitting != null || zougoState.lesson != null || kyokaState.lesson != null || katsuState.lesson != null || (drillSession.mode == DrillMode.Lesson && drillSession.session.isNotEmpty()))) ||
-        (uiState.selectedTab == LabTab.Learn && zougoState.practice != null)
+        (uiState.selectedTab == LabTab.Learn && (zougoState.practice != null || kyokaState.practice != null))
     val closePalette: () -> Unit = {
         // Closing search returns to the page it was opened from (only 字幕 has an entry).
         if (underlay == SecondaryScreen.Subtitles) viewModel.openSubtitles() else viewModel.closeSecondaryScreen()
