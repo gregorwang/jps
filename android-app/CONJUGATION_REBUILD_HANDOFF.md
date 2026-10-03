@@ -45,3 +45,4 @@
 - 两部番里て形台词很多（言って 248 句、聞いて 112 句），原声也够；た形少一些（急いだ、脱いだ、休んだ 一句都没有）。
 - `romaji.py` 自动切词会把补助动词粘在一起（kaitearu、nanda、kiitehoshii），每句都要人看一遍写进 `RO_FIX`。
 - 字幕里有全角空格（`とんでもない！　信じて…`），`learning_sentences` 匹配前先把 `　` 归一，显示用原文。
+- 0.26.0 发布时 `build-content-pack.py` 连续两次 SSL EOF（抓 worker 时断开）；这次没改联网内容接口，就用 `-SkipContentPack` 沿用上一版的内容包发了。改了内容接口时不能这样跳过。
