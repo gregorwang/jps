@@ -24,7 +24,7 @@ Anime Japanese Lab 的原生 Android App（Kotlin + Jetpack Compose）。**私�
 | 単語卡背面「常一起出现」补搭配数据（日文 + 中文） | `COLLOCATION_HANDOFF.md` |
 | 辞書「高频补充」（动漫高频 JLPT N5–N2 单词 / 语法，也进単語）的数据和脚本 | `FREQ_WORDS_HANDOFF.md` |
 | 第四巻 造語（构词：拼合台 / 组合矩阵）的内容、数据脚本、还没做的玩法 | `ZOUGO_HANDOFF.md` |
-| 活用书 VOL.A–H 照造語重做（0.26.0 起，B 已做，下一本 G），画布、数据脚本、代码 | `CONJUGATION_REBUILD_HANDOFF.md` |
+| 活用书 VOL.A–H 照造語重做（0.27.0 八本全部做完），玩法、数据脚本（`book_*.py`）、代码 | `CONJUGATION_REBUILD_HANDOFF.md` |
 | 自習（学习台）的产品逻辑 | 本文第 3 节「产品主线」；画布「自習 · 学习台（预览）」页 |
 | 想让 Gemini 听录音做跟读打分（长音 / 促音 / 哪一拍错） | `SHADOWING_SCORING_FAILED.md`（**已测过，不可行，不做**） |
 
