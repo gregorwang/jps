@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import com.animejapaneselab.nativeapp.ui.design.NoteText
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -215,6 +216,10 @@ internal fun StepSitting(
 
 @Composable
 internal fun PeekScreen(peek: KyPeek, eyebrow: String, title: String, groups: Int, onClose: () -> Unit, onStart: () -> Unit, modifier: Modifier) {
+    peek.glance?.let {
+        GlanceScreen(it, peek.go, eyebrow, title, groups, onClose, onStart, modifier)
+        return
+    }
     BackHandler(onBack = onClose)
     val colors = AjlTheme.colors
     Column(modifier.fillMaxSize().background(colors.bg)) {
@@ -237,24 +242,22 @@ internal fun PeekScreen(peek: KyPeek, eyebrow: String, title: String, groups: In
                     Text("→", style = AjlTheme.type.meta.copy(fontSize = 16.sp), color = colors.ink3)
                     KanaSegs(peek.result, 30)
                 }
-                Text(
+                NoteText(
                     peek.rule,
-                    style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 23.sp),
+                    style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 25.sp, letterSpacing = 0.3.sp),
                     color = colors.ink,
-                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 8.dp),
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
                 )
             }
             Column {
                 peek.examples.forEach { ex ->
-                    Row(Modifier.fillMaxWidth().heightIn(min = 52.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text(ex.base, style = AjlTheme.type.jpBody.copy(fontSize = 17.sp), color = colors.ink3, modifier = Modifier.width(72.dp))
-                        Text("→", style = AjlTheme.type.meta, color = colors.ink3)
-                        Row(verticalAlignment = Alignment.Bottom) {
-                            Text(ex.stem, style = AjlTheme.type.jpBody.copy(fontSize = 19.sp, fontWeight = FontWeight.Bold), color = colors.ink)
-                            KanaSegs(ex.tail, 19)
+                    Row(Modifier.fillMaxWidth().heightIn(min = 60.dp).padding(vertical = 8.dp), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(ex.base, style = AjlTheme.type.jpBody.copy(fontSize = 17.sp, lineHeight = 24.sp), color = colors.ink3, maxLines = 1, softWrap = false, modifier = Modifier.widthIn(min = 64.dp))
+                        Text("→", style = AjlTheme.type.meta.copy(lineHeight = 24.sp), color = colors.ink3)
+                        Column {
+                            Text(ex.romaji, style = AjlTheme.type.meta.copy(fontSize = 11.sp, lineHeight = 16.sp, letterSpacing = 0.2.sp), color = colors.ink3)
+                            KanaSegs(ex.tail, 19, stem = ex.stem)
                         }
-                        Spacer(Modifier.weight(1f))
-                        Text(ex.romaji, style = AjlTheme.type.meta.copy(fontSize = 12.sp), color = colors.ink3)
                     }
                     Box(Modifier.fillMaxWidth().height(AjlStroke.Hair).background(colors.line))
                 }
@@ -272,17 +275,18 @@ internal fun PeekScreen(peek: KyPeek, eyebrow: String, title: String, groups: In
 
 /** Kana pieces in their kind's colour (ん green, で work colour…), plain for [SegKind.Same]. */
 @Composable
-private fun KanaSegs(segs: List<ZgSeg>, size: Int) {
+private fun KanaSegs(segs: List<ZgSeg>, size: Int, stem: String = "") {
     val ink = AjlTheme.colors.ink
     val colorsBy = segs.map { segColor(it.kind) }
     Text(
         buildAnnotatedString {
+            append(stem)
             segs.forEachIndexed { i, s ->
                 val c = colorsBy[i].takeIf { it != Color.Unspecified && s.kind != SegKind.Already } ?: ink
                 withStyle(SpanStyle(color = c)) { append(s.text) }
             }
         },
-        style = AjlTheme.type.jpDisplay.copy(fontSize = size.sp, fontWeight = FontWeight.Bold),
+        style = AjlTheme.type.jpDisplay.copy(fontSize = size.sp, lineHeight = (size * 1.3f).sp, fontWeight = FontWeight.Bold),
     )
 }
 

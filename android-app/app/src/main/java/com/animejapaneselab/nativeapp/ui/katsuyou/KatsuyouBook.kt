@@ -18,7 +18,19 @@ import org.json.JSONObject
 
 /** 課前の一眼: the endings, what they turn into, one rule line and two examples. */
 /** [go] = the button that starts the first play ("拼起来试试"). */
-data class KyPeek(val ends: List<String>, val result: List<ZgSeg>, val rule: String, val examples: List<KyPeekExample>, val go: String)
+data class KyPeek(val ends: List<String>, val result: List<ZgSeg>, val rule: String, val examples: List<KyPeekExample>, val go: String, val glance: KyGlance? = null)
+
+/**
+ * 課前の一眼, the newer layout (第九巻 first): one hero (before → after, or one marked sentence), two to five short
+ * beats, and a pair or two to look at again. Replaces [KyPeek.ends] / [KyPeek.examples] when present.
+ */
+data class KyGlance(val hero: KyGlLine, val beats: List<String>, val pairs: List<KyGlLine>)
+
+/** A line in blocks; [to] empty = the line alone with its marks; [zh] = what it says / why. */
+data class KyGlLine(val from: List<KyGlSeg>, val to: List<KyGlSeg>, val zh: String)
+
+/** [kind]: same, insert (new), gone (dropped), mark (look here), scope (a stretch). */
+data class KyGlSeg(val text: String, val romaji: String, val kind: String)
 
 data class KyPeekExample(val base: String, val stem: String, val tail: List<ZgSeg>, val romaji: String)
 
@@ -311,10 +323,24 @@ object KatsuyouBook {
                 examples = p.getJSONArray("examples").objects().map {
                     KyPeekExample(it.getString("base"), it.getString("stem"), ZougoBook.segsOf(it.getJSONArray("tail")), it.getString("ro"))
                 },
+                glance = p.optJSONObject("glance")?.let { g ->
+                    KyGlance(
+                        hero = glLineOf(g.getJSONObject("hero")),
+                        beats = g.getJSONArray("beats").strings(),
+                        pairs = g.optJSONArray("pairs")?.objects()?.map(::glLineOf).orEmpty(),
+                    )
+                },
             )
         },
         steps = o.getJSONArray("steps").objects().map { stepOf(it, base) },
     )
+
+    private fun glLineOf(o: JSONObject): KyGlLine {
+        fun segs(a: JSONArray?) = (0 until (a?.length() ?: 0)).map { i ->
+            a!!.getJSONArray(i).let { KyGlSeg(it.getString(0), it.getString(1), it.getString(2)) }
+        }
+        return KyGlLine(segs(o.getJSONArray("from")), segs(o.optJSONArray("to")), o.optString("zh"))
+    }
 
     private fun stepOf(o: JSONObject, base: String): KyStep {
         val title = o.optString("title")
