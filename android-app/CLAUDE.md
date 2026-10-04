@@ -137,6 +137,13 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 ## 8. 经验记录（每次会话结束补几条）
 
+**2026-10-04 · 0.30.1（課前の一眼重做 + 字号规范落地一半）**
+- 第九巻硬套活用书的 peek 格式（stem + tail），18 条例句有 13 条被拼成错句，发版前没人看过真机画面。**新书复用别的书的模板时，先拿真实数据过一遍样子**；`python design/peek_overview.py` 在本地列出每本书課前の一眼的问题（规则太长、上排放不下……）。
+- 課前の一眼现在有三种：旧版（ends → result + 一段 rule）、`beats`（旧版上半 + 编号短句，第五〜八巻，数据在 `archive-content-sources/kyoka/peek_beats.py`）、`glance`（主角变形 + 短句 + 再看一个，第九巻，`dokkai_glance.py`，代码 `screens/katsuyou/PeekGlance.kt`）。规则一律拆短句，别再写整段。
+- **画布只放样板**：一种新版式画 1–2 屏。这次把一百多课全铺上画布，被用户叫停。
+- 字号规范（画布 TyaSpec）：jp* 样式都带 `JaLocale`（日文字形），行高 / 字距用 em，`.copy(fontSize=…)` 时会按比例跟着变；新增 `jpHead`（24）、`jpHero`（56）。**还没做**：约 560 处手写 `fontSize` 和不是 4 的倍数的间距，要逐屏对照收拢。
+- `v3build.ps1` 被打断后锁目录会留着（`%LOCALAPPDATA%\ajl-v3-build.lock`），下次编译卡在 `generateDebugBuildConfig` 不动；先看有没有 java 进程，没有就删锁重跑。
+
 **2026-10-03 · 0.28.2（台词声音由用户选）**
 - 用户定：**不在代码里写死原声 / エミリア 谁优先**，界面上必须有切换按钮，默认エミリア。凡是放台词的地方用 `ui/voicepack/LineVoice.kt` 的 `LineVoicePill`（滑动切换，全 App 共用 `VoiceChoice`），自动播放用 `lineCue(context, text, audioUrl)`；别再直接 `PromptAudio.Source(...)` 播台词。偏好的存储键换成了 `voice-choice-2`（一次性把大家重置到エミリア）。
 - `vocab_lines*.json` 以前按行号配原声，大多是别人的声音；现在按文字配（细节在 `HOMOPHONE_HANDOFF.md`）。
