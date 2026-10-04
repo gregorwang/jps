@@ -85,19 +85,7 @@ internal fun GlanceScreen(
             Spacer(Modifier.height(16.dp))
             HeroPanel(g.hero, reveal)
             Spacer(Modifier.height(32.dp))
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                g.beats.forEachIndexed { i, beat ->
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text(
-                            "${i + 1}",
-                            style = AjlTheme.type.meta.copy(fontSize = 12.sp, lineHeight = 25.sp),
-                            color = AjlTheme.work.accent,
-                            modifier = Modifier.width(12.dp),
-                        )
-                        NoteText(beat, style = BeatStyle(), color = colors.ink2)
-                    }
-                }
-            }
+            PeekBeats(g.beats)
             if (g.pairs.isNotEmpty()) {
                 Spacer(Modifier.height(32.dp))
                 Text("再看${if (g.pairs.size > 1) " ${g.pairs.size} 个" else "一个"}", style = AjlTheme.type.meta.copy(fontSize = 11.sp, letterSpacing = 0.6.sp), color = colors.ink3)
@@ -118,8 +106,23 @@ internal fun GlanceScreen(
     }
 }
 
+/** The rule in short numbered lines, each with one thing in bold (「」 = Japanese, **…** = bold). */
 @Composable
-private fun BeatStyle() = AjlTheme.type.body
+internal fun PeekBeats(beats: List<String>) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        beats.forEachIndexed { i, beat ->
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    "${i + 1}",
+                    style = AjlTheme.type.meta.copy(fontSize = 12.sp, lineHeight = 25.sp),
+                    color = AjlTheme.work.accent,
+                    modifier = Modifier.width(12.dp),
+                )
+                NoteText(beat, style = AjlTheme.type.body, color = AjlTheme.colors.ink2)
+            }
+        }
+    }
+}
 
 @Composable
 private fun HeroPanel(hero: KyGlLine, reveal: Float) {

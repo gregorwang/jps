@@ -18,7 +18,7 @@ import org.json.JSONObject
 
 /** 課前の一眼: the endings, what they turn into, one rule line and two examples. */
 /** [go] = the button that starts the first play ("拼起来试试"). */
-data class KyPeek(val ends: List<String>, val result: List<ZgSeg>, val rule: String, val examples: List<KyPeekExample>, val go: String, val glance: KyGlance? = null)
+data class KyPeek(val ends: List<String>, val result: List<ZgSeg>, val rule: String, val examples: List<KyPeekExample>, val go: String, val glance: KyGlance? = null, val beats: List<String> = emptyList())
 
 /**
  * 課前の一眼, the newer layout (第九巻 first): one hero (before → after, or one marked sentence), two to five short
@@ -323,6 +323,7 @@ object KatsuyouBook {
                 examples = p.getJSONArray("examples").objects().map {
                     KyPeekExample(it.getString("base"), it.getString("stem"), ZougoBook.segsOf(it.getJSONArray("tail")), it.getString("ro"))
                 },
+                beats = p.optJSONArray("beats")?.strings().orEmpty(),
                 glance = p.optJSONObject("glance")?.let { g ->
                     KyGlance(
                         hero = glLineOf(g.getJSONObject("hero")),

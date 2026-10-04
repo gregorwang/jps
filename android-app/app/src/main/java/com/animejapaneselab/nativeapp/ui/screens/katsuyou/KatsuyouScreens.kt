@@ -226,7 +226,7 @@ internal fun PeekScreen(peek: KyPeek, eyebrow: String, title: String, groups: In
         ZougoHeader(eyebrow = eyebrow, title = title, counter = "", progress = 0f, onClose = onClose)
         Column(
             Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             Text("課前の一眼", style = AjlTheme.type.meta.copy(fontSize = 11.sp, letterSpacing = 0.6.sp), color = colors.ink3)
             StagePanel {
@@ -242,13 +242,18 @@ internal fun PeekScreen(peek: KyPeek, eyebrow: String, title: String, groups: In
                     Text("→", style = AjlTheme.type.meta.copy(fontSize = 16.sp), color = colors.ink3)
                     KanaSegs(peek.result, 30)
                 }
-                NoteText(
-                    peek.rule,
-                    style = AjlTheme.type.body,
-                    color = colors.ink,
-                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
-                )
+                if (peek.beats.isEmpty()) {
+                    NoteText(
+                        peek.rule,
+                        style = AjlTheme.type.body,
+                        color = colors.ink,
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
+                    )
+                } else {
+                    Spacer(Modifier.height(12.dp))
+                }
             }
+            if (peek.beats.isNotEmpty()) PeekBeats(peek.beats)
             Column {
                 peek.examples.forEach { ex ->
                     Row(Modifier.fillMaxWidth().heightIn(min = 60.dp).padding(vertical = 8.dp), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(12.dp)) {

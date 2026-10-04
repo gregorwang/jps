@@ -193,16 +193,17 @@ internal fun ZougoHeader(eyebrow: String, title: String, counter: String, progre
         },
         actions = { Text(counter, style = AjlTheme.type.meta.copy(fontSize = 12.sp), color = colors.ink3, modifier = Modifier.padding(end = 8.dp)) },
     )
-    ProgressLine(progress, Modifier.fillMaxWidth().padding(horizontal = 20.dp))
+    ProgressLine(progress, Modifier.fillMaxWidth().padding(horizontal = 20.dp), thickness = 2.dp)
 }
 
 /** The big framed panel the compound / word appears in, with its screentone corner. */
 @Composable
 internal fun StagePanel(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     MangaPanel(modifier.fillMaxWidth()) {
+        // Bottom-left, mostly under the padding: at the top right it ran over long results (「＋名词」「焦点／对象」).
         Screentone(
-            Modifier.align(Alignment.TopEnd).offset(x = 36.dp, y = (-20).dp).size(170.dp, 70.dp).rotate(-12f),
-            color = AjlTheme.work.tone(0.26f),
+            Modifier.align(Alignment.BottomStart).offset(x = (-28).dp, y = 30.dp).size(150.dp, 50.dp).rotate(-12f),
+            color = AjlTheme.work.tone(0.22f),
         )
         Column(Modifier.align(Alignment.Center).padding(vertical = 14.dp), horizontalAlignment = Alignment.CenterHorizontally, content = content)
     }
