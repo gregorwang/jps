@@ -264,7 +264,7 @@ private fun zougoVolume(onStart: () -> Unit): VolumeUi {
 }
 
 /**
- * 第五巻 起的教科書 in 練習 (助詞・口語・類義・見分け): one cover per book; only 課 learned in 自習 are
+ * 第五巻 起的教科書 in 練習 (助詞・口語・類義・見分け・読解): one cover per book; only 課 learned in 自習 are
  * asked. A cover practises that book, the ink button all of them mixed.
  */
 @Composable
@@ -276,7 +276,7 @@ private fun kyokaVolume(onStart: (String?) -> Unit): VolumeUi {
     fun askable(lesson: com.animejapaneselab.nativeapp.ui.kyoka.KkLesson) =
         lesson.play.steps.sumOf(com.animejapaneselab.nativeapp.ui.kyoka.KyokaRules::askable)
     val learnedIn = data.books.associate { b -> b.id to b.lessons.filter { it.id in state.learned } }
-    val books = data.books.take(LinguisticsModel.MaxBooks).map { book ->
+    val books = data.books.map { book ->
         val inBook = learnedIn.getValue(book.id)
         TextbookSpec(
             key = book.id,

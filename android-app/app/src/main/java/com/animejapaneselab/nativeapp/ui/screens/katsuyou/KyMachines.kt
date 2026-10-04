@@ -424,7 +424,8 @@ internal fun SwipeSitting(
                 Screentone(Modifier.align(Alignment.TopEnd).offset(x = 36.dp, y = (-20).dp).size(170.dp, 70.dp).rotate(-12f), color = work.tone(0.26f))
                 Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(item.romaji, style = AjlTheme.type.meta.copy(fontSize = 14.sp), color = colors.ink3)
-                    Text(item.word, style = AjlTheme.type.jpDisplay.copy(fontSize = 52.sp, lineHeight = 62.sp, fontWeight = FontWeight.Bold), color = colors.ink,
+                    val wordSize = when { item.word.length <= 6 -> 52; item.word.length <= 9 -> 36; else -> 26 }
+                    Text(item.word, style = AjlTheme.type.jpDisplay.copy(fontSize = wordSize.sp, lineHeight = (wordSize * 1.2f).sp, fontWeight = FontWeight.Bold), color = colors.ink,
                         modifier = Modifier.clickableNoRipple({ audio.speakText(item.word, settings.ttsWorkerUrl) }))
                     AnimatedVisibility(revealed, enter = fadeIn()) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
