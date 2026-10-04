@@ -124,6 +124,56 @@ data class KySpot(
     val fixed: String get() = toks.mapIndexed { i, t -> if (i == bad) fix.first else t.first }.joinToString("")
 }
 
+/**
+ * 括る / は的地盘 (第九巻): a sentence in bunsetsu blocks, one block ([anchor]) fixed. [dir] "start" = the anchor is the
+ * noun being modified and you find where its modifier starts ([answer] = first block of the clause, which ends right
+ * before the anchor); "end" = the anchor is a 〜は and you find the last block it governs ([answer]).
+ * [gap] is the 补洞 restoration (内の関係), [tag] the 内 / 外 label.
+ */
+data class KySpan(
+    val toks: List<Pair<String, String>>,
+    val anchor: Int,
+    val dir: String,
+    val answer: Int,
+    val ask: String,
+    val why: String,
+    val zh: String,
+    val gap: String,
+    val tag: String,
+) {
+    val first: Int get() = if (dir == "start") answer else anchor
+    val lastBlock: Int get() = if (dir == "start") anchor - 1 else answer
+    val text: String get() = toks.joinToString("") { it.first }
+}
+
+/** One numbered sentence of a passage; [role] is shown after the answer ("让步"), [mark] is the signal word in it. */
+data class KySent(val ja: String, val ro: String, val zh: String, val role: String, val mark: String)
+
+/** 主张はどこ: a passage in numbered sentences, tap the one [ask] is about. */
+data class KyPassage(val sents: List<KySent>, val ask: String, val answer: Int, val why: String, val rule: String)
+
+/** One answer of a 模擬問題 / 毒を見抜く; [type] = what is wrong with it ("" = it is right), [poison] = the words that are the poison. */
+data class KyJudgeOpt(val text: String, val ok: Boolean, val type: String, val why: String, val poison: String)
+
+/**
+ * 模擬問題 (no [types]: pick the right one of the options) / 毒を見抜く ([types] set: the one option is shown alone and
+ * you name what is wrong with it; its [KyJudgeOpt.type] is the answer, "" type = "没毒"). [src] is the passage (collapsed
+ * unless [open]), [ev] the sentences that are the evidence.
+ */
+data class KyJudge(
+    val src: List<String>,
+    val srcLabel: String,
+    val open: Boolean,
+    val stem: String,
+    val options: List<KyJudgeOpt>,
+    val answer: Int,
+    val types: List<String>,
+    val ev: List<Int>,
+    val rule: String,
+) {
+    val claim: Boolean get() = types.isNotEmpty()
+}
+
 /** 连线: left halves (pre to connective) to right halves; [match] = the left index of each right. */
 data class KyConnect(val left: List<Pair<String, String>>, val right: List<String>, val match: List<Int>, val lines: List<ZgLine>)
 
@@ -140,6 +190,9 @@ sealed interface KyStep {
     data class Stack(override val title: String, val stack: KyStack) : KyStep { override val count get() = stack.goals.size }
     data class Connect(override val title: String, val connect: KyConnect) : KyStep { override val count get() = connect.left.size }
     data class Spot(override val title: String, val items: List<KySpot>) : KyStep { override val count get() = items.size }
+    data class Span(override val title: String, val items: List<KySpan>) : KyStep { override val count get() = items.size }
+    data class Passage(override val title: String, val items: List<KyPassage>) : KyStep { override val count get() = items.size }
+    data class Judge(override val title: String, val items: List<KyJudge>) : KyStep { override val count get() = items.size }
 }
 
 data class KyLesson(val point: String, val peek: KyPeek?, val steps: List<KyStep>) {
@@ -155,6 +208,7 @@ data class KyLesson(val point: String, val peek: KyPeek?, val steps: List<KyStep
                 is KyStep.Back -> s.items.map { it.te }
                 is KyStep.Speed -> s.items.map { it.line.target }
                 is KyStep.Spot -> s.items.map { it.fix.first }
+                is KyStep.Span -> s.items.map { it.toks[it.anchor].first }
                 else -> emptyList()
             }
         }.distinct().take(4)
@@ -316,6 +370,45 @@ object KatsuyouBook {
                     why = it.getString("why"),
                     zh = it.optString("zh"),
                     line = it.optJSONObject("line")?.let { l -> ZougoBook.lineOf(l, base) },
+                )
+            })
+            "span" -> KyStep.Span(title, items.map {
+                KySpan(
+                    toks = it.getJSONArray("toks").pairs(),
+                    anchor = it.getInt("anchor"),
+                    dir = it.optString("dir", "start"),
+                    answer = it.getInt("answer"),
+                    ask = it.optString("ask"),
+                    why = it.getString("why"),
+                    zh = it.optString("zh"),
+                    gap = it.optString("gap"),
+                    tag = it.optString("tag"),
+                )
+            })
+            "passage" -> KyStep.Passage(title, items.map {
+                KyPassage(
+                    sents = it.getJSONArray("sents").objects().map { s ->
+                        KySent(s.getString("ja"), s.optString("ro"), s.optString("zh"), s.optString("role"), s.optString("mark"))
+                    },
+                    ask = it.getString("ask"),
+                    answer = it.getInt("answer"),
+                    why = it.optString("why"),
+                    rule = it.optString("rule"),
+                )
+            })
+            "judge" -> KyStep.Judge(title, items.map {
+                KyJudge(
+                    src = it.getJSONArray("src").strings(),
+                    srcLabel = it.optString("srcLabel"),
+                    open = it.optBoolean("open"),
+                    stem = it.getString("stem"),
+                    options = it.getJSONArray("options").objects().map { o ->
+                        KyJudgeOpt(o.getString("t"), o.optBoolean("ok"), o.optString("type"), o.optString("why"), o.optString("poison"))
+                    },
+                    answer = it.getInt("answer"),
+                    types = it.optJSONArray("types")?.strings().orEmpty(),
+                    ev = it.optJSONArray("ev")?.let { a -> (0 until a.length()).map { i -> a.getInt(i) } }.orEmpty(),
+                    rule = it.optString("rule"),
                 )
             })
             else -> KyStep.Pick(title, emptyList())

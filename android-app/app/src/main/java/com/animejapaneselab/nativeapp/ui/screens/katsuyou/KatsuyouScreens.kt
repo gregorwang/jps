@@ -205,6 +205,9 @@ internal fun StepSitting(
         is KyStep.Stack -> StackSitting(step, key, eyebrow, settings, onClose, onAnswer, onDone, lastLabel, modifier)
         is KyStep.Connect -> ConnectSitting(step, key, eyebrow, settings, onClose, onAnswer, onDone, lastLabel, modifier)
         is KyStep.Spot -> SpotSitting(step.items, key, eyebrow, title, settings, onClose, onAnswer, onDone, lastLabel, modifier)
+        is KyStep.Span -> SpanSitting(step.items, key, eyebrow, title, settings, onClose, onAnswer, onDone, lastLabel, modifier)
+        is KyStep.Passage -> PassageSitting(step.items, key, eyebrow, title, settings, onClose, onAnswer, onDone, lastLabel, modifier)
+        is KyStep.Judge -> JudgeSitting(step.items, key, eyebrow, title, settings, onClose, onAnswer, onDone, lastLabel, modifier)
     }
 }
 
