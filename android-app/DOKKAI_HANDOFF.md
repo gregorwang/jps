@@ -1,6 +1,8 @@
 # 第九巻 読解（长难句 + N1 读解门道）· 交接
 
-来源：`Downloads/日语文章阅读解析.md`（《长难句的真面目，与 N1 读解的"门道"》，2147 行）。2026-10-03 那次会话已经**从头到尾通读完**，额度用完了，所以**一行代码、一条数据都还没写**。下次照这份文档直接开工，不用再通读原文，只需要回原文抄例句（行号在下面）。
+**状态：2026-10-04 已做完，0.30.0 发布**（教科書 14 課 + 知識卡 23 张）。下面第 1–5 节是当时的方案，第 6 节是实际做出来的样子和还没做的。
+
+来源：`Downloads/日语文章阅读解析.md`（《长难句的真面目，与 N1 读解的"门道"》，2147 行）。
 
 用户的要求（原话要点）：做成两样东西：自習书架第九巻交互教科書 + 一组知識卡。设计和实现都自己来，不等画布确认；编译 + full 过了就发版。
 
@@ -74,3 +76,26 @@
 - `archive-content-sources/kyoka/book_dokkai.py`，导出 `BOOK`；`build_kyoka.py` 的 `ORDER` 加 `'dokkai'`，`check()` 里给新 step 类型加校验；`kk_common.py` 加 `SPAN` / `PASSAGE` / `JUDGE` 的构造函数（照 `SPOT`）。
 - Kotlin：`KatsuyouBook.stepOf` 加三种 type 的解析，`StepSitting` 加三个分支，新文件 `screens/katsuyou/SpanSitting.kt`、`PassageSitting.kt`、`JudgeSitting.kt`（照 `SpotSitting.kt`：`KySitting`、`PickTile`、`Verdict`、`StagePanel`）。`KyLesson.preview` 也加上。
 - 做完：`KYOKA_HANDOFF.md` 表格加第九巻一行，CHANGELOG 加一节。
+
+## 6. 实际做出来的（0.30.0）
+
+- **教科書**：`archive-content-sources/kyoka/dokkai_a.py`（d01–d07）、`dokkai_b.py`（d08–d14、まとめ「読解の道具箱」）、`book_dokkai.py`（装配 + 罗马音小修）。14 課，173 题，目次四节：長い文をほどく / 五步で拆す / 文章の骨組み / 小説を読む。`python build_kyoka.py --ro --book dokkai` 校验并写 `assets/kyoka_books.json`。
+- **新玩法**（都在 `KyStep`，已进練習的抽题）：`Span`（括る / は的地盘，`SpanSitting.kt`，拖或点）、`Passage`（主张はどこ，`PassageSitting.kt`）、`Judge`（模擬問題 / 毒を見抜く，`JudgeSitting.kt`，原文可折叠、依据句引用在判定下面）。数据构造函数在 `kk_common.py`：`SPAN`、`SENT`/`PASSAGE`、`JOPT`/`JUDGE`、`CLAIM`。
+- **和方案不同的地方**：d02 补洞做成分拣 + 选格 + 内容名词分拣（没有单独的「选填回哪个格」玩法，用 `pick show` 就够）；d04 的名词堆叠用还原题（选还原句）+ 主语／宾语分拣，没做拖拽；は的地盘按第 4 节第 2 条改正的规则出题（管到句末，或到新的「Yは」之前）；分拣卡的字号会按字数缩小（`KyMachines.kt` 的 `wordSize`），长词组放得下。
+- **知識卡**：`knowledge-cards/canvas-gen/decks_dokkai.py`，deck `dokkai`，order **18**（15–17 已被 は・が / 句尾 / 口语缩约 占了）。23 张：tree、steps ×5、bins、duel ×2、table ×6、rules ×4、quiz ×4、quote。`python build_asset.py` 写 `assets/knowledge_cards.json`，其他 deck 的数据没变。
+- **練習**：`LinguisticsScreen.kyokaVolume` 不再 `take(MaxBooks)`，五本书两列排下来（第五本单独一行）。
+- **画布**：没有画预览（用户说「不等画布确认」）。
+- **语音**：长句、例句都没有原声，App 里走本机 / 远程 TTS；`voice_items.json` 里 dokkai 有 114 条，已登记在 `VOICE_BACKLOG.md`。文章（Passage）的句子、Span 的整句、Judge 的选项不进语音清单（只在点击时 TTS 念）。
+
+## 7. 还没做 / 要看用户试玩
+
+- 括る的手势：拖动时 `detectDragGestures` 会吃掉面板上的纵向滚动，句子很长、折成多行时要在面板外面滚动。如果用户嫌，改成「点两下」。
+- Judge 的选项很长（真题形式），手机上一屏放不下；揭晓后每个选项的解释都在选项里，滚动看。
+- 第 4 节第 11 条（JLPT 内容理解题数 6 还是 9）仍然没核实，第 1 节没做，不影响本卷。
+- 第 10 节（听力 / 单词 / 复习路线）、第 5.7、11、12 节仍不做。
+
+## 8. 经验
+
+- 整句挂在 `line()` 上时 `RO_FIX` 要按**一字不差的整句**配；长句的罗马音有固定的小毛病（私 → watakushi、名词+だ 连写、一日中），统一在 `book_dokkai.py` 末尾的 `_FIX` 里替换，别逐句写 `RO_FIX`。
+- `SPAN` 的 `anchor` / `answer` 是块的下标，写完一定数一遍块（我第一遍有三处数错，是 `build_kyoka.py` 的断言之外靠手数查出来的：断言只查范围，不查对不对）。
+- 同一篇文章配多道题：`PASSAGE(sents, ask, answer)` 共用同一个 `sents` 列表，`JUDGE` 共用同一个 `src`，每个 item 自带一份拷贝，asset 大了约 100 KB，可以接受。
