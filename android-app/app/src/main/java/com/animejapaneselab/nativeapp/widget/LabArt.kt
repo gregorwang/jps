@@ -105,7 +105,7 @@ internal class LabArt(context: Context, private val scale: Float, private val da
             if (columns.size * glyph * 1.28f <= maxWidth || glyph <= px(12f)) break
             glyph *= 0.9f
         }
-        val paint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { typeface = serifBold; textSize = glyph; color = ink }
+        val paint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { typeface = serifBold; textLocale = java.util.Locale.JAPAN; textSize = glyph; color = ink }
         val fm = paint.fontMetrics
         val cell = glyph * 1.1f
         val colW = glyph * 1.28f
@@ -133,6 +133,7 @@ internal class LabArt(context: Context, private val scale: Float, private val da
         val glyphs = text.split('\n')
         val paint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
             typeface = serifBold
+            textLocale = java.util.Locale.JAPAN
             textSize = size * (if (glyphs.size > 1) 0.34f else 0.5f)
             this.color = color
         }
@@ -377,6 +378,7 @@ internal class LabArt(context: Context, private val scale: Float, private val da
             })
             val paint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
                 typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
+                textLocale = java.util.Locale.JAPAN
                 textSize = box * 0.62f
                 color = 0xFFFFFFFF.toInt()
             }

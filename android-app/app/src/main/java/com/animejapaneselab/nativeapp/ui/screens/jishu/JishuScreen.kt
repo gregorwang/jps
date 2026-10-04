@@ -375,7 +375,7 @@ private fun TodayCard(point: String, drill: ConjugationDrillState, progress: Pro
             Eyebrow("今日の自習 · VOL.${ConjugationDrillRules.groupKey(group)} ${ConjugationDrillRules.groupTitle(group)}")
             Text("第 ${drill.lessonNumber(point)} 課", style = AjlTheme.type.meta.copy(fontSize = 12.sp), color = work.accent, modifier = Modifier.padding(top = 14.dp))
             Text(jp, style = AjlTheme.type.jpDisplay.copy(fontSize = 28.sp, lineHeight = 38.sp), color = colors.ink)
-            if (gloss.isNotBlank()) Text(gloss, style = AjlTheme.type.body.copy(fontSize = 13.sp), color = colors.ink2)
+            if (gloss.isNotBlank()) Text(gloss, style = AjlTheme.type.caption, color = colors.ink2)
             if (line != null) {
                 Box(Modifier.fillMaxWidth().padding(top = 16.dp).height(1.dp).background(colors.line))
                 EmphasisText(
@@ -384,7 +384,7 @@ private fun TodayCard(point: String, drill: ConjugationDrillState, progress: Pro
                     style = AjlTheme.type.jpBody.copy(fontSize = 19.sp, lineHeight = 34.sp),
                     modifier = Modifier.padding(top = 12.dp),
                 )
-                if (line.zh.isNotBlank()) Text(line.zh, style = AjlTheme.type.caption.copy(fontSize = 13.sp), color = colors.ink3, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                if (line.zh.isNotBlank()) Text(line.zh, style = AjlTheme.type.caption, color = colors.ink3, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
             Row(Modifier.fillMaxWidth().padding(top = 18.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 ProgressLine(if (total == 0) 0f else studied.toFloat() / total, Modifier.weight(1f))

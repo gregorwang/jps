@@ -119,7 +119,7 @@ internal fun GlanceScreen(
 }
 
 @Composable
-private fun BeatStyle() = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 25.sp, letterSpacing = 0.3.sp)
+private fun BeatStyle() = AjlTheme.type.body
 
 @Composable
 private fun HeroPanel(hero: KyGlLine, reveal: Float) {
@@ -150,7 +150,7 @@ private fun HeroPanel(hero: KyGlLine, reveal: Float) {
                 Spacer(Modifier.height(16.dp))
                 NoteText(
                     hero.zh,
-                    style = AjlTheme.type.body.copy(fontSize = 14.sp, lineHeight = 22.sp, letterSpacing = 0.3.sp, textAlign = TextAlign.Center),
+                    style = AjlTheme.type.body.copy(textAlign = TextAlign.Center),
                     color = colors.ink2,
                     modifier = Modifier.graphicsLayer { alpha = if (hero.to.isEmpty()) 1f else reveal },
                 )
@@ -170,7 +170,7 @@ private fun PairRow(p: KyGlLine) {
                 GlLineView(p.to, size = 20.sp)
             }
         }
-        if (p.zh.isNotBlank()) NoteText(p.zh, style = AjlTheme.type.body.copy(fontSize = 13.sp, lineHeight = 20.sp, letterSpacing = 0.3.sp), color = colors.ink3)
+        if (p.zh.isNotBlank()) NoteText(p.zh, style = AjlTheme.type.caption, color = colors.ink3)
     }
 }
 

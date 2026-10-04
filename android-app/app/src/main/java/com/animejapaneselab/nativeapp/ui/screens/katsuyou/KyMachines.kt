@@ -135,7 +135,7 @@ internal fun SpeedSitting(
                         style = AjlTheme.type.jpBody.copy(fontSize = 22.sp, lineHeight = 34.sp, fontWeight = FontWeight.SemiBold),
                         color = colors.ink,
                     )
-                    Text(item.line.zh, style = AjlTheme.type.body.copy(fontSize = 13.sp), color = colors.ink2)
+                    Text(item.line.zh, style = AjlTheme.type.caption, color = colors.ink2)
                 }
             }
         }
@@ -194,12 +194,12 @@ internal fun SpeedSitting(
                 picked = pos
                 pos = item.answer
             }, Modifier.fillMaxWidth()) { fg ->
-                Text("就是这一档", style = AjlTheme.type.body.copy(fontSize = 15.sp), color = fg, modifier = Modifier.align(Alignment.CenterHorizontally))
+                Text("就是这一档", style = AjlTheme.type.body, color = fg, modifier = Modifier.align(Alignment.CenterHorizontally))
             }
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Verdict(if (picked == item.answer) "✓ 原作就是这么快" else "原作说到了第 ${item.answer + 1} 档", picked == item.answer)
-                Text(item.note, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 23.sp), color = colors.ink)
+                Text(item.note, style = AjlTheme.type.body, color = colors.ink)
             }
         }
     }
@@ -279,7 +279,7 @@ internal fun DialSitting(
                         color = colors.ink,
                         modifier = Modifier.clickableNoRipple({ audio.speakText(if (revealed) item.word else item.verb, settings.ttsWorkerUrl) }),
                     )
-                    Text(if (revealed) "${item.verb} → ${item.word}" else item.verb, style = AjlTheme.type.caption.copy(fontSize = 13.sp), color = colors.ink3)
+                    Text(if (revealed) "${item.verb} → ${item.word}" else item.verb, style = AjlTheme.type.caption, color = colors.ink3)
                 }
                 Column(
                     Modifier.width(96.dp).heightIn(min = 300.dp).background(colors.bg).padding(vertical = 8.dp, horizontal = 8.dp),
@@ -329,7 +329,7 @@ internal fun DialSitting(
                 },
                 { pick(5) },
                 Modifier.fillMaxWidth(),
-            ) { fg -> Text(item.extra, style = AjlTheme.type.body.copy(fontSize = 15.sp), color = fg, modifier = Modifier.align(Alignment.CenterHorizontally)) }
+            ) { fg -> Text(item.extra, style = AjlTheme.type.body, color = fg, modifier = Modifier.align(Alignment.CenterHorizontally)) }
         }
         if (!revealed) {
             Text("词尾滑到哪一段？", style = AjlTheme.type.body.copy(fontSize = 14.sp), color = colors.ink2, modifier = Modifier.align(Alignment.CenterHorizontally))
@@ -348,7 +348,7 @@ internal fun JudgedNote(verdict: String, ok: Boolean, tags: List<Pair<String, co
             Verdict(verdict, ok)
             tags.forEach { (t, k) -> KindChip(t, k) }
         }
-        if (rule.isNotBlank()) Text(rule, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 23.sp), color = AjlTheme.colors.ink)
+        if (rule.isNotBlank()) Text(rule, style = AjlTheme.type.body, color = AjlTheme.colors.ink)
     }
 }
 
@@ -593,7 +593,7 @@ internal fun StackSitting(
         arrow = !last, modifier = modifier,
     ) {
         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("拼出", style = AjlTheme.type.caption.copy(fontSize = 13.sp), color = colors.ink3)
+            Text("拼出", style = AjlTheme.type.caption, color = colors.ink3)
             Text(goal.goal, style = AjlTheme.type.jpTitle.copy(fontSize = 20.sp, fontWeight = FontWeight.Bold), color = colors.ink)
         }
         StagePanel {

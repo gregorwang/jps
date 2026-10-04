@@ -268,7 +268,7 @@ private fun PalettePanel(
             Icon(Icons.Rounded.Search, contentDescription = null, tint = colors.ink3, modifier = Modifier.size(18.dp))
             Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                 if (query.isEmpty()) {
-                    Text(scope.placeholder, style = AjlTheme.type.body.copy(fontSize = 15.sp), color = colors.faint, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(scope.placeholder, style = AjlTheme.type.body, color = colors.faint, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 BasicTextField(
                     value = query,

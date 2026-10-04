@@ -425,7 +425,7 @@ private fun FeedPager(
         ) {
             Text(
                 toast.orEmpty(),
-                style = AjlTheme.type.body.copy(fontSize = 13.sp),
+                style = AjlTheme.type.caption,
                 color = AjlTheme.colors.bg,
                 modifier = Modifier
                     .background(AjlTheme.colors.ink, RoundedCornerShape(16.dp))

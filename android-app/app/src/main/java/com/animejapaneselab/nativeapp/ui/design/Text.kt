@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import com.animejapaneselab.nativeapp.ui.motion.MotionTokens
 import com.animejapaneselab.nativeapp.ui.motion.rememberReducedMotion
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
+import com.animejapaneselab.nativeapp.ui.theme.JaLocale
 
 /**
  * Vertical-rl stacked text (縦書き). Compose has no vertical writing mode, so each glyph is a
@@ -263,7 +264,7 @@ fun MarkedLine(
 fun NoteText(
     text: String,
     modifier: Modifier = Modifier,
-    style: TextStyle = AjlTheme.type.body.copy(fontSize = 14.sp, lineHeight = 22.sp),
+    style: TextStyle = AjlTheme.type.body,
     color: Color = AjlTheme.colors.ink2,
 ) {
     val ink = AjlTheme.colors.ink
@@ -273,7 +274,7 @@ fun NoteText(
 }
 
 internal fun noteAnnotated(text: String, ink: Color, accent: Color): AnnotatedString = buildAnnotatedString {
-    val quote = SpanStyle(color = ink, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold)
+    val quote = SpanStyle(color = ink, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, localeList = JaLocale)
     var i = 0
     while (i < text.length) {
         val c = text[i]

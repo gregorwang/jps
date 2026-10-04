@@ -244,7 +244,7 @@ internal fun PeekScreen(peek: KyPeek, eyebrow: String, title: String, groups: In
                 }
                 NoteText(
                     peek.rule,
-                    style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 25.sp, letterSpacing = 0.3.sp),
+                    style = AjlTheme.type.body,
                     color = colors.ink,
                     modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
                 )
@@ -386,7 +386,7 @@ private fun BackTrackSitting(
                 val ok = picked == item.answer
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(if (ok) "✓ ${item.base}" else "正解 ${item.base}", style = AjlTheme.type.meta.copy(fontSize = 12.sp), color = if (ok) colors.ok else colors.bad)
-                    Text(item.note, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 23.sp), color = colors.ink)
+                    Text(item.note, style = AjlTheme.type.body, color = colors.ink)
                 }
             }
         }

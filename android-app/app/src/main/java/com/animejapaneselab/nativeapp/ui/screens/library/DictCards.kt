@@ -150,7 +150,7 @@ internal fun ColoredNote(label: String, text: String) {
                 .background(if (warn) colors.badSoft else colors.infoSoft, RoundedCornerShape(4.dp))
                 .padding(horizontal = 6.dp, vertical = 1.dp),
         )
-        Text(text.trim(), style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 24.sp), color = colors.ink, modifier = Modifier.weight(1f))
+        Text(text.trim(), style = AjlTheme.type.body, color = colors.ink, modifier = Modifier.weight(1f))
     }
 }
 

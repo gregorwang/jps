@@ -157,7 +157,7 @@ internal fun SlotLine(
             Text(label ?: if (line.fromAnime) "原作" else "例句", style = AjlTheme.type.meta.copy(fontSize = 11.sp), color = if (label != null) work.accent else colors.ink3)
         }
         Column(Modifier.padding(start = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            if (context.isNotBlank()) Text(context, style = AjlTheme.type.body.copy(fontSize = 13.sp), color = colors.ink2)
+            if (context.isNotBlank()) Text(context, style = AjlTheme.type.caption, color = colors.ink2)
             if (filled && romaji.isNotBlank()) Text(romaji, style = AjlTheme.type.meta.copy(fontSize = 12.sp, lineHeight = 17.sp), color = colors.ink3)
             Text(
                 buildAnnotatedString {
@@ -172,7 +172,7 @@ internal fun SlotLine(
                 style = AjlTheme.type.jpBody.copy(fontSize = if (big) 21.sp else 18.sp, lineHeight = if (big) 32.sp else 28.sp, fontWeight = FontWeight.Medium),
                 color = colors.ink,
             )
-            Text(zh, style = AjlTheme.type.body.copy(fontSize = 13.sp, lineHeight = 19.sp), color = colors.ink2)
+            Text(zh, style = AjlTheme.type.caption, color = colors.ink2)
         }
     }
 }

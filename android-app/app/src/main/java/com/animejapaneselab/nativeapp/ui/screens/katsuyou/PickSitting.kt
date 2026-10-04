@@ -279,7 +279,7 @@ private fun PickOptions(item: KyPick, picked: Int, cur: Int, revealed: Boolean, 
                         Text(markLabel(o, i, item, revealed), style = AjlTheme.type.meta.copy(fontSize = 12.sp), color = markColor(o, i, item, revealed, fg))
                     }
                     if (revealed && o.why.isNotBlank()) {
-                        Text(o.why, style = AjlTheme.type.body.copy(fontSize = 13.sp, lineHeight = 19.sp), color = fg.copy(alpha = 0.85f), modifier = Modifier.padding(top = 4.dp))
+                        Text(o.why, style = AjlTheme.type.caption, color = fg.copy(alpha = 0.85f), modifier = Modifier.padding(top = 4.dp))
                     }
                 }
             }
@@ -321,8 +321,8 @@ private fun PickExplain(item: KyPick, picked: Int, shown: KyOpt) {
         }
         // rows show every why on the options themselves; the others explain the one being looked at.
         val note = if (item.layout == "rows") "" else shown.why.takeIf { item.layout != "ladder" }.orEmpty()
-        if (note.isNotBlank()) Text(note, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 23.sp), color = colors.ink)
-        if (item.rule.isNotBlank()) Text(item.rule, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 23.sp), color = if (note.isBlank()) colors.ink else colors.ink2)
+        if (note.isNotBlank()) Text(note, style = AjlTheme.type.body, color = colors.ink)
+        if (item.rule.isNotBlank()) Text(item.rule, style = AjlTheme.type.body, color = if (note.isBlank()) colors.ink else colors.ink2)
     }
 }
 

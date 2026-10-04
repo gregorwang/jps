@@ -305,7 +305,7 @@ private fun PeriodRow(period: TodayPeriod, onClick: () -> Unit) {
                         append(period.title)
                     }
                 },
-                style = AjlTheme.type.body.copy(fontSize = 15.sp),
+                style = AjlTheme.type.body,
                 color = if (done || idle) colors.ink3 else colors.ink,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -402,7 +402,7 @@ private fun SampleLine(
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(
                 sample.zh,
-                style = AjlTheme.type.body.copy(fontSize = 13.sp, lineHeight = 19.sp),
+                style = AjlTheme.type.caption,
                 color = colors.ink2,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,

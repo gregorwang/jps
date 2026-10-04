@@ -95,7 +95,7 @@ internal fun AppUpdateSettingsSection(
                 if (release.releaseNotes.isNotBlank()) {
                     Text(
                         release.releaseNotes,
-                        style = AjlTheme.type.caption.copy(lineHeight = 20.sp),
+                        style = AjlTheme.type.caption,
                         color = colors.ink2,
                         maxLines = 8,
                         overflow = TextOverflow.Ellipsis,

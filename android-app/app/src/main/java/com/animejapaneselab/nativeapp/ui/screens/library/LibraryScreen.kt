@@ -882,7 +882,7 @@ internal fun Meaning(text: String) {
             }
             append(text.trim())
         },
-        style = AjlTheme.type.body.copy(fontSize = 14.sp, lineHeight = 21.sp),
+        style = AjlTheme.type.body,
         color = AjlTheme.colors.ink,
     )
 }

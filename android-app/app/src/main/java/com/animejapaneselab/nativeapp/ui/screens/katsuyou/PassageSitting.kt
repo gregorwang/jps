@@ -121,8 +121,8 @@ internal fun PassageSitting(
             val ok = picked == item.answer
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Verdict(if (ok) "✓ ${circled(item.answer)}" else "正解は ${circled(item.answer)}", ok)
-                if (item.why.isNotBlank()) Text(item.why, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 23.sp), color = colors.ink)
-                if (item.rule.isNotBlank()) Text(item.rule, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 23.sp), color = colors.ink2)
+                if (item.why.isNotBlank()) Text(item.why, style = AjlTheme.type.body, color = colors.ink)
+                if (item.rule.isNotBlank()) Text(item.rule, style = AjlTheme.type.body, color = colors.ink2)
             }
         }
     }

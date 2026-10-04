@@ -217,7 +217,7 @@ private fun LessonBoard(lesson: ConjugationLesson, drill: ConjugationDrillState)
                 )
                 if (lesson.rule.isNotBlank()) {
                     Hairline(Modifier.padding(top = 14.dp))
-                    Text(lesson.rule, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 24.sp), color = colors.ink, modifier = Modifier.padding(top = 12.dp))
+                    Text(lesson.rule, style = AjlTheme.type.body, color = colors.ink, modifier = Modifier.padding(top = 12.dp))
                 }
             }
         }
@@ -227,7 +227,7 @@ private fun LessonBoard(lesson: ConjugationLesson, drill: ConjugationDrillState)
                 lesson.points.forEachIndexed { i, text ->
                     Row(verticalAlignment = Alignment.Top) {
                         Text("%02d".format(i + 1), style = AjlTheme.type.meta.copy(fontSize = 12.sp, lineHeight = 24.sp), color = work.accent, modifier = Modifier.width(30.dp))
-                        Text(text, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 24.sp), color = colors.ink)
+                        Text(text, style = AjlTheme.type.body, color = colors.ink)
                     }
                 }
             }
@@ -276,7 +276,7 @@ private fun FallbackBoard(drill: ConjugationDrillState, point: String) {
 private fun BoardNote(label: String, text: String, tone: androidx.compose.ui.graphics.Color) {
     Row(verticalAlignment = Alignment.Top) {
         Text(label, style = AjlTheme.type.label.copy(fontSize = 13.sp, lineHeight = 22.sp, fontWeight = FontWeight.SemiBold), color = tone, modifier = Modifier.width(46.dp))
-        Text(text, style = AjlTheme.type.body.copy(fontSize = 14.sp, lineHeight = 22.sp), color = AjlTheme.colors.ink2)
+        Text(text, style = AjlTheme.type.body, color = AjlTheme.colors.ink2)
     }
 }
 
@@ -420,7 +420,7 @@ private fun CardPage(
                             )
                         }
                         if (item.note.isNotBlank()) {
-                            Text(item.note, style = AjlTheme.type.body.copy(fontSize = 14.sp, lineHeight = 22.sp), color = colors.ink2, modifier = Modifier.weight(1f))
+                            Text(item.note, style = AjlTheme.type.body, color = colors.ink2, modifier = Modifier.weight(1f))
                         }
                     }
                 }

@@ -404,7 +404,7 @@ private fun TangoSession(
         ) {
             Text(
                 toast.orEmpty(),
-                style = AjlTheme.type.body.copy(fontSize = 13.sp),
+                style = AjlTheme.type.caption,
                 color = colors.bg,
                 modifier = Modifier.background(colors.ink, RoundedCornerShape(16.dp)).padding(horizontal = 14.dp, vertical = 7.dp),
             )

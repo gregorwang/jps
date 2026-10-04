@@ -251,7 +251,7 @@ private fun HistoryRow(entry: AiHistoryEntry, onClick: () -> Unit) {
             if (entry.summary.isNotBlank()) {
                 Text(
                     entry.summary,
-                    style = AjlTheme.type.caption.copy(lineHeight = 20.sp),
+                    style = AjlTheme.type.caption,
                     color = colors.ink2,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,

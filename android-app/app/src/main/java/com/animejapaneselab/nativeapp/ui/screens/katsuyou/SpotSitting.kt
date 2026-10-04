@@ -131,7 +131,7 @@ internal fun SpotSitting(
                 val fixLabel = item.fix.first.ifBlank { "去掉" }
                 Verdict(if (ok) "✓ 找到了：${item.toks[item.bad].first} → $fixLabel" else "错的是「${item.toks[item.bad].first}」 → $fixLabel", ok)
                 Text(item.fixed, style = AjlTheme.type.jpBody.copy(fontSize = 18.sp, lineHeight = 26.sp, fontWeight = FontWeight.SemiBold), color = colors.ink)
-                Text(item.why, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 23.sp), color = colors.ink)
+                Text(item.why, style = AjlTheme.type.body, color = colors.ink)
             }
             item.line?.let { LineCard(it, audio, settings.ttsWorkerUrl) }
         }

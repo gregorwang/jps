@@ -109,6 +109,6 @@ fun CoveredLine(modifier: Modifier = Modifier, label: String = "轻点看中文"
         contentAlignment = Alignment.Center,
     ) {
         Screentone(Modifier.fillMaxSize(), color = colors.ink.copy(alpha = 0.08f), spacing = 6.dp, dotRadius = 1.1.dp)
-        Text(label, style = AjlTheme.type.caption.copy(fontSize = 13.sp), color = colors.ink3)
+        Text(label, style = AjlTheme.type.caption, color = colors.ink3)
     }
 }

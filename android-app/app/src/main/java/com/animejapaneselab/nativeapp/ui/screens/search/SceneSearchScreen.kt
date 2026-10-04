@@ -184,7 +184,7 @@ fun SceneSearchScreen(
                 ) {
                     Icon(Icons.Rounded.Search, null, tint = colors.ink3, modifier = Modifier.size(16.dp))
                     Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
-                        if (query.isEmpty()) Text("描述一个场景，或输入台词", style = AjlTheme.type.body.copy(fontSize = 15.sp), color = colors.faint, maxLines = 1)
+                        if (query.isEmpty()) Text("描述一个场景，或输入台词", style = AjlTheme.type.body, color = colors.faint, maxLines = 1)
                         BasicTextField(
                             value = query,
                             onValueChange = { query = it },
@@ -392,7 +392,7 @@ private fun HitPanel(
                 color = colors.ink,
                 modifier = Modifier.padding(end = 8.dp),
             )
-            if (!match?.zh.isNullOrBlank()) Text(match?.zh.orEmpty(), style = AjlTheme.type.body.copy(fontSize = 15.sp), color = colors.ink2, modifier = Modifier.padding(end = 8.dp))
+            if (!match?.zh.isNullOrBlank()) Text(match?.zh.orEmpty(), style = AjlTheme.type.body, color = colors.ink2, modifier = Modifier.padding(end = 8.dp))
             if (!match?.why.isNullOrBlank()) Text(match?.why.orEmpty(), style = AjlTheme.type.caption, color = colors.ink2, modifier = Modifier.padding(end = 8.dp))
         }
     }
@@ -595,7 +595,7 @@ private fun HitPlate(source: RagSearchSource, line: SubtitleLine, accent: androi
                         style = AjlTheme.type.jpTitle.copy(fontSize = 24.sp, lineHeight = 34.sp, fontWeight = FontWeight.Bold),
                         color = colors.ink,
                     )
-                    if (!match?.zh.isNullOrBlank()) Text(match?.zh.orEmpty(), style = AjlTheme.type.body.copy(fontSize = 15.sp), color = colors.ink2)
+                    if (!match?.zh.isNullOrBlank()) Text(match?.zh.orEmpty(), style = AjlTheme.type.body, color = colors.ink2)
                     if (!match?.why.isNullOrBlank()) {
                         Box(Modifier.fillMaxWidth().height(1.dp).background(colors.line))
                         Text(match?.why.orEmpty(), style = AjlTheme.type.caption, color = colors.ink2)

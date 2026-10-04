@@ -113,7 +113,7 @@ internal fun ZougoQuiz(
             }
             if (answered) {
                 when (q) {
-                    is ZgQuestion.Reading -> Text(q.item.rule, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 23.sp), color = AjlTheme.colors.ink)
+                    is ZgQuestion.Reading -> Text(q.item.rule, style = AjlTheme.type.body, color = AjlTheme.colors.ink)
                     is ZgQuestion.Meaning -> LineCard(q.cell.line, audio, settings.ttsWorkerUrl)
                 }
             }

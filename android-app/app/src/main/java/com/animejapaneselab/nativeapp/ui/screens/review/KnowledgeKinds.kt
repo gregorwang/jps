@@ -144,7 +144,7 @@ internal fun PrevStrip(prev: KnowPrev) {
         verticalArrangement = Arrangement.spacedBy(1.dp),
     ) {
         Mono("前回のあらすじ · ${prev.from}", 10, colors.info)
-        Text(marked(prev.text, colors.info), style = AjlTheme.type.body.copy(fontSize = 13.sp, lineHeight = 19.sp), color = colors.ink2)
+        Text(marked(prev.text, colors.info), style = AjlTheme.type.caption, color = colors.ink2)
     }
 }
 
@@ -433,7 +433,7 @@ private fun Rules(d: JSONObject) {
                     }
                     item.optString("fix").takeIf { f -> f.isNotBlank() }?.let { f ->
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Text(if (m == "✕") "→" else "／", style = AjlTheme.type.body.copy(fontSize = 15.sp), color = colors.ink3)
+                            Text(if (m == "✕") "→" else "／", style = AjlTheme.type.body, color = colors.ink3)
                             Ja(f, 16, FontWeight.SemiBold, if (m == "✕") colors.ok else colors.ink)
                         }
                     }
@@ -670,7 +670,7 @@ private fun Putback(d: JSONObject) {
             val shown = if (noun.isNotBlank() && phrase.endsWith(noun)) phrase.dropLast(noun.length) + "【" + noun + "】" else phrase
             Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(marked(shown, colors.ink), style = AjlTheme.type.jpBody.copy(fontSize = 14.sp, lineHeight = 21.sp), color = colors.ink, modifier = Modifier.weight(1f))
-                Text("→", style = AjlTheme.type.body.copy(fontSize = 13.sp), color = colors.ink3)
+                Text("→", style = AjlTheme.type.caption, color = colors.ink3)
                 Ja(back, 14, modifier = Modifier.weight(1f))
                 Zh(r.s(2), 11, colors.ink3, modifier = Modifier.width(30.dp))
             }
@@ -711,7 +711,7 @@ private fun Nest(d: JSONObject) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Text(l.s(0), style = AjlTheme.type.jpTitle.copy(fontSize = 17.sp, fontWeight = FontWeight.Bold), color = work.accent)
-                    Text("←", style = AjlTheme.type.body.copy(fontSize = 13.sp), color = colors.ink3)
+                    Text("←", style = AjlTheme.type.caption, color = colors.ink3)
                     Cell(l.s(1))
                 }
             }

@@ -166,7 +166,7 @@ internal fun JudgeSitting(
                 val ok = picked == item.answer
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Verdict(if (ok) "✓ ${item.types[item.answer]}" else "你选 ${item.types[picked]} · 正解 ${item.types[item.answer]}", ok)
-                    Text(claim.why, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 23.sp), color = colors.ink)
+                    Text(claim.why, style = AjlTheme.type.body, color = colors.ink)
                     Evidence(item)
                 }
             }
@@ -186,7 +186,7 @@ internal fun JudgeSitting(
                             if (revealed) Text(if (o.ok) "✓" else o.type, style = AjlTheme.type.meta.copy(fontSize = 11.sp, fontWeight = FontWeight.Bold), color = if (state == TileState.Right) fg else colors.bad)
                         }
                         if (revealed && o.why.isNotBlank()) {
-                            Text(o.why, style = AjlTheme.type.body.copy(fontSize = 13.sp, lineHeight = 19.sp), color = fg.copy(alpha = 0.85f), modifier = Modifier.padding(top = 4.dp))
+                            Text(o.why, style = AjlTheme.type.caption, color = fg.copy(alpha = 0.85f), modifier = Modifier.padding(top = 4.dp))
                         }
                     }
                 }
@@ -195,7 +195,7 @@ internal fun JudgeSitting(
                 val ok = picked == item.answer
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Verdict(if (ok) "✓ ${item.answer + 1}" else "你选 ${picked + 1} · 正解 ${item.answer + 1}", ok)
-                    if (item.rule.isNotBlank()) Text(item.rule, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 23.sp), color = colors.ink)
+                    if (item.rule.isNotBlank()) Text(item.rule, style = AjlTheme.type.body, color = colors.ink)
                     Evidence(item)
                 }
             }

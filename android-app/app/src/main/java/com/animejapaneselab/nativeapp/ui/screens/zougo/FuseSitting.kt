@@ -188,7 +188,7 @@ private fun FuseExplain(item: ZgFuse, picked: Int, audio: com.animejapaneselab.n
             )
             item.tags.forEach { (text, kind) -> KindChip(text, kind) }
         }
-        Text(item.rule, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 23.sp), color = colors.ink)
+        Text(item.rule, style = AjlTheme.type.body, color = colors.ink)
         LineCard(item.line, audio, ttsWorkerUrl)
     }
 }

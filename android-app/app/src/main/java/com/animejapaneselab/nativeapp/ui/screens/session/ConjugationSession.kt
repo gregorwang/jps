@@ -181,7 +181,7 @@ private fun ConjugationQuestionBody(
                                     style = AjlTheme.type.jpBody.copy(fontSize = 22.sp, lineHeight = 40.sp),
                                 )
                                 if (item.zh.isNotBlank()) {
-                                    Text(item.zh.trim(), style = AjlTheme.type.body.copy(fontSize = 14.sp, lineHeight = 21.sp), color = AjlTheme.colors.ink3)
+                                    Text(item.zh.trim(), style = AjlTheme.type.body, color = AjlTheme.colors.ink3)
                                 }
                             } else {
                                 EmphasisText(
@@ -326,7 +326,7 @@ private fun ConjugationFeedback(
                         style = AjlTheme.type.jpBody.copy(fontSize = 19.sp, lineHeight = 30.sp),
                     )
                     if (item.zh.isNotBlank()) {
-                        Text(item.zh.trim(), style = AjlTheme.type.body.copy(fontSize = 14.sp, lineHeight = 21.sp), color = colors.ink3)
+                        Text(item.zh.trim(), style = AjlTheme.type.body, color = colors.ink3)
                     }
                 }
                 val howTo = remember(item.id) { DrillCloze.howTo(item) }

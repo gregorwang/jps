@@ -90,7 +90,7 @@ internal fun KyTableScreen(table: KyTable, eyebrow: String, settings: LabSetting
                 if (table.cover.isNotEmpty()) {
                     Text(
                         "遮る",
-                        style = AjlTheme.type.body.copy(fontSize = 13.sp),
+                        style = AjlTheme.type.caption,
                         color = if (cover) colors.bg else colors.ink2,
                         modifier = Modifier
                             .padding(end = 12.dp)

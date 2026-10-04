@@ -293,11 +293,11 @@ private fun Detail(lesson: ZgLesson, row: Int, col: Int, audio: com.animejapanes
                     }
                     ZgCell.Rare -> {
                         Text(pair, style = AjlTheme.type.jpDisplay.copy(fontSize = 30.sp, lineHeight = 38.sp, fontWeight = FontWeight.Bold), color = colors.ink2)
-                        Text("词典里有，平时很少说。", style = AjlTheme.type.body.copy(fontSize = 15.sp), color = colors.ink2)
+                        Text("词典里有，平时很少说。", style = AjlTheme.type.body, color = colors.ink2)
                     }
                     ZgCell.None -> {
                         Text(pair, style = AjlTheme.type.jpDisplay.copy(fontSize = 30.sp, lineHeight = 38.sp, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.LineThrough), color = colors.ink3)
-                        Text("不成词。", style = AjlTheme.type.body.copy(fontSize = 15.sp), color = colors.ink2)
+                        Text("不成词。", style = AjlTheme.type.body, color = colors.ink2)
                     }
                 }
             }
@@ -313,6 +313,6 @@ private fun PieceChip(part: String, gloss: String, border: androidx.compose.ui.g
         horizontalArrangement = Arrangement.spacedBy(5.dp),
     ) {
         Text(part, style = AjlTheme.type.jpBody.copy(fontSize = 14.sp, lineHeight = 18.sp), color = partColor)
-        Text(gloss, style = AjlTheme.type.caption.copy(fontSize = 13.sp), color = AjlTheme.colors.ink3)
+        Text(gloss, style = AjlTheme.type.caption, color = AjlTheme.colors.ink3)
     }
 }

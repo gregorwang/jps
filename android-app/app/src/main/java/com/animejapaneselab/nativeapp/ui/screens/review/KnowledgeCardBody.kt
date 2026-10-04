@@ -109,7 +109,7 @@ internal fun ColumnScope.KnowBody(card: KnowledgeCard, romaji: FuriganaAnnotator
                 Text(limit.mark, style = AjlTheme.type.body.copy(fontSize = 17.sp, lineHeight = 24.sp, fontWeight = FontWeight.Bold), color = tint, modifier = Modifier.width(18.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(limit.ja, style = AjlTheme.type.jpBody.copy(fontSize = 16.sp, lineHeight = 24.sp), color = tint)
-                    Text(limit.why, style = AjlTheme.type.body.copy(fontSize = 13.sp, lineHeight = 20.sp), color = colors.ink2)
+                    Text(limit.why, style = AjlTheme.type.caption, color = colors.ink2)
                 }
             }
         }
@@ -168,7 +168,7 @@ private fun Example(ex: KnowExample, romaji: FuriganaAnnotator?, tint: Color = A
         } else {
             Text(text, style = lineStyle, color = colors.ink)
         }
-        if (ex.zh.isNotBlank()) Text(ex.zh, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 22.sp), color = colors.ink)
+        if (ex.zh.isNotBlank()) Text(ex.zh, style = AjlTheme.type.body, color = colors.ink)
     }
 }
 
@@ -177,7 +177,7 @@ private fun Rule(text: String) {
     NoteText(
         text,
         modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(4.dp)).background(AjlTheme.colors.sunken).padding(horizontal = 14.dp, vertical = 12.dp),
-        style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 24.sp),
+        style = AjlTheme.type.body,
         color = AjlTheme.colors.ink,
     )
 }
@@ -197,8 +197,8 @@ private fun Contrast(card: KnowledgeCard, romaji: FuriganaAnnotator?) {
             Hairline()
             Row(Modifier.fillMaxWidth().padding(vertical = 9.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(row.label, style = AjlTheme.type.body.copy(fontSize = 12.sp, lineHeight = 19.sp), color = colors.ink3, modifier = Modifier.width(56.dp))
-                Text(row.a, style = AjlTheme.type.body.copy(fontSize = 13.sp, lineHeight = 19.sp), color = colors.ink, modifier = Modifier.weight(1f))
-                Text(row.b, style = AjlTheme.type.body.copy(fontSize = 13.sp, lineHeight = 19.sp), color = colors.ink, modifier = Modifier.weight(1f))
+                Text(row.a, style = AjlTheme.type.caption, color = colors.ink, modifier = Modifier.weight(1f))
+                Text(row.b, style = AjlTheme.type.caption, color = colors.ink, modifier = Modifier.weight(1f))
             }
         }
         Hairline()
@@ -238,7 +238,7 @@ private fun Origin(card: KnowledgeCard) {
             Text(g.text, style = AjlTheme.type.jpTitle.copy(fontSize = if (g.text.length <= 1) 76.sp else 48.sp, lineHeight = 88.sp, fontWeight = FontWeight.Black), color = colors.ink)
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(g.reading, style = AjlTheme.type.jpBody.copy(fontSize = 19.sp), color = work.accent)
-                Text(g.meaning, style = AjlTheme.type.body.copy(fontSize = 13.sp, lineHeight = 19.sp), color = colors.ink2)
+                Text(g.meaning, style = AjlTheme.type.caption, color = colors.ink2)
             }
         }
     }
@@ -259,7 +259,7 @@ private fun Origin(card: KnowledgeCard) {
                 }
                 Column(Modifier.padding(bottom = 14.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(step.head, style = AjlTheme.type.jpBody.copy(fontSize = 17.sp, lineHeight = 26.sp, fontWeight = FontWeight.Medium), color = if (last) work.accent else colors.ink)
-                    NoteText(step.text, style = AjlTheme.type.body.copy(fontSize = 13.sp, lineHeight = 20.sp))
+                    NoteText(step.text, style = AjlTheme.type.caption)
                 }
             }
         }
@@ -277,7 +277,7 @@ private fun MapRows(card: KnowledgeCard) {
                     Text(row.label, style = AjlTheme.type.body.copy(fontSize = 12.sp, lineHeight = 18.sp), color = colors.ink3)
                     Text(row.a, style = AjlTheme.type.jpBody.copy(fontSize = 16.sp, lineHeight = 24.sp, fontWeight = FontWeight.Medium), color = colors.ink, modifier = Modifier.weight(1f, fill = false))
                 }
-                if (row.b.isNotBlank()) Text(row.b, style = AjlTheme.type.body.copy(fontSize = 13.sp, lineHeight = 19.sp), color = colors.ink2)
+                if (row.b.isNotBlank()) Text(row.b, style = AjlTheme.type.caption, color = colors.ink2)
             }
             Hairline()
         }
@@ -301,7 +301,7 @@ private fun Quiz(cardId: String, quiz: KnowQuiz, onAnswer: (KnowQuiz, Boolean) -
         }
     }
     Text(prompt, style = AjlTheme.type.jpBody.copy(fontSize = 23.sp, lineHeight = 40.sp, fontWeight = FontWeight.Medium), color = colors.ink)
-    if (quiz.zh.isNotBlank()) Text(quiz.zh, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 22.sp), color = colors.ink2)
+    if (quiz.zh.isNotBlank()) Text(quiz.zh, style = AjlTheme.type.body, color = colors.ink2)
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         quiz.options.chunked(2).forEachIndexed { r, pair ->
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {

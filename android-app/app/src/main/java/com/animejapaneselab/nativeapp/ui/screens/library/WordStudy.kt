@@ -366,7 +366,7 @@ private fun StudyPage(
                         LineVoicePill(line.ja, line.audioUrl, audio, settings.ttsWorkerUrl)
                     }
                     MarkedLine(line.ja, line.mark, style = AjlTheme.type.jpBody.copy(fontSize = 18.sp, lineHeight = 28.sp))
-                    if (line.zh.isNotBlank()) Text(line.zh, style = AjlTheme.type.body.copy(fontSize = 14.sp, lineHeight = 21.sp), color = colors.ink3)
+                    if (line.zh.isNotBlank()) Text(line.zh, style = AjlTheme.type.body, color = colors.ink3)
                 }
             }
 
@@ -556,7 +556,7 @@ private fun ChoicePage(
                                 val shown = if (committed == null) line.ja.replaceRange(line.mark.first, line.mark.last + 1, blank) else line.ja
                                 val mark = if (committed == null) line.mark.first until line.mark.first + blank.length else line.mark
                                 MarkedLine(shown, mark, style = AjlTheme.type.jpBody.copy(fontSize = 20.sp, lineHeight = 32.sp))
-                                if (line.zh.isNotBlank()) Text(line.zh, style = AjlTheme.type.body.copy(fontSize = 14.sp, lineHeight = 21.sp), color = colors.ink3)
+                                if (line.zh.isNotBlank()) Text(line.zh, style = AjlTheme.type.body, color = colors.ink3)
                             }
                         }
                     }

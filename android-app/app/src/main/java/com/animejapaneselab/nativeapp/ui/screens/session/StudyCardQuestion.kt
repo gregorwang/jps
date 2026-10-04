@@ -298,7 +298,7 @@ private fun ScenePanel(
 
 @Composable
 private fun Translation(zh: String) {
-    Text(zh, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 22.sp), color = AjlTheme.colors.ink)
+    Text(zh, style = AjlTheme.type.body, color = AjlTheme.colors.ink)
 }
 
 @Composable

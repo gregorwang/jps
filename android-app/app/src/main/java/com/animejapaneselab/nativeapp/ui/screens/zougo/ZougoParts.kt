@@ -173,7 +173,7 @@ internal fun LineCard(line: ZgLine, audio: LessonAudioController, ttsWorkerUrl: 
                 style = AjlTheme.type.jpBody.copy(fontSize = 18.sp, lineHeight = 28.sp),
                 color = colors.ink,
             )
-            Text(line.zh, style = AjlTheme.type.body.copy(fontSize = 13.sp, lineHeight = 19.sp), color = colors.ink2)
+            Text(line.zh, style = AjlTheme.type.caption, color = colors.ink2)
         }
     }
 }

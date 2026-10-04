@@ -147,7 +147,7 @@ internal fun PosHandle(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Text("词类", style = AjlTheme.type.caption.copy(fontSize = 13.sp), color = colors.ink3)
+            Text("词类", style = AjlTheme.type.caption, color = colors.ink3)
             Text(
                 selected,
                 style = AjlTheme.type.caption.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold),
@@ -218,7 +218,7 @@ internal fun PosPanel(
             }
             if (verbShown) {
                 Row(Modifier.padding(top = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("动词", style = AjlTheme.type.caption.copy(fontSize = 13.sp), color = colors.ink3)
+                    Text("动词", style = AjlTheme.type.caption, color = colors.ink3)
                     Hairline(Modifier.weight(1f))
                 }
                 Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {

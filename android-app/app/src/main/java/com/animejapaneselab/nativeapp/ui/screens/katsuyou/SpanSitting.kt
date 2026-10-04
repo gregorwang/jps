@@ -124,7 +124,7 @@ internal fun SpanSitting(
     ) {
         StagePanel {
             Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (item.zh.isNotBlank()) Text(item.zh, style = AjlTheme.type.body.copy(fontSize = 13.sp), color = colors.ink3)
+                if (item.zh.isNotBlank()) Text(item.zh, style = AjlTheme.type.caption, color = colors.ink3)
                 FlowRow(
                     modifier = Modifier
                         .pointerInput(item, revealed) {
@@ -195,7 +195,7 @@ internal fun SpanSitting(
                 if (start) "「$anchor」前面有一段在修饰它，从哪一块开始？拖过去，或点那一块。"
                 else "「$anchor」管到哪一块为止？拖过去，或点最后一块。"
             }
-            Text(line, style = AjlTheme.type.body.copy(fontSize = 14.sp, lineHeight = 21.sp), color = colors.ink2)
+            Text(line, style = AjlTheme.type.body, color = colors.ink2)
         } else {
             val ok = picked == item.answer
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -206,7 +206,7 @@ internal fun SpanSitting(
                         if (item.gap.isNotBlank()) Text("补洞 → ${item.gap}", style = AjlTheme.type.jpBody.copy(fontSize = 16.sp, fontWeight = FontWeight.SemiBold), color = colors.ink)
                     }
                 }
-                Text(item.why, style = AjlTheme.type.body.copy(fontSize = 15.sp, lineHeight = 23.sp), color = colors.ink)
+                Text(item.why, style = AjlTheme.type.body, color = colors.ink)
             }
         }
     }

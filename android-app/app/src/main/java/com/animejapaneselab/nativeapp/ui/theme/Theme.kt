@@ -20,10 +20,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.animejapaneselab.nativeapp.R
 
@@ -244,18 +246,26 @@ private val CenteredLineHeight = LineHeightStyle(
     trim = LineHeightStyle.Trim.None,
 )
 
+/**
+ * Japanese text asks for Japanese glyph forms (直・骨・写・角・今・海・画・次・説・編 differ from the Chinese ones the
+ * phone's Chinese locale would pick). Every jp* style carries it, so `.copy(...)` keeps it.
+ */
+val JaLocale = LocaleList("ja-JP")
+
 private fun style(
     family: FontFamily,
     size: TextUnit,
     lineHeight: TextUnit,
     weight: FontWeight,
     letterSpacing: TextUnit = 0.sp,
+    locale: LocaleList? = null,
 ) = TextStyle(
     fontFamily = family,
     fontSize = size,
     lineHeight = lineHeight,
     fontWeight = weight,
     letterSpacing = letterSpacing,
+    localeList = locale,
     lineHeightStyle = CenteredLineHeight,
     platformStyle = PlatformTextStyle(includeFontPadding = false),
 )
@@ -282,19 +292,30 @@ data class AjlType(
     val meta: TextStyle,
     /** Plex Mono tiny — corner indices (attendance grid numbers). */
     val metaSmall: TextStyle,
+    /** Serif 700 24/32 — a 課 / word heading on its own screen (字号规范 title). */
+    val jpHead: TextStyle,
+    /** Serif 700 56/64 — the one big word (字号规范 hero). */
+    val jpHero: TextStyle,
 )
 
+/*
+ * 字号规范（画布「全局 · 字号 / 间距」TyaSpec）：meta 11/16 · caption 13/20 · body 15/25 · sub 17/26 · line 20/34 ·
+ * title 24/32 · display 32/40 · hero 56/64。Line heights and letter spacing are in em, so a `.copy(fontSize = …)`
+ * keeps the same proportions instead of inheriting a line height made for another size.
+ */
 val DefaultAjlType = AjlType(
-    jpDisplay = style(JpSerif, 34.sp, 44.sp, FontWeight.Black),
-    jpTitle = style(JpSerif, 17.sp, 24.sp, FontWeight.Bold),
-    jpBody = style(JpSerif, 19.sp, 30.sp, FontWeight.Medium),
-    jpLabel = style(JpSerif, 12.sp, 16.sp, FontWeight.Normal),
-    title = style(FontFamily.Default, 20.sp, 28.sp, FontWeight.SemiBold),
-    body = style(FontFamily.Default, 15.sp, 22.sp, FontWeight.Normal),
-    label = style(FontFamily.Default, 16.sp, 22.sp, FontWeight.Medium),
-    caption = style(FontFamily.Default, 13.sp, 18.sp, FontWeight.Normal),
-    meta = style(PlexMono, 11.sp, 16.sp, FontWeight.Normal, letterSpacing = 0.3.sp),
-    metaSmall = style(PlexMono, 9.sp, 12.sp, FontWeight.Normal),
+    jpDisplay = style(JpSerif, 32.sp, 1.25.em, FontWeight.Bold, locale = JaLocale),
+    jpTitle = style(JpSerif, 17.sp, 1.53.em, FontWeight.Bold, locale = JaLocale),
+    jpBody = style(JpSerif, 20.sp, 1.7.em, FontWeight.Medium, letterSpacing = 0.04.em, locale = JaLocale),
+    jpLabel = style(JpSerif, 12.sp, 1.34.em, FontWeight.Normal, locale = JaLocale),
+    title = style(FontFamily.Default, 20.sp, 1.4.em, FontWeight.SemiBold),
+    body = style(FontFamily.Default, 15.sp, 1.67.em, FontWeight.Normal, letterSpacing = 0.02.em),
+    label = style(FontFamily.Default, 16.sp, 1.4.em, FontWeight.Medium),
+    caption = style(FontFamily.Default, 13.sp, 1.54.em, FontWeight.Normal, letterSpacing = 0.02.em),
+    meta = style(PlexMono, 11.sp, 1.46.em, FontWeight.Normal, letterSpacing = 0.02.em),
+    metaSmall = style(PlexMono, 9.sp, 1.34.em, FontWeight.Normal),
+    jpHead = style(JpSerif, 24.sp, 1.34.em, FontWeight.Bold, locale = JaLocale),
+    jpHero = style(JpSerif, 56.sp, 1.15.em, FontWeight.Bold, locale = JaLocale),
 )
 
 // ---------------------------------------------------------------------------
