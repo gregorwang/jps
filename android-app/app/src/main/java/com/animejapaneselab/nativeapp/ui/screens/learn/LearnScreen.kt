@@ -39,7 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 
 /**
- * 学ぶ tab: 課程 / 言語学 text tabs ([LabUiState.learnSection]). 課程 = [CourseScreen]; 言語学 =
+ * 学ぶ tab: 課程 / 言語学 / 単語 text tabs ([LabUiState.learnSection]). 課程 = [CourseScreen]; 言語学 =
  * [LinguisticsScreen] (第一巻 アニメの台詞 / 第二巻 基礎). Foundation answering happens in
  * [FoundationSession] (package D2) — shown here in place of the page while open; its ×/back
  * returns to the 教科書.
@@ -88,6 +88,11 @@ fun LearnScreen(
         )
         return
     }
+    val wordRound by com.animejapaneselab.nativeapp.ui.words.WordPractice.session.collectAsState()
+    if (uiState.learnSection == LearnSection.Words && wordRound != null) {
+        WordPracticeTab(uiState.settings, modifier.background(AjlTheme.colors.bg))
+        return
+    }
     val zougo by com.animejapaneselab.nativeapp.ui.zougo.Zougo.state.collectAsState()
     val practice = zougo.practice
     if (practice != null) {
@@ -132,14 +137,16 @@ fun LearnScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             TextTabs(
-                items = listOf("課程", "言語学"),
-                selectedIndex = if (course) 0 else 1,
-                onSelect = { onSectionSelected(if (it == 0) LearnSection.Course else LearnSection.Linguistics) },
+                items = listOf("課程", "言語学", "単語"),
+                selectedIndex = uiState.learnSection.ordinal,
+                onSelect = { onSectionSelected(LearnSection.entries[it]) },
             )
             Spacer(Modifier.weight(1f))
-            if (!course) IconButton44(Icons.Rounded.Tune, "筛选", { filtersOpen = true })
+            if (uiState.learnSection == LearnSection.Linguistics) IconButton44(Icons.Rounded.Tune, "筛选", { filtersOpen = true })
         }
-        if (course) {
+        if (uiState.learnSection == LearnSection.Words) {
+            WordPracticeTab(uiState.settings, Modifier.weight(1f))
+        } else if (course) {
             CourseScreen(
                 uiState = uiState,
                 actions = CourseActions(

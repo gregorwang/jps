@@ -434,7 +434,7 @@ enum class LabTab(val jp: String, val label: String) {
 }
 
 /** Sub-state of [LabTab.Learn]: the 課程 / 言語学 text tabs. */
-enum class LearnSection { Course, Linguistics }
+enum class LearnSection { Course, Linguistics, Words }
 
 enum class TrainingSessionKind {
     Lesson,

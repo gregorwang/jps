@@ -58,6 +58,7 @@ v3 重写派了 6 个页面包、7 个子代理，合计约 120 万 token。钱�
   - `ui/jishu/Jishu.kt`（`JishuViewModel`）：一次学习（板書 + 8 张场景句卡）、「覚えた」记录（`pointId::sentenceId`）、场景上下文（按集拉 `/subtitles` 取前后句）、`parseFormula` 把拆解拆成词块。
   - `ui/screens/jishu/`：首页（今日の自習 + 教科書书架）、目次、`JishuSittingScreen`（板書页、场景句卡、遮る）、つづく（小テスト 就地跑本课練習）。卡片上**不显示出处**（集数、时间、说话人），用户明确不要。
   - 72 课讲义在 `assets/conjugation_lessons.json`，由 Antigravity 写、`archive-content-sources/conjugation-drill-p1/lessons/check.py --install` 装入；课列表、台词、已学（`learned`）仍在 `ConjugationDrillViewModel`。一次学习结束就 `markLearned`，这课才进練習。
+- **練習 → 単語**（0.31 起，第三个文字标签，`LearnSection.Words`）：按 JLPT 级别练辞書的词，`ui/words/WordPractice.kt`（`WordPracticeRules`：词池、题型随箱升级、同音词当干扰项、间隔 1/3/7/14/30 天、每天新词 10；`WordPractice` 进程级 holder，存 `LocalLabStore.readWordPractice`），界面 `screens/learn/WordPracticeScreen.kt`。**和帳面的単語（`Tango`）是两套，用户明确不要合并。**
 - **第四巻 造語**（0.25.0）：自習书架的第四本，`ui/zougo/`（asset 模型 + holder）、`ui/screens/zougo/`（拼合台、矩阵、小测、目次）；練習 → 言語学第 4 格。内容在 `archive-content-sources/zougo/build_zougo.py`，详见 `ZOUGO_HANDOFF.md`。
 - `ui/screens/<区域>/`：`today`、`learn`（課程 / 言語学 / 选番面板）、`session`（アイキャッチ、各题型、つづく、读空气、基础题库）、`library`（辞書、原作 = `SubtitlesScreen`）、`review`、`settings`（学生証、AI 历史）、`login`、`search`（命令面板，按 `SearchScope` 分范围，见 0.22.0 经验）。`V3Contracts.kt` 里放的是回调合集。
 - `ui/design/`：v3 组件库。**写新 UI 之前先 grep 这里有没有现成的**：
@@ -136,6 +137,12 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 - 登录是必须的，不做手写功能，Web 前端不是规范；默认只改 `android-app/` 下的文件。
 
 ## 8. 经验记录（每次会话结束补几条）
+
+**2026-10-06 · 0.30.2 + 練習 単語（未发布）**
+- 用户实际用过才知道要什么：同音の部屋（池塘 + 二级页）被否，**列表里点字就念，不开二级页**。类似「看 / 听」的东西优先就地完成。
+- 练习的科学原则用户认可：先考后看、间隔重复、每天新词上限、题型由易到难、对错由答题判定（不自评）。
+- 设计画布（9x3Rk…）在重新 `/login` 后的账号里读不到；这次样板单独发在 https://claude.ai/artifact/DLZUgkQm7FZH4sAikNGam7 。
+- 用户说「不要发版，还有很多功能」时只 commit + push；CHANGELOG 先写「未发布」一节，发版时改成版本号。
 
 **2026-10-04 · 0.30.1（課前の一眼重做 + 字号规范落地一半）**
 - 第九巻硬套活用书的 peek 格式（stem + tail），18 条例句有 13 条被拼成错句，发版前没人看过真机画面。**新书复用别的书的模板时，先拿真实数据过一遍样子**；`python design/peek_overview.py` 在本地列出每本书課前の一眼的问题（规则太长、上排放不下……）。
