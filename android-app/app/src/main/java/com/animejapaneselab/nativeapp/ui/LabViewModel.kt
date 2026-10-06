@@ -621,6 +621,10 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
         _uiState.update { it.copy(activeSession = null, secondaryScreen = SecondaryScreen.Search) }
     }
 
+    fun openRadio() {
+        _uiState.update { it.copy(activeSession = null, secondaryScreen = SecondaryScreen.Radio) }
+    }
+
     fun openSceneSearch() {
         _uiState.update { it.copy(activeSession = null, secondaryScreen = SecondaryScreen.SceneSearch) }
     }

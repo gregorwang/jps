@@ -53,6 +53,7 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Replay
+import androidx.compose.material.icons.rounded.Headphones
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -180,6 +181,8 @@ class ReviewFeedActions(
     val viewSource: (workSlug: String, episode: Int, lineNo: Int) -> Unit,
     val openKnownWords: () -> Unit,
     val openSearch: () -> Unit,
+    /** 知識电台. */
+    val openRadio: () -> Unit,
     /** おわり 完成: back to 今日. */
     val done: () -> Unit,
 )
@@ -260,6 +263,7 @@ fun ReviewFeedScreen(
                     color = colors.ink3,
                 )
             }
+            IconButton44(Icons.Rounded.Headphones, "知識电台", actions.openRadio)
             IconButton44(Icons.Rounded.Search, "搜知识点", actions.openSearch)
         }
         Hairline(Modifier.padding(horizontal = 20.dp))

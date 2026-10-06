@@ -449,6 +449,8 @@ enum class SecondaryScreen {
     Search,
     /** 场景搜索: the full page of scene hits (state in `ui/search/SceneSearch`). */
     SceneSearch,
+    /** 知識电台 (state in `ui/radio/RadioPlayer`). */
+    Radio,
 }
 
 enum class ReadAirMode(val label: String) {

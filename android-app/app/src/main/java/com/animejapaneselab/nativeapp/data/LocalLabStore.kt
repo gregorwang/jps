@@ -234,6 +234,11 @@ class LocalLabStore(context: Context) {
 
     fun writeWordPractice(raw: String) = preferences.edit { putString(WordPracticeKey, raw) }
 
+    /** 知識电台: tracks heard to the end, mode and nap minutes (JSON, see RadioPlayer). */
+    fun readRadio(): String? = preferences.getString(RadioKey, null)
+
+    fun writeRadio(raw: String) = preferences.edit { putString(RadioKey, raw) }
+
     /** 第四巻 造語: lessons learned, matrix cells opened, per-item quiz record (JSON, see Zougo). */
     fun readZougo(): String? = preferences.getString(ZougoKey, null)
 
@@ -499,6 +504,7 @@ class LocalLabStore(context: Context) {
         const val KnowledgeMarksKey = "knowledge-marks"
         const val TangoKey = "tango-state"
         const val WordPracticeKey = "word-practice"
+        const val RadioKey = "radio"
         const val ZougoKey = "zougo-state"
         const val KyokaKey = "kyoka-state"
         const val TodayWidgetLineKey = "today-widget-line"

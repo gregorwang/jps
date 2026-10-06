@@ -463,6 +463,11 @@ private fun ShellPage(
                 onOpenLine = viewModel::openSubtitlesAt,
             )
 
+            SecondaryScreen.Radio -> com.animejapaneselab.nativeapp.ui.screens.radio.RadioScreen(
+                settings = uiState.settings,
+                onBack = viewModel::closeSecondaryScreen,
+            )
+
             SecondaryScreen.SmartReviewQueue -> SmartReviewQueueScreen(
                 plan = uiState.smartReviewPlan,
                 onBack = viewModel::closeSecondaryScreen,
@@ -617,6 +622,7 @@ private fun ShellPage(
                             viewSource = viewModel::openSubtitlesAt,
                             openKnownWords = { viewModel.selectTab(LabTab.Library) },
                             openSearch = viewModel::openSearch,
+                            openRadio = viewModel::openRadio,
                             done = { viewModel.selectTab(LabTab.Today) },
                         )
                     },
