@@ -68,10 +68,6 @@ object HomophoneRules {
             }
         }.shuffled(Random(seed))
 
-    /** A room's questions: its own lines; with original voice first. */
-    fun roomQuestions(group: HomoGroup, lines: Map<String, TangoLine>, seed: Long): List<HomoQuestion> =
-        questions(listOf(group), lines, seed).sortedBy { if (it.line.audioUrl.isEmpty()) 1 else 0 }
-
     /** A mixed round over [groups]: at most one question per room, original voice first. */
     fun mixedRound(groups: List<HomoGroup>, lines: Map<String, TangoLine>, seed: Long, size: Int = 10): List<HomoQuestion> =
         questions(groups, lines, seed)
@@ -124,22 +120,16 @@ object Homophones {
 }
 
 /**
- * Which room (or mixed round) is open. Any screen can open one — the 辞書 list, a word card —
- * and `HomophoneRoomHost` in LabApp shows it over everything.
+ * Whether the mixed listening round is open (the 辞書 同音 list opens it).
  */
 object HomophoneRoom {
     sealed interface Request {
-        data class Room(val reading: String) : Request
         /** A mixed round over the rooms of one JLPT level. */
         data class Round(val level: String) : Request
     }
 
     private val _open = MutableStateFlow<Request?>(null)
     val open: StateFlow<Request?> = _open.asStateFlow()
-
-    fun openRoom(reading: String) {
-        _open.value = Request.Room(reading)
-    }
 
     fun openRound(level: String) {
         _open.value = Request.Round(level)

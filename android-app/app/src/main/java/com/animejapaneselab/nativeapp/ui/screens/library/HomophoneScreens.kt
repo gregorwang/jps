@@ -97,13 +97,14 @@ import kotlinx.coroutines.withContext
 // 辞書 → 词汇 → 同音: one row per reading, its kanji side by side
 // ---------------------------------------------------------------------------
 
-/** The 同音 list of the 辞書 词汇 tab for [level]. Tap a row → its room; the first row starts a mixed round. */
+/** The 同音 list of the 辞書 词汇 tab for [level]. Tap a kanji → hear it, tap the reading → hear the sound; the first row starts a mixed round. */
 @Composable
-internal fun HomophonePage(level: String, modifier: Modifier = Modifier) {
+internal fun HomophonePage(level: String, onSpeak: (String) -> Unit, modifier: Modifier = Modifier) {
     val appContext = LocalContext.current.applicationContext
     val groups by produceState(Homophones.peek()) { if (value == null) value = withContext(Dispatchers.Default) { Homophones.load(appContext) } }
     val levels = rememberLevelIndex()
     var filter by rememberSaveable { mutableStateOf(HomophoneRules.Filter.All) }
+    var tapped by remember { mutableStateOf<String?>(null) }
     val atLevel = remember(groups, levels, level) {
         HomophoneRules.atLevel(groups.orEmpty(), { levels[it] }, level)
     }
@@ -126,7 +127,15 @@ internal fun HomophonePage(level: String, modifier: Modifier = Modifier) {
                 }
             }
             items(shown, key = { it.reading }) { g ->
-                GroupRow(g, onClick = { HomophoneRoom.openRoom(g.reading) })
+                GroupRow(
+                    g,
+                    tapped = tapped,
+                    onReading = { onSpeak(sayReading(appContext, g)) },
+                    onWord = { w ->
+                        tapped = w.id
+                        onSpeak(w.surface)
+                    },
+                )
             }
         }
     }
@@ -173,18 +182,20 @@ private fun RoundRow(count: Int, onClick: () -> Unit) {
 }
 
 @Composable
-private fun GroupRow(group: HomoGroup, onClick: () -> Unit) {
+private fun GroupRow(group: HomoGroup, tapped: String?, onReading: () -> Unit, onWord: (HomoWord) -> Unit) {
     val colors = AjlTheme.colors
     Column(
         Modifier
             .fillMaxWidth()
-            .clickableNoRipple(onClick = onClick)
-            .semantics { contentDescription = "${group.reading}：${group.words.joinToString("、") { it.surface }}" }
             .padding(top = 14.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Column {
+            Column(
+                Modifier
+                    .clickableNoRipple(onClick = onReading)
+                    .semantics { contentDescription = "听 ${group.reading}" },
+            ) {
                 Text(group.romaji, style = AjlTheme.type.meta.copy(fontSize = 12.sp), color = colors.ink3)
                 Text(group.reading, style = AjlTheme.type.jpTitle.copy(fontSize = 24.sp, lineHeight = 30.sp), color = AjlTheme.work.accent)
             }
@@ -192,8 +203,9 @@ private fun GroupRow(group: HomoGroup, onClick: () -> Unit) {
             Text("${group.words.size} 個", style = AjlTheme.type.meta.copy(fontSize = 11.sp), color = colors.ink3, modifier = Modifier.padding(bottom = 4.dp))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            group.words.forEach { w -> KanjiTile(w, Modifier.weight(1f)) }
+            group.words.forEach { w -> KanjiTile(w, Modifier.weight(1f), current = w.id == tapped, onClick = { onWord(w) }) }
         }
+        if (group.note.isNotBlank()) NoteText(group.note, color = colors.ink2)
     }
     Hairline()
 }
@@ -220,9 +232,9 @@ private fun KanjiTile(word: HomoWord, modifier: Modifier = Modifier, current: Bo
 // 词卡 → 同じ音 row
 // ---------------------------------------------------------------------------
 
-/** Under a word card: the other words read the same, and the way into their room. */
+/** Under a word card: the other words read the same; tap one to hear it. */
 @Composable
-internal fun SameSoundRow(surface: String) {
+internal fun SameSoundRow(surface: String, onSpeak: (String) -> Unit) {
     val appContext = LocalContext.current.applicationContext
     val groups by produceState(Homophones.peek()) { if (value == null) value = withContext(Dispatchers.Default) { Homophones.load(appContext) } }
     val group = remember(groups, surface) { if (groups == null) null else Homophones.groupOf(surface) } ?: return
@@ -235,21 +247,15 @@ internal fun SameSoundRow(surface: String) {
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             group.words.forEach { w ->
-                KanjiTile(w, Modifier.weight(1f), current = w.surface == surface, onClick = { HomophoneRoom.openRoom(group.reading) })
+                KanjiTile(w, Modifier.weight(1f), current = w.surface == surface, onClick = { onSpeak(w.surface) })
             }
         }
-        Row(
-            Modifier.heightIn(min = 44.dp).clickableNoRipple(onClick = { HomophoneRoom.openRoom(group.reading) }),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text("进同音の部屋", style = AjlTheme.type.body.copy(fontSize = 14.sp), color = AjlTheme.work.accent)
-            Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = AjlTheme.work.accent)
-        }
+        if (group.note.isNotBlank()) NoteText(group.note, color = colors.ink2)
     }
 }
 
 // ---------------------------------------------------------------------------
-// The room and the quiz, over everything (LabApp hosts it)
+// The listening round, over everything (LabApp hosts it)
 // ---------------------------------------------------------------------------
 
 @Composable
@@ -276,14 +282,6 @@ fun HomophoneRoomHost(settings: LabSettings) {
                 HomophoneRoom.close()
             }
             when (req) {
-                is HomophoneRoom.Request.Room -> {
-                    val group = groups.firstOrNull { it.reading == req.reading }
-                    if (group == null) {
-                        LaunchedEffect(Unit) { HomophoneRoom.close() }
-                    } else {
-                        RoomFlow(group, lines, levels, settings, audio, close)
-                    }
-                }
                 is HomophoneRoom.Request.Round -> {
                     val questions = remember(req) {
                         HomophoneRules.mixedRound(HomophoneRules.atLevel(groups, { levels[it] }, req.level), lines, System.currentTimeMillis())
@@ -302,135 +300,6 @@ private fun rememberLevelIndex(): Map<String, String> {
     val loaded by produceState(LevelDict.peek()) { if (value == null) value = withContext(Dispatchers.Default) { LevelDict.load(appContext) } }
     return remember(loaded) {
         loaded?.let { d -> (d.vocab + d.freqVocab).associate { it.id to it.level } }.orEmpty()
-    }
-}
-
-@Composable
-private fun RoomFlow(
-    group: HomoGroup,
-    lines: Map<String, TangoLine>,
-    levels: Map<String, String>,
-    settings: LabSettings,
-    audio: LessonAudioController,
-    onClose: () -> Unit,
-) {
-    var quizzing by rememberSaveable(group.reading) { mutableStateOf(false) }
-    val questions = remember(group, lines) { HomophoneRules.roomQuestions(group, lines, System.currentTimeMillis()) }
-    if (quizzing && questions.isNotEmpty()) {
-        QuizFlow(group.reading, questions, settings, audio, onDone = { quizzing = false }, onClose = onClose)
-    } else {
-        RoomScreen(group, lines, levels, settings, audio, canQuiz = questions.isNotEmpty(), onQuiz = { quizzing = true }, onClose = onClose)
-    }
-}
-
-@Composable
-private fun RoomScreen(
-    group: HomoGroup,
-    lines: Map<String, TangoLine>,
-    levels: Map<String, String>,
-    settings: LabSettings,
-    audio: LessonAudioController,
-    canQuiz: Boolean,
-    onQuiz: () -> Unit,
-    onClose: () -> Unit,
-) {
-    val context = LocalContext.current
-    val colors = AjlTheme.colors
-    val work = AjlTheme.work
-    var playingId by remember { mutableStateOf<String?>(null) }
-    val sounding = audio.playbackState.phase == AudioPlaybackPhase.Loading || audio.playbackState.phase == AudioPlaybackPhase.Playing
-    fun play(id: String, action: () -> Unit) {
-        if (sounding && playingId == id) {
-            audio.stop()
-        } else {
-            playingId = id
-            action()
-        }
-    }
-
-    var selectedId by rememberSaveable(group.reading) { mutableStateOf(group.words.firstOrNull()?.id) }
-    var dropKey by remember { mutableIntStateOf(0) }
-    var pickKey by remember { mutableIntStateOf(0) }
-    val lineOf = { w: HomoWord -> lines[w.id]?.takeIf { w.cut.isNotEmpty() && w.cut in it.ja } }
-
-    Column(Modifier.fillMaxSize()) {
-        TopBar(nav = TopBarNav.Close, onNav = onClose, navContentDescription = "关闭", title = "同音の部屋")
-        Column(
-            Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            HomophonePond(
-                group,
-                selectedId = selectedId,
-                dropKey = dropKey,
-                pickKey = pickKey,
-                onStone = {
-                    dropKey++
-                    play("reading") { audio.speakText(sayReading(context, group), settings.ttsWorkerUrl) }
-                },
-                onWord = { w ->
-                    selectedId = w.id
-                    pickKey++
-                    lineOf(w)?.let { line -> play(w.id) { playLine(context, line, audio, settings.ttsWorkerUrl) } }
-                },
-            )
-            PondLegend(group)
-            if (group.note.isNotBlank()) NoteText(group.note, modifier = Modifier.fillMaxWidth())
-            group.words.firstOrNull { it.id == selectedId }?.let { w ->
-                WordCaption(
-                    w,
-                    sameWord = group.sameWord.any { c -> c.any { it.id == w.id } },
-                    line = lineOf(w),
-                    level = levels[w.id],
-                    audio = audio,
-                    ttsWorkerUrl = settings.ttsWorkerUrl,
-                )
-            }
-            Spacer(Modifier.height(8.dp))
-        }
-        if (canQuiz) {
-            InkButton("听台词，猜波纹停在哪个字", onQuiz, modifier = Modifier.fillMaxWidth().padding(16.dp))
-        }
-    }
-}
-
-/** The picked word: kanji, meaning, which ring it is on, and its line from the anime. */
-@Composable
-private fun WordCaption(
-    w: HomoWord,
-    sameWord: Boolean,
-    line: TangoLine?,
-    level: String?,
-    audio: LessonAudioController,
-    ttsWorkerUrl: String,
-) {
-    val colors = AjlTheme.colors
-    MangaPanel(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(start = 14.dp, end = 14.dp, top = 12.dp, bottom = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(w.surface, style = AjlTheme.type.jpTitle.copy(fontSize = 28.sp, lineHeight = 36.sp), color = colors.ink)
-                Text(w.meaning, style = AjlTheme.type.body.copy(fontSize = 14.sp, fontWeight = FontWeight.SemiBold), color = colors.ink, modifier = Modifier.weight(1f).padding(bottom = 5.dp))
-                level?.takeIf { it.startsWith("N") }?.let {
-                    Text(it, style = AjlTheme.type.metaSmall.copy(fontSize = 11.sp), color = AjlTheme.work.accent, modifier = Modifier.padding(bottom = 7.dp))
-                }
-            }
-            Text(
-                if (sameWord) "同一个词 · 换字" else "碰巧同音",
-                style = AjlTheme.type.caption.copy(fontSize = 11.sp, fontWeight = FontWeight.SemiBold),
-                color = if (sameWord) colors.info else colors.ink2,
-                modifier = Modifier.background(if (sameWord) colors.infoSoft else colors.sunken, RoundedCornerShape(11.dp)).padding(horizontal = 8.dp, vertical = 2.dp),
-            )
-            if (line != null) {
-                val start = line.ja.indexOf(w.cut)
-                MarkedLine(
-                    line.ja,
-                    start until start + w.cut.length,
-                    style = AjlTheme.type.jpBody.copy(fontSize = 16.sp, lineHeight = 25.sp),
-                )
-                LineVoicePill(line.ja, line.audioUrl, audio, ttsWorkerUrl)
-            }
-        }
     }
 }
 
@@ -455,7 +324,7 @@ private fun QuizFlow(
     val sounding = audio.playbackState.phase == AudioPlaybackPhase.Loading || audio.playbackState.phase == AudioPlaybackPhase.Playing
 
     Column(Modifier.fillMaxSize()) {
-        TopBar(nav = TopBarNav.Close, onNav = onClose, navContentDescription = "关闭", title = "同音の部屋 · $title", actions = {
+        TopBar(nav = TopBarNav.Close, onNav = onClose, navContentDescription = "关闭", title = "同音 · $title", actions = {
             Text("${(index + 1).coerceAtMost(questions.size)} / ${questions.size}", style = AjlTheme.type.meta.copy(fontSize = 12.sp), color = colors.ink3, modifier = Modifier.padding(end = 8.dp))
         })
         ProgressLine((index + if (picked != null) 1 else 0) / questions.size.coerceAtLeast(1).toFloat(), Modifier.fillMaxWidth().padding(horizontal = 20.dp))

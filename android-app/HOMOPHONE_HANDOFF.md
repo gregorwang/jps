@@ -27,3 +27,6 @@
 - `RoomScreen` 默认选中第一个字，下面的 `WordCaption` 显示它的意思、哪一圈、台词。旧的 `WordPanel` 已删。
 - 画布「同音の部屋」页第二行还有 影絵 / 声優 / 分光 三个意象没做；用户想换的话，结构可以照搬（选中字 + 下方卡片不变，只换上半部分）。
 - 发 0.28.1 时 `build-content-pack.py` 第三次 SSL EOF，同样 `-SkipContentPack`。
+
+## 0.30.2 去掉同音の部屋
+- 用户试用后觉得池塘没用、不要二级页：列表里点字 = 念这个字（`speakText`，语音包优先），点读音 = `sayReading`，组的说明直接显示在字下面；词卡「同じ音」同样点字就念。`HomophonePond.kt`、`RoomFlow/RoomScreen/WordCaption`、`HomophoneRoom.Request.Room`、`roomQuestions` 已删。`HomophoneRoomHost` 只剩「听台词猜字」混合测验。

@@ -223,7 +223,7 @@ internal fun WordCardSheet(
                 }
             }
 
-            SameSoundRow(item.surface)
+            SameSoundRow(item.surface, onSpeak)
 
             // A checked card's empty note is deliberate: never fall back to the row's unreliable one.
             val note = if (fix?.keep == true) fix.note else item.realWorldNote

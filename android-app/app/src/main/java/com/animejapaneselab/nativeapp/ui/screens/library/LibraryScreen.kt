@@ -267,7 +267,7 @@ fun LibraryScreen(
         Box(Modifier.fillMaxWidth().weight(1f)) {
             val scope = if (levelMode) "lv#$shownLevel#$pos#$selectedTab#$showFreq" else "$workSlug#$episode#$selectedTab#$pos"
             when (selectedTab) {
-                0 if showHomo -> HomophonePage(level = shownLevel)
+                0 if showHomo -> HomophonePage(level = shownLevel, onSpeak = { audio.speakText(it, uiState.settings.ttsWorkerUrl) })
                 0 -> VocabPage(
                     key = scope,
                     uiState = pageState,
