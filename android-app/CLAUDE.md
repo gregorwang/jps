@@ -139,6 +139,11 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 ## 8. 经验记录（每次会话结束补几条）
 
+**2026-10-06 · 0.31.0（知識电台）**
+- 用户要的是**分轨、自己挑**的音频节目（一课一回、50 个词一回），不是随便放的电台；文案要有爱蜜莉亚的性格，老师念讲义被骂「跟坐牢有什么区别」。写她的台词前先读 `emilia-voice/emilia.json` 的 296 句原话，风格手册在 `RADIO_HANDOFF.md` 第 3 节。
+- 爱蜜莉亚说中文：微软中文 TTS + Seed-VC 转音色被否（「太糟糕了」），要专门的模型，计划在 `RADIO_HANDOFF.md` 第 6 节。App 里中文段先走手机 TTS，声音以后按 sha1 key 打进语音包就自动替换。
+- 新的后台播放用前台服务（mediaPlayback）+ MediaSession，`startForegroundService` 之后不管要不要停都必须先 `startForeground`。
+
 **2026-10-06 · 0.30.2 + 練習 単語（未发布）**
 - 用户实际用过才知道要什么：同音の部屋（池塘 + 二级页）被否，**列表里点字就念，不开二级页**。类似「看 / 听」的东西优先就地完成。
 - 练习的科学原则用户认可：先考后看、间隔重复、每天新词上限、题型由易到难、对错由答题判定（不自评）。

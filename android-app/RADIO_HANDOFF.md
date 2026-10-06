@@ -1,6 +1,6 @@
 # 知識电台（爱蜜莉亚讲课）· 交接
 
-2026-10-06 开始。状态：**声音测试中**，App 还没有任何代码。
+2026-10-06 开始。状态：**0.31.0 已上线节目单、播放器、三个界面**；中文讲解暂时是手机 TTS，等爱蜜莉亚中文模型（第 6 节）；文案除「試聴」外是模板（第 5 节）。
 
 ## 1. 用户要的是什么
 
@@ -50,10 +50,29 @@
 
 `line_map.py` 的统计（粗略，正则）：296 句里有 **301 个辞書词**（N5 126 / N4 90 / N3 58 / N2 21 / N1 4）；语法上多的是 って、可能形、の？、ている、てくれる（29）、たい、被动、なんて、なくちゃ（10）、てあげる（9）、もん（8）；ように、ようになる 各只有 1 句。所以単語轨的 N5–N4 能有不少原声；知識轨大部分要靠生成的日语，原声是点缀。
 
-## 5. 还没做
+## 5. App 里怎么实现的（0.31.0）
 
-- [ ] 用户听完 A/B，定中文的源声音。
-- [ ] 节目单的单位：知識（活用书 A–H、第三巻 72 课、第五〜九巻、造語）按课一轨；単語按级别 50 个一轨。
-- [ ] 文案生成：主会话按本手册写样板 2–3 轨给用户听，认可后再定批量方式（Gemini 写初稿 + 规则校验 + 主会话抽查，或主会话全写）。
-- [ ] 批量生成音频（Modal，先报价）+ 打成电台包（像语音包一样一次导入）。
-- [ ] App：节目单页、播放服务（锁屏控制、后台播放）、午睡定时渐弱。
+- 数据：`assets/radio_tracks.json`，由 `archive-content-sources/radio/build_radio.py` 生成（gitignore；读 App 的 `kyoka_books.json`、`dict_vocab.json` + `dict_freq_vocab.json`、`vocab_lines*.json` 和 `emilia-voice/radio_test/emilia_lines.json`）。每段 `[kind, text, audio, caption]`：`z` 中文、`j` 日语、`o` 原作台词（audio 是 CDN 路径）；每回带 `chapters`。`mixed()` 把中文里夹的日语切成 `j` 段（「」里有假名或 ≤3 字才算日语，否则是被引用的中文）。
+  - 她的口吻：文件顶部 `OPEN_* / REACT_* / CLOSE_* / INTRO_*` 几组台词池，按课 id 哈希挑。**换成手写文案时**：在脚本里给某一回直接写 `segs`（照 `sample_track()`），优先级高于模板。
+  - 知識只做了第五〜九巻（`kyoka_books.json`）；活用书 A–H、造語、第三巻、知識卡还没进节目单。
+- 播放：`ui/radio/RadioPlayer.kt`（进程级 object + StateFlow）。每段的声音：原作台词先放原声；其余先查语音包 `VoicePack.fileFor(text)`（**所以爱蜜莉亚的中文做好后，只要按同样的 key = sha1(原文.strip())[:16] 打进语音包，App 不用改**），没有再用手机 TTS（中文 `Locale.SIMPLIFIED_CHINESE`、日语 `Locale.JAPANESE`）。段间停顿 0.28–0.7 秒。午睡：`napEndsAt` 计时，最后 6 分钟音量从 1 降到 0.12，到点 `stop()`；队列放完还没到点 → `recap`，只循环队列里的 `j`/`o` 段，间隔 1.8 秒。听的时间每 30 秒 `StudyLog.recordRead` 一次。听完的回存在 `LocalLabStore.readRadio()`。
+- `platform/RadioService.kt`：mediaPlayback 前台服务 + `MediaSession`（锁屏、耳机键）+ 通知（暂停 / 下一段 / 停止）。`RadioPlayer` 每次变化调 `RadioService.sync`。
+- 界面：`ui/screens/radio/RadioScreen.kt`（節目表 + 底部小播放条 + 再生中 + 午睡画面），路由 `SecondaryScreen.Radio`，入口在知識页顶栏耳机图标。
+
+## 6. 爱蜜莉亚说中文：下一步（还没做，先报价再跑）
+
+- 结论：edge-tts 中文 → Seed-VC 音色转换不行（用户：「太糟糕了」）。要一个本身会说中文、音色学她的模型。
+- 第一轮比赛（Modal，约 1 美元，跑前先跟用户报价）：
+  1. **GPT-SoVITS**：卷上 `/gsv` 已有用 `dataset2` 训练的她的模型（第二轮比赛时 GSV 日语读错多、但音色略好），直接用中文文本推理，参考音频用 `final/refs/gentle.wav`。约 0.2 美元。
+  2. **IndexTTS2**（B 站开源，中文强，可控情绪）：零样本，拿她 5–10 秒干净片段当参考。约 0.4 美元。
+  3. **CosyVoice 2**（阿里开源，跨语种克隆）：同上。约 0.4 美元。
+  每个模型念同一组 6 句（`radio_test/radio_test.py` 的 `SEGS` 里的中文段），拼进同一段「ように」样板（日语和原声不变），做成和 `listen.html` 一样的 A/B 页给用户听（标签加一个「日本口音」：用日语录音学出来的中文很可能带口音，可能反而像她，要用户判断）。
+- 第二轮（如果最好的那个还不够像）：用 `dataset2` 的 252 条 12.3 分钟干净录音微调，预计 1–3 美元，**先报价**。微调数据只有日语；GPT-SoVITS 是跨语种训练的老办法，IndexTTS2 / CosyVoice 2 的微调要查当时的官方脚本（不要凭记忆）。
+- 定下来以后：批量生成全部 `z` 段（约 7500 段，去重后更少），走 `batch.py` 的流程（生成 → Whisper 回听中文 → Opus），按 sha1(原文.strip())[:16] 写进 `manifest.json`，重新打语音包。估算按「每段约 2 GPU 秒 + Whisper 0.4 秒」算，约 5–6 小时 L4，约 5 美元，**先报价**。
+
+## 7. 还没做
+
+- [ ] 第 6 节：她的中文声音。
+- [ ] 文案：主会话按第 3 节手册把模板换成手写（优先第五巻 助詞和 N5 単語），每写完一本 `build_radio.py` + 编译发版。
+- [ ] 节目单补活用书 A–H、造語、第三巻、知識卡合集。
+- [ ] 日语段（`j`）大多是课本里的短语，语音包里没有，现在走手机日语 TTS；可以和中文一起批量生成。
