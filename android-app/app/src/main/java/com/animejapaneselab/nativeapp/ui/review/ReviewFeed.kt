@@ -435,9 +435,13 @@ object ReviewFeed {
                     FeedRules.isDueKey(key) && key !in (_session.value?.graded ?: emptySet()) -> grade(context, key, Verdict.Remembered, sinks)
                     key.startsWith("know:") -> {
                         Knowledge.seen(context, FeedRules.baseKey(key).removePrefix("know:"), s.day)
+                        StudyLog.recordRead(context)
                         read++
                     }
-                    key.startsWith("vocab:") -> read++
+                    key.startsWith("vocab:") -> {
+                        StudyLog.recordRead(context)
+                        read++
+                    }
                 }
             }
         }

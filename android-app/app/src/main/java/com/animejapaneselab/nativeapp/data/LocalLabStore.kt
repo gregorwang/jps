@@ -524,4 +524,6 @@ class LocalLabStore(context: Context) {
  */
 data class StudyDay(val answers: Int = 0, val correct: Int = 0, val seconds: Int = 0, val studied: Int = 0, val finished: Int = 0) {
     val activity: Int get() = answers + studied
+    /** Studied at all today, cards only read (知識, 単語) included: they add [seconds] without an answer. */
+    val active: Boolean get() = activity > 0 || seconds > 0
 }

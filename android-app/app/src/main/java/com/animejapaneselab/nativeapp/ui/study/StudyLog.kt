@@ -12,7 +12,7 @@ import java.time.LocalTime
 
 /**
  * Process-wide study log behind 今日「最近 12 周」. Every judged answer (lesson, 读空气, 基础题库,
- * 活用道場) calls [record], every 自習 card [recordStudy]; study time is the gap since the previous answer, capped so a phone
+ * 活用道場) calls [record], every 自習 card [recordStudy], every card only read (知識, 単語) [recordRead]; study time is the gap since the previous answer, capped so a phone
  * left on the table doesn't count as studying. Reaching a session's end (つづく, 栞 review done) calls [finishSession]:
  * only finished sessions light a square.
  */
@@ -49,6 +49,9 @@ object StudyLog {
         add(context) { it.copy(studied = it.studied + lines) }
     }
 
+    /** A card read without an answer (知識 stream, 単語 flip): study time only, no answer counted. */
+    fun recordRead(context: Context) = add(context) { it }
+
     /** A session reached its end screen; lights today's square (deeper with each one). */
     fun finishSession(context: Context) {
         add(context, timed = false) { it.copy(finished = it.finished + 1) }
@@ -76,7 +79,7 @@ object StudyLog {
             _totalSeconds.value += seconds
             store.writeStudyTotalSeconds(_totalSeconds.value)
         }
-        if (timed && current.activity == 0) {
+        if (timed && !current.active) {
             // First study of the day: feeds the reminder's habit time and clears today's nudge.
             store.appendStudyStart(LocalTime.now().let { it.hour * 60 + it.minute })
             StudyReminder.onStudyStarted(context)

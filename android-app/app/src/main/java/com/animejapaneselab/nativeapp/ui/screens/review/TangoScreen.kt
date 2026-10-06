@@ -378,7 +378,10 @@ private fun TangoSession(
                         ttsWorkerUrl = settings.ttsWorkerUrl,
                         todayLabel = "今日の ${words.size} 個",
                         modifier = Modifier.nestedScroll(handoff),
-                        onReveal = { revealed[pageId] = true },
+                        onReveal = {
+                            if (revealed[pageId] != true) StudyLog.recordRead(context)
+                            revealed[pageId] = true
+                        },
                         onHeart = { on ->
                             KnownWords.setWord(context, word.head, on)
                             toast = if (on) "掌握了 · 这个词不再出现" else "取消掌握"

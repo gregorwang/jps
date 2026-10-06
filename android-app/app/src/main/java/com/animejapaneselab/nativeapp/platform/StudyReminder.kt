@@ -198,12 +198,12 @@ object StudyReminder {
     private fun input(store: LocalLabStore, today: LocalDate): ReminderInput {
         val log = store.readStudyLog()
         val todayKey = today.toString()
-        val lastStudy = log.filter { (day, d) -> day < todayKey && d.activity > 0 }.keys.maxOrNull()
+        val lastStudy = log.filter { (day, d) -> day < todayKey && d.active }.keys.maxOrNull()
         val epochDay = today.toEpochDay()
         val line = TodayWidgetLine.decode(store.readTodayWidgetLine())
         return ReminderInput(
             today = today,
-            studiedToday = (log[todayKey]?.activity ?: 0) > 0,
+            studiedToday = log[todayKey]?.active == true,
             lastStudyDay = lastStudy?.let { runCatching { LocalDate.parse(it) }.getOrNull() },
             shioriDue = NotebookRules.dueCount(store.readNotebook(), epochDay),
             drillDue = store.readDrillProgress().values.count { it.dueDay <= epochDay },
@@ -278,7 +278,7 @@ object StudyReminder {
             val due = shiori + drill
             val fading = store.readDrillPointDue().filterValues { it <= epochDay }.minByOrNull { it.value }?.key
                 ?.substringBefore('（')?.trim()
-            val lastStudy = store.readStudyLog().filter { (day, d) -> day < today.toString() && d.activity > 0 }.keys.maxOrNull()
+            val lastStudy = store.readStudyLog().filter { (day, d) -> day < today.toString() && d.active }.keys.maxOrNull()
             val gap = lastStudy?.let { runCatching { java.time.temporal.ChronoUnit.DAYS.between(LocalDate.parse(it), today).toInt() }.getOrNull() } ?: 0
             val workSlug = line?.workSlug.orEmpty()
             val small = RemoteViews(pkg, R.layout.notif_small).apply {
