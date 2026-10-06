@@ -15,7 +15,9 @@
 - 日语：照语音包的配方（SBV2 `emilia2` → 句子过 Seed-VC vc44；短的只用 SBV2）。
 - 中文：SBV2 只会日语。做法是 **edge-tts 中文女声（免费）→ Seed-VC vc44 转成她的音色**，Seed-VC 不认语言。
 - 原声：她自己的台词，`emilia-voice` 卷上 `/vol/dataset2/wavs/<name>.wav`（252 条，已去 BGM、已按字幕裁过）；`emilia.json` 的 296 条在 `/vol/vocals` 也有（去了 BGM，没裁）。
-- 测试：`archive-content-sources/emilia-voice/radio_test/radio_test.py`（`tts` → `modal run` → `mix`），三个版本 A 晓伊 / B 晓晓 / C 晓伊 + auto_f0，试听页 `radio_test/listen.html`。**结论待用户听完填在这里。**
+- 测试：`archive-content-sources/emilia-voice/radio_test/radio_test.py`（`tts` → `modal run` → `mix`），三个版本 A 晓伊 / B 晓晓 / C 晓伊 + auto_f0，试听页 `radio_test/listen.html`。
+- **结论（2026-10-06）：edge-tts → Seed-VC 不行，用户：「太糟糕了」。** 中文要用专门的模型。下一轮比赛（待用户点头，先报价）：GPT-SoVITS（Modal 卷 `/gsv` 上已有她的模型，直接用中文推理）、IndexTTS2、CosyVoice 2（都是拿她的原声片段做参考的零样本克隆，中文是它们的强项）；最好的那个不够像再微调。
+- 界面样板：https://claude.ai/artifact/13G2wTiGsaVLDaDKyza4GP （節目表 / 再生中 / 午睡モード 三屏）。入口打算放在知識 tab 顶栏（耳机图标），自習目次每课也可「听这课」。
 
 ## 3. 爱蜜莉亚的说话方式（写文案的风格手册）
 
