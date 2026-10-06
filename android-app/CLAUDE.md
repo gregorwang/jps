@@ -29,6 +29,7 @@ Anime Japanese Lab 的原生 Android App（Kotlin + Jetpack Compose）。**私�
 | 活用书 VOL.A–H 照造語重做（0.27.0 八本全部做完），玩法、数据脚本（`book_*.py`）、代码 | `CONJUGATION_REBUILD_HANDOFF.md` |
 | 第九巻 読解（长难句 + N1 读解门道，0.30.0 已做）：括る / 主张はどこ / 毒を見抜く 三种玩法、数据脚本、原文错处、还没做的 | `DOKKAI_HANDOFF.md` |
 | 自習（学习台）的产品逻辑 | 本文第 3 节「产品主线」；画布「自習 · 学习台（预览）」页 |
+| 知識电台（爱蜜莉亚用中文讲日语的分轨音频，午睡 / 散步听）、她的说话风格手册 | `RADIO_HANDOFF.md` |
 | 想让 Gemini 听录音做跟读打分（长音 / 促音 / 哪一拍错） | `SHADOWING_SCORING_FAILED.md`（**已测过，不可行，不做**） |
 
 设计画布：https://claude.ai/artifact/9x3RkMeAtAYTN64i8T8HN4 （用 Artifact 工具的 `read` 读取，只看 `V3*`、`X*` 开头的画板）。**只在要实现画布上某一屏时才读，且只读那一屏**：`path=project/<画板>.dc.html`。
