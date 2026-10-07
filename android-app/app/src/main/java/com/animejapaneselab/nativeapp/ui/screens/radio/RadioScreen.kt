@@ -12,6 +12,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -205,6 +206,7 @@ private fun TrackRow(track: RadioTrack, current: Boolean, heard: Boolean, queued
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(clock(track.seconds), style = AjlTheme.type.metaSmall, color = colors.ink2)
+                    if (track.hand) Text("新稿", style = AjlTheme.type.caption.copy(fontSize = 11.sp, fontWeight = FontWeight.SemiBold), color = colors.ink2)
                     if (track.voiceCount > 0) Text("原声 ${track.voiceCount}", style = AjlTheme.type.caption.copy(fontSize = 11.sp), color = accent)
                     val tag = when { current -> "正在听"; queued -> "排队中"; heard -> "听过"; else -> "" }
                     if (tag.isNotEmpty()) Text(tag, style = AjlTheme.type.caption.copy(fontSize = 11.sp), color = colors.faint)
@@ -277,19 +279,27 @@ private fun Playing(state: RadioState, settings: LabSettings, onCollapse: () -> 
             )
             if (state.mode == RadioMode.Nap) IconButton44(Icons.Rounded.Bedtime, "午睡画面", onNap) else Spacer(Modifier.size(44.dp))
         }
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp)) {
-            PortraitPanel(WorkIdentity.character("エミリア"), Modifier.fillMaxWidth().height(200.dp), speaking = state.playing)
-            Spacer(Modifier.height(14.dp))
-            Text(track.title, style = AjlTheme.type.jpTitle, color = colors.ink)
-            Spacer(Modifier.height(12.dp))
-            if (seg != null) SegCard(seg, settings)
-            Spacer(Modifier.height(18.dp))
-            ChapterLine(track, state)
-            if (state.notice.isNotEmpty()) {
-                Spacer(Modifier.height(10.dp))
-                Text(state.notice, style = AjlTheme.type.caption, color = colors.bad)
+        var script by rememberSaveable { mutableStateOf(false) }
+        TextTabs(listOf("播放", "文案"), if (script) 1 else 0, { script = it == 1 }, Modifier.padding(horizontal = 20.dp))
+        Hairline(Modifier.padding(top = 6.dp))
+        if (script) {
+            ScriptView(track, state, Modifier.weight(1f))
+        } else {
+            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp)) {
+                Spacer(Modifier.height(12.dp))
+                PortraitPanel(WorkIdentity.character("エミリア"), Modifier.fillMaxWidth().height(200.dp), speaking = state.playing)
+                Spacer(Modifier.height(14.dp))
+                Text(track.title, style = AjlTheme.type.jpTitle, color = colors.ink)
+                Spacer(Modifier.height(12.dp))
+                if (seg != null) SegCard(seg, settings)
+                Spacer(Modifier.height(18.dp))
+                ChapterLine(track, state)
+                if (state.notice.isNotEmpty()) {
+                    Spacer(Modifier.height(10.dp))
+                    Text(state.notice, style = AjlTheme.type.caption, color = colors.bad)
+                }
+                Spacer(Modifier.height(16.dp))
             }
-            Spacer(Modifier.height(16.dp))
         }
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -382,6 +392,72 @@ private fun SegCard(seg: RadioSeg, settings: LabSettings) {
                     style = AjlTheme.type.jpBody.copy(fontSize = 20.sp, lineHeight = 32.sp),
                 )
                 if (seg.caption.isNotEmpty()) Text(seg.caption, style = AjlTheme.type.body, color = colors.ink2)
+            }
+        }
+    }
+}
+
+/** The whole script of the track: chapter heads, every segment; the one sounding is marked and kept in view. Tap = play from there. */
+@Composable
+private fun ScriptView(track: RadioTrack, state: RadioState, modifier: Modifier = Modifier) {
+    val colors = AjlTheme.colors
+    val accent = AjlTheme.work.accent
+    val list = rememberLazyListState()
+    val heads = remember(track.id) { track.chapters.toMap() }
+    val now = if (state.recap) -1 else state.seg
+    LaunchedEffect(track.id, now) {
+        if (now >= 0) list.animateScrollToItem(now, scrollOffset = -160)
+    }
+    LazyColumn(
+        state = list,
+        modifier = modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 48.dp),
+    ) {
+        items(track.segs.size, key = { it }) { i ->
+            val seg = track.segs[i]
+            val on = i == now
+            Column {
+                heads[i]?.let { label ->
+                    Text(
+                        label,
+                        style = AjlTheme.type.caption.copy(fontWeight = FontWeight.SemiBold),
+                        color = colors.ink3,
+                        modifier = Modifier.padding(top = if (i == 0) 0.dp else 16.dp, bottom = 6.dp),
+                    )
+                }
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min)
+                        .clickable { RadioPlayer.seekTo(i) }
+                        .padding(vertical = 6.dp),
+                ) {
+                    Box(Modifier.width(3.dp).heightIn(min = 20.dp).fillMaxHeight().background(if (on) accent else Color.Transparent))
+                    Spacer(Modifier.width(10.dp))
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        when (seg.kind) {
+                            SegKind.Zh -> Text(
+                                seg.text,
+                                style = AjlTheme.type.body.copy(fontSize = 16.sp, lineHeight = 26.sp),
+                                color = if (on) colors.ink else colors.ink2,
+                            )
+                            else -> {
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    if (seg.kind == SegKind.Orig) {
+                                        Text(
+                                            "原声",
+                                            style = AjlTheme.type.caption.copy(fontSize = 10.sp, fontWeight = FontWeight.SemiBold),
+                                            color = accent,
+                                            modifier = Modifier.border(1.dp, accent, RoundedCornerShape(2.dp)).padding(horizontal = 4.dp),
+                                        )
+                                    }
+                                    Text(seg.text, style = AjlTheme.type.jpBody.copy(fontSize = 18.sp, lineHeight = 28.sp), color = if (on) accent else colors.ink)
+                                }
+                                if (seg.caption.isNotEmpty()) Text(seg.caption, style = AjlTheme.type.caption, color = colors.ink3)
+                            }
+                        }
+                    }
+                }
             }
         }
     }

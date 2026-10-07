@@ -14,7 +14,11 @@ data class RadioSeg(
     val audioUrl: String,
     /** Chinese of a Japanese line, or the reading of a word. */
     val caption: String,
-)
+    /** What to speak when it differs from [text] (a lone particle は is read わ). */
+    val say: String = "",
+) {
+    val spoken: String get() = say.ifEmpty { text }
+}
 
 data class RadioTrack(
     val id: String,
@@ -25,6 +29,8 @@ data class RadioTrack(
     val segs: List<RadioSeg>,
     /** (first segment, label) — the progress line is cut into these. */
     val chapters: List<Pair<Int, String>>,
+    /** Hand-written script (not the v1 template). */
+    val hand: Boolean = false,
 ) {
     /** Rough length: Chinese ~4.5 chars/s, Japanese ~7 chars/s, plus the gaps. */
     val seconds: Int by lazy {
@@ -76,12 +82,14 @@ object RadioCatalog {
                                     text = s.getString(1),
                                     audioUrl = if (audio.isEmpty() || audio.startsWith("http")) audio else base + audio,
                                     caption = s.optString(3),
+                                    say = s.optString(4),
                                 )
                             }
                         },
                         chapters = t.optJSONArray("chapters")?.let { a ->
                             List(a.length()) { i -> a.getJSONArray(i).let { it.getInt(0) to it.getString(1) } }
                         }.orEmpty(),
+                        hand = t.optBoolean("hand"),
                     )
                 },
             )

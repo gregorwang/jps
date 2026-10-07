@@ -146,6 +146,20 @@ object RadioPlayer {
 
     fun next() = jump(+1)
 
+    /** Plays segment [index] of the current track (tapped in the script). */
+    fun seekTo(index: Int) {
+        val s = _state.value
+        val t = track() ?: return
+        if (index !in t.segs.indices) return
+        halt()
+        if (!s.playing) {
+            if (s.mode == RadioMode.Nap) armNap(if (napLeftMs > 0) napLeftMs else s.napMinutes * 60_000L)
+            requestFocus()
+        }
+        _state.update { it.copy(seg = index, recap = false, recapSeg = null, playing = true) }
+        startSeg()
+    }
+
     fun previous() = jump(-1)
 
     /** 再听这句. */
@@ -227,7 +241,7 @@ object RadioPlayer {
         tick()
         RadioService.sync(app)
         // Anime lines: the original clip is the point. Everything else: Emilia's pack, then the phone.
-        val pack = VoicePack.fileFor(app, seg.text)
+        val pack = VoicePack.fileFor(app, seg.spoken)
         val fromPack = { if (pack != null) playMedia(pack.absolutePath, t) { speak(seg, t) } else speak(seg, t) }
         when {
             seg.kind == SegKind.Orig && seg.audioUrl.isNotEmpty() -> playMedia(seg.audioUrl, t, fromPack)
@@ -395,7 +409,7 @@ object RadioPlayer {
             }
             engine.setSpeechRate(if (zh) 1.0f else 0.92f)
             val params = Bundle().apply { putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, volumeNow()) }
-            engine.speak(seg.text, TextToSpeech.QUEUE_FLUSH, params, t.toString())
+            engine.speak(seg.spoken, TextToSpeech.QUEUE_FLUSH, params, t.toString())
         }
         if (ttsInit) go() else pendingSpeak = go
     }
