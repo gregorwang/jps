@@ -17,7 +17,9 @@
 - 原声：她自己的台词，`emilia-voice` 卷上 `/vol/dataset2/wavs/<name>.wav`（252 条，已去 BGM、已按字幕裁过）；`emilia.json` 的 296 条在 `/vol/vocals` 也有（去了 BGM，没裁）。
 - 测试：`archive-content-sources/emilia-voice/radio_test/radio_test.py`（`tts` → `modal run` → `mix`），三个版本 A 晓伊 / B 晓晓 / C 晓伊 + auto_f0，试听页 `radio_test/listen.html`。
 - **结论（2026-10-06）：edge-tts → Seed-VC 不行，用户：「太糟糕了」。** 中文要用专门的模型。下一轮比赛（待用户点头，先报价）：GPT-SoVITS（Modal 卷 `/gsv` 上已有她的模型，直接用中文推理）、IndexTTS2、CosyVoice 2（都是拿她的原声片段做参考的零样本克隆，中文是它们的强项）；最好的那个不够像再微调。
-- **第二轮（2026-10-07，用户排除了 CosyVoice 2，只比两个）**：`radio_test/zh_bakeoff.py`（`modal run zh_bakeoff.py::main` → `python zh_bakeoff.py mix`），试听页 `radio_test/listen2.html`，参考音频都是 `/vol/refs/gentle`。Whisper 回听中文的字错率：**IndexTTS2 2%**（9 段全对）；GPT-SoVITS 用她微调过的 GPT 53%（只学过日语，中文整段漏念、念成日语），换成原版 s1v3 GPT + 她的 SoVITS 23%（「这节课」→「对解课」、「行不行」→「信不信」）。IndexTTS2 镜像要在 `pip install -e .` 后补 `protobuf>=4.25,<6`，否则 Modal 起不来。**等用户听完选。**
+- **第二轮（2026-10-07，用户排除了 CosyVoice 2，只比两个）**：`radio_test/zh_bakeoff.py`（`modal run zh_bakeoff.py::main` → `python zh_bakeoff.py mix`），试听页 `radio_test/listen2.html`，参考音频都是 `/vol/refs/gentle`。Whisper 回听中文的字错率：**IndexTTS2 2%**（9 段全对）；GPT-SoVITS 用她微调过的 GPT 53%（只学过日语，中文整段漏念、念成日语），换成原版 s1v3 GPT + 她的 SoVITS 23%（「这节课」→「对解课」、「行不行」→「信不信」）。IndexTTS2 镜像要在 `pip install -e .` 后补 `protobuf>=4.25,<6`，否则 Modal 起不来。用户听后：两个都**不如第一轮 A**，「音色不像」「一直在喘气」；A 的毛病是微软 TTS 吐字不清。
+- **喘气的原因**：零样本模型连参考音频的气声一起学；`gentle.wav` 是带哭腔的轻声台词，**参考音频别再用 `/vol/refs` 的情绪参考，用平静的陈述句**。
+- **第三轮（同日）**：`zh_bakeoff.py::round3` → `mix3`，试听页 `listen3.html`。IndexTTS2 念中文 → Seed-VC vc44 转成她的音色（A 像她就是靠 vc44）。参考从 dataset2 里不带 ！？… 的句子中按气声打分（pyin 无声帧 + 频谱平坦度，`r3_refs.json`）挑最低的：X = 1 段（「そんな世界は、どこにもないのね。」），Y = 前 3 段拼接。转换后 Whisper 字错率 X 2%、Y 20%（Y 在「那换成」「行不行」前面多出「诶」「啊……」）。**等用户听。**
 - 界面样板：https://claude.ai/artifact/13G2wTiGsaVLDaDKyza4GP （節目表 / 再生中 / 午睡モード 三屏）。入口打算放在知識 tab 顶栏（耳机图标），自習目次每课也可「听这课」。
 
 ## 3. 爱蜜莉亚的说话方式（写文案的风格手册）
