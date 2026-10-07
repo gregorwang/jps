@@ -56,6 +56,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -397,64 +400,89 @@ private fun SegCard(seg: RadioSeg, settings: LabSettings) {
     }
 }
 
-/** The whole script of the track: chapter heads, every segment; the one sounding is marked and kept in view. Tap = play from there. */
+/** The whole script of the track: chapter heads, one paragraph per sentence; the part sounding is marked and kept in view. Tap = play from there. */
 @Composable
 private fun ScriptView(track: RadioTrack, state: RadioState, modifier: Modifier = Modifier) {
     val colors = AjlTheme.colors
     val accent = AjlTheme.work.accent
     val list = rememberLazyListState()
     val heads = remember(track.id) { track.chapters.toMap() }
-    val now = if (state.recap) -1 else state.seg
-    LaunchedEffect(track.id, now) {
-        if (now >= 0) list.animateScrollToItem(now, scrollOffset = -160)
+    // paragraphs: a sentence cut into z / j pieces is one paragraph; an original line or a captioned Japanese line stands alone
+    val paras = remember(track.id) {
+        val out = mutableListOf<IntRange>()
+        var from = 0
+        for (i in 1..track.segs.size) {
+            if (i == track.segs.size || !track.segs[i].cont) { out += from until i; from = i }
+        }
+        out
     }
+    val now = if (state.recap) -1 else state.seg
+    val at = paras.indexOfFirst { now in it }
+    LaunchedEffect(track.id, at) {
+        if (at >= 0) list.animateScrollToItem(at, scrollOffset = -160)
+    }
+    val jpFont = AjlTheme.type.jpBody.fontFamily
     LazyColumn(
         state = list,
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 48.dp),
     ) {
-        items(track.segs.size, key = { it }) { i ->
-            val seg = track.segs[i]
-            val on = i == now
+        items(paras.size, key = { paras[it].first }) { p ->
+            val range = paras[p]
+            val first = track.segs[range.first]
+            val on = now in range
             Column {
-                heads[i]?.let { label ->
+                heads[range.first]?.let { label ->
                     Text(
                         label,
                         style = AjlTheme.type.caption.copy(fontWeight = FontWeight.SemiBold),
                         color = colors.ink3,
-                        modifier = Modifier.padding(top = if (i == 0) 0.dp else 16.dp, bottom = 6.dp),
+                        modifier = Modifier.padding(top = if (p == 0) 0.dp else 16.dp, bottom = 6.dp),
                     )
                 }
                 Row(
                     Modifier
                         .fillMaxWidth()
                         .height(IntrinsicSize.Min)
-                        .clickable { RadioPlayer.seekTo(i) }
+                        .clickable { RadioPlayer.seekTo(if (on) now else range.first) }
                         .padding(vertical = 6.dp),
                 ) {
                     Box(Modifier.width(3.dp).heightIn(min = 20.dp).fillMaxHeight().background(if (on) accent else Color.Transparent))
                     Spacer(Modifier.width(10.dp))
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        when (seg.kind) {
-                            SegKind.Zh -> Text(
-                                seg.text,
-                                style = AjlTheme.type.body.copy(fontSize = 16.sp, lineHeight = 26.sp),
-                                color = if (on) colors.ink else colors.ink2,
-                            )
-                            else -> {
-                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                    if (seg.kind == SegKind.Orig) {
-                                        Text(
-                                            "原声",
-                                            style = AjlTheme.type.caption.copy(fontSize = 10.sp, fontWeight = FontWeight.SemiBold),
-                                            color = accent,
-                                            modifier = Modifier.border(1.dp, accent, RoundedCornerShape(2.dp)).padding(horizontal = 4.dp),
-                                        )
-                                    }
-                                    Text(seg.text, style = AjlTheme.type.jpBody.copy(fontSize = 18.sp, lineHeight = 28.sp), color = if (on) accent else colors.ink)
+                        if (range.first == range.last && first.kind != SegKind.Zh) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                if (first.kind == SegKind.Orig) {
+                                    Text(
+                                        "原声",
+                                        style = AjlTheme.type.caption.copy(fontSize = 10.sp, fontWeight = FontWeight.SemiBold),
+                                        color = accent,
+                                        modifier = Modifier.border(1.dp, accent, RoundedCornerShape(2.dp)).padding(horizontal = 4.dp),
+                                    )
                                 }
-                                if (seg.caption.isNotEmpty()) Text(seg.caption, style = AjlTheme.type.caption, color = colors.ink3)
+                                Text(first.text, style = AjlTheme.type.jpBody.copy(fontSize = 18.sp, lineHeight = 28.sp), color = if (on) accent else colors.ink)
                             }
+                            if (first.caption.isNotEmpty()) Text(first.caption, style = AjlTheme.type.caption, color = colors.ink3)
+                        } else {
+                            val text = buildAnnotatedString {
+                                for (i in range) {
+                                    val seg = track.segs[i]
+                                    val color = when {
+                                        i == now -> accent
+                                        on || seg.kind != SegKind.Zh -> colors.ink
+                                        else -> colors.ink2
+                                    }
+                                    if (seg.kind == SegKind.Zh) {
+                                        withStyle(SpanStyle(color = color)) { append(seg.text) }
+                                    } else {
+                                        // Japanese inside a Chinese sentence: put back the 「」 the script had
+                                        val body = seg.text.trimEnd { it in TRAILING }
+                                        withStyle(SpanStyle(color = color, fontFamily = jpFont)) { append("「"); append(body); append("」") }
+                                        withStyle(SpanStyle(color = color)) { append(seg.text.substring(body.length)) }
+                                    }
+                                }
+                            }
+                            Text(text, style = AjlTheme.type.body.copy(fontSize = 16.sp, lineHeight = 26.sp))
                         }
                     }
                 }
@@ -577,5 +605,7 @@ private fun rememberNow(running: Boolean): androidx.compose.runtime.State<Long> 
     }
     return now
 }
+
+private const val TRAILING = "。！？、，：；…!?"
 
 private fun clock(seconds: Int): String = "%d:%02d".format(seconds / 60, seconds % 60)

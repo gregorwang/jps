@@ -16,6 +16,8 @@ data class RadioSeg(
     val caption: String,
     /** What to speak when it differs from [text] (a lone particle は is read わ). */
     val say: String = "",
+    /** Same sentence as the segment before it (the script view joins them into one paragraph). */
+    val cont: Boolean = false,
 ) {
     val spoken: String get() = say.ifEmpty { text }
 }
@@ -83,6 +85,7 @@ object RadioCatalog {
                                     audioUrl = if (audio.isEmpty() || audio.startsWith("http")) audio else base + audio,
                                     caption = s.optString(3),
                                     say = s.optString(4),
+                                    cont = s.optInt(5) == 1,
                                 )
                             }
                         },
