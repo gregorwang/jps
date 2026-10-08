@@ -21,6 +21,8 @@
 - **喘气的原因**：零样本模型连参考音频的气声一起学；`gentle.wav` 是带哭腔的轻声台词，**参考音频别再用 `/vol/refs` 的情绪参考，用平静的陈述句**。
 - **第三轮（同日）**：`zh_bakeoff.py::round3` → `mix3`，试听页 `listen3.html`。IndexTTS2 念中文 → Seed-VC vc44 转成她的音色（A 像她就是靠 vc44）。参考从 dataset2 里不带 ！？… 的句子中按气声打分（pyin 无声帧 + 频谱平坦度，`r3_refs.json`）挑最低的：X = 1 段（「そんな世界は、どこにもないのね。」），Y = 前 3 段拼接。转换后 Whisper 字错率 X 2%、Y 20%（Y 在「那换成」「行不行」前面多出「诶」「啊……」）。
 - **定了（2026-10-07）：用 X**。用户：X =「像她」，Y =「还在喘气 / 有杂音」（多段参考反而带进气声）。配方：IndexTTS2（fp16，参考 = dataset2 `rezeroS2__s02e22__re-zero-s02e22-sentence-171` 单段）→ Seed-VC vc44（参数同 `radio_test.py`）→ Whisper 中文回听。速度（L4）：IndexTTS2 每段约 7–10 秒（音频 ≈ 0.21 秒/字，RTF ≈ 1.9，短句有固定开销），vc44 每段约 2–3 秒。
+- **批量生成（2026-10-08 开始）**：Modal 报价太贵（知識 ≈ 3、全部 ≈ 17 美元），改在 **Colab 免费 T4** 跑，0 美元；主会话用 colab-mcp 直接操作用户浏览器里的笔记本。**不做 Whisper 回听**（用户：一切从简）。用户听了样段：中文音色「确实奇怪，但无解」，**不再优化中文音色**；日语那边觉得还好。做法、坑、速度见 `archive-content-sources/emilia-voice/radio_test/colab/README.md`（T4 每段约 16 秒，约 0.75 秒/字）。成品在 Modal 卷 `emilia-voice:radio_zh/opus/<key>.ogg`，key 同语音包。
+- **Colab 一天断三次**（做到 788/1459），用户同意花约 2 美元：知識剩下的中文 + 日语 1114 段改用 Modal 跑完，`archive-content-sources/emilia-voice/radio_test/radio_gen.py`（日语成品在 `radio_zh/opus_j`）。打包：两个目录的 ogg 拷进 `emilia-voice/out/opus`，manifest 加条目（kind `rzh` / `rj`），`pack_tools.py build`。**已完成（21:45）**：知識 z 1459 + j 1114 全部入包（Modal 实花约 2.3 L4 小时 ≈ 1.8 美元；Colab 做的一段是 0 字节，已重做），语音包 46967 条 / 297MB，放在用户「下载」。知識各回只剩 1 段日语「笑う」不在包里（之前被 drop，走手机 TTS）。単語 7000 段中文另定。
 - 界面样板：https://claude.ai/artifact/13G2wTiGsaVLDaDKyza4GP （節目表 / 再生中 / 午睡モード 三屏）。入口打算放在知識 tab 顶栏（耳机图标），自習目次每课也可「听这课」。
 
 ## 3. 爱蜜莉亚的说话方式（写文案的风格手册）

@@ -20,6 +20,7 @@
 | 2026-10-03 | 0.29.0 第四巻 造語 三組（z08–z10 的词 + 例句） | `archive-content-sources/zougo/voice_items.json`（整份重写，已入包的 78 条 key 不变，跳过即可） | 158 | `zword`（原 `word`）/ `zgram`（原 `sentence`） | 待生成 |
 | 2026-10-03 | 同音の部屋的字（69）+ 単語/同音台词修正原声后没原声、包里也没有的句子（488） | `archive-content-sources/homophones/voice_items.json` | 557 | `zword`（say=假名读音）/ `zgram` | 待生成 |
 | 2026-10-04 | 0.30.0 第九巻 読解（分拣的词组、挖空 / 选择的长例句；全是原创例句，没有原声） | `archive-content-sources/kyoka/voice_items.json`（`book`: dokkai） | 114 | `zword` / `zgram`（长句偏多，按句子算时间） | 待生成 |
+| 2026-10-08 | 知識电台：中文 `z` 段（IndexTTS2 → vc44，Colab 免费 T4）+ 日语 `j` 段（语音包里没有的） | 清单由 `radio_tracks.json` 现算（见 `RADIO_HANDOFF.md`）；成品在 Modal 卷 `radio_zh/opus` | 知識 z 1459 / j 1114；単語 N5–N3 z 7000 / j 3314（N2–N1 还是模板，不生成） | `rzh` / `rj` | 知識 z + j 已入包 2026-10-08（46967 条，297MB；単語 z / j 待生成） |
 
 **规矩**：以后任何内容脚本（`build_katsuyou.py`、`build_zougo.py`、知识卡……）只要写出 `voice_items.json`，或者有新的 App 会念的固定文字，就在上表加一行。生成完把状态改成「已入包 + 日期 + 包版本」。
 
