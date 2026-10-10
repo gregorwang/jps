@@ -1,12 +1,12 @@
 # 第十三巻 笑い · 画布新画法落地 · 交接
 
-用户 2026-10-10 看了画布第二版，说「这不就好多了」。**画布即方案**：https://claude.ai/artifact/Jg2qJ6cRYYDrBms1GmKijm （Artifact `read` 读；每屏一个 `project/<名>.dc.html`，便签在 `project/canvas.json` 的 notes 里）。照画布实现，小偏差自己定。背景和数据见 `KYOKA_HANDOFF.md` 第 9 节。
+用户 2026-10-10 看了画布第二版，说「这不就好多了」。**画布即方案**：https://claude.ai/artifact/Jg2qJ6cRYYDrBms1GmKijm （Artifact `read` 读；每屏一个 `project/<名>.dc.html`，便签在 `project/canvas.json` 的 notes 里）。照画布实现，小偏差自己定。背景和数据见 `docs/textbooks/KYOKA_HANDOFF.md` 第 9 节。
 
 ## 规矩（用户定的）
 
 - 视觉语言是全书**一根线**：直线 = 常理，偏出去 = ボケ，折回来 = ツッコミ，笑落在折点（工作色实心圆 + 白色「笑」）。**不要用组件库的素材**（Avatar、SpeechBubble、speechLines 都不要），**不要漫画风**；用 Compose `Canvas` 自己画线（1.5dp 墨线，折回那段 3dp 工作色）。
 - 颜色只用 `AjlTheme.colors` / `AjlTheme.work`，浅色、深色都要能看。
-- 只跑 `design/v3build.ps1 -Mode compile`。**不 commit、不发版**（用户说「提交」才 commit，说「推送更新」才发版）。工作区里 `RADIO_HANDOFF.md`、`radio_tracks.json` 等别的会话的改动不要动。
+- 只跑 `design/v3build.ps1 -Mode compile`。**不 commit、不发版**（用户说「提交」才 commit，说「推送更新」才发版）。工作区里 `docs/voice/RADIO_HANDOFF.md`、`radio_tracks.json` 等别的会话的改动不要动。
 - 数据在 `archive-content-sources/kyoka/book_warai.py`，改完跑 `python build_kyoka.py --ro --book warai`；`kk_common.py` 的 `SENT` 要加字段。其他书的 asset 不能变：改前备份 `kyoka_books.json`，改完逐本比对。
 
 ## 要做的（按顺序，每块编译过了再做下一块）
@@ -27,7 +27,7 @@
 
 ## 做完
 
-- 每块做完都编译；全部做完更新 `CHANGELOG.md`「未发布」第十三巻那一节（写这本的新画法）、`KYOKA_HANDOFF.md` 第 9 节「画布和待定的代码改动」改成「已做」。
+- 每块做完都编译；全部做完更新 `CHANGELOG.md`「未发布」第十三巻那一节（写这本的新画法）、`docs/textbooks/KYOKA_HANDOFF.md` 第 9 节「画布和待定的代码改动」改成「已做」。
 - 只能实现一部分时，在本文档列出做到哪一步。
 
 ## 状态（2026-10-10）

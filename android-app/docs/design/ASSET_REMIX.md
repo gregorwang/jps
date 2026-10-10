@@ -128,5 +128,5 @@ Halftone screentone dots in {WORK_COLOR} only in the sky and cast shadows.
 ## 7. 授权提醒
 
 改造后的角色图仍然是原作角色的衍生图，和现有素材一样**只能用于个人 localSlim 版本**。
-公开发布版继续受 `AJL_PUBLIC_ASSETS_CLEARED` 的发布检查约束（见 `ANDROID_ENVIRONMENT.md`）。
+公开发布版继续受 `AJL_PUBLIC_ASSETS_CLEARED` 的发布检查约束（见 `docs/setup/ANDROID_ENVIRONMENT.md`）。
 第 4 节 D 里全新生成的场景背景不来自原作，但仍要确认所用生成工具的使用条款。

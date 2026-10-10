@@ -1,7 +1,7 @@
 # 内容数据清洗 · 交接文档（2026-09-28）
 
 > 给「Antigravity 交回语法点和台词之后」开的新会话看。先读 `CLAUDE.md`，再读本文。
-> 单词卡那一轮见 `VOCAB_CARDS_HANDOFF.md`，流程相同。
+> 单词卡那一轮见 `docs/words/VOCAB_CARDS_HANDOFF.md`，流程相同。
 
 ## 1. 审计结果（2026-09-28，Supabase 只读导出）
 

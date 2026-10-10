@@ -56,13 +56,13 @@
 
 1. 写 `book_<x>.py`（照 `book_g.py`），在 `build_katsuyou.py` 的 `ORDER` 里已经有它的字母，跑 `python build_katsuyou.py --ro --book X`，罗马音不对的写进 `RO_FIX`（这本文件里 `RO_FIX.update`）。
 2. 需要新画法时：`KyStep` 加一种 + `stepOf` 解析 + `StepSitting` 分发 + 在 `KyMachines.kt` 写界面。能用 `PickSitting` 的就加 `head` / `layout`，不要新开一个界面。
-3. 编译 → commit → 在本文件进度表改状态，在 `VOICE_BACKLOG.md` 加一行。
+3. 编译 → commit → 在本文件进度表改状态，在 `docs/voice/VOICE_BACKLOG.md` 加一行。
 
 ## 4. 还没做
 
 - 用户手机上试玩后的反馈（0.27.0 一次上了 7 本、7 种新玩法，手感都没在真机上试过）。
 
-- 爱蜜莉亚语音：见 `VOICE_BACKLOG.md`，现在都走 TTS。
+- 爱蜜莉亚语音：见 `docs/voice/VOICE_BACKLOG.md`，现在都走 TTS。
 - 練習里的新题型（画布 `RbPractice`：各本的「先猜」混在一起出）还没接，練習 仍是原来的活用题库。
 
 ## 5. 经验

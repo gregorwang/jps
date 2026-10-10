@@ -5,33 +5,35 @@ Anime Japanese Lab 的原生 Android App（Kotlin + Jetpack Compose）。**私�
 
 ## 1. 按需阅读，不要全读
 
+文档都在 `docs/<分类>/` 下（分类说明见 `docs/README.md`），新文档也按分类放，不要堆在根目录。
+
 | 要做什么 | 读什么 |
 |---|---|
-| 环境、工具链、构建变体、服务地址 | `ANDROID_ENVIRONMENT.md`（环境以它为准；README 的功能列表是 v2 时期的，已过时） |
-| 挑下一个功能 | `ANDROID_PRODUCT_ROADMAP.md`（后端已有、客户端没接的能力清单，含优先级） |
-| 界面长什么样、用哪些规则 | 本文第 4 节；细节看 `design/V3_IMPLEMENTATION_PLAN.md` 第 2 节 |
-| 动效 | `design/MOTION_SPEC.md` |
-| 已知缺数据、还能补的字段 | `design/v3-requests/*.md` |
-| 发布更新 | 本文第 6 节；细节看 `APP_UPDATE_GUIDE.md` |
+| 环境、工具链、构建变体、服务地址 | `docs/setup/ANDROID_ENVIRONMENT.md`（环境以它为准；README 的功能列表是 v2 时期的，已过时） |
+| 挑下一个功能 | `docs/product/ANDROID_PRODUCT_ROADMAP.md`（后端已有、客户端没接的能力清单，含优先级） |
+| 界面长什么样、用哪些规则 | 本文第 4 节；细节看 `docs/design/V3_IMPLEMENTATION_PLAN.md` 第 2 节 |
+| 动效 | `docs/design/MOTION_SPEC.md` |
+| 已知缺数据、还能补的字段 | `docs/design/v3-requests/*.md` |
+| 发布更新 | 本文第 6 节；细节看 `docs/setup/APP_UPDATE_GUIDE.md` |
 | 以前每版改了什么 | `CHANGELOG.md`（面向用户的详细更新日志） |
-| 活用道場（第三巻 活用）继续做 P3 | `CONJUGATION_DRILL_HANDOFF.md` |
-| 语法点 / 台词译文 / 练习题的数据清洗（Antigravity 交回后） | `CONTENT_CLEAN_HANDOFF.md` |
-| 罗马音 / 读音显示逐屏修正（用户发截图指导） | `ROMAJI_FIX_HANDOFF.md` |
+| 活用道場（第三巻 活用）继续做 P3 | `docs/textbooks/CONJUGATION_DRILL_HANDOFF.md` |
+| 语法点 / 台词译文 / 练习题的数据清洗（Antigravity 交回后） | `docs/content/CONTENT_CLEAN_HANDOFF.md` |
+| 罗马音 / 读音显示逐屏修正（用户发截图指导） | `docs/content/ROMAJI_FIX_HANDOFF.md` |
 | 爱蜜莉亚声线 TTS（批量预生成音频，替掉微软 TTS） | `../archive-content-sources/emilia-voice/HANDOFF.md`（本地，gitignore） |
-| 语音包（设置 → 语音包）的 bug、念错的词、重新打包 | `VOICE_PACK_HANDOFF.md` |
-| 新内容的爱蜜莉亚语音还没生成（攒着批量跑；**新内容写了 voice_items 就要在这里登记**） | `VOICE_BACKLOG.md` |
-| 単語卡（5 个一组、先想再看，0.19.0 已做）、帳面重排、错题搬去練習 | `VOCAB_CARD_HANDOFF.md` |
-| 単語卡背面「常一起出现」补搭配数据（日文 + 中文） | `COLLOCATION_HANDOFF.md` |
-| 辞書「高频补充」（动漫高频 JLPT N5–N2 单词 / 语法，也进単語）的数据和脚本 | `FREQ_WORDS_HANDOFF.md` |
-| 辞書「同音」、同音の部屋、听原声猜字（同音词数据 `groups.txt`、出题台词） | `HOMOPHONE_HANDOFF.md` |
-| 第四巻 造語（构词：拼合台 / 组合矩阵）的内容、数据脚本、还没做的玩法 | `ZOUGO_HANDOFF.md` |
-| **新文档做教科書，画画布之前**（怎么想这本书的界面装置、局部图形怎么挑、画完自查清单；两次被否的教训） | `design/TEXTBOOK_UI_PLAYBOOK.md`（**必读**） |
-| 第五巻 助詞・第六巻 口語・第七巻 類義・第十巻 指示・第十一巻 役割語・第十二巻 訳せない・第十三巻 笑い・第十四巻 涙（新文档做成的交互教科書）、找错 / 听原声 两种玩法、造語第三组 | `KYOKA_HANDOFF.md` |
-| 活用书 VOL.A–H 照造語重做（0.27.0 八本全部做完），玩法、数据脚本（`book_*.py`）、代码 | `CONJUGATION_REBUILD_HANDOFF.md` |
-| 第九巻 読解（长难句 + N1 读解门道，0.30.0 已做）：括る / 主张はどこ / 毒を見抜く 三种玩法、数据脚本、原文错处、还没做的 | `DOKKAI_HANDOFF.md` |
+| 语音包（设置 → 语音包）的 bug、念错的词、重新打包 | `docs/voice/VOICE_PACK_HANDOFF.md` |
+| 新内容的爱蜜莉亚语音还没生成（攒着批量跑；**新内容写了 voice_items 就要在这里登记**） | `docs/voice/VOICE_BACKLOG.md` |
+| 単語卡（5 个一组、先想再看，0.19.0 已做）、帳面重排、错题搬去練習 | `docs/words/VOCAB_CARD_HANDOFF.md` |
+| 単語卡背面「常一起出现」补搭配数据（日文 + 中文） | `docs/words/COLLOCATION_HANDOFF.md` |
+| 辞書「高频补充」（动漫高频 JLPT N5–N2 单词 / 语法，也进単語）的数据和脚本 | `docs/words/FREQ_WORDS_HANDOFF.md` |
+| 辞書「同音」、同音の部屋、听原声猜字（同音词数据 `groups.txt`、出题台词） | `docs/words/HOMOPHONE_HANDOFF.md` |
+| 第四巻 造語（构词：拼合台 / 组合矩阵）的内容、数据脚本、还没做的玩法 | `docs/textbooks/ZOUGO_HANDOFF.md` |
+| **新文档做教科書，画画布之前**（怎么想这本书的界面装置、局部图形怎么挑、画完自查清单；两次被否的教训） | `docs/design/TEXTBOOK_UI_PLAYBOOK.md`（**必读**） |
+| 第五巻 助詞・第六巻 口語・第七巻 類義・第十巻 指示・第十一巻 役割語・第十二巻 訳せない・第十三巻 笑い・第十四巻 涙・第十五巻 恐怖・第十六巻 接続（新文档做成的交互教科書）、找错 / 听原声 两种玩法、造語第三组 | `docs/textbooks/KYOKA_HANDOFF.md` |
+| 活用书 VOL.A–H 照造語重做（0.27.0 八本全部做完），玩法、数据脚本（`book_*.py`）、代码 | `docs/textbooks/CONJUGATION_REBUILD_HANDOFF.md` |
+| 第九巻 読解（长难句 + N1 读解门道，0.30.0 已做）：括る / 主张はどこ / 毒を見抜く 三种玩法、数据脚本、原文错处、还没做的 | `docs/textbooks/DOKKAI_HANDOFF.md` |
 | 自習（学习台）的产品逻辑 | 本文第 3 节「产品主线」；画布「自習 · 学习台（预览）」页 |
-| 知識电台（爱蜜莉亚用中文讲日语的分轨音频，午睡 / 散步听）、她的说话风格手册 | `RADIO_HANDOFF.md` |
-| 想让 Gemini 听录音做跟读打分（长音 / 促音 / 哪一拍错） | `SHADOWING_SCORING_FAILED.md`（**已测过，不可行，不做**） |
+| 知識电台（爱蜜莉亚用中文讲日语的分轨音频，午睡 / 散步听）、她的说话风格手册 | `docs/voice/RADIO_HANDOFF.md` |
+| 想让 Gemini 听录音做跟读打分（长音 / 促音 / 哪一拍错） | `docs/voice/SHADOWING_SCORING_FAILED.md`（**已测过，不可行，不做**） |
 
 设计画布：https://claude.ai/artifact/9x3RkMeAtAYTN64i8T8HN4 （用 Artifact 工具的 `read` 读取，只看 `V3*`、`X*` 开头的画板）。**只在要实现画布上某一屏时才读，且只读那一屏**：`path=project/<画板>.dc.html`。
 
@@ -61,7 +63,7 @@ v3 重写派了 6 个页面包、7 个子代理，合计约 120 万 token。钱�
   - `ui/screens/jishu/`：首页（今日の自習 + 教科書书架）、目次、`JishuSittingScreen`（板書页、场景句卡、遮る）、つづく（小テスト 就地跑本课練習）。卡片上**不显示出处**（集数、时间、说话人），用户明确不要。
   - 72 课讲义在 `assets/conjugation_lessons.json`，由 Antigravity 写、`archive-content-sources/conjugation-drill-p1/lessons/check.py --install` 装入；课列表、台词、已学（`learned`）仍在 `ConjugationDrillViewModel`。一次学习结束就 `markLearned`，这课才进練習。
 - **練習 → 単語**（0.31 起，第三个文字标签，`LearnSection.Words`）：按 JLPT 级别练辞書的词，`ui/words/WordPractice.kt`（`WordPracticeRules`：词池、题型随箱升级、同音词当干扰项、间隔 1/3/7/14/30 天、每天新词 10；`WordPractice` 进程级 holder，存 `LocalLabStore.readWordPractice`），界面 `screens/learn/WordPracticeScreen.kt`。**和帳面的単語（`Tango`）是两套，用户明确不要合并。**
-- **第四巻 造語**（0.25.0）：自習书架的第四本，`ui/zougo/`（asset 模型 + holder）、`ui/screens/zougo/`（拼合台、矩阵、小测、目次）；練習 → 言語学第 4 格。内容在 `archive-content-sources/zougo/build_zougo.py`，详见 `ZOUGO_HANDOFF.md`。
+- **第四巻 造語**（0.25.0）：自習书架的第四本，`ui/zougo/`（asset 模型 + holder）、`ui/screens/zougo/`（拼合台、矩阵、小测、目次）；練習 → 言語学第 4 格。内容在 `archive-content-sources/zougo/build_zougo.py`，详见 `docs/textbooks/ZOUGO_HANDOFF.md`。
 - `ui/screens/<区域>/`：`today`、`learn`（課程 / 言語学 / 选番面板）、`session`（アイキャッチ、各题型、つづく、读空气、基础题库）、`library`（辞書、原作 = `SubtitlesScreen`）、`review`、`settings`（学生証、AI 历史）、`login`、`search`（命令面板，按 `SearchScope` 分范围，见 0.22.0 经验）。`V3Contracts.kt` 里放的是回调合集。
 - `ui/design/`：v3 组件库。**写新 UI 之前先 grep 这里有没有现成的**：
   - `Primitives`：Hairline、MangaPanel、Screentone、ProgressLine
@@ -101,7 +103,7 @@ v3 重写派了 6 个页面包、7 个子代理，合计约 120 万 token。钱�
 
 ## 5. 加一个功能的标准流程
 
-1. 从 `ANDROID_PRODUCT_ROADMAP.md` 或用户描述里确定范围。后端已经有的接口，直接在 `data/` 里找 client 调用。
+1. 从 `docs/product/ANDROID_PRODUCT_ROADMAP.md` 或用户描述里确定范围。后端已经有的接口，直接在 `data/` 里找 client 调用。
 2. 界面放在对应的 `ui/screens/<区域>/`，只用 `ui/design` 的组件，缺什么就在 `ui/design` 里补一个通用的。
 3. 状态放进新的 state holder，本地持久化用 `LocalLabStore`。
 4. 编译通过（`v3build.ps1 -Mode compile`）后 commit。
@@ -142,11 +144,11 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 **2026-10-09 · 第十巻 指示（未发布）**
 - 新文档做教科書：全复用现成玩法时只写 `book_*.py` 数据，很快就做完，用户反而怀疑「没认真做」。**灌数据前先对着渲染代码（或画布样板）过一遍真实数据的样子**，并在汇报里说清楚查了什么、哪些只能真机看。
-- 分拣卡（swipe）会用日语 TTS 念卡面：卡面不能写中文。细节和接手清单在 `KYOKA_HANDOFF.md` 末尾。
+- 分拣卡（swipe）会用日语 TTS 念卡面：卡面不能写中文。细节和接手清单在 `docs/textbooks/KYOKA_HANDOFF.md` 末尾。
 
 **2026-10-06 · 0.31.0（知識电台）**
-- 用户要的是**分轨、自己挑**的音频节目（一课一回、50 个词一回），不是随便放的电台；文案要有爱蜜莉亚的性格，老师念讲义被骂「跟坐牢有什么区别」。写她的台词前先读 `emilia-voice/emilia.json` 的 296 句原话，风格手册在 `RADIO_HANDOFF.md` 第 3 节。
-- 爱蜜莉亚说中文：微软中文 TTS + Seed-VC 转音色被否（「太糟糕了」），要专门的模型，计划在 `RADIO_HANDOFF.md` 第 6 节。App 里中文段先走手机 TTS，声音以后按 sha1 key 打进语音包就自动替换。
+- 用户要的是**分轨、自己挑**的音频节目（一课一回、50 个词一回），不是随便放的电台；文案要有爱蜜莉亚的性格，老师念讲义被骂「跟坐牢有什么区别」。写她的台词前先读 `emilia-voice/emilia.json` 的 296 句原话，风格手册在 `docs/voice/RADIO_HANDOFF.md` 第 3 节。
+- 爱蜜莉亚说中文：微软中文 TTS + Seed-VC 转音色被否（「太糟糕了」），要专门的模型，计划在 `docs/voice/RADIO_HANDOFF.md` 第 6 节。App 里中文段先走手机 TTS，声音以后按 sha1 key 打进语音包就自动替换。
 - 新的后台播放用前台服务（mediaPlayback）+ MediaSession，`startForegroundService` 之后不管要不要停都必须先 `startForeground`。
 
 **2026-10-06 · 0.30.2 + 練習 単語（未发布）**
@@ -164,7 +166,7 @@ powershell -ExecutionPolicy Bypass -File C:\Users\汪家俊\jps\android-app\desi
 
 **2026-10-03 · 0.28.2（台词声音由用户选）**
 - 用户定：**不在代码里写死原声 / エミリア 谁优先**，界面上必须有切换按钮，默认エミリア。凡是放台词的地方用 `ui/voicepack/LineVoice.kt` 的 `LineVoicePill`（滑动切换，全 App 共用 `VoiceChoice`），自动播放用 `lineCue(context, text, audioUrl)`；别再直接 `PromptAudio.Source(...)` 播台词。偏好的存储键换成了 `voice-choice-2`（一次性把大家重置到エミリア）。
-- `vocab_lines*.json` 以前按行号配原声，大多是别人的声音；现在按文字配（细节在 `HOMOPHONE_HANDOFF.md`）。
+- `vocab_lines*.json` 以前按行号配原声，大多是别人的声音；现在按文字配（细节在 `docs/words/HOMOPHONE_HANDOFF.md`）。
 
 **2026-10-02 · 0.24.1（首次打开卡顿 / 闪退）**
 - 根因是主线程上的重活，最大的是 `VoicePack`：44k 条语音包的 manifest 在第一个声音按钮出现时同步解析，还逐条 `isFile`。现在 `init` 只起后台线程（`fileFor` 加载完之前返回 null，`state.clips` 变了会重组），启动预载线程里 `preload`。

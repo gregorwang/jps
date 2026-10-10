@@ -423,7 +423,7 @@ object CourseModel {
     fun heroMeta(season: WorkSeason, selectedEpisode: Int): String =
         "全${TextRules.kanjiNumber(season.episodeCount)}話 · いま${TextRules.episodeLabel(selectedEpisode)}"
 
-    /** Episode title when known (no ViewModel field yet — see design/v3-requests/C.md). */
+    /** Episode title when known (no ViewModel field yet — see docs/design/v3-requests/C.md). */
     fun episodeTitle(workSlug: String, episode: Int): String? = when (normalizeWorkSlug(workSlug)) {
         "k-on" -> KOnTitles[episode]
         "re-zero" -> ReZeroTitles[episode]

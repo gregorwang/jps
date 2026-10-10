@@ -67,7 +67,7 @@ import com.animejapaneselab.nativeapp.ui.theme.AjlStroke
 import com.animejapaneselab.nativeapp.ui.theme.AjlTheme
 
 // Shared building blocks of the 読空気 and 基礎 answering screens (task package D2). Everything
-// here is assembled from ui/design; the few private stand-ins are listed in design/v3-requests/D2.md.
+// here is assembled from ui/design; the few private stand-ins are listed in docs/design/v3-requests/D2.md.
 
 /** Session top bar: × · continuous progress line · mono "3/10". */
 @Composable

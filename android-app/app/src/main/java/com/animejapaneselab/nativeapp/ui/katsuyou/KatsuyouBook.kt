@@ -112,6 +112,8 @@ data class KyPick(
     val fills: List<Pair<String, String>> = emptyList(),
     /** 涙 まとめ: shown after the pick of this (last) item. */
     val table: KyDiffTable? = null,
+    /** 第十五巻: a small figure shown after the pick. */
+    val fig: KyFig? = null,
 ) {
     val right: KyOpt get() = options[answer]
 }
@@ -272,6 +274,111 @@ data class KyFig(
     val b: String = "",
     val mid: String = "",
     val note: String = "",
+    /** 第十五巻: rows of the figure, each a few strings; what they mean depends on [kind] (see KyofuFig). */
+    val rows: List<List<String>> = emptyList(),
+)
+
+/**
+ * 第十五巻 恐怖「哪里裂了」: an almost normal card in fixed zones: [place], [who], the line in [blocks], a [reply]
+ * (null = this card has no reply zone, "" = an empty one). [at] is the zone that cracks ("place" / "who" / "reply" / "b<i>");
+ * after the pick it turns to ink with [void] in it ("名字 · 没给"). [socket] = a slot that has no place in the sentence
+ * (被动句的「〜に」), put in before block [socketAt] on reveal; it takes the [void] then. [also] = other zones that crack too.
+ */
+data class KyCrack(
+    val context: String,
+    val place: String,
+    val who: String,
+    val blocks: List<Pair<String, String>>,
+    val reply: String?,
+    val ja: String,
+    val zh: String,
+    val audioUrl: String,
+    val at: String,
+    val void: String,
+    val socket: String,
+    val socketAt: Int,
+    val also: Map<String, String>,
+    val ask: String,
+    val why: String,
+    val rule: String,
+    val fig: KyFig?,
+    val table: KyDiffTable?,
+) {
+    /** Every zone of the card, in reading order. */
+    val zones: List<String>
+        get() = buildList {
+            if (place.isNotBlank()) add("place")
+            if (who.isNotBlank()) add("who")
+            blocks.indices.forEach { add("b$it") }
+            if (reply != null) add("reply")
+        }
+
+    /** The words of [zone] for a verdict. */
+    fun label(zone: String): String = when {
+        zone == "place" -> place
+        zone == "who" -> who
+        zone == "reply" -> "回话"
+        else -> blocks.getOrNull(zone.drop(1).toIntOrNull() ?: -1)?.first.orEmpty()
+    }
+}
+
+/** 第十六巻 接続: one block of a 接缝条; [edge] = the tooth on its right = its form (q 未然 / r 連用 / p 原形 / k 仮定 / "" flat, a noun). */
+data class KyJBlock(val text: String, val romaji: String, val edge: String)
+
+data class KyJointOpt(val text: String, val romaji: String, val edge: String, val why: String)
+
+/**
+ * 第十六巻 接続「左边那节变成什么？」: a line as a 接缝条; block [at] is open, the ink block [ink] (to its right) decides its
+ * form through the notch on its left. [lit] = seams already fixed (seam s = between block s and s + 1). [forms] = the
+ * same block against other right neighbours: (form, right, word, zh[, "now"]).
+ */
+data class KyJoint(
+    val context: String,
+    val who: String,
+    val pre: String,
+    val preRomaji: String,
+    val post: String,
+    val blocks: List<KyJBlock>,
+    val at: Int,
+    val ink: Int,
+    val lit: Set<Int>,
+    val options: List<KyJointOpt>,
+    val answer: Int,
+    val ja: String,
+    val zh: String,
+    val audioUrl: String,
+    val ask: String,
+    val why: String,
+    val rule: String,
+    val fig: KyFig?,
+    val forms: List<List<String>>,
+)
+
+/**
+ * 第十六巻 接続「谁说了算？」: tap the block [answer] that decides; [target] (-1 = none) shows [kana] before and [reveal]
+ * after, with [tag] under it (under [answer] when there is no target). [left] = what a wrong tap says.
+ */
+data class KyDecide(
+    val context: String,
+    val who: String,
+    val pre: String,
+    val preRomaji: String,
+    val post: String,
+    val blocks: List<KyJBlock>,
+    val answer: Int,
+    val target: Int,
+    val kana: String,
+    val reveal: String,
+    val tag: String,
+    val hint: String,
+    val left: String,
+    val ja: String,
+    val zh: String,
+    val audioUrl: String,
+    val ask: String,
+    val why: String,
+    val rule: String,
+    val fig: KyFig?,
 )
 
 /** 涙 まとめ: a scene line by line against the axes it turns over ([cols]); [flags] per row, one per col. */
@@ -297,6 +404,9 @@ sealed interface KyStep {
     data class Passage(override val title: String, val items: List<KyPassage>) : KyStep { override val count get() = items.size }
     data class Judge(override val title: String, val items: List<KyJudge>) : KyStep { override val count get() = items.size }
     data class Diff(override val title: String, val items: List<KyDiff>) : KyStep { override val count get() = items.size }
+    data class Crack(override val title: String, val items: List<KyCrack>) : KyStep { override val count get() = items.size }
+    data class Joint(override val title: String, val items: List<KyJoint>) : KyStep { override val count get() = items.size }
+    data class Decide(override val title: String, val items: List<KyDecide>) : KyStep { override val count get() = items.size }
 }
 
 data class KyLesson(val point: String, val peek: KyPeek?, val steps: List<KyStep>) {
@@ -314,6 +424,9 @@ data class KyLesson(val point: String, val peek: KyPeek?, val steps: List<KyStep
                 is KyStep.Spot -> s.items.map { it.fix.first }
                 is KyStep.Span -> s.items.map { it.toks[it.anchor].first }
                 is KyStep.Diff -> s.items.map { it.blocks[it.answer].first }
+                is KyStep.Crack -> s.items.map { it.label(it.at) }
+                is KyStep.Joint -> s.items.map { it.blocks[it.at].text }
+                is KyStep.Decide -> s.items.map { if (it.target >= 0) it.reveal else it.blocks[it.answer].text }
                 else -> emptyList()
             }
         }.distinct().take(4)
@@ -554,6 +667,9 @@ object KatsuyouBook {
                 )
             })
             "diff" -> KyStep.Diff(title, items.map { diffOf(it, base) })
+            "crack" -> KyStep.Crack(title, items.map { crackOf(it, base) })
+            "joint" -> KyStep.Joint(title, items.map { jointOf(it, base) })
+            "decider" -> KyStep.Decide(title, items.map { decideOf(it, base) })
             else -> KyStep.Pick(title, emptyList())
         }
     }
@@ -584,6 +700,83 @@ object KatsuyouBook {
         )
     }
 
+    private fun blocksOf(a: JSONArray) = (0 until a.length()).map { i ->
+        val b = a.getJSONArray(i)
+        KyJBlock(b.getString(0), b.optString(1), b.optString(2))
+    }
+
+    private fun audioOf(o: JSONObject, base: String) =
+        o.optJSONObject("line")?.optString("audio").orEmpty().let { if (it.isBlank()) "" else base + it }
+
+    private fun jointOf(o: JSONObject, base: String) = KyJoint(
+        context = o.optString("ctx"),
+        who = o.optString("who"),
+        pre = o.optString("pre"),
+        preRomaji = o.optString("preRo"),
+        post = o.optString("post"),
+        blocks = blocksOf(o.getJSONArray("blocks")),
+        at = o.getInt("at"),
+        ink = o.getInt("ink"),
+        lit = o.optJSONArray("lit")?.let { a -> (0 until a.length()).map { a.getInt(it) }.toSet() }.orEmpty(),
+        options = o.getJSONArray("options").objects().map { KyJointOpt(it.getString("t"), it.optString("ro"), it.optString("edge"), it.optString("why")) },
+        answer = o.getInt("answer"),
+        ja = o.getString("ja"),
+        zh = o.optString("zh"),
+        audioUrl = audioOf(o, base),
+        ask = o.optString("ask"),
+        why = o.optString("why"),
+        rule = o.optString("rule"),
+        fig = o.optJSONObject("fig")?.let(::figOf),
+        forms = o.optJSONArray("forms")?.let { a -> (0 until a.length()).map { a.getJSONArray(it).strings() } }.orEmpty(),
+    )
+
+    private fun decideOf(o: JSONObject, base: String) = KyDecide(
+        context = o.optString("ctx"),
+        who = o.optString("who"),
+        pre = o.optString("pre"),
+        preRomaji = o.optString("preRo"),
+        post = o.optString("post"),
+        blocks = blocksOf(o.getJSONArray("blocks")),
+        answer = o.getInt("answer"),
+        target = o.optInt("target", -1),
+        kana = o.optString("kana"),
+        reveal = o.optString("reveal"),
+        tag = o.optString("tag"),
+        hint = o.optString("hint"),
+        left = o.optString("left"),
+        ja = o.getString("ja"),
+        zh = o.optString("zh"),
+        audioUrl = audioOf(o, base),
+        ask = o.optString("ask"),
+        why = o.optString("why"),
+        rule = o.optString("rule"),
+        fig = o.optJSONObject("fig")?.let(::figOf),
+    )
+
+    private fun crackOf(o: JSONObject, base: String): KyCrack {
+        val audio = o.optJSONObject("line")?.optString("audio").orEmpty()
+        return KyCrack(
+            context = o.optString("ctx"),
+            place = o.optString("place"),
+            who = o.optString("who"),
+            blocks = o.getJSONArray("blocks").pairs(),
+            reply = if (o.has("reply")) o.optString("reply") else null,
+            ja = o.getString("ja"),
+            zh = o.optString("zh"),
+            audioUrl = if (audio.isBlank()) "" else base + audio,
+            at = o.getString("at"),
+            void = o.optString("void"),
+            socket = o.optString("socket"),
+            socketAt = o.optInt("socketAt", -1),
+            also = o.optJSONObject("also")?.let { a -> a.keys().asSequence().associateWith { a.getString(it) } }.orEmpty(),
+            ask = o.optString("ask"),
+            why = o.optString("why"),
+            rule = o.optString("rule"),
+            fig = o.optJSONObject("fig")?.let(::figOf),
+            table = o.optJSONObject("table")?.let(::diffTableOf),
+        )
+    }
+
     private fun figOf(f: JSONObject) = KyFig(
         kind = f.getString("kind"),
         title = f.optString("title"),
@@ -598,6 +791,7 @@ object KatsuyouBook {
         b = f.optString("b"),
         mid = f.optString("mid"),
         note = f.optString("note"),
+        rows = f.optJSONArray("rows")?.let { a -> (0 until a.length()).map { a.getJSONArray(it).strings() } }.orEmpty(),
     )
 
     private fun diffTableOf(t: JSONObject) = KyDiffTable(
@@ -649,6 +843,7 @@ object KatsuyouBook {
         },
         fills = o.optJSONArray("fills")?.pairs().orEmpty(),
         table = o.optJSONObject("table")?.let(::diffTableOf),
+        fig = o.optJSONObject("fig")?.let(::figOf),
     )
 
     internal fun tableOf(o: JSONObject, base: String) = KyTable(

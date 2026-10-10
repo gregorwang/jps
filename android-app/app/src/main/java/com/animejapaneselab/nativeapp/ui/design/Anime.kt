@@ -83,7 +83,7 @@ import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 // ---------------------------------------------------------------------------
-// Manga image filter (ASSET_REMIX.md fallback): desaturate + contrast, then work-colour tone.
+// Manga image filter (docs/design/ASSET_REMIX.md fallback): desaturate + contrast, then work-colour tone.
 // ---------------------------------------------------------------------------
 
 /** Greyscale + contrast so every source sheet reads as black-and-white manga. */

@@ -8,11 +8,13 @@
 | 第六巻 口語 | 《日语语素词典与动漫口语词汇》第 5–13 章 | 7 | 能说 / 听懂就好 分拣、这句是哪一层、**听原声猜语气**（新）、すげえ→すごい 还原台、ぶっ〜/やがる、命令阶梯 + 换个人说、称呼 |
 | 第七巻 類義 | 《助词与同义词辨析》第 11–15 章 +《语素词典》第 3 章 | 8 | 挖空、分拣、连线（汉语一个「看/戴」→ 日语一组）、程度阶梯 |
 | 第八巻 見分け | 《一张 LINE 截图的「脑内翻译」复盘》（`line_screenshot_feedback.md`，0.29.1） | 6 | 台词里标出尾巴（ね・で・い・な・か）选身份、分拣（终助词/命令形、助词/て形、禁止/轻命令、疑问/不定）、藏起来的 く（ありがとう・おはよう）和被 も 顶掉的 を。原文截图内容沉重，只用机制，台词换成两部番 |
-| 第九巻 読解 | 《日语文章阅读解析》（长难句 + N1 读解门道；0.30.0，细节在 `DOKKAI_HANDOFF.md`） | 14 | 括る / は的地盘（新）、主张はどこ（新）、模擬問題 / 毒を見抜く（新）+ 分拣 + 选；另有知識卡 23 张（deck `dokkai`） |
+| 第九巻 読解 | 《日语文章阅读解析》（长难句 + N1 读解门道；0.30.0，细节在 `docs/textbooks/DOKKAI_HANDOFF.md`） | 14 | 括る / は的地盘（新）、主张はどこ（新）、模擬問題 / 毒を見抜く（新）+ 分拣 + 选；另有知識卡 23 张（deck `dokkai`） |
 | 第十巻 指示 | 《日语冠词与代词》（the / a 在日语里谁在干、こそあど、人称词、it、N1 指示语；`book_shiji.py`，2026-10-09，未发布） | 15 | 全部复用：が→は 挑空、こそあど 连线 / 挑空、その？あの？场景挑空、ど＋か・も・でも、役割語认角色、翻译腔找错、指的是哪一句（Passage）、模擬問題（同社・同市）、脑内补 a / the |
 | 第十一巻 役割語 | 《役割語漫谈》（动漫角色为什么一开口就知道是谁；`book_yakuwari.py`，2026-10-10，未发布，细节见第 7 节） | 13 | 换个人说（整句选项）、零件/骨架 分拣、句尾挖空、还原成标准语、东边/西边 分拣、两个 じゃ、人设崩了（找错）、中文字幕怎么配 |
 | 第十二巻 訳せない | 《听得懂，翻不出来》（三十几个翻不出来的词；`book_yakusenai.py`，2026-10-10，未发布，细节见第 8 节） | 19 | 近义三选一（切ない/悲しい/つらい……）、拉近/推远、推/拉、粋/野暮 分拣、同情和 よろしく 的阶梯、「它在干什么」（ちょっと、一応、やっぱり……） |
 | 第十三巻 笑い | 《笑点是怎么做出来的》（ボケ / ツッコミ、フリ・オチ、ダジャレ、メタ；`book_warai.py`，2026-10-10，未发布，细节见第 9 节） | 16 | **对话段**（passage 第一次放一来一回的台词：哪句是ボケ / オチ / 从哪句翻过来）、ボケ 分类、吐槽句尾挖空、关西吐槽腔 / 拟声词连线、ダジャレ 听卡、数字谐音、メタ 分拣、笑点在哪一层 |
+| 第十五巻 恐怖 | 《词语开始扭曲的地方》（忌み言葉、迷惑受身、过剩敬语、童谣、拟声拟态、祝词、自称崩坏；`book_kyofu.py`，2026-10-10，未发布，细节见第 11 节） | 16 | **哪里裂了**（新 `crack`：几乎正常的卡，点裂开的那一格：场所 / 说话的 / 词块 / 回话）、分拣（正常/裂了、悲伤/恐怖的安静、有声音/没声音、请神/上对下、本人/换了个人）、连线、挖空、整句选 + 小图 |
+| 第十六巻 接続 | 四份语法问答合成一本：《助动词活用链_たい变形与接续顺序》《词性_活用_搭配生态位》《答疑_待たない_口语缩略_疲れ果てる_中国のせいにしよう》《indirect-object-tameni-yomikata》（`book_setsuzoku.py`，2026-10-10，未发布，细节见第 12 节） | 18 | **接缝条**（新 `joint`：接缝空着选左边那节；新 `decider`：点说了算的那一块）+ 整句选、還原台、挖空 + 小图 |
 | 第四巻 造語 三組 | 《语素词典》第 1–2 章 | +3（z08–z10） | 前缀矩阵（不・未・非・無）、后缀矩阵（者・家・的・化）、呉音/漢音拼合台 |
 
 和 VOL.C/D/E/H 重复的章节（条件四兄弟、から/ので、そう/よう/らしい、授受、敬语、缩约）没有重做；ため/おかげで/せいで、ために/ように、ことにする/なる 放进了 類義 第 7 課。同音异字（あける/かわる/はかる）辞書「同音」已有，没做。
@@ -42,7 +44,7 @@
 ## 4. 还没做
 
 - 用户真机试玩后的反馈：找错的块大小、听原声默认放エミリア是否合适（语气题建议原声，胶囊上有提示）。
-- 爱蜜莉亚语音：见 `VOICE_BACKLOG.md`。
+- 爱蜜莉亚语音：见 `docs/voice/VOICE_BACKLOG.md`。
 
 ## 5. 经验
 
@@ -63,7 +65,7 @@
 ### 第十巻 现状和下次接着做（2026-10-09 会话结束时）
 
 - **状态**：数据已写进 `assets/kyoka_books.json`，`-Mode compile` 过了。**没 commit、没发版、没上真机**（用户 10-08 规矩：说「提交」才 commit，说「推送更新」才发版）。CHANGELOG 顶上是「未发布」一节，发版时改成版本号。
-- **工作区里未提交的本会话改动**：`kyoka_books.json`、`CHANGELOG.md`、`KYOKA_HANDOFF.md`、`VOICE_BACKLOG.md`、`CLAUDE.md`（文档表一行）；数据脚本 `archive-content-sources/kyoka/book_shiji.py`、`build_kyoka.py`（ORDER 加 shiji）在 gitignore 的目录里。`RADIO_HANDOFF.md`、`radio_tracks.json` 是别的会话的改动，别混进来。
+- **工作区里未提交的本会话改动**：`kyoka_books.json`、`CHANGELOG.md`、`docs/textbooks/KYOKA_HANDOFF.md`、`docs/voice/VOICE_BACKLOG.md`、`CLAUDE.md`（文档表一行）；数据脚本 `archive-content-sources/kyoka/book_shiji.py`、`build_kyoka.py`（ORDER 加 shiji）在 gitignore 的目录里。`docs/voice/RADIO_HANDOFF.md`、`radio_tracks.json` 是别的会话的改动，别混进来。
 - **用户的疑问**：觉得做得太快、没画画板。已按渲染代码查过：課前の一眼（`PeekGlance.kt`）主句最长 16 字、按块折行放得下；まとめ 2 列能显示（列数按数据，标签 84dp 会折两行）；长选项会折行；分拣卡面全是日语。`design/peek_overview.py` 会**跳过** glance 版式，它报 0 不代表没问题。
 - **2026-10-10 画布样板**：https://claude.ai/artifact/6J7iuYfLr8ZDxWnn4MGM6j （k06 挑空作答前后、k06/k14 課前の一眼、k12 ASK 现状 + 改法）。用户**不在手机上看**，新题型一律照代码画到画布上。按画布改了：ASK 题题干面板 + 字母判定（代码），k06/k14 課前一眼主句只留第二句、第一句挪进 zh（数据）。
 - **Downloads 里还没做的日语文档**：役割語漫谈（推荐下一篇，和第十巻 k10 衔接，别重复认角色那几题）、日语助动词活用链_たい变形与接续顺序、日语词性_活用_搭配生态位、日语答疑_待たない_口语缩略…、japanese-indirect-object-tameni-yomikata（两份相同）。《日语知识地图_N级定位与缺口清单》是补课路线（授受、自他动词、ている家族、条件、推量……），挑下一篇时参考。
@@ -105,8 +107,8 @@
 ### 状态和接手清单
 
 - 数据已写进 `assets/kyoka_books.json`，`-Mode compile` 过了。**没 commit、没发版**。CHANGELOG「未发布」一节里追加了第十一巻。
-- 本会话改的：`kyoka_books.json`、`CHANGELOG.md`、`KYOKA_HANDOFF.md`（表格一行 + 本节）、`VOICE_BACKLOG.md`（一行）、`CLAUDE.md`（文档表那一行加了第十一巻）；gitignore 目录里的 `book_yakuwari.py`、`build_kyoka.py`（ORDER）、`voice_items.json`、`sources/役割語漫谈.md`。第十巻 / ASK 题、`RADIO_HANDOFF.md`、`radio_tracks.json` 的改动不是这次的，提交时分开。
-- 语音：67 条进了 `voice_items.json`（`book`: yakuwari），两条 `say` 要换假名（妾＝わらわ、執事那句的 私＝わたくし），已记在 `VOICE_BACKLOG.md`。
+- 本会话改的：`kyoka_books.json`、`CHANGELOG.md`、`docs/textbooks/KYOKA_HANDOFF.md`（表格一行 + 本节）、`docs/voice/VOICE_BACKLOG.md`（一行）、`CLAUDE.md`（文档表那一行加了第十一巻）；gitignore 目录里的 `book_yakuwari.py`、`build_kyoka.py`（ORDER）、`voice_items.json`、`sources/役割語漫谈.md`。第十巻 / ASK 题、`docs/voice/RADIO_HANDOFF.md`、`radio_tracks.json` 的改动不是这次的，提交时分开。
+- 语音：67 条进了 `voice_items.json`（`book`: yakuwari），两条 `say` 要换假名（妾＝わらわ、執事那句的 私＝わたくし），已记在 `docs/voice/VOICE_BACKLOG.md`。
 - 練習 → 言語学「文法」：`kyokaVolume` 不经过 `pickBooks`，`BookGrid` 两列把所有书都排出来（`MaxBooks = 4` 只管别的格），第十一巻是第 4 行单独一本，不用改代码。
 
 ### 经验
@@ -149,7 +151,7 @@
 ### 状态和接手清单
 
 - 数据已写进 `assets/kyoka_books.json`，`-Mode compile` 过了。**没 commit、没发版**。CHANGELOG「未发布」里追加了第十二巻。
-- 本节涉及的文件：`kyoka_books.json`、`CHANGELOG.md`、`KYOKA_HANDOFF.md`、`VOICE_BACKLOG.md`（112 条）、`CLAUDE.md`（文档表一行）；gitignore 目录里的 `book_yakusenai.py`、`build_kyoka.py`（ORDER）、`voice_items.json`、`sources/听得懂，翻不出来.md`。
+- 本节涉及的文件：`kyoka_books.json`、`CHANGELOG.md`、`docs/textbooks/KYOKA_HANDOFF.md`、`docs/voice/VOICE_BACKLOG.md`（112 条）、`CLAUDE.md`（文档表一行）；gitignore 目录里的 `book_yakusenai.py`、`build_kyoka.py`（ORDER）、`voice_items.json`、`sources/听得懂，翻不出来.md`。
 - 「动漫语言学」系列还剩《笑点是怎么做出来的》《沉默比台词更会说话》《词语开始扭曲的地方》《名字这门手艺》（都在 Downloads），后几篇会回收这本的 間、言いさし、称呼、语体转换。
 
 ## 9. 第十三巻 笑い（2026-10-10）
@@ -185,7 +187,7 @@
 ### 画布和待定的代码改动
 
 - 画布：https://claude.ai/artifact/Jg2qJ6cRYYDrBms1GmKijm 。第一版（照现有代码描 7 屏 + 便签挑毛病）被用户否了：「没动脑子」，没有视觉上让人聚焦、记得住的东西。现在是第二版，**全书一根线**：直线＝常理、偏出去＝ボケ、折回来＝ツッコミ、笑落在折点（「笑」字圆点）；乗りツッコミ＝先跟着偏（虚线）、在「って」掉头；緊張と緩和＝紧张曲线崩下来那一格；ダジャレ＝一个音分两条路；四种ボケ＝四个小线形（天然 弧线、とぼけ 直角横跨、勘違い 走错岔、暴走 冲出框）；四层笑点＝四层楼。10 屏：视觉语言总图、w01 作答前 / 揭晓后、w13 紧张曲线、w05 / w10 課前の一眼、w02 作答前 / 选对后、w10 揭晓后、w16 四层楼。
-- **已做**（2026-10-10，照 `WARAI_VISUAL_HANDOFF.md`；代码在 `screens/katsuyou/WaraiLine.kt`（track / tension / 「笑」圆点）、`WaraiPick.kt`（前情条、ボケ线形、一个音两条路、四层楼）、`WaraiPeek.kt`（課前の一眼 track / mora）；数据字段：`SENT` 的 `who`/`lv`/`at`（有 who 的句子自动查原声），`PASSAGE` 的 `style`，pick 的 `ctx`/`split`/`layout: floors`，选项的 `glyph`，`GLANCE` 的 `track=TRACK(...)`/`mora=MORA(...)`。其他八本 asset 一字未变）。原来的清单：
+- **已做**（2026-10-10，照 `docs/textbooks/WARAI_VISUAL_HANDOFF.md`；代码在 `screens/katsuyou/WaraiLine.kt`（track / tension / 「笑」圆点）、`WaraiPick.kt`（前情条、ボケ线形、一个音两条路、四层楼）、`WaraiPeek.kt`（課前の一眼 track / mora）；数据字段：`SENT` 的 `who`/`lv`/`at`（有 who 的句子自动查原声），`PASSAGE` 的 `style`，pick 的 `ctx`/`split`/`layout: floors`，选项的 `glyph`，`GLANCE` 的 `track=TRACK(...)`/`mora=MORA(...)`。其他八本 asset 一字未变）。原来的清单：
   1. `PassageSitting` 加两种画法：track（左边一根线，偏出去的句子右移、折点换「笑」圆点，作答前是直虚线）和 tension（台词上方紧张曲线）。数据：每句加 `who`（说话人）、track 位置可由 role 推出、tension 每句加 `lv`。有原声的句子在说话人旁加波形。题干改成「哪一句偏出去了？」「紧张在哪一句崩掉？」。
   2. 課前の一眼 新版式：线 + 节点 + 图例（w05）、按拍对齐（w10）。现在的 GlanceScreen 只能画上下两行。
   3. `PickSitting`：show 题加「前情」条（浅蓝，照知識卡「前回のあらすじ」），选完也留着；选项可带 glyph（四种ボケ的线形）、可排成 3–4 格；ダジャレ 题揭晓后加「一个音，两条路」面板；w16 选项画成四层楼。
@@ -195,8 +197,8 @@
 ### 状态和接手清单
 
 - 数据已写进 `assets/kyoka_books.json`，`-Mode compile` 过了。**没 commit、没发版**。CHANGELOG「未发布」里追加了第十三巻。
-- 本节涉及的文件：`kyoka_books.json`、`CHANGELOG.md`、`KYOKA_HANDOFF.md`（表格一行 + 本节）、`VOICE_BACKLOG.md`（一行）、`CLAUDE.md`（文档表那一行加了第十三巻）；gitignore 目录里的 `book_warai.py`、`build_kyoka.py`（ORDER）、`voice_items.json`、`sources/笑点是怎么做出来的.md`。第十〜十二巻、`RADIO_HANDOFF.md`、`radio_tracks.json`、`KyMachines.kt`、`PickSitting.kt` 里已有的改动是别的会话的，提交时分开。
-- 语音：87 条进了 `voice_items.json`（`book`: warai），其中十来条 `say` 要换假名，已记在 `VOICE_BACKLOG.md`。
+- 本节涉及的文件：`kyoka_books.json`、`CHANGELOG.md`、`docs/textbooks/KYOKA_HANDOFF.md`（表格一行 + 本节）、`docs/voice/VOICE_BACKLOG.md`（一行）、`CLAUDE.md`（文档表那一行加了第十三巻）；gitignore 目录里的 `book_warai.py`、`build_kyoka.py`（ORDER）、`voice_items.json`、`sources/笑点是怎么做出来的.md`。第十〜十二巻、`docs/voice/RADIO_HANDOFF.md`、`radio_tracks.json`、`KyMachines.kt`、`PickSitting.kt` 里已有的改动是别的会话的，提交时分开。
+- 语音：87 条进了 `voice_items.json`（`book`: warai），其中十来条 `say` 要换假名，已记在 `docs/voice/VOICE_BACKLOG.md`。
 - 「动漫语言学」系列还剩《沉默比台词更会说话》《词语开始扭曲的地方》《名字这门手艺》（在 Downloads）。
 
 ### 经验
@@ -211,9 +213,113 @@
 - 来源 `Downloads/沉默比台词更会说话.md`（687 行，从头读完）。「动漫语言学」系列第三本，和第十三巻 笑い 是一对。
 - 画布：https://claude.ai/artifact/Jky4KpZ1RzMj5qTdsqsbdi 。**第一版又画成「一根线 + 空圈」，被用户否了**（「为什么非得用线」「不要老是偷懒」）。现在的主装置是 **平时 / 这一刻**：后面一张灰色底片卡写这个人一直以来的说法和次数，前面一张实卡是这一刻的台词；题目只问「哪里不一样？」，点词块，揭晓后那块亮、连回底片、次数「×15 → ×1」。六个轴（称呼、语体、自称、说完没、道别、沉默）= 六节，最后一课差分表把一场戏的轴叠起来。局部图形按知识点的形状挑（称呼 = 台阶 + 跳级曲线，语体 = 两层楼，约定 = 跨年的弧，道别 = 三种线尾），用户说这样用对了地方。
 - 15 课目次、原作场景、原文错处（たら 的解释、さようなら 在学校是寒暄、惯用句不是拟态词、好きなんだ）都在画布便签上。数据：ep45 莉由斯「ベアトリス様」15 次 / 「ベティー」1 次（贝雅特丽丝自称也是 ベティー，只算莉由斯的）；约定是贝雅特丽丝教她认字（#134）。
-- 用户确认画布（「可以完美」），先把界面设计经验沉淀成 `design/TEXTBOOK_UI_PLAYBOOK.md`，再写代码。
+- 用户确认画布（「可以完美」），先把界面设计经验沉淀成 `docs/design/TEXTBOOK_UI_PLAYBOOK.md`，再写代码。
 - **已做（未提交、未发版）**：书 id `namida`，课程 id `n01`–`n14`（原计划的 n04「只剩一个称呼」并进 n03 最后一题，所以是 14 课）。数据 `archive-content-sources/kyoka/book_namida.py`（`build_kyoka.py` 的 ORDER 末尾加了 `namida`，check 加了 diff）。其他九本 asset 逐本比对，一字未变。
   - 新题型 `diff`（`KyDiff`、`KyStep.Diff`、`screens/katsuyou/NamidaDiff.kt` 的 `DiffSitting`）：底片 + 实卡（自定义 `Overlap` 布局叠在一起），点词块，揭晓后亮块、连线、次数；局部图 `FigPanel`（stairs / floors / arc）。
   - pick 新增：`fills`（留白槽 + 几种接法，不算分，`FillPanel`）、`layout: ends`（道别线尾，`EndsOptions`，选项 `glyph` = go / cut / seal，`mark: base` 是平时那张底片）、`table`（差分表，`DiffTablePanel`，挂在最后一题）。三种没说完的线形在 `WaraiPick.kt` 的 `bokeGlyph`（iisashi / zekku / enryo）。
   - 原声：11 句挂上（都核对过来自正确的集：s02e19 = ep44、s02e20 = ep45 …）。「ありがとう」「ちょっと…」这种通用短句按字面会配到别的场景，`SHOW(voice=False)` 不挂；莉由斯那句「ありがとう」因此没有原声。
   - 只能真机看的：两层卡叠的位置（底片露出多少）、连线的起点（固定在底片左上，不是精确指到底片里那个词）、台阶 / 两层楼在窄屏上的字会不会挤、第 13 课「只听声音」四句的情绪判断（我没听过原声，按台词和场景定的：芙尔朵娜那句「快没力气了」、昴那句「吼出来」最稳）。
+
+## 11. 第十五巻 恐怖（2026-10-10，未提交、未发版）
+
+- 来源 `Downloads/词语开始扭曲的地方.md`（592 行，从头读完；复制了一份到 `kyoka/sources/`）。「动漫语言学」系列第四本，接 笑い / 涙。书 id `kyofu`，课程 id `f01`–`f16`（j k r m d s y h w n 已占），8 节。数据 `book_kyofu.py`，`build_kyoka.py` 的 ORDER 末尾加了 `kyofu`，check 加了 crack。其他十本 asset 逐本比对一字未变，`voice_items.json` 里别的书也没变（改之前的备份在会话 scratchpad）。
+- 画布：https://claude.ai/artifact/4EcitQRDzU7fhZsWB1BcYU （6 块：总图、f04 作答前 / 揭晓后、f02 插槽、f07 回话格、f16 夜道；便签：界面规则、目次、原作场景、原文错处、和前几本撞的地方）。用户出门前授权「自己评估画好了就直接写代码」，所以**画布没等用户确认**，对照 PLAYBOOK 第 5 节自查过一遍就实现了。用户回来要看的就是这块画布和真机。
+- **共同结构**：恐怖 = 一句几乎正常的话里，裂开的那一处，缝里是空的（没给名字、没写是谁、没人回话、不该在这里）。装置是**哪里裂了**：一张卡，位置固定的四种格子（场所签、说话的签、词块、回话格），题目只问「哪里裂了？」。和 涙 的区别：涙 是两张卡对照、点的东西会亮并连回底片；这里是一张卡、点中的格子变黑、裂纹爬满整张卡、格子里只写缺了什么。和 找错 的区别：找错会浮出改对的词，这里不给答案。
+- 代码：
+  - 新题型 `crack`：`KyCrack`、`KyStep.Crack`（`KatsuyouBook.kt`，`zones` 是卡上所有格子，`label(zone)` 给判定行用），界面 `screens/katsuyou/KyofuCrack.kt` 的 `CrackSitting`（`drawCrack` 从命中的格子画到卡边，两条分叉，墨色格子里那段用 onInk；360ms，reduced motion 直接出现；`CrackCount`「正常 ×n · 裂 ×k」；`SocketZone` = 揭晓时插进来的「？に」空槽，这时 void 写在空槽里、被点的词块只描边）。声音用 `LineVoicePill`（卡片下面，没原声时走エミリア / TTS）。
+  - 数据字段：`place`、`who`、`blocks`、`reply`（没有这个键 = 没有回话格，空串 = 空的虚线格）、`at`（`place` / `who` / `reply` / `b<i>`）、`void`、`socket` + `socketAt`、`also`（键也是格子名）、`fig`、`table`（最后一题挂 `CrackTablePanel`，墨色方块）。`line` 只用来查原声和登记语音。
+  - 小图：`KyFig` 加了 `rows`（每行几个字符串），`FigPanel` 认不出的 kind 交给 `KyofuFig`：box（命名＝关进格子）、slots（被动句的三个位置）、same（同一句两个地方）、pins（北 → 南一条线上的口音）、count（数一个少一个）、pairs（一来一回）、layers（旁白 / 台词两层）、frame3（祝词三段）、arrows（敬语上下）。pick 也能带 `fig` 了（`KyPick.fig`，`PickSitting` 揭晓后显示）。
+  - 練習：`KyokaRules.askable/subset` 加了 Crack，会被抽进「文法」练习。
+- **避开的重复**：あれ（第十巻 s05/s06 讲听者知不知道 → 这里只讲「都知道、没人肯说」）、ただいま（h15 → 只讲 おかえり 没来）、自称（n04 私→俺 面具掉了 → f14 分拣「还是本人 / 换了个人」专门分这两种）、方言（y09 → 拼起来哪儿也不是）、間（n01 → f08 拿它当对照）、天丼（w09 → 反过来）、拟声词（w12 喜剧那批 → 恐怖那批）、评价词（w07 / n12 → 只讲落在身体哪儿）。
+- 没做：附录二速查表（拆进各课了）；5.2 ピキピキ（原文说「身体不自然地响」，常见用法是冰裂、青筋，存疑）；5.3 片假名放大扭曲（纯画面）；7.3 的「敬语三轴」没单独讲（第一份文档的内容）。
+
+### 原文讲错的（课里已按正确的讲）
+
+1. 1.3「立たれていた 没有主语」：主语是被影响的「我」（省略了），省掉的是施事「〜に」。这是迷惑受身，自动词也能变被动（f02 的插槽和小图就画这个，另有「雨に降られた 的主语是谁」）。
+2. 5.3「ヒタヒタ 在同一个词里混合清音和浊音」：ヒタヒタ 全是清音，例子不成立（没进课）。
+3. 5.1 把 ヌルヌル・ベタベタ・ジメジメ 列为拟声词：是拟态词，没有声音（f11 分拣「有声音 / 没声音」）。
+4. 6.1「給え 现代几乎不用，最接近〜てください」：「座りたまえ」现代还在用，是上对下的命令，方向和〜てください相反（f13 分拣）。
+5. 6.2「祓詞 大量堆汉语词」：真的祝词、祓詞几乎全是和語；堆 結界・封印・邪気 是动漫、阴阳师题材的写法（f13 rule）。
+6. 6.2「かしこみかしこみ、申す」：是「恐み恐みも白す（かしこみかしこみも まをす）」（f13，罗马音写 maosu）。
+7. 6.1「咒语很少用外来语」：Re:ゼロ 的魔法全是片假名（エル・フーラ、シャマク）（f13 rule）。
+8. 第八部分说两次「二人立ち止まる、足音も止まる」：场景里只有一次（f16 ctx 照原文只写一次）。
+9. 第八部分把「気のせい」叫「不定指示」：気のせい 是「错觉」，不是指示词，它属于 1.3 的「不承认存在」（f16 第 2 题）。
+10. 7.3「敬语对母语者是不用想的本能」：母语者也常用错（拝見してください、二重敬語），所以要成套反着用才让人发毛（f15 beats）。
+11. 附录把「鳥肌が立つ」只算恐惧：现在也常说感动（鳥肌もの）（f12 beats）。
+
+### 台词核对
+
+- 原作 8 句，原声 3 句：ep43「お待ちしておりました」（s02e18）、ep48「いい子ね 振り返らなくて正解よ」「私は その… あれよ」（s02e23）。都是按原文一字不差匹配 learning_sentences，再看音频路径确认集数。
+- **我自己的检索脚本出过错**：`audio_sentences.json` 的 `source_line_no` 和字幕 `subtitles.json` 的 `line_no` 对不上（ep48「その… あれよ」字幕是 #192，音频是 #205），按（集，行号）判断有没有原声会标错。画布第一版把「愛してる」「身の毛もよだつ」「芙蕾德莉卡那句」标成有原声，其实都没有，已改。**判断有没有原声只能按文字匹配 `audio_sentences`，再看 `storage_path` 的集数。**
+- 说话人：ep43 封印前那句只写「有人」（小爱蜜莉雅跟着「妖精」跑来，#514–516）；ep48 墓所里写「背后的声音」（她自称魔女）；ep35 写「影子」；ep27 #141–142 是芙蕾德莉卡（下一句爱蜜莉雅叫她名字）；ep2 #8 是爱蜜莉雅；K-ON ep5 #22 是澪（前一句「澪ちゃんも見て」）；ep6 #20「あの寒気…」是昴的独白。
+- 其余是例句（原文的夜路怪谈、人偶、墙、方言老人；我写的息・拟声词句子），童谣歌词是传统民谣。
+
+### 灌数据前按渲染代码查了什么、只能真机看的
+
+- 課前の一眼：16 课主句都短（最长「振り返らなくて 正解よ」11 字）；beats 都 ≤60 字。
+- 分拣卡最长 9 字（「黙って うなずいた」「何も 言えなかった」）；「私 → 俺」这种卡 TTS 会怎么念箭头没试过。
+- 中文选项都没夹假名。最长「不管他说什么，它只会这一句」。
+- 只能真机看的：裂纹的走向（从命中格子的 1/4 处出发往右边爬，格子在卡上半部就往下斜，在下半部往上斜）；场所 / 说话的签很长时（「少女（平时自称「私」）」）和「正常 ×n」挤不挤；`SocketZone` 插进 FlowRow 后会不会把「立たれていた」挤到下一行；回话格空着时的虚线够不够显眼。
+
+### 状态和接手清单
+
+- 数据已写进 `assets/kyoka_books.json`，`-Mode compile` 过了。**没 commit、没发版**。
+- 本节涉及的文件：`KatsuyouBook.kt`、`Kyoka.kt`、`KatsuyouScreens.kt`、`PickSitting.kt`、`NamidaDiff.kt`（FigPanel 多一个 else）、新文件 `KyofuCrack.kt`、`kyoka_books.json`、`CHANGELOG.md`、`docs/textbooks/KYOKA_HANDOFF.md`（表格一行 + 本节）、`docs/voice/VOICE_BACKLOG.md`（一行）、`CLAUDE.md`（文档表那一行）；gitignore 目录里的 `book_kyofu.py`、`build_kyoka.py`、`voice_items.json`、`sources/词语开始扭曲的地方.md`。
+- 「动漫语言学」系列还剩《名字这门手艺》（在 Downloads）。
+
+## 12. 第十六巻 接続（2026-10-10，未提交、未发版）
+
+- **来源**：四份是用户一路提问时写的问答，从头读完（复制在 `kyoka/sources/`，原件在 Downloads）：《日语助动词活用链_たい变形与接续顺序》770 行、《日语词性_活用_搭配生态位》791 行、《日语答疑_待たない_口语缩略_疲れ果てる_中国のせいにしよう》483 行、《japanese-indirect-object-tameni-yomikata》1046 行。互相回收 連用形、たい、活用，是承上启下。书 id `setsuzoku`，课程 id `u01`–`u18`（j k r m d s y h w n f 已占），6 节。数据 `book_setsuzoku.py`，`build_kyoka.py` 的 ORDER 末尾加了 `setsuzoku`，check 加了 joint / decider。其他十一本 asset 逐本比对一字未变，`voice_items.json` 里别的书也没变（改前的备份在 `%TEMP%\kyoka_books.before.json`）。
+- **用户定的**：重复无所谓，不查和 VOL.A–H、類義、知識卡撞没撞（多练一遍没关系）。
+- **共同结构**：日语的核心在右边，后来的那一块说了算：它到场，就规定左边那一节变成什么形（たい → たく）、算什么词（おもい 后面是 んだ 就是 重い）、是什么意思（電話 后面是 する 就是「打电话」）。
+- **画布**：https://claude.ai/artifact/Lrwg8h3JaX2BDK6zxFEsSP （总图、u01 作答前 / 揭晓后、u12 作答前 / 揭晓后、u05 两条轨、u15 ため、u18 まとめ；便签：界面规则、目次、原作场景、原文错处）。用户看完说「非常不错」，照画布实现。
+
+### 课表
+
+| 节 | 课 | 玩法 |
+|---|---|---|
+| 一 つなぎ目 | u01 右边说了算（食べ｜させ｜られ｜たく｜なかっ｜た 从右往左 5 题 + エキドナ 交わしたかった）· u02 たい 是个小形容词 · u03 かった 里藏着 あった、两个 た · u04 たがる | joint、整句选、decider |
+| 二 乗り換え | u05 たい 是换乘站（たくありません、たいです、たくさせる）· u06 一层包一层（使役被动、される 缩约、話させられる 不缩）· u07 未然形的两张脸 · u08 待たない 里没有意志 · u09 缩约（還原台） | 整句选、joint、還原台 |
+| 三 右が選ぶ | u10 果てる 挑谁、果たす · u11 交わさ：会变的只有最后一格 | joint（选项是左边那节，形状都对，挑意思）、decider |
+| 四 詞の正体 | u12 おもい（思い / 重い、休み、きれい な）· u13 電話する、make 分给了谁 · u14 搭配 | decider、ASK、挖空 |
+| 五 ため・の・方 | u15 ため（の、悬空的 ために；に / のために）· u16 のせいにしよう（从句尾找动词、に 是结果）· u17 読み方（核心在最右、方 接連用形） | joint、decider、挖空 |
+| 六 まとめ | u18 All that I did is just for you：私がしたことは全部君のためだ 从右往左 5 个接缝 + 全书接缝表 | joint |
+
+まとめ 表「接缝一览」：右边来的 / 要左边什么形 / 例（点行听台词）。
+
+### 代码
+
+- 模型（`ui/katsuyou/KatsuyouBook.kt`）：`KyJBlock`（text / romaji / edge：q 未然、r 連用、p 原形、k 仮定、空 = 名词）、`KyJoint`（blocks、at = 空着的块、ink = 墨块、lit = 已亮的接缝、options 带 edge、forms 小表）、`KyDecide`（blocks、answer = 要点的块、target = 被它定下来的块、kana = 作答前的样子、reveal、tag、hint、left）；`KyStep.Joint` / `KyStep.Decide`（asset 里 type 是 `joint` / `decider`）。`KyBlock` 这个名字被積み木占了，所以叫 `KyJBlock`。
+- 界面 `screens/katsuyou/SetsuzokuJoint.kt`：`JointStrip`（接缝条：每块 `drawBehind` 画外框，左缺口跟前一块的齿、右齿是自己的形；接缝亮线、弧线箭头、块下小字在 Row 的 `drawWithContent` 里画）、`JointSitting`、`DecideSitting`、`FormsPanel`、`SetsuzokuFig`（rails2 / fold / rails / nest / chain / grid / scale / bounds / sound / dangle / joints）、`ToothGlyph`。`KyofuFig` 认不出的 kind 交给 `SetsuzokuFig`，所以 pick 题也能挂这些图。
+- 接线：`StepSitting` 分发、`KyokaRules.askable/subset`（两种新题会被抽进「文法」练习）、`KyLesson.preview`。
+- 动效：揭晓时空着那块的齿 220ms 长出来（reduced motion 直接出现），其余是 `AnimatedVisibility`。decider 作答前所有块都不画齿（齿会泄露词性），揭晓后才画。
+
+### 原文讲错的（课里按正确的讲）
+
+1. 《词性》2.1「动词连用形字面是 い 的只有わ行五段」：上一段 用いる・強いる・報いる・老いる 的連用形 用い・強い・報い・老い 也是 い（没进课，只记这里）。
+2. 《词性》6.1「い形容词基本封闭」：口语还在造 エモい・キモい・ウザい（没进课）。
+3. 《答疑》1.3「ない 由形容词 なし 虚化来」：接动词的 ない 来源有争议，《活用链》2.3 自己也说两个 ない 是两个词；课里只说「活用一样」（u01、u07）。
+4. 《活用链》5.6「たい 和 ます 插座一样、争同一个槽位，所以互斥」：理由不成立（て・た 也接連用形，照样能叠）；真正的原因是 たい 之后进了形容词区（u05 两条轨）。
+5. 《答疑》2.3「違う → ちげえ（ai→ee）」：是 au → ee（没进课）。
+6. 《答疑》4.1 把 しよう 的 し 叫词干、4.2 叫未然形：课里统一按未然形（u16 GLANCE）。
+7. 《活用链》1.1 把 させ 前的「食べ」标成连用形（UniDic 约定）：接 させ 的是未然形，u01 画方齿。
+- 不算错：たい 的来源两篇口径不同（《活用链》说不确定，《词性》说通说来自 いたし），课里只说「本来是形容词」。
+
+### 台词核对
+
+- 63 句，36 句原作（28 句原声）。说话人都跑前后文脚本核对过：エキドナ ep37「交わしたかったよ ★」「友と呼びたかった ★」「交わさないか ★」「いいや 待たない ★」（昴喊 待て待て 之后）、ep34「その思いはバカにできない ★」；ラム ep42「話したがっているわ ★」、ep17「夢を見ているのは バルスのほう」；エミリア ep36「触りたがるでしょ ★」「私のためだけにしてほしい ★」、ep44「持たされてません ★」；スバル ep35「悲しい顔はさせたくない ★」、ep38「死にたくない ★」、ep35「行こう パトラッシュ ★」；ベアトリス ep36「枯れ果てた願い ★」；ロズワール ep45「驚かされるよ ★」（ガーフィール 接「ロズワール」）；ダフネ ep34「食べちゃいたくなるんですぅ ★」；レグルス ep43「僕のせいにして」；K-ON 梓 ep13「冬のせいに しないでください」（下一句「そうだね あずにゃん」）。
+- 拿不准写「有人」：ep50「口出しされたくありません ★」、ep44「氷像と成り果てた ★」、ep31「交わした約束を果たす ★」、ep47「きれいな色ね ★」、ep35「何のために生きてるの ★」、K-ON ep4「重いんだもん」、ep3「楽譜の読み方」、ep10「今から電話して」。
+- 「さあ 交わした約束を…」原声文本没有「さあ」，去掉了才挂上原声。
+
+### 灌数据前按渲染代码查了什么、只能真机看的
+
+- 課前の一眼：主句都 ≤13 字（`heroSize` 22sp 一行或两行内）；beats 都 ≤60 字（`GLANCE` 有断言）。
+- 接缝条按总字数定字号（≤7 字 26sp、≤10 字 22、≤14 字 19、更长 16），块多于 6 块时内边距收到 5dp；放不下时整条横滑。u18 整句 9 块 15 字，在 360dp 上可能要横滑一点。
+- 只能真机看的：齿的大小（9dp）在 16sp 的块上会不会显得太大；弧线箭头在块很宽时的弧度；decider 揭晓后块下的 tag 和「你选的」挤不挤；`rails` / `nest` 两张 Canvas 图在窄屏上按比例缩，字会不会太小；圆齿在深色模式下的描边。
+- 语音：35 条进了 `voice_items.json`（`book`: setsuzoku），都是普通读法，已登记 `docs/voice/VOICE_BACKLOG.md`。
+
+### 状态和接手清单
+
+- 数据已写进 `assets/kyoka_books.json`，`-Mode compile` 过了。**没 commit、没发版**（用户说「提交」才 commit，说「推送更新」才发版）。CHANGELOG「未发布」里追加了第十六巻。
+- 本节涉及的文件：`KatsuyouBook.kt`、`Kyoka.kt`、`KatsuyouScreens.kt`、`KyofuCrack.kt`（KyofuFig 多一个 else）、新文件 `SetsuzokuJoint.kt`、`kyoka_books.json`、`CHANGELOG.md`、`docs/textbooks/KYOKA_HANDOFF.md`（表格一行 + 本节）、`docs/voice/VOICE_BACKLOG.md`（一行）、`CLAUDE.md`（文档表那一行）；gitignore 目录里的 `book_setsuzoku.py`、`build_kyoka.py`、`voice_items.json`。
+- 和画布的小偏差：u08 画布目次写的是 decider，实际做成整句选 + 2×2 空格表（「意志」不是右边某一块定的，原文讲的是「我＋可控＋现在」的组合，硬做成点一块会讲错）；u03 的「两个 た」用 decider（点哪个 た 是「想」）；joint 揭晓只做了齿长出来，没做整块滑进去。

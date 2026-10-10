@@ -13,7 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 
 /**
- * v3 motion tokens — design/MOTION_SPEC.md §1. Everyday motion is 90–240ms with no bounce;
+ * v3 motion tokens — docs/design/MOTION_SPEC.md §1. Everyday motion is 90–240ms with no bounce;
  * only the eight anime moments (§3) perform. Reduced motion (animator scale 0) snaps to the
  * final state while haptics and sound still fire.
  */

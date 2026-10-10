@@ -22,7 +22,7 @@ git -c safe.directory='C:/Users/汪家俊/jps' status --short
 
 Then:
 
-1. Read this file and `ANDROID_PRODUCT_ROADMAP.md` completely.
+1. Read this file and `docs/product/ANDROID_PRODUCT_ROADMAP.md` completely.
 2. Preserve the dirty worktree. Do not reset, clean, delete, or overwrite existing modified/untracked files.
 3. Confirm whether the task is Android-only. Do not use the Web/PWA frontend as the Android behavior or UI reference. Read backend contracts only when remote data integration requires them; writing outside `android-app/` requires explicit user scope.
 4. Use the existing emulator only after source-level logic and unit tests are in shape.
@@ -79,7 +79,7 @@ Do not commit `local.properties`, keystores, passwords, session cookies, or mach
 | App version | `0.4.0` / versionCode 5 |
 | ABIs | `x86_64`, `arm64-v8a` |
 | UI | Jetpack Compose / Material 3 |
-| Motion | Compose animation only (Rive/Lottie removed in v3, see `design/MOTION_SPEC.md`) |
+| Motion | Compose animation only (Rive/Lottie removed in v3, see `docs/design/MOTION_SPEC.md`) |
 | Local tests | JUnit 4 plus `org.json` |
 
 Gradle is configured with a 4 GiB heap. On this machine, Kotlin compilation, Lint, and R8 can remain quiet for one to four minutes while consuming CPU. Use a realistic timeout (three to six minutes), and do not interpret buffered/no output as success or failure.
@@ -182,7 +182,7 @@ An emulator log proving that TTS was invoked is not proof that a human heard aud
 
 ```text
 android-app/
-  ANDROID_ENVIRONMENT.md          this handoff
+  docs/setup/ANDROID_ENVIRONMENT.md          this handoff
   app/build.gradle.kts            variants, dependencies, signing/release gates
   app/src/main/AndroidManifest.xml
   app/src/main/java/com/animejapaneselab/nativeapp/
@@ -261,7 +261,7 @@ Do not print session cookies, passwords, authorization headers, release password
 
 ## Last Known Verification Baseline
 
-Observed after the 2026-07-26 search/profile/SRS pass (RAG subtitle search `SearchScreen`, character language profiles, SRS-weighted review planning with due buckets, mistake→source-line jump — see `ANDROID_PRODUCT_ROADMAP.md` "已完成"; also same-day reading/explanation pass: furigana annotation, linguistic card payloads, sentence deep-dive, AI history screen; new `ui/reading/` package, `data/FuriganaCache.kt`, `ui/screens/AiHistoryScreen.kt`, `ui/screens/SearchScreen.kt`):
+Observed after the 2026-07-26 search/profile/SRS pass (RAG subtitle search `SearchScreen`, character language profiles, SRS-weighted review planning with due buckets, mistake→source-line jump — see `docs/product/ANDROID_PRODUCT_ROADMAP.md` "已完成"; also same-day reading/explanation pass: furigana annotation, linguistic card payloads, sentence deep-dive, AI history screen; new `ui/reading/` package, `data/FuriganaCache.kt`, `ui/screens/AiHistoryScreen.kt`, `ui/screens/SearchScreen.kt`):
 
 - Third same-day pass added: JLPT vocab filtering, episode plan card, change-password, online AI model list, real XP (`learningXp`), and a dead-code sweep (MineScreen.kt deleted; ~2,142 unreferenced lines removed from the four big screens).
 - 2026-07-27 pass added: offline content cache (`data/EpisodeContentCache.kt`, IOException-only fallback for catalog/content GETs), exercise-type mapping repairs (`databaseDistractorPool`, explicit `reading_air_tone` exclusion), client-side subtitle scene grouping (collapsible, focus-jump aware), dead-code round 3 (−148 lines).
@@ -322,8 +322,8 @@ Do not add secrets. Record variable names and locations, not values.
 ## Suggested Prompt for a New AI Session
 
 ```text
-请先完整阅读 C:\Users\汪家俊\jps\android-app\ANDROID_ENVIRONMENT.md 和
-C:\Users\汪家俊\jps\android-app\ANDROID_PRODUCT_ROADMAP.md。
+请先完整阅读 C:\Users\汪家俊\jps\android-app\docs/setup/ANDROID_ENVIRONMENT.md 和
+C:\Users\汪家俊\jps\android-app\docs/product/ANDROID_PRODUCT_ROADMAP.md。
 Android 是独立产品，不要把 Web/PWA 前端作为行为、学习流程或 UI 规范。
 然后只做文档里的 Five-Minute Startup Checklist 和与本次任务直接相关的增量检查。
 保留当前脏工作区，不要 reset/clean，不要重新从头探测整台机器。

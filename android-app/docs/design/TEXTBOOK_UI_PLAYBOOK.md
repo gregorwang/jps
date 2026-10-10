@@ -104,4 +104,4 @@
 - 画布认可之后，代码照画布实现，小偏差自己定，在汇报里一句带过。
 - 新装置写成独立的 Composable 文件（`screens/katsuyou/WaraiLine.kt` 这种，按书命名），用 Compose `Canvas` 自己画，只用 `AjlTheme` 令牌。
 - 数据字段都给默认值，旧书的 asset 不能变：改之前备份 `kyoka_books.json`，改完逐本比对。
-- 动效走 `MOTION_SPEC.md`，照顾 reduced motion。
+- 动效走 `docs/design/MOTION_SPEC.md`，照顾 reduced motion。

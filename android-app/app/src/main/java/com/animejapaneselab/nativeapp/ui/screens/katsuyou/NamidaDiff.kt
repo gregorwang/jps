@@ -325,6 +325,7 @@ internal fun FigPanel(fig: KyFig) {
             "stairs" -> StairsFig(fig)
             "floors" -> FloorsFig(fig)
             "arc" -> ArcFig(fig)
+            else -> KyofuFig(fig)
         }
     }
 }

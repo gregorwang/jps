@@ -6,7 +6,7 @@
 
 ## 0. 新会话开场（按顺序做）
 
-1. 读这些文件：`ANDROID_ENVIRONMENT.md` → 本文 → `design/MOTION_SPEC.md`。`design/ASSET_REMIX.md` 已暂停，只需要看最上面的兜底方案。
+1. 读这些文件：`docs/setup/ANDROID_ENVIRONMENT.md` → 本文 → `docs/design/MOTION_SPEC.md`。`docs/design/ASSET_REMIX.md` 已暂停，只需要看最上面的兜底方案。
 2. 读设计画布：用 Artifact 工具的 `read` 读 https://claude.ai/artifact/9x3RkMeAtAYTN64i8T8HN4 。只看 **v3 页**，文件名以 `V3*`、`X*` 开头；v2 页只是对照，不要照着实现。
    需要看某一屏的细节时，读 `project/<文件名>.dc.html`。
 3. Git：分支 `feat/ui-v3` 已经建好，`design/` 也已提交并推送到 GitHub。切到这个分支上干活即可。`android-app/local-anime-assets/` 是用户用 Gemini 做的试验图，放着别动，也不要提交。
@@ -125,7 +125,7 @@
 - 每个包只能新建或修改自己名下的文件。`ui/design/*` 和 `Theme.kt` 在阶段 2 只读；缺组件时找主代理加。
 - `LabViewModel.kt` 只有 A 能改，而且只改 `LabTab`。别的包缺字段时，把需求写进 `design/V3_VIEWMODEL_REQUESTS.md`，由主代理统一加。
 - 旧文件改完后，旧的入口函数要删掉，不能留两套实现。
-- 动效按 `MOTION_SPEC.md` 做；日常动效直接用组件库里的，别自己写一套。
+- 动效按 `docs/design/MOTION_SPEC.md` 做；日常动效直接用组件库里的，别自己写一套。
 - 每个包交付前都要自己跑一遍 `testDebugUnitTest` 和 `assembleDebug`。
 
 ### 阶段 3 · 清理（1 个子代理，串行）
@@ -139,14 +139,14 @@
 ### 阶段 4 · 验收（主代理）
 - 第 7 节的完整验证命令全部通过；测试数量 ≥ 基线数量减去被删掉的测试数量。
 - 在模拟器上逐屏截图，和画布 v3 画板并排对照：浅色和深色各一套；K-ON! 和 Re:ゼロ 各切一次作品色。
-- 按 `MOTION_SPEC.md` 第 6 节的验收清单过一遍。
+- 按 `docs/design/MOTION_SPEC.md` 第 6 节的验收清单过一遍。
 - 在 `design/` 下写一页《v3 落地记录》：和设计稿的差异、已知问题。
 
 ## 5. 子代理任务模板（分派时复制）
 
 ```text
 你负责 Anime Japanese Lab Android 的 v3 UI 重写 · 任务包 <X>。
-先读：android-app/design/V3_IMPLEMENTATION_PLAN.md（第 2、3、4 节）、android-app/design/MOTION_SPEC.md。
+先读：android-app/docs/design/V3_IMPLEMENTATION_PLAN.md（第 2、3、4 节）、android-app/docs/design/MOTION_SPEC.md。
 画布参考：用 Artifact 工具 read https://claude.ai/artifact/9x3RkMeAtAYTN64i8T8HN4，只看 path=project/<画板>.dc.html：<列出画板>。
 你名下的文件：<列表>。只能改这些；ui/design/*、Theme.kt、LabViewModel.kt 只读。
 缺组件或缺 ViewModel 字段时，写进 android-app/design/V3_VIEWMODEL_REQUESTS.md 后继续做其他部分。

@@ -50,7 +50,7 @@ data class RadioShelf(val id: String, val word: Boolean, val name: String, val t
 
 /**
  * 知識电台的节目单: `assets/radio_tracks.json`, built by archive-content-sources/radio/build_radio.py
- * (see RADIO_HANDOFF.md). Parsed once, off the main thread.
+ * (see docs/voice/RADIO_HANDOFF.md). Parsed once, off the main thread.
  */
 object RadioCatalog {
     @Volatile private var shelves: List<RadioShelf>? = null

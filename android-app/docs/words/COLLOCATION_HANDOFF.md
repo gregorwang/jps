@@ -1,6 +1,6 @@
 # 単語卡「常一起出现」补数据 · 交接
 
-这份文档写给**专门补单词搭配数据的新会话**。开工前先读 `CLAUDE.md` 第 2、3 节，再读 `VOCAB_CARD_HANDOFF.md` 第 4 节（单词数据现状），然后读这里。
+这份文档写给**专门补单词搭配数据的新会话**。开工前先读 `CLAUDE.md` 第 2、3 节，再读 `docs/words/VOCAB_CARD_HANDOFF.md` 第 4 节（单词数据现状），然后读这里。
 
 ## 1. 要做什么
 
@@ -60,4 +60,4 @@ App 现在（0.21.1）只能显示日文，而且大约 43% 的词一条都没�
 - `ui/words/Tango.kt`：新增 `TangoCollocations`（照同文件的 `TangoLines`：进程级缓存 + `peek()` + `load(context)`），在 `LabApplication` 的预读线程里一起读。`TangoRules.collocations(word)` 改成返回 `List<Pair<String, String>>`：先查新 asset，没有的话退回从 note 抽的片段（中文为空）。
 - `ui/screens/review/TangoScreen.kt`，`TangoWordPage` 里「常一起出现」那一段：每条一行，日文用 `jpTitle` 17sp SemiBold，后面跟中文 13sp `ink2`，`verticalAlignment = Alignment.Bottom`（画布是 baseline 对齐）。
 - 只做编译验证（`design/v3build.ps1 -Mode compile`），commit 并 push main。装入 asset 单独 commit 一次。全部做完后 `-Mode full`，然后发版（CLAUDE.md 第 6 节）并写 CHANGELOG。
-- 做完在 `VOCAB_CARD_HANDOFF.md` 开头「还没做 ①」那条划掉，经验写回本文件。
+- 做完在 `docs/words/VOCAB_CARD_HANDOFF.md` 开头「还没做 ①」那条划掉，经验写回本文件。

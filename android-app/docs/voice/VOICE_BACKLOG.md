@@ -25,13 +25,15 @@
 | 2026-10-10 | 第十二巻 訳せない（未发布；分拣卡 77 张、没原声的台词和例句 35 句） | `archive-content-sources/kyoka/voice_items.json`（`book`: yakusenai） | 112 | `zword` 77 / `zgram` 35 | 待生成 |
 | 2026-10-10 | 第十三巻 笑い（未发布；分拣卡 42 张、没原声的台词和例句 45 句）。**这些 `say` 要换假名**：「今年も4649！」→ 今年もよろしく！；「毎日 4989だよ」→ 毎日 しくはっくだよ；「0840 送ったよ」→ おはよう 送ったよ；「11月22日は いい夫婦の日」→ じゅういちがつ にじゅうににちは いいふうふのひ；「寒っ」→ さむっ；「草」→ くさ；「草生える」「それ、草生えるわ」→ くさはえる；「草不可避」→ くさふかひ；「神回」「今週、神回だった」→ かみかい；「素で間違える」→ すでまちがえる；「私ら 何もんだ！」→ わたしら なにもんだ！；「ガーン… テストが0点」→ れいてん | `archive-content-sources/kyoka/voice_items.json`（`book`: warai） | 87 | `zword` 42 / `zgram` 45 | 待生成 |
 | 2026-10-10 | 第十四巻 涙（未发布；分拣卡 18 张、没原声的台词和例句 30 句）。都是普通读法，没有要换 `say` 的 | `archive-content-sources/kyoka/voice_items.json`（`book`: namida） | 48 | `zword` / `zgram` | 待生成 |
-| 2026-10-08 | 知識电台：中文 `z` 段（IndexTTS2 → vc44，Colab 免费 T4）+ 日语 `j` 段（语音包里没有的） | 清单由 `radio_tracks.json` 现算（见 `RADIO_HANDOFF.md`）；成品在 Modal 卷 `radio_zh/opus` | 知識 z 1459 / j 1114；単語 N5–N3 z 7000 / j 3314（N2–N1 还是模板，不生成） | `rzh` / `rj` | 知識 z + j 已入包 2026-10-08（46967 条，297MB；単語 z / j 待生成） |
+| 2026-10-10 | 第十五巻 恐怖（未发布；分拣卡 31 张、没原声的台词和例句 48 句）。**这些 `say` 要换假名**：「私 → 我」→ わたし われ；「私 → 妾」→ わたし わらわ；「私 → 俺」→ わたし おれ；「僕 → 俺」→ ぼく おれ；「僕 → わし」→ ぼく わし；「です → だ」→ です だ（卡上的箭头别念）；「わ…… 我は、 まだ、 ここに いる」的 我 念 われ；「祓い給え」「守り給え」「清め給え」的 給え 念 たまえ；「掛けまくも 畏き」→ かけまくも かしこき；「祓へ給ひ 清め給へ」→ はらえたまい きよめたまえ；「恐み恐みも 白す」→ かしこみかしこみも まおす；「あの寒気…」→ あのさむけ；「身の毛もよだつほど 恐ろしい魔女だから」的 身の毛 念 みのけ；「……お前、 本当に Bか？」→ ほんとうに ビーか | `archive-content-sources/kyoka/voice_items.json`（`book`: kyofu） | 79 | `zword` 31 / `zgram` 48 | 待生成 |
+| 2026-10-10 | 第十六巻 接続（未发布；没原声的台词和例句 35 句）。都是普通读法，没有要换 `say` 的 | `archive-content-sources/kyoka/voice_items.json`（`book`: setsuzoku） | 35 | `zgram` | 待生成 |
+| 2026-10-08 | 知識电台：中文 `z` 段（IndexTTS2 → vc44，Colab 免费 T4）+ 日语 `j` 段（语音包里没有的） | 清单由 `radio_tracks.json` 现算（见 `docs/voice/RADIO_HANDOFF.md`）；成品在 Modal 卷 `radio_zh/opus` | 知識 z 1459 / j 1114；単語 N5–N3 z 7000 / j 3314（N2–N1 还是模板，不生成） | `rzh` / `rj` | 知識 z + j 已入包 2026-10-08（46967 条，297MB；単語 z / j 待生成） |
 
 **规矩**：以后任何内容脚本（`build_katsuyou.py`、`build_zougo.py`、知识卡……）只要写出 `voice_items.json`，或者有新的 App 会念的固定文字，就在上表加一行。生成完把状态改成「已入包 + 日期 + 包版本」。
 
 ## 生成一批的步骤
 
-细节看 `VOICE_PACK_HANDOFF.md` 和 `../archive-content-sources/emilia-voice/HANDOFF.md`，这里只列顺序：
+细节看 `docs/voice/VOICE_PACK_HANDOFF.md` 和 `../archive-content-sources/emilia-voice/HANDOFF.md`，这里只列顺序：
 
 1. 把表里「待生成」的各个 `voice_items.json` 追加进 `emilia-voice/batch_items.json`。**不要跑 `batch_items.py`**，它会从 Supabase 重建整份清单。key 已存在的跳过。
 2. 要教读音的词，`say` 换成假名（SBV2 看汉字会念错，Whisper 回听也查不出来）。

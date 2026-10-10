@@ -18,7 +18,7 @@ import kotlin.random.Random
  * The 教科書 made from the later documents (第五巻 助詞, 第六巻 口語, 第七巻 類義). They play exactly like the
  * rebuilt 活用 books (課前の一眼 → steps → つづく) but are not 活用 points, so 已学 lives here, not in
  * ConjugationDrillViewModel. `assets/kyoka_books.json` is written by
- * archive-content-sources/kyoka/build_kyoka.py (see KYOKA_HANDOFF.md).
+ * archive-content-sources/kyoka/build_kyoka.py (see docs/textbooks/KYOKA_HANDOFF.md).
  */
 
 data class KkSection(val no: String, val title: String, val zh: String)
@@ -119,7 +119,7 @@ object KyokaRules {
 
     /** How many items of [step] can be asked one by one. */
     fun askable(step: KyStep): Int = when (step) {
-        is KyStep.Fuse, is KyStep.Back, is KyStep.Pick, is KyStep.Speed, is KyStep.Dial, is KyStep.Swipe, is KyStep.Spot, is KyStep.Span, is KyStep.Passage, is KyStep.Judge, is KyStep.Diff -> step.count
+        is KyStep.Fuse, is KyStep.Back, is KyStep.Pick, is KyStep.Speed, is KyStep.Dial, is KyStep.Swipe, is KyStep.Spot, is KyStep.Span, is KyStep.Passage, is KyStep.Judge, is KyStep.Diff, is KyStep.Crack, is KyStep.Joint, is KyStep.Decide -> step.count
         is KyStep.Flip, is KyStep.Stack, is KyStep.Connect -> 0
     }
 
@@ -135,6 +135,9 @@ object KyokaRules {
         is KyStep.Passage -> step.copy(items = idx.map(step.items::get))
         is KyStep.Judge -> step.copy(items = idx.map(step.items::get))
         is KyStep.Diff -> step.copy(items = idx.map(step.items::get))
+        is KyStep.Crack -> step.copy(items = idx.map(step.items::get))
+        is KyStep.Joint -> step.copy(items = idx.map(step.items::get))
+        is KyStep.Decide -> step.copy(items = idx.map(step.items::get))
         is KyStep.Flip, is KyStep.Stack, is KyStep.Connect -> step
     }
 }

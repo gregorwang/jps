@@ -22,7 +22,7 @@ Since v3 (app 0.4.0) every row below has been **removed from the App**; the copi
 | Mirror Junior in-lesson pack | Local Mirror raw/drawable resources | v2 only (Rive/Lottie word-bank coach) | v3 起已移出 App、素材已归档 |
 | Mirror Falstaff Duo Radio pack | Local Mirror/Duolingo-like raw/drawable resources | v2 only (listening host, waveform vectors) | v3 起已移出 App、素材已归档 |
 | Mirror App answer sounds | Local `proui/mirror-app` workspace | v2 only (answer sounds and `.hla` haptics); v3 uses the Kenney sounds above and platform haptic constants | v3 起已移出 App、素材已归档 |
-| Duolingo interaction rhythm | Public product observation plus Mirror evidence | v2 only | v3 起已移出 App（v3 motion follows `android-app/design/MOTION_SPEC.md`） |
+| Duolingo interaction rhythm | Public product observation plus Mirror evidence | v2 only | v3 起已移出 App（v3 motion follows `android-app/docs/design/MOTION_SPEC.md`） |
 
 ## Internal-Use Boundary
 

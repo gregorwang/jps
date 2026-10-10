@@ -1,7 +1,7 @@
 # 動きの文法 · 动效规范（v3）
 
 设计画布：https://claude.ai/artifact/9x3RkMeAtAYTN64i8T8HN4 → v3 页「v3 · 动效样片」（在 Play 模式下每格都能重播）。
-配套文档：[ASSET_REMIX.md](ASSET_REMIX.md)（素材改造）。
+配套文档：[docs/design/ASSET_REMIX.md](docs/design/ASSET_REMIX.md)（素材改造）。
 
 ## 0. 总原则
 

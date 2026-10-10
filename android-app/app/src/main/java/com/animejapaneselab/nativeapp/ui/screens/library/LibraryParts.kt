@@ -103,7 +103,7 @@ internal data class DictTab(val label: String, val count: Int)
 /**
  * Small sans tabs with a mono count, sitting on a 1.5px ink rule; the current tab gets a 3px
  * work-colour underline. [trailing] hangs at the right end of the rule (第三話 ▾).
- * Candidate for promotion to ui/design (see design/v3-requests/E.md).
+ * Candidate for promotion to ui/design (see docs/design/v3-requests/E.md).
  */
 @Composable
 internal fun DictTabs(

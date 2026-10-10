@@ -129,6 +129,7 @@ internal fun PickSitting(
         }
         if (revealed) {
             if (item.fills.isNotEmpty()) FillPanel(item.line?.ja ?: item.ask, item.fills)
+            item.fig?.let { FigPanel(it) }
             PickExplain(item, picked, shown)
             item.table?.let { DiffTablePanel(it) }
             when {

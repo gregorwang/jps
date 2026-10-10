@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.sp
 import com.animejapaneselab.nativeapp.R
 
 // ---------------------------------------------------------------------------
-// v3「アニメの文法」tokens. See design/V3_IMPLEMENTATION_PLAN.md §2.
+// v3「アニメの文法」tokens. See docs/design/V3_IMPLEMENTATION_PLAN.md §2.
 // ---------------------------------------------------------------------------
 
 /** Neutral paper/ink palette. Work colour lives in [WorkTheme], never here. */

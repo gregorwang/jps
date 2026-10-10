@@ -11,7 +11,7 @@
   - **[仅Android]** 后端接口/数据已就绪,只改 `android-app/`,当前会话即可授权执行。
   - **[需后端]** 需要改 Worker 或数据库,需用户明确授权后才能动 `android-app/` 以外的代码。
   - **[需决策]** 涉及产品边界(如手写禁区的邻近功能),先问用户再做。
-- 硬约束不变(见 `ANDROID_ENVIRONMENT.md`):不做手写/书写练习;Web 前端不是 Android 规范;默认只写 `android-app/`;保留脏工作区。
+- 硬约束不变(见 `docs/setup/ANDROID_ENVIRONMENT.md`):不做手写/书写练习;Web 前端不是 Android 规范;默认只写 `android-app/`;保留脏工作区。
 - 每完成一步跑:`.\gradlew.bat testDebugUnitTest --no-daemon --console=plain --max-workers=2`,UI 改动另跑 `lintDebug`、`assembleLocalSlim`。
 - **安全纪律:Supabase access token 只存在于会话/环境变量中,绝不写进源码、Gradle、文档或提交历史。** Android 客户端只与 Worker 通信,不直连 Supabase。
 

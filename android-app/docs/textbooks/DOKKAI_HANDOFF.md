@@ -51,7 +51,7 @@
 | d13 视点和身体 | 8.1（彼は悲しい → 悲しそうだ，可用找错）、8.2 身体反应表、3.6 主语转换 | 找错 + 选 + は的地盘 |
 | d14 小说片段 | 8.7 折叠伞那段 + 心情题；8.3 いつもより・なぜか・それなのに | 主张はどこ + 模擬問題 |
 
-例句用原文的长句和模拟题（都是原创例句，不是真题，可以直接用）；长难句不是动漫台词的强项，别硬凑。写了 voice_items 的要在 `VOICE_BACKLOG.md` 的 kyoka 行补条数。
+例句用原文的长句和模拟题（都是原创例句，不是真题，可以直接用）；长难句不是动漫台词的强项，别硬凑。写了 voice_items 的要在 `docs/voice/VOICE_BACKLOG.md` 的 kyoka 行补条数。
 
 **練習**：`LinguisticsModel.MaxBooks` = 4，第九本放不下，封面那一排要改成横向可滚动（或者把五〜八合成一格）。
 
@@ -75,7 +75,7 @@
 
 - `archive-content-sources/kyoka/book_dokkai.py`，导出 `BOOK`；`build_kyoka.py` 的 `ORDER` 加 `'dokkai'`，`check()` 里给新 step 类型加校验；`kk_common.py` 加 `SPAN` / `PASSAGE` / `JUDGE` 的构造函数（照 `SPOT`）。
 - Kotlin：`KatsuyouBook.stepOf` 加三种 type 的解析，`StepSitting` 加三个分支，新文件 `screens/katsuyou/SpanSitting.kt`、`PassageSitting.kt`、`JudgeSitting.kt`（照 `SpotSitting.kt`：`KySitting`、`PickTile`、`Verdict`、`StagePanel`）。`KyLesson.preview` 也加上。
-- 做完：`KYOKA_HANDOFF.md` 表格加第九巻一行，CHANGELOG 加一节。
+- 做完：`docs/textbooks/KYOKA_HANDOFF.md` 表格加第九巻一行，CHANGELOG 加一节。
 
 ## 6. 实际做出来的（0.30.0）
 
@@ -85,7 +85,7 @@
 - **知識卡**：`knowledge-cards/canvas-gen/decks_dokkai.py`，deck `dokkai`，order **18**（15–17 已被 は・が / 句尾 / 口语缩约 占了）。23 张：tree、steps ×5、bins、duel ×2、table ×6、rules ×4、quiz ×4、quote。`python build_asset.py` 写 `assets/knowledge_cards.json`，其他 deck 的数据没变。
 - **練習**：`LinguisticsScreen.kyokaVolume` 不再 `take(MaxBooks)`，五本书两列排下来（第五本单独一行）。
 - **画布**：没有画预览（用户说「不等画布确认」）。
-- **语音**：长句、例句都没有原声，App 里走本机 / 远程 TTS；`voice_items.json` 里 dokkai 有 114 条，已登记在 `VOICE_BACKLOG.md`。文章（Passage）的句子、Span 的整句、Judge 的选项不进语音清单（只在点击时 TTS 念）。
+- **语音**：长句、例句都没有原声，App 里走本机 / 远程 TTS；`voice_items.json` 里 dokkai 有 114 条，已登记在 `docs/voice/VOICE_BACKLOG.md`。文章（Passage）的句子、Span 的整句、Judge 的选项不进语音清单（只在点击时 TTS 念）。
 
 ## 7. 还没做 / 要看用户试玩
 
