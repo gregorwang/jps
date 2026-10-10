@@ -24,6 +24,7 @@
 | 2026-10-10 | 第十一巻 役割語（未发布；分拣卡 50 张、没原声的台词 17 句）。**两条要改 `say`**：「妾に気安く触れるでない！」的 妾 念 わらわ（不是 めかけ）；「いえ 私 琴吹家の執事でございます」的 私 念 わたくし | `archive-content-sources/kyoka/voice_items.json`（`book`: yakuwari） | 67 | `zword` 50 / `zgram` 17 | 待生成 |
 | 2026-10-10 | 第十二巻 訳せない（未发布；分拣卡 77 张、没原声的台词和例句 35 句） | `archive-content-sources/kyoka/voice_items.json`（`book`: yakusenai） | 112 | `zword` 77 / `zgram` 35 | 待生成 |
 | 2026-10-10 | 第十三巻 笑い（未发布；分拣卡 42 张、没原声的台词和例句 45 句）。**这些 `say` 要换假名**：「今年も4649！」→ 今年もよろしく！；「毎日 4989だよ」→ 毎日 しくはっくだよ；「0840 送ったよ」→ おはよう 送ったよ；「11月22日は いい夫婦の日」→ じゅういちがつ にじゅうににちは いいふうふのひ；「寒っ」→ さむっ；「草」→ くさ；「草生える」「それ、草生えるわ」→ くさはえる；「草不可避」→ くさふかひ；「神回」「今週、神回だった」→ かみかい；「素で間違える」→ すでまちがえる；「私ら 何もんだ！」→ わたしら なにもんだ！；「ガーン… テストが0点」→ れいてん | `archive-content-sources/kyoka/voice_items.json`（`book`: warai） | 87 | `zword` 42 / `zgram` 45 | 待生成 |
+| 2026-10-10 | 第十四巻 涙（未发布；分拣卡 18 张、没原声的台词和例句 30 句）。都是普通读法，没有要换 `say` 的 | `archive-content-sources/kyoka/voice_items.json`（`book`: namida） | 48 | `zword` / `zgram` | 待生成 |
 | 2026-10-08 | 知識电台：中文 `z` 段（IndexTTS2 → vc44，Colab 免费 T4）+ 日语 `j` 段（语音包里没有的） | 清单由 `radio_tracks.json` 现算（见 `RADIO_HANDOFF.md`）；成品在 Modal 卷 `radio_zh/opus` | 知識 z 1459 / j 1114；単語 N5–N3 z 7000 / j 3314（N2–N1 还是模板，不生成） | `rzh` / `rj` | 知識 z + j 已入包 2026-10-08（46967 条，297MB；単語 z / j 待生成） |
 
 **规矩**：以后任何内容脚本（`build_katsuyou.py`、`build_zougo.py`、知识卡……）只要写出 `voice_items.json`，或者有新的 App 会念的固定文字，就在上表加一行。生成完把状态改成「已入包 + 日期 + 包版本」。

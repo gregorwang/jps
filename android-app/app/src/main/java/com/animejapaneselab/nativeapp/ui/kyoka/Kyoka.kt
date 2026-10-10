@@ -119,7 +119,7 @@ object KyokaRules {
 
     /** How many items of [step] can be asked one by one. */
     fun askable(step: KyStep): Int = when (step) {
-        is KyStep.Fuse, is KyStep.Back, is KyStep.Pick, is KyStep.Speed, is KyStep.Dial, is KyStep.Swipe, is KyStep.Spot, is KyStep.Span, is KyStep.Passage, is KyStep.Judge -> step.count
+        is KyStep.Fuse, is KyStep.Back, is KyStep.Pick, is KyStep.Speed, is KyStep.Dial, is KyStep.Swipe, is KyStep.Spot, is KyStep.Span, is KyStep.Passage, is KyStep.Judge, is KyStep.Diff -> step.count
         is KyStep.Flip, is KyStep.Stack, is KyStep.Connect -> 0
     }
 
@@ -134,6 +134,7 @@ object KyokaRules {
         is KyStep.Span -> step.copy(items = idx.map(step.items::get))
         is KyStep.Passage -> step.copy(items = idx.map(step.items::get))
         is KyStep.Judge -> step.copy(items = idx.map(step.items::get))
+        is KyStep.Diff -> step.copy(items = idx.map(step.items::get))
         is KyStep.Flip, is KyStep.Stack, is KyStep.Connect -> step
     }
 }

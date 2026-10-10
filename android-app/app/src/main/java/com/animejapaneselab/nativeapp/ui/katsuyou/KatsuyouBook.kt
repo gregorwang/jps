@@ -108,6 +108,10 @@ data class KyPick(
     val verdictRight: String,
     val verdictWrong: String,
     val split: KySplit? = null,
+    /** 涙: after the pick, an empty slot after the line and a few ways to fill it (not graded): [ja, zh]. */
+    val fills: List<Pair<String, String>> = emptyList(),
+    /** 涙 まとめ: shown after the pick of this (last) item. */
+    val table: KyDiffTable? = null,
 ) {
     val right: KyOpt get() = options[answer]
 }
@@ -224,6 +228,55 @@ data class KyJudge(
     val claim: Boolean get() = types.isNotEmpty()
 }
 
+/**
+ * 第十四巻 涙「平时 / 这一刻」: a grey [ghost] card of how this person usually talks (with a count), the line of
+ * this moment in front cut into [blocks]; tap the block that is different. [also] = other blocks that differ too
+ * (another 課's axis, shown after the pick). [fig] = a small figure in the shape of the point (stairs / floors / arc).
+ */
+data class KyDiff(
+    val context: String,
+    val ghostLabel: String,
+    val ghostLines: List<String>,
+    val ghostMark: String,
+    val ghostCount: String,
+    val nowLabel: String,
+    val who: String,
+    val blocks: List<Pair<String, String>>,
+    val ja: String,
+    val zh: String,
+    val audioUrl: String,
+    val nowCount: String,
+    val answer: Int,
+    val also: Map<Int, String>,
+    val ask: String,
+    val why: String,
+    val rule: String,
+    val fig: KyFig?,
+)
+
+/**
+ * The small figure under a 涙 card. stairs: [steps] low → high, a jump from [from] to [to]. floors: [top] on the
+ * upper floor, [bottom] below, [drop] the note on the fall, [labels] the two floors. arc: [a] → [b] over [mid], [note] under it.
+ */
+data class KyFig(
+    val kind: String,
+    val title: String,
+    val steps: List<String> = emptyList(),
+    val from: Int = 0,
+    val to: Int = 0,
+    val top: String = "",
+    val bottom: List<String> = emptyList(),
+    val drop: String = "",
+    val labels: List<String> = emptyList(),
+    val a: String = "",
+    val b: String = "",
+    val mid: String = "",
+    val note: String = "",
+)
+
+/** 涙 まとめ: a scene line by line against the axes it turns over ([cols]); [flags] per row, one per col. */
+data class KyDiffTable(val title: String, val cols: List<String>, val rows: List<Triple<String, String, List<Boolean>>>, val note: String)
+
 /** 连线: left halves (pre to connective) to right halves; [match] = the left index of each right. */
 data class KyConnect(val left: List<Pair<String, String>>, val right: List<String>, val match: List<Int>, val lines: List<ZgLine>)
 
@@ -243,6 +296,7 @@ sealed interface KyStep {
     data class Span(override val title: String, val items: List<KySpan>) : KyStep { override val count get() = items.size }
     data class Passage(override val title: String, val items: List<KyPassage>) : KyStep { override val count get() = items.size }
     data class Judge(override val title: String, val items: List<KyJudge>) : KyStep { override val count get() = items.size }
+    data class Diff(override val title: String, val items: List<KyDiff>) : KyStep { override val count get() = items.size }
 }
 
 data class KyLesson(val point: String, val peek: KyPeek?, val steps: List<KyStep>) {
@@ -259,6 +313,7 @@ data class KyLesson(val point: String, val peek: KyPeek?, val steps: List<KyStep
                 is KyStep.Speed -> s.items.map { it.line.target }
                 is KyStep.Spot -> s.items.map { it.fix.first }
                 is KyStep.Span -> s.items.map { it.toks[it.anchor].first }
+                is KyStep.Diff -> s.items.map { it.blocks[it.answer].first }
                 else -> emptyList()
             }
         }.distinct().take(4)
@@ -498,9 +553,62 @@ object KatsuyouBook {
                     rule = it.optString("rule"),
                 )
             })
+            "diff" -> KyStep.Diff(title, items.map { diffOf(it, base) })
             else -> KyStep.Pick(title, emptyList())
         }
     }
+
+    private fun diffOf(o: JSONObject, base: String): KyDiff {
+        val g = o.getJSONObject("ghost")
+        val n = o.getJSONObject("now")
+        val audio = n.optString("audio")
+        return KyDiff(
+            context = o.optString("ctx"),
+            ghostLabel = g.optString("label"),
+            ghostLines = g.getJSONArray("lines").strings(),
+            ghostMark = g.optString("mark"),
+            ghostCount = g.optString("count"),
+            nowLabel = n.optString("label"),
+            who = n.optString("who"),
+            blocks = n.getJSONArray("blocks").pairs(),
+            ja = n.getString("ja"),
+            zh = n.optString("zh"),
+            audioUrl = if (audio.isBlank()) "" else base + audio,
+            nowCount = n.optString("count"),
+            answer = o.getInt("answer"),
+            also = o.optJSONObject("also")?.let { a -> a.keys().asSequence().associate { it.toInt() to a.getString(it) } }.orEmpty(),
+            ask = o.optString("ask"),
+            why = o.optString("why"),
+            rule = o.optString("rule"),
+            fig = o.optJSONObject("fig")?.let(::figOf),
+        )
+    }
+
+    private fun figOf(f: JSONObject) = KyFig(
+        kind = f.getString("kind"),
+        title = f.optString("title"),
+        steps = f.optJSONArray("steps")?.strings().orEmpty(),
+        from = f.optInt("from"),
+        to = f.optInt("to"),
+        top = f.optString("top"),
+        bottom = f.optJSONArray("bottom")?.strings().orEmpty(),
+        drop = f.optString("drop"),
+        labels = f.optJSONArray("labels")?.strings().orEmpty(),
+        a = f.optString("a"),
+        b = f.optString("b"),
+        mid = f.optString("mid"),
+        note = f.optString("note"),
+    )
+
+    private fun diffTableOf(t: JSONObject) = KyDiffTable(
+        title = t.optString("title"),
+        cols = t.getJSONArray("cols").strings(),
+        rows = t.getJSONArray("rows").objects().map { r ->
+            val f = r.getJSONArray("flags")
+            Triple(r.getString("ja"), r.optString("zh"), (0 until f.length()).map { f.getBoolean(it) })
+        },
+        note = t.optString("note"),
+    )
 
     private fun backOf(it: JSONObject, base: String) = KyBack(
         te = it.getString("te"),
@@ -539,6 +647,8 @@ object KatsuyouBook {
             fun pair(k: String) = sp.getJSONArray(k).let { it.getString(0) to it.getString(1) }
             KySplit(sp.getString("sound"), sp.optString("ro"), pair("a"), pair("b"), sp.optString("hit", "b"))
         },
+        fills = o.optJSONArray("fills")?.pairs().orEmpty(),
+        table = o.optJSONObject("table")?.let(::diffTableOf),
     )
 
     internal fun tableOf(o: JSONObject, base: String) = KyTable(

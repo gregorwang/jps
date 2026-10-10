@@ -113,6 +113,20 @@ internal fun DrawScope.bokeGlyph(kind: String, line: Color, ghost: Color) {
             drawLine(line, o(24f, 34f), o(58f, 8f), w, cap = StrokeCap.Round)
             drawCircle(line, 3.5f * s, o(24f, 34f))
         }
+        // 第十四巻 涙: three ways of not finishing
+        "iisashi" -> {
+            drawLine(line, o(4f, 20f), o(28f, 20f), w)
+            drawLine(ghost, o(32f, 20f), o(48f, 20f), 1.5.dp.toPx(), pathEffect = dash)
+            drawCircle(line, 6f * s, o(55f, 20f), style = Stroke(1.5.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(3 * s, 2 * s))))
+        }
+        "zekku" -> {
+            val p = Path().apply { moveTo(4 * s, 20 * s); lineTo(30 * s, 20 * s); lineTo(35 * s, 13 * s); lineTo(39 * s, 27 * s); lineTo(44 * s, 16 * s) }
+            drawPath(p, line, style = Stroke(w, join = StrokeJoin.Round))
+        }
+        "enryo" -> {
+            val p = Path().apply { moveTo(4 * s, 20 * s); lineTo(30 * s, 20 * s); cubicTo(40 * s, 20 * s, 44 * s, 26 * s, 40 * s, 32 * s) }
+            drawPath(p, line, style = Stroke(w, cap = StrokeCap.Round))
+        }
         "bousou" -> {
             // the frame it runs out of, then a line that keeps getting steeper and leaves with an arrow
             drawLine(ghost, o(50f, 2f), o(50f, 38f), 1.2.dp.toPx(), pathEffect = dash)

@@ -124,10 +124,13 @@ internal fun PickSitting(
         when {
             item.options.any { it.glyph.isNotBlank() } -> GlyphOptions(item, picked, ::pick)
             item.layout == "floors" -> FloorOptions(item, picked, ::pick)
+            item.layout == "ends" -> EndsOptions(item, picked, ::pick)
             else -> PickOptions(item, picked, cur, revealed, ::pick)
         }
         if (revealed) {
+            if (item.fills.isNotEmpty()) FillPanel(item.line?.ja ?: item.ask, item.fills)
             PickExplain(item, picked, shown)
+            item.table?.let { DiffTablePanel(it) }
             when {
                 item.layout == "ladder" -> if (shown != item.right) shown.line?.let { LineCard(it, audio, settings.ttsWorkerUrl) }
                 item.head == "timeline" || item.head == "speaker" ->
@@ -368,7 +371,7 @@ private fun PickExplain(item: KyPick, picked: Int, shown: KyOpt) {
             item.tags.forEach { (t, k) -> KindChip(t, k) }
         }
         // rows show every why on the options themselves; the others explain the one being looked at.
-        val note = if (item.layout == "rows" || item.layout == "floors") "" else shown.why.takeIf { item.layout != "ladder" }.orEmpty()
+        val note = if (item.layout == "rows" || item.layout == "floors" || item.layout == "ends") "" else shown.why.takeIf { item.layout != "ladder" }.orEmpty()
         if (note.isNotBlank()) Text(note, style = AjlTheme.type.body, color = colors.ink)
         if (item.rule.isNotBlank()) Text(item.rule, style = AjlTheme.type.body, color = if (note.isBlank()) colors.ink else colors.ink2)
     }

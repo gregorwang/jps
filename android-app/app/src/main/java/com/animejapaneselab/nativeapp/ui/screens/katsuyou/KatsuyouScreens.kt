@@ -209,6 +209,7 @@ internal fun StepSitting(
         is KyStep.Span -> SpanSitting(step.items, key, eyebrow, title, settings, onClose, onAnswer, onDone, lastLabel, modifier)
         is KyStep.Passage -> PassageSitting(step.items, key, eyebrow, title, settings, onClose, onAnswer, onDone, lastLabel, modifier)
         is KyStep.Judge -> JudgeSitting(step.items, key, eyebrow, title, settings, onClose, onAnswer, onDone, lastLabel, modifier)
+        is KyStep.Diff -> DiffSitting(step.items, key, eyebrow, title, settings, onClose, onAnswer, onDone, lastLabel, modifier)
     }
 }
 
