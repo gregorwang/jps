@@ -83,7 +83,11 @@ internal fun GlanceScreen(
         ) {
             Text("課前の一眼 · 10 秒", style = AjlTheme.type.meta.copy(fontSize = 11.sp, letterSpacing = 0.6.sp), color = colors.ink3)
             Spacer(Modifier.height(16.dp))
-            HeroPanel(g.hero, reveal)
+            when {
+                g.kind == "track" && g.track.isNotEmpty() -> TrackHero(g.track)
+                g.kind == "mora" && g.mora != null -> MoraHero(g.mora)
+                else -> HeroPanel(g.hero, reveal)
+            }
             Spacer(Modifier.height(32.dp))
             PeekBeats(g.beats)
             if (g.pairs.isNotEmpty()) {

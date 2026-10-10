@@ -24,7 +24,25 @@ data class KyPeek(val ends: List<String>, val result: List<ZgSeg>, val rule: Str
  * 課前の一眼, the newer layout (第九巻 first): one hero (before → after, or one marked sentence), two to five short
  * beats, and a pair or two to look at again. Replaces [KyPeek.ends] / [KyPeek.examples] when present.
  */
-data class KyGlance(val hero: KyGlLine, val beats: List<String>, val pairs: List<KyGlLine>)
+data class KyGlance(
+    val hero: KyGlLine,
+    val beats: List<String>,
+    val pairs: List<KyGlLine>,
+    /** "" = the hero line; "track" = [track] drawn as one line (第十三巻); "mora" = [mora], two words cell by cell. */
+    val kind: String = "",
+    val track: List<KyGlNode> = emptyList(),
+    val mora: KyGlMora? = null,
+)
+
+/** A node on the 課前の一眼 track: [at] on / off (strays) / ride (strays along, dashed) / snap (pulled back: 笑); [pivot] = the word it turns on. */
+data class KyGlNode(val ja: String, val romaji: String, val tag: String, val at: String, val pivot: String)
+
+/** Two words cut into beats: [aCols] = which of [b]'s cells each of [a]'s sits over; [bKinds] same / extra / tail. */
+data class KyGlMora(
+    val aWord: String, val aRomaji: String, val a: List<String>, val aCols: List<Int>,
+    val bWord: String, val bRomaji: String, val b: List<String>, val bKinds: List<String>,
+    val note: String, val zh: String,
+)
 
 /** A line in blocks; [to] empty = the line alone with its marks; [zh] = what it says / why. */
 data class KyGlLine(val from: List<KyGlSeg>, val to: List<KyGlSeg>, val zh: String)
@@ -59,14 +77,19 @@ data class KyOpt(
     val group: String,
     /** 换词 / 敬语: the line as it is with this option. */
     val line: ZgLine?,
+    /** 第十三巻: the little line shape drawn on the tile (tennen / toboke / kanchigai / bousou). */
+    val glyph: String = "",
 )
+
+/** ダジャレ: one [sound] (kana, [romaji]) that splits into two words; [hit] is the one the joke takes ("a" / "b"). */
+data class KySplit(val sound: String, val romaji: String, val a: Pair<String, String>, val b: Pair<String, String>, val hit: String)
 
 data class KyMark(val kind: String, val at: Int, val until: Int, val label: String)
 
 data class KyPick(
     /** "line" (slot in the line) / "shuku" (short → full) / "timeline" / "context" / "speaker" / "show" (whole line, ask about it) / "listen" (only the voice until answered). */
     val head: String,
-    /** "rows" / "chips" / "columns" / "ladder". */
+    /** "rows" / "chips" / "columns" / "ladder" / "floors" (第十三巻 四层楼). */
     val layout: String,
     val ask: String,
     val line: ZgLine?,
@@ -84,6 +107,7 @@ data class KyPick(
     val rel: String,
     val verdictRight: String,
     val verdictWrong: String,
+    val split: KySplit? = null,
 ) {
     val right: KyOpt get() = options[answer]
 }
@@ -159,10 +183,24 @@ data class KySpan(
 }
 
 /** One numbered sentence of a passage; [role] is shown after the answer ("让步"), [mark] is the signal word in it. */
-data class KySent(val ja: String, val ro: String, val zh: String, val role: String, val mark: String)
+data class KySent(
+    val ja: String,
+    val ro: String,
+    val zh: String,
+    val role: String,
+    val mark: String,
+    /** 对话段 (第十三巻): who says it, its clip from the anime (may be blank). */
+    val who: String = "",
+    val audioUrl: String = "",
+    /** tension: 0–3, or -1 when the passage has none. */
+    val lv: Float = -1f,
+    /** track: "on" the line of common sense, "off" (it strays), "snap" (where it's pulled back: the laugh). */
+    val at: String = "",
+)
 
 /** 主张はどこ: a passage in numbered sentences, tap the one [ask] is about. */
-data class KyPassage(val sents: List<KySent>, val ask: String, val answer: Int, val why: String, val rule: String)
+/** [style]: "" = the 読解 list, "track" = one line down the left that strays and snaps back, "tension" = a tension curve on top. */
+data class KyPassage(val sents: List<KySent>, val ask: String, val answer: Int, val why: String, val rule: String, val style: String = "")
 
 /** One answer of a 模擬問題 / 毒を見抜く; [type] = what is wrong with it ("" = it is right), [poison] = the words that are the poison. */
 data class KyJudgeOpt(val text: String, val ok: Boolean, val type: String, val why: String, val poison: String)
@@ -329,6 +367,21 @@ object KatsuyouBook {
                         hero = glLineOf(g.getJSONObject("hero")),
                         beats = g.getJSONArray("beats").strings(),
                         pairs = g.optJSONArray("pairs")?.objects()?.map(::glLineOf).orEmpty(),
+                        kind = g.optString("kind"),
+                        track = g.optJSONArray("track")?.objects()?.map {
+                            KyGlNode(it.getString("ja"), it.optString("ro"), it.optString("tag"), it.optString("at"), it.optString("pivot"))
+                        }.orEmpty(),
+                        mora = g.optJSONObject("mora")?.let { m ->
+                            val a = m.getJSONObject("a")
+                            val b = m.getJSONObject("b")
+                            val ac = a.getJSONArray("cells").let { c -> (0 until c.length()).map { c.getJSONArray(it) } }
+                            val bc = b.getJSONArray("cells").let { c -> (0 until c.length()).map { c.getJSONArray(it) } }
+                            KyGlMora(
+                                a.getString("word"), a.optString("ro"), ac.map { it.getString(0) }, ac.map { it.getInt(1) },
+                                b.getString("word"), b.optString("ro"), bc.map { it.getString(0) }, bc.map { it.getString(1) },
+                                m.optString("note"), m.optString("zh"),
+                            )
+                        },
                     )
                 },
             )
@@ -415,12 +468,19 @@ object KatsuyouBook {
             "passage" -> KyStep.Passage(title, items.map {
                 KyPassage(
                     sents = it.getJSONArray("sents").objects().map { s ->
-                        KySent(s.getString("ja"), s.optString("ro"), s.optString("zh"), s.optString("role"), s.optString("mark"))
+                        KySent(
+                            s.getString("ja"), s.optString("ro"), s.optString("zh"), s.optString("role"), s.optString("mark"),
+                            who = s.optString("who"),
+                            audioUrl = s.optString("audio").let { a -> if (a.isBlank()) "" else base + a },
+                            lv = s.optDouble("lv", -1.0).toFloat(),
+                            at = s.optString("at"),
+                        )
                     },
                     ask = it.getString("ask"),
                     answer = it.getInt("answer"),
                     why = it.optString("why"),
                     rule = it.optString("rule"),
+                    style = it.optString("style"),
                 )
             })
             "judge" -> KyStep.Judge(title, items.map {
@@ -460,7 +520,7 @@ object KatsuyouBook {
         line = o.optJSONObject("line")?.let { ZougoBook.lineOf(it, base) },
         options = o.getJSONArray("options").objects().map {
             KyOpt(it.getString("t"), it.optString("ro"), it.optString("mark"), it.optString("why"), it.optString("group"),
-                it.optJSONObject("line")?.let { l -> ZougoBook.lineOf(l, base) })
+                it.optJSONObject("line")?.let { l -> ZougoBook.lineOf(l, base) }, it.optString("glyph"))
         },
         answer = o.getInt("answer"),
         rule = o.optString("rule"),
@@ -475,6 +535,10 @@ object KatsuyouBook {
         rel = o.optString("rel"),
         verdictRight = o.optString("vr"),
         verdictWrong = o.optString("vw"),
+        split = o.optJSONObject("split")?.let { sp ->
+            fun pair(k: String) = sp.getJSONArray(k).let { it.getString(0) to it.getString(1) }
+            KySplit(sp.getString("sound"), sp.optString("ro"), pair("a"), pair("b"), sp.optString("hit", "b"))
+        },
     )
 
     internal fun tableOf(o: JSONObject, base: String) = KyTable(

@@ -38,6 +38,7 @@ internal fun circled(i: Int): String = if (i in 0..19) (0x2460 + i).toChar().toS
  * 主张はどこ (第九巻): a passage in numbered sentences and one question about it (which one is the author's claim,
  * the target, the concession, the one that tells you the mood changed). Tap a sentence; then every sentence gets
  * its job (一般论 / 让步 / 转折 / 主张 …), the signal words are bold and the Chinese shows under each.
+ * 第十三巻's dialogues come as [KyPassage.style] "track" / "tension" instead (WaraiLine.kt).
  */
 @Composable
 internal fun PassageSitting(
@@ -80,38 +81,42 @@ internal fun PassageSitting(
         modifier = modifier,
     ) {
         Text(item.ask, style = AjlTheme.type.body.copy(fontSize = 16.sp, lineHeight = 24.sp, fontWeight = FontWeight.SemiBold), color = colors.ink)
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            item.sents.forEachIndexed { i, s ->
-                val state = when {
-                    !revealed -> TileState.Idle
-                    i == item.answer -> TileState.Right
-                    i == picked -> TileState.Wrong
-                    else -> TileState.Dim
-                }
-                PickTile(state, {
-                    if (picked < 0) {
-                        val ok = i == item.answer
-                        feedback?.emit(if (ok) FeedbackEvent.AnswerCorrect(xp = 0) else FeedbackEvent.AnswerWrong)
-                        onAnswer(ok)
-                        if (ok) right++ else missed.add(index)
-                        picked = i
+        fun pick(i: Int) {
+            if (picked >= 0) return
+            val ok = i == item.answer
+            feedback?.emit(if (ok) FeedbackEvent.AnswerCorrect(xp = 0) else FeedbackEvent.AnswerWrong)
+            onAnswer(ok)
+            if (ok) right++ else missed.add(index)
+            picked = i
+        }
+        when (item.style) {
+            "track" -> TrackPassage(item, picked, ::pick, audio, settings.ttsWorkerUrl)
+            "tension" -> TensionPassage(item, picked, ::pick, audio, settings.ttsWorkerUrl)
+            else -> Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                item.sents.forEachIndexed { i, s ->
+                    val state = when {
+                        !revealed -> TileState.Idle
+                        i == item.answer -> TileState.Right
+                        i == picked -> TileState.Wrong
+                        else -> TileState.Dim
                     }
-                }, Modifier.fillMaxWidth()) { fg ->
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(circled(i), style = AjlTheme.type.meta.copy(fontSize = 14.sp), color = fg.copy(alpha = 0.8f), modifier = Modifier.width(22.dp))
-                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                            if (s.ro.isNotBlank()) Text(s.ro, style = AjlTheme.type.meta.copy(fontSize = 10.sp, lineHeight = 14.sp), color = fg.copy(alpha = 0.7f))
-                            Text(
-                                markedText(s.ja, if (revealed) s.mark else "", if (state == TileState.Right) fg else work.accent),
-                                style = AjlTheme.type.jpBody.copy(fontSize = 16.sp, lineHeight = 24.sp),
-                                color = fg,
-                            )
-                            if (revealed && s.zh.isNotBlank()) {
-                                Text(s.zh, style = AjlTheme.type.body.copy(fontSize = 12.sp, lineHeight = 17.sp), color = fg.copy(alpha = 0.8f), modifier = Modifier.padding(top = 2.dp))
+                    PickTile(state, { pick(i) }, Modifier.fillMaxWidth()) { fg ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(circled(i), style = AjlTheme.type.meta.copy(fontSize = 14.sp), color = fg.copy(alpha = 0.8f), modifier = Modifier.width(22.dp))
+                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                if (s.ro.isNotBlank()) Text(s.ro, style = AjlTheme.type.meta.copy(fontSize = 10.sp, lineHeight = 14.sp), color = fg.copy(alpha = 0.7f))
+                                Text(
+                                    markedText(s.ja, if (revealed) s.mark else "", if (state == TileState.Right) fg else work.accent),
+                                    style = AjlTheme.type.jpBody.copy(fontSize = 16.sp, lineHeight = 24.sp),
+                                    color = fg,
+                                )
+                                if (revealed && s.zh.isNotBlank()) {
+                                    Text(s.zh, style = AjlTheme.type.body.copy(fontSize = 12.sp, lineHeight = 17.sp), color = fg.copy(alpha = 0.8f), modifier = Modifier.padding(top = 2.dp))
+                                }
                             }
-                        }
-                        if (revealed && s.role.isNotBlank()) {
-                            Text(s.role, style = AjlTheme.type.meta.copy(fontSize = 11.sp, fontWeight = FontWeight.Bold), color = if (state == TileState.Right) fg else work.accent)
+                            if (revealed && s.role.isNotBlank()) {
+                                Text(s.role, style = AjlTheme.type.meta.copy(fontSize = 11.sp, fontWeight = FontWeight.Bold), color = if (state == TileState.Right) fg else work.accent)
+                            }
                         }
                     }
                 }
@@ -120,7 +125,7 @@ internal fun PassageSitting(
         if (revealed) {
             val ok = picked == item.answer
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Verdict(if (ok) "✓ ${circled(item.answer)}" else "正解は ${circled(item.answer)}", ok)
+                Verdict(if (ok) "✓ ${circled(item.answer)}" else if (item.style.isNotBlank()) "你选 ${circled(picked)} · 正解 ${circled(item.answer)}" else "正解は ${circled(item.answer)}", ok)
                 if (item.why.isNotBlank()) Text(item.why, style = AjlTheme.type.body, color = colors.ink)
                 if (item.rule.isNotBlank()) Text(item.rule, style = AjlTheme.type.body, color = colors.ink2)
             }

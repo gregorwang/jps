@@ -43,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -422,9 +423,10 @@ internal fun SwipeSitting(
                     },
             ) {
                 Screentone(Modifier.align(Alignment.TopEnd).offset(x = 36.dp, y = (-20).dp).size(170.dp, 70.dp).rotate(-12f), color = work.tone(0.26f))
-                Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Column(Modifier.align(Alignment.Center).padding(horizontal = 12.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(item.romaji, style = AjlTheme.type.meta.copy(fontSize = 14.sp), color = colors.ink3)
-                    val wordSize = when { item.word.length <= 6 -> 52; item.word.length <= 9 -> 36; else -> 26 }
+                    // the card is 240dp with 12dp sides: one line of full-width glyphs fits 216dp
+                    val wordSize = when (item.word.length) { in 0..4 -> 52; 5 -> 42; 6 -> 36; 7 -> 30; 8 -> 27; else -> 24 }
                     Text(item.word, style = AjlTheme.type.jpDisplay.copy(fontSize = wordSize.sp, lineHeight = (wordSize * 1.2f).sp, fontWeight = FontWeight.Bold), color = colors.ink,
                         modifier = Modifier.clickableNoRipple({ audio.speakText(item.word, settings.ttsWorkerUrl) }))
                     AnimatedVisibility(revealed, enter = fadeIn()) {
@@ -460,14 +462,18 @@ private fun Stamp(text: String, color: Color, modifier: Modifier = Modifier) {
     val s by animateFloatAsState(if (shown) 1f else 1.6f, tween(420), label = "stamp")
     Text(
         text,
-        style = AjlTheme.type.jpTitle.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold),
+        // the frame follows the label: 「あの：咱俩都知道」 used to be clipped in a fixed 56dp box
+        style = AjlTheme.type.jpTitle.copy(fontSize = if (text.length <= 3) 18.sp else 14.sp, lineHeight = 28.sp, fontWeight = FontWeight.Bold),
         color = color,
+        maxLines = 1,
         modifier = modifier
             .rotate(-8f)
+            .scale(s)
             .alpha(if (shown) 1f else 0f)
-            .size((56 * s).dp, (32 * s).dp)
+            .widthIn(min = 56.dp, max = 200.dp)
+            .height(32.dp)
             .border(AjlStroke.Ink, color, RoundedCornerShape(4.dp))
-            .padding(top = 2.dp),
+            .padding(start = 8.dp, end = 8.dp, top = 2.dp),
         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
     )
 }
@@ -707,7 +713,10 @@ internal fun ConnectSitting(
                             } else {
                                 if (sel !in slipped) slipped.add(sel)
                                 feedback?.emit(FeedbackEvent.AnswerWrong)
-                                msg = "接不上：「${c.left[sel].second}」后面不是这个意思"; bad = true
+                                // a pair of words (no 接头 on the left): nothing "follows", it just isn't this one
+                                msg = if (c.left[sel].first.isBlank()) "对不上：「${c.left[sel].second}」不是这个"
+                                else "接不上：「${c.left[sel].second}」后面不是这个意思"
+                                bad = true
                             }
                         }
                     }, Modifier.fillMaxWidth().heightIn(min = 64.dp)) { fg ->

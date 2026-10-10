@@ -115,11 +115,17 @@ internal fun PickSitting(
         arrow = !last,
         modifier = modifier,
     ) {
+        if (item.head == "show" && item.context.isNotBlank()) ContextStrip(item.context)
         PickHead(item, revealed, shown, audio, settings.ttsWorkerUrl)
-        if (!revealed && item.ask.isNotBlank()) {
+        if (revealed) item.split?.let { SplitPanel(it) }
+        if (!revealed && item.ask.isNotBlank() && !item.askOnly) {
             Text(item.ask, style = AjlTheme.type.body.copy(fontSize = 14.sp), color = AjlTheme.colors.ink2, modifier = Modifier.align(Alignment.CenterHorizontally))
         }
-        PickOptions(item, picked, cur, revealed, ::pick)
+        when {
+            item.options.any { it.glyph.isNotBlank() } -> GlyphOptions(item, picked, ::pick)
+            item.layout == "floors" -> FloorOptions(item, picked, ::pick)
+            else -> PickOptions(item, picked, cur, revealed, ::pick)
+        }
         if (revealed) {
             PickExplain(item, picked, shown)
             when {
@@ -155,7 +161,7 @@ private fun PickHead(item: KyPick, revealed: Boolean, shown: KyOpt, audio: Lesso
         }
         "timeline" -> TimelinePanel(item)
         "speaker" -> SpeakerPanel(item)
-        "show" -> if (line != null) LineCard(line, audio, tts)
+        "show" -> if (line != null) LineCard(line, audio, tts) else AskPanel(item.ask)
         "listen" -> if (line != null) {
             if (revealed) LineCard(line, audio, tts) else ListenPanel(line, audio, tts)
         }
@@ -178,6 +184,29 @@ private fun PickHead(item: KyPick, revealed: Boolean, shown: KyOpt, audio: Lesso
         }
     }
 }
+
+/** No line, only the sentence to put into Japanese (an English / Chinese 原句): it stays up after the pick. */
+@Composable
+private fun AskPanel(ask: String) {
+    val colors = AjlTheme.colors
+    val english = ask.none { Character.UnicodeScript.of(it.code) == Character.UnicodeScript.HAN }
+    StagePanel {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(if (english) "原句 · 英语" else "原句 · 中文", style = AjlTheme.type.meta.copy(fontSize = 11.sp, letterSpacing = 0.6.sp), color = colors.ink3)
+            Text(ask, style = AjlTheme.type.body.copy(fontSize = 17.sp, lineHeight = 26.sp, fontWeight = FontWeight.Medium), color = colors.ink)
+            Text("换成日语，哪句最自然？", style = AjlTheme.type.caption, color = colors.ink2)
+        }
+    }
+}
+
+private val KyPick.askOnly: Boolean get() = head == "show" && line == null
+
+/** Whole sentences as options (ASK, 换个人说): name them by letter in the verdict and on the tiles. */
+private val KyPick.lettered: Boolean get() = askOnly || head == "speaker"
+
+/** Options that are all Chinese (no kana): set in the body face, not the Japanese serif. */
+private val KyPick.chineseOptions: Boolean
+    get() = options.all { o -> o.text.none { Character.UnicodeScript.of(it.code) in setOf(Character.UnicodeScript.HIRAGANA, Character.UnicodeScript.KATAKANA) } }
 
 /** 听原声: only the voice (it plays once by itself, switch 原声 / エミリア / TTS on the pill); the words show after the pick. */
 @Composable
@@ -255,9 +284,19 @@ private fun PickOptions(item: KyPick, picked: Int, cur: Int, revealed: Boolean, 
         }
         "ladder" -> Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             val n = item.options.size
+            // よろしく…申し上げます: a long rung gets its label on a line of its own and the whole width for the words
+            val long = item.options.any { it.text.length > 8 }
+            val step = if (long) 12 else 22
             item.options.forEachIndexed { i, o ->
-                PickTile(stateOf(i), { onPick(i) }, Modifier.fillMaxWidth().padding(start = (i * 22).dp, end = ((n - 1 - i) * 22).dp)) { fg ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                PickTile(stateOf(i), { onPick(i) }, Modifier.fillMaxWidth().padding(start = (i * step).dp, end = ((n - 1 - i) * step).dp)) { fg ->
+                    if (long) {
+                        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(o.group, style = AjlTheme.type.caption.copy(fontSize = 13.sp, fontWeight = FontWeight.Bold), color = fg)
+                            if (o.why.isNotBlank()) Text(o.why, style = AjlTheme.type.caption.copy(fontSize = 11.sp), color = fg.copy(alpha = 0.7f))
+                        }
+                        Text(o.romaji, style = AjlTheme.type.meta.copy(fontSize = 10.sp), color = fg.copy(alpha = 0.7f), modifier = Modifier.padding(top = 2.dp))
+                        Text(o.text, style = AjlTheme.type.jpBody.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold), color = fg)
+                    } else Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.width(76.dp)) {
                             Text(o.group, style = AjlTheme.type.caption.copy(fontSize = 13.sp, fontWeight = FontWeight.Bold), color = fg)
                             if (o.why.isNotBlank()) Text(o.why, style = AjlTheme.type.caption.copy(fontSize = 10.sp), color = fg.copy(alpha = 0.7f))
@@ -275,7 +314,8 @@ private fun PickOptions(item: KyPick, picked: Int, cur: Int, revealed: Boolean, 
             item.options.forEachIndexed { i, o ->
                 PickTile(stateOf(i), { onPick(i) }, Modifier.fillMaxWidth()) { fg ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(o.text, style = AjlTheme.type.jpBody.copy(fontSize = 19.sp, fontWeight = FontWeight.SemiBold), color = fg, modifier = Modifier.weight(1f))
+                        val face = if (item.chineseOptions) AjlTheme.type.body.copy(fontSize = 18.sp, fontWeight = FontWeight.SemiBold) else AjlTheme.type.jpBody.copy(fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
+                        Text(o.text, style = face, color = fg, modifier = Modifier.weight(1f))
                         Text(markLabel(o, i, item, revealed), style = AjlTheme.type.meta.copy(fontSize = 12.sp), color = markColor(o, i, item, revealed, fg))
                     }
                     if (revealed && o.why.isNotBlank()) {
@@ -289,6 +329,12 @@ private fun PickOptions(item: KyPick, picked: Int, cur: Int, revealed: Boolean, 
 
 private fun markLabel(o: KyOpt, i: Int, item: KyPick, revealed: Boolean): String = when {
     !revealed -> "ABCD".getOrNull(i)?.toString().orEmpty()
+    item.lettered -> "ABCD".getOrNull(i)?.toString().orEmpty() + when {
+        o.mark == "ok" -> " · 也说得通"
+        o.mark == "no" -> " · 不行"
+        i == item.answer -> " ✓"
+        else -> ""
+    }
     o.mark == "ok" -> "也说得通"
     o.mark == "no" -> "不行"
     i == item.answer -> if (item.line?.fromAnime == true && item.head in setOf("line", "context", "listen")) "原作 ✓" else "✓"
@@ -309,10 +355,12 @@ private fun PickExplain(item: KyPick, picked: Int, shown: KyOpt) {
     val colors = AjlTheme.colors
     val ok = picked == item.answer
     val soso = !ok && item.options[picked].mark == "ok"
+    // 原句 → which Japanese: the options are whole sentences, so name them by letter instead of copying both out again
+    fun name(i: Int) = if (item.lettered) "ABCD".getOrNull(i)?.toString().orEmpty() else item.options[i].text
     val verdict = when {
-        ok -> item.verdictRight.ifBlank { "✓ ${item.right.text}" }
-        soso -> "也说得通 · 原作用的是 ${item.right.text}"
-        else -> item.verdictWrong.ifBlank { "你选 ${item.options[picked].text} · 正解 ${item.right.text}" }
+        ok -> item.verdictRight.ifBlank { "✓ ${name(item.answer)}" }
+        soso -> "也说得通 · ${if (item.line?.fromAnime == true) "原作用的是" else "最自然的是"} ${name(item.answer)}"
+        else -> item.verdictWrong.ifBlank { "你选 ${name(picked)} · 正解 ${name(item.answer)}" }
     }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp), itemVerticalAlignment = Alignment.CenterVertically) {
@@ -320,7 +368,7 @@ private fun PickExplain(item: KyPick, picked: Int, shown: KyOpt) {
             item.tags.forEach { (t, k) -> KindChip(t, k) }
         }
         // rows show every why on the options themselves; the others explain the one being looked at.
-        val note = if (item.layout == "rows") "" else shown.why.takeIf { item.layout != "ladder" }.orEmpty()
+        val note = if (item.layout == "rows" || item.layout == "floors") "" else shown.why.takeIf { item.layout != "ladder" }.orEmpty()
         if (note.isNotBlank()) Text(note, style = AjlTheme.type.body, color = colors.ink)
         if (item.rule.isNotBlank()) Text(item.rule, style = AjlTheme.type.body, color = if (note.isBlank()) colors.ink else colors.ink2)
     }
